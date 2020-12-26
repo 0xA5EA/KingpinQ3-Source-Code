@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "q_shared.h"
+#include <cfloat>
 
 #ifdef BSPC
 #include <math.h>
@@ -658,7 +659,6 @@ void PlaneIntersectRay( const vec3_t rayPos, const vec3_t rayDir, const vec4_t p
 	VectorScale( dir, sect, dir );
 	VectorAdd( rayPos, dir, res );
 }
-/*
 /*
  * ===============
  * RotatePointAroundVector

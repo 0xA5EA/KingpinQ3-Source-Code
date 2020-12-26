@@ -165,7 +165,7 @@ typedef enum
   SK_ABSOLUTE
 } refSkeletonType_t;
 
-typedef ALIGNED(16, struct //ALIGN16
+typedef ALIGN16(struct //ALIGN16
 {
 	refSkeletonType_t type; // skeleton has been reset
 

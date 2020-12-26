@@ -88,6 +88,10 @@ typedef int	ioctlarg_t;
 #  define socketError errno
 #endif
 
+#ifndef EAGAIN2
+#define EAGAIN2 EAGAIN
+#endif
+
 #if defined __GNUC__
 #  pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif

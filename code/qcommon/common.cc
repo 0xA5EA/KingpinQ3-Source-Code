@@ -3842,7 +3842,7 @@ static void Com_GenerateMediaTXT_f(void)
   char propertyValue[MAX_TOKEN_CHARS];
   size_t len;
   int shutupCompiler = 0;
-  char *svnCmd = "svn proplist -R -v "BASEGAME"/ > "BASEGAME"/PROPERTIES.txt";
+  char *svnCmd = "svn proplist -R -v "BASEGAME "/ > " BASEGAME "/PROPERTIES.txt";
   
   //hypov8 add: size_t
   const size_t maxMediaLen = 100;

@@ -68,7 +68,7 @@ char *Sys_DefaultHomePath(void)
 			if(com_homepath->string[0])
 				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
 			else
-				Q_strcat(homePath, sizeof(homePath), "/."PRODUCT_NAME);
+				Q_strcat(homePath, sizeof(homePath), "/." PRODUCT_NAME);
 #endif
     }
   }

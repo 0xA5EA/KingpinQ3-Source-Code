@@ -547,6 +547,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
   CLIENT_CFLAGS += -Icode/jpeg-8c
   CLIENT_CFLAGS += -DUSE_INTERNAL_JPG
+  CLIENT_CFLAGS += -DCOMPAT_KPQ3
   CLIENT_LIBS += $(B)/kpq3jpeg8c.a
 
   SHLIBEXT=so

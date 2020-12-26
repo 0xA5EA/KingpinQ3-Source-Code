@@ -79,7 +79,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HOMEPATH_NAME_WIN       PRODUCT_NAME
 
 #define KPQ3_BUILD_NUM "0.9.7.3" //hypov8 was PRODUCT_VERSION, conflict other libs
-#define KPQ3_VERSION PRODUCT_NAME" "KPQ3_BUILD_NUM
+#define KPQ3_VERSION PRODUCT_NAME " " KPQ3_BUILD_NUM
 //#define KPQ3_VERSION      "Wolf 1.41b-MP"
 
 
@@ -431,7 +431,7 @@ typedef dvec_t  dvec3_t[3];*/
 		#pragma GCC diagnostic push
 		#pragma GCC diagnostic ignored "-Wpedantic"
 	#endif
-		/*typedef*/ ALIGNED( 16, union transform_t { //hypov8 todo: causes compiler nag.
+		typedef union {
 			struct {
 				quat_t rot;
 				vec3_t trans;
@@ -441,7 +441,7 @@ typedef dvec_t  dvec3_t[3];*/
 				__m128 sseRot;
 				__m128 sseTransScale;
 			};
-		} ) /*transform_t*/; //hypov8 todo: causes compiler nag
+		} transform_t; //hypov8 todo: causes compiler nag
 
 	#ifdef __GNUC__
 		#pragma GCC diagnostic pop
@@ -1231,7 +1231,7 @@ void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
 
 	void  QuatFromAngles( quat_t q, vec_t pitch, vec_t yaw, vec_t roll );
 
-	STATIC_INLINE void AnglesToQuat( const vec3_t angles, quat_t q ) IFDECLARE
+	STATIC_INLINE void AnglesToQuat( const vec3_t angles, quat_t q )
 #ifdef Q3_VM_INSTANTIATE
 	{
 		QuatFromAngles( q, angles[ PITCH ], angles[ YAW ], angles[ ROLL ] );
@@ -1536,28 +1536,28 @@ void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
 		return *(__m128 *)vec;
 	}
 	STATIC_INLINE __m128 mask_0000() {
-		static const ALIGNED(16, int vec[4]) = {  0,  0,  0,  0 };
+		static const ALIGN16(int vec[4]) = {  0,  0,  0,  0 };
 		return sseLoadInts( vec );
 	}
 	STATIC_INLINE __m128 mask_000W() {
-		static const ALIGNED(16, int vec[4]) = {  0,  0,  0, -1 };
+		static const ALIGN16( int vec[4]) = {  0,  0,  0, -1 };
 		return sseLoadInts( vec );
 	}
 	STATIC_INLINE __m128 mask_XYZ0() {
-		static const ALIGNED(16, int vec[4]) = { -1, -1, -1,  0 };
+		static const ALIGN16( int vec[4]) = { -1, -1, -1,  0 };
 		return sseLoadInts( vec );
 	}
 
 	STATIC_INLINE __m128 sign_000W() {
-		static const ALIGNED(16, int vec[4]) = { 0, 0, 0, 1<<31 };
+		static const ALIGN16( int vec[4]) = { 0, 0, 0, 1<<31 };
 		return sseLoadInts( vec );
 	}
 	STATIC_INLINE __m128 sign_XYZ0() {
-		static const ALIGNED(16, int vec[4]) = { 1<<31, 1<<31, 1<<31,  0 };
+		static const ALIGN16( int vec[4]) = { 1<<31, 1<<31, 1<<31,  0 };
 		return sseLoadInts( vec );
 	}
 	STATIC_INLINE __m128 sign_XYZW() {
-		static const ALIGNED(16, int vec[4]) = { 1<<31, 1<<31, 1<<31, 1<<31 };
+		static const ALIGN16( int vec[4]) = { 1<<31, 1<<31, 1<<31, 1<<31 };
 		return sseLoadInts( vec );
 	}
 

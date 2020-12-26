@@ -39,7 +39,7 @@ use the shader system.
 */
 
 //static ALIGN16(transform_t bones[ MAX_BONES ] );
-static ALIGNED( 16, transform_t bones[ MAX_BONES ] );
+static ALIGN16( transform_t bones[ MAX_BONES ] );
 /*
 ==============
 Tess_EndBegin

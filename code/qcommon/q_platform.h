@@ -137,9 +137,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if defined( _MSC_VER )
 	#define OS_STRING "win_msvc"
 
-//hypov8 merge:
-#define ALIGNED(a,x) __declspec(align(a)) x
-
 #elif defined __MINGW32__
 	#define OS_STRING "win_mingw"
 #endif
@@ -151,6 +148,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	#define ID_INLINE __inline
 	#define force_inline __forceinline
 	//FIXME:
+#endif
+
+
+#define FLATTEN
+#define _restrict
+#define UNUSED
+#define _funcname "<unknown>"
+#define PATH_SEP '\\'
+
+#if defined( _M_IX86 ) || defined( __i386__ )
+#define ARCH_STRING "x86"
+#elif defined _M_ALPHA
+#define ARCH_STRING "AXP"
+#endif
+#define Q3_LITTLE_ENDIAN
+
+#define DLL_EXT ".dll"
+
 #endif
 
 #if 1 //hypov8 merge:
@@ -177,27 +192,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	//#define Q_EXPORT DLLEXPORT
 	#define IFDECLARE
 #endif // Q3_VM
-#endif
-
-
-
-
-#define FLATTEN
-#define _restrict
-#define UNUSED
-#define _funcname "<unknown>"
-#define PATH_SEP '\\'
-
-#if defined( _M_IX86 ) || defined( __i386__ )
-#define ARCH_STRING "x86"
-#elif defined _M_ALPHA
-#define ARCH_STRING "AXP"
-#endif
-
-#define Q3_LITTLE_ENDIAN
-
-#define DLL_EXT ".dll"
-
 #endif
 
 //============================================================== MAC OS X ===

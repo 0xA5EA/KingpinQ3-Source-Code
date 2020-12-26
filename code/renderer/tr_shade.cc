@@ -264,8 +264,7 @@ SURFACE SHADERS
 =============================================================
 */
 
-//ALIGN16( shaderCommands_t tess );
-ALIGNED( 16, shaderCommands_t tess );
+ALIGN16( shaderCommands_t tess );
 /*
 =================
 BindLightMap
