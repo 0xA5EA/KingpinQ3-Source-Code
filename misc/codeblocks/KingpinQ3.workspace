@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="KingpinQ3 workspace">
+		<Project filename="cgame.cbp" />
+		<Project filename="game.cbp" />
+		<Project filename="KingpinQ3.cbp" />
+		<Project filename="ui.cbp" active="1" />
+	</Workspace>
+</CodeBlocks_workspace_file>

@@ -1,0 +1,6 @@
+libogg-dev
+libopenal-dev
+libsdl1.2-dev
+libcurl-dev
+libvorbis-dev
+#libcurl4-gnutls-dev

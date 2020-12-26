@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kmap2", "kmap2vc9.vcxproj", "{8ED67991-58A6-44AA-9B3A-3217085EF187}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|win64 = Debug|win64
+		Release|Win32 = Release|Win32
+		Release|win64 = Release|win64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8ED67991-58A6-44AA-9B3A-3217085EF187}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8ED67991-58A6-44AA-9B3A-3217085EF187}.Debug|Win32.Build.0 = Debug|Win32
+		{8ED67991-58A6-44AA-9B3A-3217085EF187}.Debug|win64.ActiveCfg = Debug|Win32
+		{8ED67991-58A6-44AA-9B3A-3217085EF187}.Debug|win64.Build.0 = Debug|Win32
+		{8ED67991-58A6-44AA-9B3A-3217085EF187}.Release|Win32.ActiveCfg = Release|Win32
+		{8ED67991-58A6-44AA-9B3A-3217085EF187}.Release|Win32.Build.0 = Release|Win32
+		{8ED67991-58A6-44AA-9B3A-3217085EF187}.Release|win64.ActiveCfg = Release|Win32
+		{8ED67991-58A6-44AA-9B3A-3217085EF187}.Release|win64.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

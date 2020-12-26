@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="kaas" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../Debug/bspc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-DWIN32" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_CONSOLE" />
+					<Add option="-DBSPC" />
+					<Add option="-W" />
+					<Add option="-g" />
+					<Add option="-O0" />
+				</Compiler>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="$(OUTDIR)bspc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../../build/release-win32/bspc" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_CONSOLE" />
+					<Add option="-DBSPC" />
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DRNDER_EXTENDED" />
+					<Add option="-D_CRT_SECURE_NO_DEPRECATE" />
+					<Add option="-DUSE_LOCAL_HEADERS" />
+					<Add option="-W" />
+					<Add option="-O2" />
+				</Compiler>
+			</Target>
+			<Target title="linux64">
+				<Option output="../../build/release-linux-x64/kaas.x86_64" prefix_auto="0" extension_auto="0" />
+				<Option object_output="../../build/release-linux-x64/kaas" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=athlon64" />
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-W" />
+					<Add option="-D_CONSOLE" />
+					<Add option="-DBSPC" />
+					<Add option="-DUSE_LOCAL_HEADERS" />
+				</Compiler>
+				<Linker>
+					<Add library="../../code/asmlib/alibelf64.a" />
+				</Linker>
+			</Target>
+			<Target title="linux32">
+				<Option output="../../build/release-linux32/kaas.i386" prefix_auto="0" extension_auto="0" />
+				<Option object_output="../../build/release-linux32/kaas" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-W" />
+					<Add option="-D_CONSOLE" />
+					<Add option="-DBSPC" />
+					<Add option="-DUSE_LOCAL_HEADERS" />
+				</Compiler>
+				<Linker>
+					<Add library="../../code/asmlib/alibelf32.a" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="../asmlib/asmlib.h" />
+		<Unit filename="../botlib/aasfile.h" />
+		<Unit filename="../botlib/be_aas_bsp.h" />
+		<Unit filename="../botlib/be_aas_bspq3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/be_aas_cluster.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/be_aas_cluster.h" />
+		<Unit filename="../botlib/be_aas_debug.h" />
+		<Unit filename="../botlib/be_aas_def.h" />
+		<Unit filename="../botlib/be_aas_entity.h" />
+		<Unit filename="../botlib/be_aas_file.h" />
+		<Unit filename="../botlib/be_aas_funcs.h" />
+		<Unit filename="../botlib/be_aas_main.h" />
+		<Unit filename="../botlib/be_aas_move.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/be_aas_move.h" />
+		<Unit filename="../botlib/be_aas_optimize.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/be_aas_optimize.h" />
+		<Unit filename="../botlib/be_aas_reach.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/be_aas_reach.h" />
+		<Unit filename="../botlib/be_aas_route.h" />
+		<Unit filename="../botlib/be_aas_routealt.h" />
+		<Unit filename="../botlib/be_aas_sample.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/be_aas_sample.h" />
+		<Unit filename="../botlib/be_interface.h" />
+		<Unit filename="../botlib/l_libvar.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/l_libvar.h" />
+		<Unit filename="../botlib/l_log.h" />
+		<Unit filename="../botlib/l_memory.h" />
+		<Unit filename="../botlib/l_precomp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/l_precomp.h" />
+		<Unit filename="../botlib/l_script.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/l_script.h" />
+		<Unit filename="../botlib/l_struct.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../botlib/l_struct.h" />
+		<Unit filename="../cgame/cg_public.h" />
+		<Unit filename="../cgame/tr_types.h" />
+		<Unit filename="../client/client.h" />
+		<Unit filename="../client/keys.h" />
+		<Unit filename="../client/snd_public.h" />
+		<Unit filename="../game/bg_public.h" />
+		<Unit filename="../game/q_shared.h" />
+		<Unit filename="../game/surfaceflags.h" />
+		<Unit filename="_files.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_areamerging.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_areamerging.h" />
+		<Unit filename="aas_cfg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_cfg.h" />
+		<Unit filename="aas_create.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_create.h" />
+		<Unit filename="aas_edgemelting.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_edgemelting.h" />
+		<Unit filename="aas_facemerging.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_facemerging.h" />
+		<Unit filename="aas_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_file.h" />
+		<Unit filename="aas_gsubdiv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_gsubdiv.h" />
+		<Unit filename="aas_map.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_map.h" />
+		<Unit filename="aas_prunenodes.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_prunenodes.h" />
+		<Unit filename="aas_store.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="aas_store.h" />
+		<Unit filename="be_aas_bspc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="be_aas_bspc.h" />
+		<Unit filename="brushbsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bspc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="csg.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="glfile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_bsp_ent.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_bsp_ent.h" />
+		<Unit filename="l_bsp_kpq3.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="l_bsp_kpq3.h" />
+		<Unit filename="l_bsp_q3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_bsp_q3.h" />
+		<Unit filename="l_cmd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_cmd.h" />
+		<Unit filename="l_log.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_log.h" />
+		<Unit filename="l_math.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_math.h" />
+		<Unit filename="l_mem.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_mem.h" />
+		<Unit filename="l_poly.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_poly.h" />
+		<Unit filename="l_qfiles.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_qfiles.h" />
+		<Unit filename="l_threads.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_threads.h" />
+		<Unit filename="l_utils.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="l_utils.h" />
+		<Unit filename="leakfile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="map.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="map_q3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="nodraw.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="portals.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="q2files.h" />
+		<Unit filename="q3files.h" />
+		<Unit filename="qbsp.h" />
+		<Unit filename="textures.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tree.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="unzip.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="unzip.h" />
+		<Unit filename="../qcommon/cm_load.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_local.h" />
+		<Unit filename="../qcommon/cm_patch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_patch.h" />
+		<Unit filename="../qcommon/cm_polylib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_polylib.h" />
+		<Unit filename="../qcommon/cm_public.h" />
+		<Unit filename="../qcommon/cm_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_trace.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_trisoup.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/md4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/q_math.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/q_shared.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/qcommon.h" />
+		<Unit filename="../qcommon/qfiles.h" />
+		<Unit filename="../qcommon/unzip.h" />
+		<Unit filename="../renderer/tr_public.h" />
+		<Unit filename="../ui/keycodes.h" />
+		<Unit filename="../ui/ui_public.h" />
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<lib_finder disable_auto="1" />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

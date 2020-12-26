@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="kmap2" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="debug linuxi386">
+				<Option output="../build/debug-linuxi386/kmap2d.i386" prefix_auto="1" extension_auto="0" />
+				<Option object_output="../build/debug-linuxi386/kmap2" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-W" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+					<Add option="-DWIN32" />
+					<Add option="-D_CONSOLE" />
+					<Add option="-DXMAP" />
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add directory="./common" />
+					<Add directory="./libs" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="./common" />
+					<Add directory="./libs" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-lxml2" />
+					<Add option="-lglib-2.0" />
+					<Add option="-lpthread" />
+				</Linker>
+			</Target>
+			<Target title="release linux i386">
+				<Option output="../build/release-linuxi386/kmap2.i386" prefix_auto="0" extension_auto="0" />
+				<Option object_output="../build/release-linuxi386/kmap2" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-W" />
+					<Add option="-I/usr/include/libxml2" />
+					<Add option="-I/usr/include/glib-2.0" />
+					<Add option="-I/usr/lib/glib-2.0/include" />
+					<Add option="-I/usr/include" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_CONSOLE" />
+					<Add option="-DXMAP" />
+					<Add directory="common" />
+					<Add directory="libs" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="common" />
+					<Add directory="libs" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lxml2" />
+					<Add option="-lglib-2.0" />
+					<Add option="-lpthread" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="common" />
+			<Add directory="libs" />
+			<Add directory="zlib" />
+		</Compiler>
+		<Unit filename="../code/png/png.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngerror.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pnggccrd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngget.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngmem.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngpread.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngread.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngrio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngrtran.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngrutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngset.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngtrans.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngvcrd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngwio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngwrite.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngwtran.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../code/png/pngwutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="brush.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="brush_primit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bspfile_abstract.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bspfile_ibsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bspfile_rbsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bspfile_xbsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/cmdlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/cmdlib.h" />
+		<Unit filename="common/imagelib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/imagelib.h" />
+		<Unit filename="common/inout.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/inout.h" />
+		<Unit filename="common/mathlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/mathlib.h" />
+		<Unit filename="common/mutex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/netlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/netlib.h" />
+		<Unit filename="common/polylib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/polylib.h" />
+		<Unit filename="common/polyset.h" />
+		<Unit filename="common/scriplib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/threads.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/threads.h" />
+		<Unit filename="common/unzip.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/unzip.h" />
+		<Unit filename="common/vfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common/vfs.h" />
+		<Unit filename="convert_ase.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="convert_map.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="decals.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="facebsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="fog.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="game_kingpinq3.h" />
+		<Unit filename="image.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcapimin.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jccoefct.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jccolor.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcdctmgr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jchuff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcinit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcmainct.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcmarker.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcmaster.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcomapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcparam.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcphuff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcprepct.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jcsample.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdapimin.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdapistd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdatasrc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdcoefct.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdcolor.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jddctmgr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdhuff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdinput.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdmainct.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdmarker.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdmaster.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdpostct.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdsample.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jdtrans.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jerror.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jfdctflt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jidctflt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jmemansi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jmemmgr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jpeg-6/jutils.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="kmap2.h" />
+		<Unit filename="kmap2.ico" />
+		<Unit filename="leakfile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/clip.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/envelope.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/list.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/lwio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/lwo2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/lwob.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/pntspols.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/surface.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/vecmath.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/lwo/vmap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/picointernal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/picomodel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/picomodules.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_3ds.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_ase.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_fm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_lwo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_md2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_md3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_mdc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_ms3d.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_obj.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="libs/picomodel/pm_terrain.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="light.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="light_bounce.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="light_trace.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="light_ydnar.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lightmaps_ydnar.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="map.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mesh.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="model.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="patch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="path_init.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="portals.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="prtfile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="shaders.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="surface.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="surface_extra.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="surface_foliage.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="surface_fur.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="surface_meta.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tjunction.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tree.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="vis.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="visflow.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="writebsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/adler32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/compress.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/crc32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/deflate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/gzio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/infback.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/inffast.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/inflate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/inftrees.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/ioapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/trees.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/uncompr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="zlib/zutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion>
+				<search_path add="/usr/include" />
+			</code_completion>
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1">
+				<lib name="glib-2.0" />
+				<lib name="pthread-stubs" />
+			</lib_finder>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
