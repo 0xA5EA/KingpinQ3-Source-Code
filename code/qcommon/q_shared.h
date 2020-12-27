@@ -1539,24 +1539,24 @@ void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
 		static const ALIGN16(int vec[4]) = {  0,  0,  0,  0 };
 		return sseLoadInts( vec );
 	}
-	STATIC_INLINE __m128 mask_000W() {
+	STATIC_INLINE __m128 mask_000W(void) {
 		static const ALIGN16( int vec[4]) = {  0,  0,  0, -1 };
 		return sseLoadInts( vec );
 	}
-	STATIC_INLINE __m128 mask_XYZ0() {
+	STATIC_INLINE __m128 mask_XYZ0(void) {
 		static const ALIGN16( int vec[4]) = { -1, -1, -1,  0 };
 		return sseLoadInts( vec );
 	}
 
-	STATIC_INLINE __m128 sign_000W() {
+	STATIC_INLINE __m128 sign_000W(void) {
 		static const ALIGN16( int vec[4]) = { 0, 0, 0, 1<<31 };
 		return sseLoadInts( vec );
 	}
-	STATIC_INLINE __m128 sign_XYZ0() {
+	STATIC_INLINE __m128 sign_XYZ0(void) {
 		static const ALIGN16( int vec[4]) = { 1<<31, 1<<31, 1<<31,  0 };
 		return sseLoadInts( vec );
 	}
-	STATIC_INLINE __m128 sign_XYZW() {
+	STATIC_INLINE __m128 sign_XYZW(void) {
 		static const ALIGN16( int vec[4]) = { 1<<31, 1<<31, 1<<31, 1<<31 };
 		return sseLoadInts( vec );
 	}
