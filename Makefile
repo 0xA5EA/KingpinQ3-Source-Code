@@ -2259,6 +2259,7 @@ Q3GOBJ_ = \
   $(B)/basekpq3/game/g_utils.o \
   $(B)/basekpq3/game/g_weapon.o \
   $(B)/basekpq3/game/g_hitmen.o \
+  $(B)/basekpq3/game/g_unlagged.o\
   \
   $(B)/basekpq3/qcommon/q_math.o \
   $(B)/basekpq3/qcommon/q_shared.o
