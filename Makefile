@@ -277,19 +277,28 @@ bin_path=$(shell which $(1) 2> /dev/null)
 ifneq ($(BUILD_CLIENT),0)
   # set PKG_CONFIG_PATH to influence this, e.g.
   # PKG_CONFIG_PATH=/opt/cross/i386-mingw32msvc/lib/pkgconfig
+
+#  ifeq ($(COMPILE_PLATFORM),mingw32)
+#    PKG_CONFIG_PATH=/usr/bin/x86_64-w64-mingw32-pkg-config
+#  endif
+  ifneq ($(CROSS_COMPILING),1)
+    PKG_CFG=pkg-config
+  else
+    PKG_CFG=x86_64-w64-mingw32-pkg-config
+  endif
   ifneq ($(call bin_path, pkg-config),)
-    CURL_CFLAGS=$(shell pkg-config --silence-errors --cflags libcurl)
-    CURL_LIBS=$(shell pkg-config --silence-errors --libs libcurl)
-    OPENAL_CFLAGS=$(shell pkg-config --silence-errors --cflags openal)
-    PNG_CFLAGS=$(shell pkg-config --silence-errors --cflags libpng)
-    GLEW_FLAGS=$(shell pkg-config --silence-errors --cflags glew)
-    OPENAL_LIBS=$(shell pkg-config --silence-errors --libs openal)
-    SDL_CFLAGS=$(shell pkg-config --silence-errors --cflags sdl|sed 's/-Dmain=SDL_main//')
-    SDL_LIBS=$(shell pkg-config --silence-errors --libs sdl)
-    PNG_LIBS=$(shell pkg-config --silence-errors --libs libpng)
-    GLEW_LIBS=$(shell pkg-config --silence-errors --libs glew)
-    THEORA_LIBS=$(shell pkg-config --silence-errors --libs theora)
-    THEORA_FLAGS=$(shell pkg-config --silence-errors --cflags theora)
+    CURL_CFLAGS=$(shell $(PKG_CFG) --silence-errors --cflags libcurl)
+    CURL_LIBS=$(shell $(PKG_CFG) --silence-errors --libs libcurl)
+    OPENAL_CFLAGS=$(shell $(PKG_CFG) --silence-errors --cflags openal)
+    PNG_CFLAGS=$(shell $(PKG_CFG) --silence-errors --cflags libpng)
+    GLEW_FLAGS=$(shell $(PKG_CFG) --silence-errors --cflags glew)
+    OPENAL_LIBS=$(shell $(PKG_CFG) --silence-errors --libs openal)
+    SDL_CFLAGS=$(shell $(PKG_CFG) --silence-errors --cflags sdl|sed 's/-Dmain=SDL_main//')
+    SDL_LIBS=$(shell $(PKG_CFG) --silence-errors --libs sdl)
+    PNG_LIBS=$(shell $(PKG_CFG) --silence-errors --libs libpng)
+    GLEW_LIBS=$(shell $(PKG_CFG) --silence-errors --libs glew)
+    THEORA_LIBS=$(shell $(PKG_CFG) --silence-errors --libs theora)
+    THEORA_FLAGS=$(shell $(PKG_CFG) --silence-errors --cflags theora)
     #FIXME: pkg-config --cflags theora pkg-config --libs theora
   endif
   # Use sdl-config if all else fails
@@ -359,7 +368,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
     SPECIALSOCC_FLAGS += -std=c++14
   endif
   SPECIALC_FLAGS = -Wstrict-prototypes
- 
+
   BASE_CFLAGS = -Wall -pipe -DUSE_ICON -fno-strict-aliasing -Wno-reorder
   # -fno-builtin
   CLIENT_CFLAGS = $(SDL_CFLAGS) 
@@ -371,7 +380,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
     CLIENT_LDFLAGS= -pg
     CLIENT_CFLAGS += -pg
   endif
-  
+
   #FIXME: why no warings when compiling jpeg lib (no-rtti)
   ifeq ($(USE_OPENAL),1)
     CLIENT_CFLAGS += -DUSE_OPENAL
@@ -442,7 +451,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
     CLIENT_CFLAGS += -Icode/freetype/include
   endif
   CLIENT_CFLAGS += -Icode/asmlib
- 
+
   ifeq ($(USE_ASM_LIB),1)
     CLIENT_CFLAGS+=-DUSE_ASM_LIB
     SERVER_CFLAGS+=-DUSE_ASM_LIB
@@ -483,7 +492,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
     else
       CLIENT_CFLAGS += -Icode/png -DUSE_INTERNAL_PNG
     endif
-    
+
     HAVE_VM_COMPILED = true
     ifeq ($(USE_ASM_LIB),1)
       CLIENT_LIBS=$(ASMLIBDIR)/alibelf64.a
@@ -561,7 +570,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
   #FIXME
   #SOTHREAD_LIBS=-lboost_thread
-  
+
   LIBS+=-ldl -lm
 
   CLIENT_LIBS += $(SDL_LIBS) -lGL 
@@ -570,14 +579,14 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
       CLIENT_LIBS += $(THEORA_LIBS)
     endif
   endif
- 
+
    ifeq ($(USE_INTERNAL_PNG),0)
     CLIENT_LIBS += $(PNG_LIBS)
   endif
 
   ifeq ($(USE_INTERNAL_GLEW),0)
     CLIENT_CFLAGS+= $(GLEW_FLAGS)
-   	CLIENT_LIBS += $(GLEW_LIBS)
+	CLIENT_LIBS += $(GLEW_LIBS)
   endif
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
@@ -755,7 +764,7 @@ ifeq ($(PLATFORM),mingw32)
         CLIENT_LIBS += $(CURL_LIBS)
       endif
     else
-    	CLIENT_CFLAGS += -DUSE_CURL_DLOPEN
+	CLIENT_CFLAGS += -DUSE_CURL_DLOPEN
     endif
   endif
 
@@ -763,14 +772,14 @@ ifeq ($(PLATFORM),mingw32)
     ifeq ($(USE_VORBIS_INTERNAL),0)
       CLIENT_LIBS += -lvorbisfile -lvorbis -logg
     else
- 	 ifeq ($(ARCH),x86)
+	 ifeq ($(ARCH),x86)
         CLIENT_LIBS += $(LIBSDIR)/win32/libogg.lib \
-        			   $(LIBSDIR)/win32/libvorbis.lib \
-        			   $(LIBSDIR)/win32/libvorbisfile.lib
+			   $(LIBSDIR)/win32/libvorbis.lib \
+			   $(LIBSDIR)/win32/libvorbisfile.lib
       else
        CLIENT_LIBS += $(LIBSDIR)/win64/libogg.lib \
-       				  $(LIBSDIR)/win64/libvorbis.lib \
-	                  $(LIBSDIR)/win64/libvorbisfile.lib
+		  $(LIBSDIR)/win64/libvorbis.lib \
+                  $(LIBSDIR)/win64/libvorbisfile.lib
       endif
     endif
   endif
@@ -1684,7 +1693,7 @@ Q3OBJ += \
   $(B)/client/con_log.o \
   $(B)/client/sys_main.o \
   $(B)/client/tr_half.o 
-  
+
 ifeq ($(PLATFORM),mingw32)
 Q3OBJ += $(B)/client/con_passive.o
 else
@@ -2523,8 +2532,8 @@ $(B)/kaas$(FULLBINEXT): $(KAASOBJ)
 
 $(B)/client/%.o: $(JPDIR)/%.c
 	$(DO_JPEG_CC)
-	
-#############################################################################
+
+############################################################################
 ## CLIENT/SERVER RULES
 #############################################################################
 $(B)/client/%.o: $(ASMDIR)/%.s

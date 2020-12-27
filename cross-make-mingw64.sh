@@ -11,7 +11,7 @@ export CCC=x86_64-w64-mingw32-g++
 export SLD=x86_64-w64-mingw32-ar
 export LD=x86_64-w64-mingw32-ld
 export WINDRES=x86_64-w64-mingw32-windres
-
+export PKGCFG=x86_64-w64-mingw32-pkg-config
 
 #export CC=/opt/mingw64/bin/x86_64-w64-mingw32-gcc
 #export CCC=/opt/mingw64/bin/x86_64-w64-mingw32-g++
