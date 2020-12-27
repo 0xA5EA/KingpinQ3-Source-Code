@@ -830,6 +830,7 @@ ifeq ($(PLATFORM),mingw32)
 
   CLIENT_CFLAGS += -Icode/jpeg-8c
   CLIENT_CFLAGS += -DUSE_INTERNAL_JPG
+  CLIENT_CFLAGS += -DCOMPAT_KPQ3
   CLIENT_LIBS += $(B)/kpq3jpeg8c.a
 
   ifeq ($(USE_INTERNAL_PNG),0)
