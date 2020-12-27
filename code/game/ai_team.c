@@ -300,7 +300,7 @@ void BotSayTeamOrderAlways(bot_state_t *bs, int toclient)
     //don't show the message just put it in the console message queue
     trap_BotGetChatMessage(bs->cs, buf, sizeof(buf));
     ClientName(bs->client, name, sizeof(name));
-    Com_sprintf(teamchat, sizeof(teamchat), EC"(%s"EC")"EC": %s", name, buf);
+    Com_sprintf(teamchat, sizeof(teamchat), EC "(%s" EC ")" EC ": %s", name, buf);
     trap_BotQueueConsoleMessage(bs->cs, CMS_CHAT, teamchat);
   }
   else

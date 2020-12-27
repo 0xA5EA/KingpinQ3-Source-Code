@@ -355,8 +355,8 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
   SPECIALCC_FLAGS = -fno-rtti -fno-exceptions -Wno-write-strings 
   SPECIALSOCC_FLAGS = -fno-rtti -Wno-write-strings -fno-exceptions
   ifeq ($(USE_CPLUS_0X),1)
-    SPECIALCC_FLAGS += -std=c++0x
-    SPECIALSOCC_FLAGS += -std=c++0x
+    SPECIALCC_FLAGS += -std=c++14
+    SPECIALSOCC_FLAGS += -std=c++14
   endif
   SPECIALC_FLAGS = -Wstrict-prototypes
  
@@ -365,7 +365,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
   CLIENT_CFLAGS = $(SDL_CFLAGS) 
   SERVER_CFLAGS =
   ifeq ($(USE_CPLUS_0X),1)
-    CLIENT_CFLAGS += -std=c++0x
+    CLIENT_CFLAGS += -std=c++14
   endif
   ifeq ($(USE_GPROF_PROFILING),1)
     CLIENT_LDFLAGS= -pg
@@ -552,6 +552,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC -fvisibility=hidden
+  SHLIBCFLAGS += -DCOMPAT_KPQ3
   SHLIBLDFLAGS=-shared $(LDFLAGS)
 
   STATICLIBCFLAGS=$(CLIENT_CFLAGS) --static

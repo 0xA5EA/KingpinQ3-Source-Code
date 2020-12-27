@@ -980,7 +980,6 @@ void Blocked_Door(gentity_t *ent, gentity_t *other)
 }
 
 /*
-/*
 ======================
 Think_SpawnNewDoorTrigger
 All of the parts of a door have been spawned, so create

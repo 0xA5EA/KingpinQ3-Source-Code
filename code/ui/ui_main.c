@@ -2445,7 +2445,7 @@ static qboolean UI_DrawGLModes_HandleKey(int flags, float *special, int key)
 static void UI_DrawGLModes(rectDef_t *rect, float scale, vec4_t color, int textStyle)
 {
 	int aniso = (int)trap_Cvar_VariableValue("uix_r_mode");
-	const char *video = '\0';
+	const char *video = "";
 
 	if (aniso < -1)
 		aniso = -1;
@@ -2540,7 +2540,7 @@ static qboolean UI_DrawGLQuickQuality_HandleKey(int flags, float *special, int k
 static void UI_DrawGLQuickQuality(rectDef_t *rect, float scale, vec4_t color, int textStyle)
 {
 	int aniso = (int)trap_Cvar_VariableValue("uix_r_custQuality");
-	const char *video='\0';
+	const char *video="\0";
 
 	if (aniso < 0)
 		aniso = 0;
@@ -2589,7 +2589,7 @@ static qboolean UI_GLMode_HandleKey(int flags, float *special, int key)
 static void UI_GLModeQuality(rectDef_t *rect, float scale, vec4_t color, int textStyle)
 {
 	int aniso = (int)trap_Cvar_VariableValue("uix_r_textureMode");
-	const char *video='\0';
+	const char *video="\0";
 
 	if (aniso < 0)
 		aniso = 0;

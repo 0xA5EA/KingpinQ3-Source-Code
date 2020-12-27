@@ -1529,13 +1529,13 @@ void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
 #define SWZ_WWWW 0xff
 #define sseSwizzle( a, mask ) _mm_shuffle_ps( (a), (a), SWZ_##mask )
 
-	STATIC_INLINE __m128 unitQuat() {
+	STATIC_INLINE __m128 unitQuat(void) {
 		return _mm_set_ps( 1.0f, 0.0f, 0.0f, 0.0f ); // order is reversed
 	}
 	STATIC_INLINE __m128 sseLoadInts( const int vec[4] ) {
 		return *(__m128 *)vec;
 	}
-	STATIC_INLINE __m128 mask_0000() {
+	STATIC_INLINE __m128 mask_0000(void) {
 		static const ALIGN16(int vec[4]) = {  0,  0,  0,  0 };
 		return sseLoadInts( vec );
 	}
