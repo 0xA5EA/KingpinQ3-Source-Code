@@ -148,9 +148,9 @@ typedef struct
   int             numFrames;	// all surfaces in a model should have the same
 
   int             numShaders;	// all surfaces in a model should have the same
-  size_t             numVerts;
+  int             numVerts;
 
-  size_t             numTriangles;
+  int             numTriangles;
   int             ofsTriangles;
 
   int             ofsShaders;	// offset from start of md3Surface_t
