@@ -88,7 +88,7 @@ static qboolean LoadIQMFile( void *buffer, int filesize, const char *mod_name,
 	iqmPose_t		*pose;
 	iqmBounds_t		*bounds;
 	iqmAnim_t		*anim;
-	int			    i;
+	unsigned int	 i;
 
 	if( filesize < sizeof(iqmHeader_t) ) {
 		ri.Printf(PRINT_WARNING, "R_LoadIQModel: file size of %s is too small.\n",
@@ -449,7 +449,7 @@ qboolean R_LoadIQModel( model_t *mod, void *buffer, int filesize,
 	iqmAnim_t		*anim;
 	unsigned short		*framedata;
 	char			*str, *name;
-	int			i, j, len;
+	unsigned int			i, j, len;
 	transform_t		*trans, *poses;
 	float			*bounds;
 	size_t			size, len_names;

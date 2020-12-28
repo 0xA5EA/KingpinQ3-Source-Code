@@ -1736,7 +1736,7 @@ long FS_ReadFileDir(const char *qpath, void *searchPath, qboolean unpure, void *
 	searchpath_t	*search;
 	byte *buf;
 	qboolean isConfig;
-	long				len=NULL;
+	long len=0;
 
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization" );
