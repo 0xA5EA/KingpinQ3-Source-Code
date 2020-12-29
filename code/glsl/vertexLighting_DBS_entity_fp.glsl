@@ -145,7 +145,7 @@ void	main()
 #endif // USE_REFLECTIVE_SPECULAR
 
 
-#else // USE_NORMAL_MAPPING
+#else // !USE_NORMAL_MAPPING
 
 	vec3 N = normalize(var_Normal);
 
@@ -194,8 +194,15 @@ void	main()
 	float NL = clamp(dot(N, L), 0.0, 1.0);
 #endif
 
+	#if 0
 	vec3 light = u_AmbientColor + u_LightColor * NL;
-	light = clamp(light, 0.0, 1.0);
+		light = clamp(light, 0.1, 1.0);
+	#else //hypov8 add. clamp b4 adding normal light
+		vec3 ambb = vec3(0.5, 0.5, 0.5);
+		vec3 light = (u_AmbientColor + u_LightColor); //* NL;
+		light = clamp(light, 0.1, 1.0);	
+		light *= NL;
+	#endif	
 
 	// compute final color
 	vec4 color = diffuse;
