@@ -4261,7 +4261,7 @@ static void Com_MathTest_f(void)
   Com_Printf(" HilbertComp[0] -= 0.11; Mat4_CompEpsilonSSE(Hilbert4, HilbertComp, 0.12f); = %d\n",
   Mat4_CompEpsilonSSE(Hilbert4, HilbertComp, 0.12f));
 
-  Mat4_Copy(Hilbert4, HilbertComp);
+  MatrixCopy(Hilbert4, HilbertComp);
   HilbertComp[4] -= vec_t(0.11);
   Com_Printf(" HilbertComp[4] -= 0.11; Mat4_CompEpsilonSSE(Hilbert4, HilbertComp, 0.1f); = %d\n",
   Mat4_CompEpsilonSSE(Hilbert4, HilbertComp, 0.1f));

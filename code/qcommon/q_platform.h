@@ -19,29 +19,15 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-
 #ifndef __Q_PLATFORM_H
 #define __Q_PLATFORM_H
 
-#if 0 //sse1
 #ifdef USE_SSE
-#  if (((defined (__SSE__) || defined (__SSE2__)) || defined (__SSE3__) || (_M_IX86_FP > 0)) && !defined (Q3_VM))
+#  if (((defined (__SSE__) || defined (__SSE2__)) || defined (__SSE3__) || defined (__AVX__) || defined (__AVX2__) || (_M_IX86_FP > 0)) && !defined (Q3_VM))
 #    define USING_SSE_MATH 1
+#    define idx86_sse 2
 #  endif
 #endif
-#else //sse1
-// SSE support
-#if defined(__x86_64__) || defined(__SSE__) || _M_IX86_FP >= 1
-#include <xmmintrin.h>
-#if defined(__x86_64__) || defined(__SSE2__) || _M_IX86_FP >= 2
-#include <emmintrin.h>
-#define idx86_sse 2
-#else
-#define idx86_sse 1
-#endif
-#endif
-#endif //sse1 
-
 // this is for determining if we have an asm version of a C function
 #define idx64 0
 #ifdef Q3_VM
@@ -106,8 +92,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined( _MSC_VER )
 #define OS_STRING "win_msvc64"
+#define ALIGN16( x )         __declspec(align(16)) x
 #elif defined __MINGW64__
 #define OS_STRING "win_mingw64"
+#define ALIGN16( x )         x __attribute__((aligned(16)))
 #endif
 
 #define ID_INLINE inline
@@ -135,9 +123,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define QCALL __stdcall
 
 #if defined( _MSC_VER )
+  #define ALIGN16( x )         __declspec(align(16)) x
 	#define OS_STRING "win_msvc"
-
 #elif defined __MINGW32__
+  #define ALIGN16( x )         x __attribute__((aligned(16)))
 	#define OS_STRING "win_mingw"
 #endif
 
@@ -243,6 +232,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define UNUSED __attribute__((unused))
 #define _restrict __restrict
 #define force_inline __inline __attribute__((__gnu_inline__, __always_inline__))
+#define ALIGN16( x )         x __attribute__((aligned(16)))
 //FIXME (0xA5EA): wirklich __artificial__ ist eigentlich nur für wrapper
 #define _funcname __PRETTY_FUNCTION__
 #define PATH_SEP '/'

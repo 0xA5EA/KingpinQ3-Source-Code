@@ -269,11 +269,10 @@ Slide off of the impacting surface
 */
 void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
+#if 0 //ndef KINGPIN_PLAYERMOVE //hypov8 causing wird walking constraints and stoping view up/down
   float backoff;
   float change;
   int i;
-
-#if 0 //ndef KINGPIN_PLAYERMOVE //hypov8 causing wird walking constraints and stoping view up/down
 
 #define STOP_EPSILON 0.1
   int blocked;
@@ -1221,7 +1220,6 @@ static void PM_WalkMove(void)
   float scale;
   usercmd_t cmd;
   float accelerate;
-  float vel;
 
   //Com_Printf("PM_WalkMove\n");
   if (pm->waterlevel > 2 && DotProduct(pml.forward, pml.groundTrace.plane.normal) > 0)

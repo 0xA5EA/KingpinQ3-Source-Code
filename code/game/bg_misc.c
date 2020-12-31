@@ -1417,7 +1417,6 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t *tr, int atTime, vec3_t resul
 {
   float deltaTime;
   float phase;
-  vec3_t v;
 
   switch (tr->trType)
   {

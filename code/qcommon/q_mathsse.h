@@ -24,106 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #include "q_math.h"
 
- //hypov8 merge:
-#if 0 //def idx86_sse
-
-#else
-	#ifdef idx86_sse //USING_SSE_MATH
-	# if defined (WIN32) || defined (_WINDOWS)  || defined (__MINGW32__)
-	#   if !defined (__MINGW32__)
-	#     include <intrin.h>
-	#     define ALIGN16( x )         __declspec(align(16)) x
-	#     define ALLIGN16             __declspec(align(16))
-	#   else
-	#     include <emmintrin.h>
-	#     define ALIGN16( x )                x __attribute__((aligned(16)))
-	#   endif
-	# elif defined (__linux__)
-	//fixme: other archs
-	#   include <xmmintrin.h>      // inludes emmintrin if __SSE2__ is defined
-	#	  define ALIGN16( x )		             x __attribute__((aligned(16)))
-	//#include <pmmintrin.h>    // sse3
-	# elif defined(MACOS_X) || defined(__APPLE__)
-	#   error "currently not supportet"
-	#	  define ALIGN16( x )		             x __attribute__((aligned(16)))
-	# endif
-	// Here we have a union of scalar struct and sse struct, transform_u and the
-	// scalar struct must match transform_s so we have to use anonymous structs.
-	// We disable compiler warnings when using -Wpedantic for this specific case.
-	# ifdef __GNUC__
-	# pragma GCC diagnostic push
-	# pragma GCC diagnostic ignored "-Wpedantic"
-	# ifdef __clang__
-	# pragma GCC diagnostic ignored "-Wgnu-anonymous-struct"
-	# endif
-	# endif
-/*
-	  typedef ALIGN16(union transform_u 
-	  {
-		struct 
-		{
-		  quat_t rot;
-		  vec3_t trans;
-		  vec_t  scale;
-		};
-		struct 
-		{
-		  __m128 sseRot;
-		  __m128 sseTransScale;
-		};
-	  }) transform_t;
-*/ //hypov8 merge: 
-
-	# ifdef __GNUC__
-	# pragma GCC diagnostic pop
-	# endif
-	#else
-	#	define ALIGN16(x) x
-	typedef struct transform_s 
-	{
-	  quat_t rot;
-	  vec3_t trans;
-	  vec_t  scale;
-	} transform_t;
-	//# define ALLIGN16
-	#endif
-
-	#if defined _LP64
-	#  define ASSERT_PTR16(ptr__ ) ((ptr__) && ((((long unsigned int)(ptr__))&15) == 0))
-
-	#else
-	#  define ASSERT_PTR16( ptr__ ) ((ptr__) && ((((unsigned int)(ptr__))&15) == 0))
-	#endif
-
-	#ifdef NDEBUG
-	# define assert_16_byte_aligned( ptr )
-	#else
-	# define assert_16_byte_aligned( ptr ) do{                             \
-		  if (!ASSERT_PTR16(ptr))                                          \
-			Com_Error(ERR_FATAL, "not 16 byte alligned %s, line %d , %s",  \
-					  __FILE__, __LINE__, _funcname); }while(0)
-	#endif
-
-	#if defined (__cplusplus)
-	template<typename T>
-	extern force_inline qboolean IsAlligned16(T const* ptr)
-	{ return ASSERT_PTR16(ptr); }
-
-#endif //hypov8 merge:
-
-
-
-#if defined (USING_SSE_MATH)
-#define ALIGN4_INITS( X, INIT )  ALIGN16( static X[4] ) = { INIT, INIT, INIT, INIT }
-typedef __m128 float128;
-
-#if defined _LP64
-ALIGN4_INITS(unsigned int mm_absmask_ps, 0x7FFFFFFF);
-//FIXME (0xA5EA): does this work on win64 as well ?
-#else
-ALIGN4_INITS(unsigned long mm_absmask_ps, 0x7FFFFFFF);
-#endif
-
+#ifdef USING_SSE_MATH
 typedef union
 {
 	float128 m128;
@@ -724,20 +625,18 @@ static ID_INLINE void TransformNormalVectorInverse(const transform_t *t,
   sseStoreVec3(v, out);
 }
 static ID_INLINE __m128 sseAxisAngleToQuat(const vec3_t axis, float angle) {
-  __m128 sa = _mm_set1_ps(sin(0.5f * angle));
-  __m128 ca = _mm_set1_ps(cos(0.5f * angle));
+  __m128 sa = _mm_set1_ps((float)sin(0.5f * angle));
+  __m128 ca = _mm_set1_ps((float)cos(0.5f * angle));
   __m128 a = _mm_loadu_ps(axis);
   a = _mm_and_ps(a, mask_XYZ0());
   a = _mm_mul_ps(a, sa);
   return _mm_or_ps(a, _mm_and_ps(ca, mask_000W()));
 }
-static ID_INLINE void TransInitRotationQuat(const quat_t quat,
-  transform_t *t) {
+static ID_INLINE void TransInitRotationQuat(const quat_t quat, transform_t *t) {
   t->sseRot = _mm_loadu_ps(quat);
   t->sseTransScale = unitQuat();
 }
-static ID_INLINE void TransInitRotation(const vec3_t axis, float angle,
-  transform_t *t) {
+static ID_INLINE void TransInitRotation(const vec3_t axis, float angle,  transform_t *t) {
   t->sseRot = sseAxisAngleToQuat(axis, angle);
   t->sseTransScale = unitQuat();
 }
@@ -927,6 +826,5 @@ static force_inline vec_t VectorNormalize2SSE(vec3_t const v, vec3_t out)
   return length;
 }
 #endif
-#endif // __cplusplus
 #endif // (USE_SSE) && (defined (__SSE__) || defined (__SSE2__))
 #endif //_MATH_SSE_H_

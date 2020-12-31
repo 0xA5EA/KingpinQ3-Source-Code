@@ -174,16 +174,13 @@ use G_RunMissile code to bounce of walls
 */
 void G_RunFlamechunk( gentity_t *ent )
 {
-	vec3_t	vel, add;
 	trace_t	tr;
-	float	speed, dot;
 	vec3_t		origin, mins, maxs;
 	int timeInUse = level.time - ent->timestamp;
 	//float percent = ((float)timeInUse/ FLAME_LIFETIME) * 0.80f +0.20f;
 	float radius, boxradius;
 	int passent = ENTITYNUM_NONE;
 	int timer = level.time - ent->timestamp;
-	int i;
 
 	// ignore interactions with the missile owner for short time
 	if (timer <  120 )

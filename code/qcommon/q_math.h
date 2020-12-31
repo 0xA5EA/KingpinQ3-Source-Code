@@ -35,16 +35,121 @@
 //#define DEG2RAD( a ) ( ( (a) * Q_PI ) / 180.0F )
 //#define RAD2DEG( a ) ( ( (a) * 180.0f ) / Q_PI )
 
-typedef unsigned char 		byte;
-
 #ifdef __cplusplus
 //#define qboolean int
-	typedef int qboolean;
+typedef int qboolean;
 //#define qboolean bool
 #define qtrue ((int)1)
 #define qfalse ((int)0)
 #else
-typedef enum {qfalse, qtrue}	qboolean;
+typedef enum { qfalse, qtrue }	qboolean;
+#endif
+
+typedef unsigned char 		byte;
+
+#ifdef USING_SSE_MATH
+# if defined (WIN32) || defined (_WINDOWS)  || defined (__MINGW32__) || defined (_WIN64) || defined(__WIN64__)
+#   if !defined (__MINGW32__)
+#     include <intrin.h>
+#   else
+#     include <emmintrin.h>
+#   endif
+# elif defined (__linux__)
+//fixme: other archs
+#   include <xmmintrin.h>      // inludes emmintrin if __SSE2__ is defined
+//#include <pmmintrin.h>    // sse3
+# elif defined(MACOS_X) || defined(__APPLE__)
+#   error "currently not supportet"
+# endif
+# define ASSERT_PTR16( ptr__ ) ((ptr__) && ((((size_t)(ptr__))&15) == 0))
+# ifdef NDEBUG
+#  define assert_16_byte_aligned( ptr )
+# else
+#  define assert_16_byte_aligned( ptr ) do{                             \
+		  if (!ASSERT_PTR16(ptr))                                          \
+			Com_Error(ERR_FATAL, "not 16 byte alligned %s, line %d , %s",  \
+					  __FILE__, __LINE__, _funcname); }while(0)
+# endif
+
+# define ALIGN4_INITS( X, INIT )  ALIGN16( static X[4] ) = { INIT, INIT, INIT, INIT }
+typedef __m128 float128;
+
+# if defined _LP64
+    ALIGN4_INITS(unsigned int mm_absmask_ps, 0x7FFFFFFF);
+//FIXME (0xA5EA): does this work on win64 as well ?
+# else
+   ALIGN4_INITS(unsigned long mm_absmask_ps, 0x7FFFFFFF);
+# endif
+
+# if defined (__cplusplus)
+extern force_inline qboolean IsAlligned16(void const* ptr)
+{
+  return ASSERT_PTR16(ptr);
+}
+# endif
+#endif // USING_SSE_MATH
+
+#ifdef KPQ3_DOUBLE_VEC
+typedef double vec_t;
+#else
+typedef float vec_t;
+#endif
+
+typedef vec_t  vec2_t[2];
+typedef vec_t  vec3_t[3];
+typedef vec_t  vec4_t[4];
+typedef vec_t  vec5_t[5];
+typedef vec3_t axis_t[3];
+typedef vec_t  quat_t[4];		// | x y z w |
+typedef vec_t  matrix_t[16];
+typedef vec_t  matrix3x3_t[9];
+typedef double dvec_t;
+typedef dvec_t  dvec3_t[3];
+
+#ifdef USING_SSE_MATH
+
+// A transform_t represents a product of basic
+// transformations, which are a rotation about an arbitrary
+// axis, a uniform scale or a translation. Any a product can
+// alway be brought into the form rotate, then scale, then
+// translate. So the whole transform_t can be stored in 8
+// floats (quat: 4, scale: 1, translation: 3), which is very
+// convenient for SSE and GLSL, which operate on 4-dimensional
+// float vectors.
+  // Here we have a union of scalar struct and sse struct, transform_u and the
+  // scalar struct must match transform_s so we have to use anonymous structs.
+  // We disable compiler warnings when using -Wpedantic for this specific case.
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+typedef union transform_u 
+{
+  struct 
+  {
+    quat_t rot;
+    vec3_t trans;
+    vec_t  scale;
+  };
+  struct 
+  {
+    __m128 sseRot;
+    __m128 sseTransScale;
+  };
+} transform_t;
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+#else // idx86_sse
+typedef struct transform_s {
+  quat_t rot;
+  vec3_t trans;
+  vec_t  scale;
+} transform_t;
+#ifdef Q3_VM
+#pragma align transform_t 16
+#endif
 #endif
 
 
@@ -74,24 +179,6 @@ typedef union
   int i;
   unsigned int ui;
 } char4int_t;
-
-/*
-#ifdef KPQ3_DOUBLE_VEC
-typedef double vec_t;
-#else
-typedef float vec_t;
-#endif
-
-typedef vec_t  vec2_t[2];
-typedef vec_t  vec3_t[3];
-typedef vec_t  vec4_t[4];
-typedef vec_t  vec5_t[5];
-typedef vec_t axis_t[3][3];
-typedef vec_t  quat_t[4];		// | x y z w |
-typedef vec_t  matrix_t[16];
-typedef vec_t  matrix3x3_t[9];
-typedef double dvec_t;
-typedef dvec_t  dvec3_t[3];*/
 
 //qboolean VectorCompare( const vec3_t v1, const vec3_t v2 );
 
@@ -142,22 +229,6 @@ int	PlaneTypeForNormal (vec3_t normal);
 /////extern force_inline void Vec4_Add(vec4_t const  a, vec4_t const  b, vec4_t c)   { c[0] = a[0] + b[0]; c[1] = a[1] + b[1]; c[2] = a[2] + b[2]; c[3] = a[3] + b[3]; }
 //////extern force_inline void Vec4_Subtract(vec4_t const  a, vec4_t const  b, vec4_t c)  { c[0]=a[0]-b[0]; c[1]=a[1]-b[1]; c[2]=a[2]-b[2]; c[3]=a[3]-b[3]; }
 
-#if 0//hypov8 todo:merge
-//#define KPQ3_DOUBLE_VEC
-#ifdef KPQ3_DOUBLE_VEC
-	using vec_t = double;
-#else
-	using vec_t = float;
-#endif
-
-	using vec2_t = vec_t[2];
-	using vec3_t = vec_t[3];
-	using vec4_t = vec_t[4];
-	using axis_t = vec_t[3][3];
-	using matrix3x3_t = vec_t[3 * 3];
-	using matrix_t = vec_t[4 * 4];
-	using quat_t = vec_t[4];
-#endif
 #endif
 
 #if 0 //else

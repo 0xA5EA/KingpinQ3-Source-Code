@@ -674,66 +674,69 @@ main
 */
 int main(int argc, char **argv)
 {
-	int i;
 	char commandLine[MAX_STRING_CHARS] = {0};
-
+	try
+	{
 #ifndef DEDICATED
-	// SDL version check
-
-	// Compile time
+		// SDL version check
+		// Compile time
 #   if !SDL_VERSION_ATLEAST(MINSDL_MAJOR, MINSDL_MINOR, MINSDL_PATCH)
 #       error A more recent version of SDL is required
 #   endif
 
 	// Run time
-	const SDL_version *ver = SDL_Linked_Version();
+		const SDL_version* ver = SDL_Linked_Version();
 
 #define MINSDL_VERSION \
 	XSTRING(MINSDL_MAJOR) "." \
 	XSTRING(MINSDL_MINOR) "." \
 	XSTRING(MINSDL_PATCH)
 
-	if( SDL_VERSIONNUM( ver->major, ver->minor, ver->patch ) <
-			SDL_VERSIONNUM( MINSDL_MAJOR, MINSDL_MINOR, MINSDL_PATCH ) )
-	{
-		Sys_Dialog( DT_ERROR, va( "SDL version " MINSDL_VERSION " or greater is required, "
-			"but only version %d.%d.%d was found. You may be able to obtain a more recent copy "
-			"from http://www.libsdl.org/.", ver->major, ver->minor, ver->patch ), "SDL Library Too Old" );
+		if (SDL_VERSIONNUM(ver->major, ver->minor, ver->patch) <
+			SDL_VERSIONNUM(MINSDL_MAJOR, MINSDL_MINOR, MINSDL_PATCH))
+		{
+			Sys_Dialog(DT_ERROR, va("SDL version " MINSDL_VERSION " or greater is required, "
+				"but only version %d.%d.%d was found. You may be able to obtain a more recent copy "
+				"from http://www.libsdl.org/.", ver->major, ver->minor, ver->patch), "SDL Library Too Old");
 
-		Sys_Exit(1);
-	}
+			Sys_Exit(1);
+		}
 #endif
 
-	Sys_PlatformInit();
+		Sys_PlatformInit();
 
-	// Set the initial time base
-	Sys_Milliseconds( );
-	Sys_ParseArgs(argc, argv);
-	Sys_SetBinaryPath(Sys_Dirname(argv[0]));
-	Sys_SetDefaultInstallPath(DEFAULT_BASEDIR);
+		// Set the initial time base
+		Sys_Milliseconds();
+		Sys_ParseArgs(argc, argv);
+		Sys_SetBinaryPath(Sys_Dirname(argv[0]));
+		Sys_SetDefaultInstallPath(DEFAULT_BASEDIR);
 
-	// Concatenate the command line for passing to Com_Init
-	for(i = 1; i < argc; i++)
+		// Concatenate the command line for passing to Com_Init
+		for (int i = 1; i < argc; i++)
+		{
+			const qboolean containsSpaces = strchr(argv[i], ' ') != NULL;
+			if (containsSpaces)
+				Q_strcat(commandLine, sizeof(commandLine), "\"");
+			Q_strcat(commandLine, sizeof(commandLine), argv[i]);
+			if (containsSpaces)
+				Q_strcat(commandLine, sizeof(commandLine), "\"");
+			Q_strcat(commandLine, sizeof(commandLine), " ");
+		}
+
+		Com_Init(commandLine);
+		NET_Init();
+
+		CON_Init();
+
+		signal(SIGILL, Sys_SigHandler);
+		signal(SIGFPE, Sys_SigHandler);
+		signal(SIGSEGV, Sys_SigHandler);
+		signal(SIGTERM, Sys_SigHandler);
+		signal(SIGINT, Sys_SigHandler);
+
+	} catch(...)
 	{
-		const qboolean containsSpaces = strchr(argv[i], ' ') != NULL;
-		if (containsSpaces)
-			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
-		Q_strcat(commandLine, sizeof(commandLine), argv[i]);
-		if (containsSpaces)
-			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
-		Q_strcat(commandLine, sizeof(commandLine), " ");
 	}
-
-	Com_Init(commandLine);
-	NET_Init();
-
-	CON_Init();
-
-	signal(SIGILL, Sys_SigHandler);
-	signal(SIGFPE, Sys_SigHandler);
-	signal(SIGSEGV, Sys_SigHandler);
-	signal(SIGTERM, Sys_SigHandler);
-	signal( SIGINT, Sys_SigHandler );
 
 	while(1)
 	{

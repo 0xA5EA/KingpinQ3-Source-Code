@@ -41,7 +41,7 @@ void R_CalcTangents( vec3_t tangent, vec3_t binormal,
 
 	VectorSubtract(v1, v0, dpx);
 	VectorSubtract(v2, v0, dpy);
-	VectorSubtract(t1, t0, dtx);
+	Vector2Subtract(t1, t0, dtx);
 	Vector2Subtract(t2, t0, dty);
 
 	float area = dtx[0] * dty[1] - dtx[1] * dty[0];

@@ -595,7 +595,7 @@ Adapt the gain if necessary to get a quicker fadeout when the source is too far 
 
 static void S_AL_ScaleGain(src_t *chksrc, vec3_t origin)
 {
-	float distance;
+	float distance = 0.f;
 
 	if(!chksrc->local)
 		distance = Distance(origin, lastListenerOrigin);

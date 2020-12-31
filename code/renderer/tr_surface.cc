@@ -858,7 +858,6 @@ static void Tess_SurfacePolychain( srfPoly_t *p )
 	// calc tangent spaces
 	if ( tess.surfaceShader->interactLight && !tess.skipTangentSpaces )
 	{
-		int         i;
 		float       *v;
 		const float *v0, *v1, *v2;
 		const float *t0, *t1, *t2;
@@ -1209,7 +1208,6 @@ static void Tess_SurfaceMDV( mdvSurface_t *srf )
 	// calc tangent spaces
 	if ( !tess.skipTangentSpaces )
 	{
-		int         i;
 		float       *v;
 		const float *v0, *v1, *v2;
 		const float *t0, *t1, *t2;
@@ -1220,14 +1218,14 @@ static void Tess_SurfaceMDV( mdvSurface_t *srf )
 
 		tess.attribsSet |= ATTR_NORMAL | ATTR_BINORMAL | ATTR_TANGENT;
 
-		for ( i = 0; i < numVertexes; i++ )
+		for (i = 0; i < numVertexes; i++ )
 		{
 			VectorClear( tess.tangents[ tess.numVertexes + i ] );
 			VectorClear( tess.binormals[ tess.numVertexes + i ] );
 			VectorClear( tess.normals[ tess.numVertexes + i ] );
 		}
 
-		for ( i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3 )
+		for (i = 0, indices = tess.indexes + tess.numIndexes; i < numIndexes; i += 3, indices += 3 )
 		{
 			v0 = tess.xyz[ indices[ 0 ] ];
 			v1 = tess.xyz[ indices[ 1 ] ];

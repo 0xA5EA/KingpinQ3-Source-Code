@@ -2224,7 +2224,6 @@ static void Render_heatHaze( int stage )
 	if ( r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable /*&& glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10*/ && glConfig.driverType != GLDRV_MESA )
 	{
 		FBO_t    *previousFBO;
-		uint32_t stateBits;
 
 		GLimp_LogComment( "--- HEATHAZE FIX BEGIN ---\n" );
 

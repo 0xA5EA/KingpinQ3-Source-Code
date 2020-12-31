@@ -365,8 +365,6 @@ void SpectatorThink(gentity_t *ent, usercmd_t *ucmd)
   pmove_t pm;
   gclient_t *client;
 
-  int mode;
-
   client = ent->client;
 
   if (client->sess.spectatorState != SPECTATOR_FOLLOW)

@@ -600,15 +600,19 @@ protected:
 class GLCompileMacro
 {
 private:
-	int     _bit;
+	size_t     _bit;
 
 protected:
 	GLShader *_shader;
 
 	GLCompileMacro( GLShader *shader ) :
 		_shader( shader )
+  , _bit(0)
 	{
-		_bit = Q_BIT( _shader->GetNumOfCompiledMacros() );
+		size_t const base = 1;
+		size_t const noof = _shader->GetNumOfCompiledMacros();
+		if (noof)
+			_bit = base << noof;
 		_shader->RegisterCompileMacro( this );
 	}
 
@@ -674,7 +678,7 @@ public:
 	}
 
 public:
-	int GetBit() const
+	size_t GetBit() const
 	{
 		return _bit;
 	}

@@ -799,7 +799,7 @@ void CG_PredictPlayerState(void)
       }
       else
       {
-        vec3_t adjusted, new_angles;
+        vec3_t adjusted;
         CG_AdjustPositionForMover(cg.predictedPlayerState.origin, 
 								  cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted);
 

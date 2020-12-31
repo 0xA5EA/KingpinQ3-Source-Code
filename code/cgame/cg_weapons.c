@@ -1304,7 +1304,6 @@ static void CG_WeaponAnimation( centity_t *cent, int *old, int *now, float *back
 {
 	lerpFrame_t   *lf = &cent->pe.weapon;
 	entityState_t *es = &cent->currentState;
-	int  newAnimation;
 
 	// see if the animation sequence is switching
 	if ( es->weaponAnim != lf->animationNumber || !lf->animation || ( cg_weapons[ es->weapon ].md5 && !lf->animation->handle ) )

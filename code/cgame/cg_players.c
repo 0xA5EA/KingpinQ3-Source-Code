@@ -2414,6 +2414,7 @@ void CG_RunLerpFrame( lerpFrame_t *lf, float scale )
 	}
 }
 
+#if 0
 static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 {
   // These are static because otherwise we have >32K of locals, and lcc doesn't like that.
@@ -2553,6 +2554,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 
 #	undef battpack
 }
+#endif
 #endif
 //FIXME(0xA5EA):merge
 
