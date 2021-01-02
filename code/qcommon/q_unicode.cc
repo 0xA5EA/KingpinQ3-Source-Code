@@ -51,11 +51,11 @@ int Q_UTF8_Width( const char *str )
 
 int Q_UTF8_WidthCP( int ch )
 {
-	if ( ch <=   0x007F ) { return 1; }
-	if ( ch <=   0x07FF ) { return 2; }
-	if ( ch <=   0xFFFF ) { return 3; }
-	if ( ch <= 0x10FFFF ) { return 4; }
-	return 0;
+  if ( ch <=   0x007F ) { return 1; }
+  if ( ch <=   0x07FF ) { return 2; }
+  if ( ch <=   0xFFFF ) { return 3; }
+  if ( ch <= 0x10FFFF ) { return 4; }
+  return 0;
 }
 
 int Q_UTF8_Strlen( const char *str )
@@ -155,7 +155,7 @@ unsigned long Q_UTF8_CodePoint( const char *str )
   unsigned long codepoint = 0;
   unsigned char *p = (unsigned char *) &codepoint;
 
-  if( size > sizeof( codepoint ) )
+  if( size > (int)sizeof( codepoint ) )
     size = sizeof( codepoint );
   else if( size < 1 )
     size = 1;
@@ -169,7 +169,7 @@ unsigned long Q_UTF8_CodePoint( const char *str )
   /*
   if( n > 8 * sizeof(codepoint) )
   {
-		Com_Error( ERR_DROP, "Q_UTF8_CodePoint: overflow caught" );
+    Com_Error( ERR_DROP, "Q_UTF8_CodePoint: overflow caught" );
 
     return 0;
   }
@@ -178,7 +178,7 @@ unsigned long Q_UTF8_CodePoint( const char *str )
   shiftbitsright(p, 8 * sizeof(codepoint), 8 * sizeof(codepoint) - n);
 
 #ifndef Q3_BIG_ENDIAN
-  for( i = 0; i < sizeof(codepoint) / 2; i++ )
+  for( i = 0; i < (int)sizeof(codepoint) / 2; i++ )
   {
     p[i] ^= p[sizeof(codepoint) - 1 - i];
     p[sizeof(codepoint) - 1 - i] ^= p[i];
@@ -232,57 +232,57 @@ char *Q_UTF8_Encode( unsigned long codepoint )
 // stores a single UTF8 char inside an int
 int Q_UTF8_Store( const char *s )
 {
-	int r = 0;
-	const uint8_t *us = ( const uint8_t * ) s;
+  int r = 0;
+  const uint8_t *us = ( const uint8_t * ) s;
 
-	if ( !us )
-	{
-		return 0;
-	}
+  if ( !us )
+  {
+    return 0;
+  }
 
-	if ( !( us[ 0 ] & 0x80 ) ) // 0xxxxxxx
-	{
-		r = us[ 0 ];
-	}
-	else if ( ( us[ 0 ] & 0xE0 ) == 0xC0 ) // 110xxxxx
-	{
-		r = us[ 0 ];
-		r |= ( uint32_t ) us[ 1 ] << 8;
-	}
-	else if ( ( us[ 0 ] & 0xF0 ) == 0xE0 ) // 1110xxxx
-	{
-		r = us[ 0 ];
-		r |= ( uint32_t ) us[ 1 ] << 8;
-		r |= ( uint32_t ) us[ 2 ] << 16;
-	}
-	else if ( ( us[ 0 ] & 0xF8 ) == 0xF0 ) // 11110xxx
-	{
-		r = us[ 0 ];
-		r |= ( uint32_t ) us[ 1 ] << 8;
-		r |= ( uint32_t ) us[ 2 ] << 16;
-		r |= ( uint32_t ) us[ 3 ] << 24;
-	}
+  if ( !( us[ 0 ] & 0x80 ) ) // 0xxxxxxx
+  {
+    r = us[ 0 ];
+  }
+  else if ( ( us[ 0 ] & 0xE0 ) == 0xC0 ) // 110xxxxx
+  {
+    r = us[ 0 ];
+    r |= ( uint32_t ) us[ 1 ] << 8;
+  }
+  else if ( ( us[ 0 ] & 0xF0 ) == 0xE0 ) // 1110xxxx
+  {
+    r = us[ 0 ];
+    r |= ( uint32_t ) us[ 1 ] << 8;
+    r |= ( uint32_t ) us[ 2 ] << 16;
+  }
+  else if ( ( us[ 0 ] & 0xF8 ) == 0xF0 ) // 11110xxx
+  {
+    r = us[ 0 ];
+    r |= ( uint32_t ) us[ 1 ] << 8;
+    r |= ( uint32_t ) us[ 2 ] << 16;
+    r |= ( uint32_t ) us[ 3 ] << 24;
+  }
 
-	return r;
+  return r;
 }
 
 // converts a single UTF8 char stored as an int into a byte array
 char *Q_UTF8_Unstore( int e )
 {
-	static unsigned char sbuf[2][5];
-	static int index = 0;
-	unsigned char *buf;
+  static unsigned char sbuf[2][5];
+  static int index = 0;
+  unsigned char *buf;
 
-	index = ( index + 1 ) & 1;
-	buf = sbuf[ index ];
+  index = ( index + 1 ) & 1;
+  buf = sbuf[ index ];
 
-	buf[ 0 ] = e & 0xFF;
-	buf[ 1 ] = ( e >> 8 ) & 0xFF;
-	buf[ 2 ] = ( e >> 16 ) & 0xFF;
-	buf[ 3 ] = ( e >> 24 ) & 0xFF;
-	buf[ 4 ] = 0;
+  buf[ 0 ] = e & 0xFF;
+  buf[ 1 ] = ( e >> 8 ) & 0xFF;
+  buf[ 2 ] = ( e >> 16 ) & 0xFF;
+  buf[ 3 ] = ( e >> 24 ) & 0xFF;
+  buf[ 4 ] = 0;
 
-	return ( char * ) buf;
+  return ( char * ) buf;
 }
 
 
@@ -293,7 +293,7 @@ static int uc_search_range( const void *chp, const void *memb )
   int ch = *(int *)chp;
   const ucs2_pair_t *item = (ucs2_pair_t*) memb;
 
-  return ( ch < item->c1 ) ? -1 : ( ch >= item->c2 ) ? 1 : 0;
+  return ( ch < (int)item->c1 ) ? -1 : ( ch >= (int)item->c2 ) ? 1 : 0;
 }
 
 #define Q_UC_IS(label, array) \
@@ -323,7 +323,7 @@ static int uc_search_cp( const void *chp, const void *memb )
   int ch = *(int *)chp;
   const ucs2_pair_t *item = (ucs2_pair_t*) memb;
 
-  return ( ch < item->c1 ) ? -1 : ( ch > item->c1 ) ? 1 : 0;
+  return ( ch < (int)item->c1 ) ? -1 : ( ch > (int)item->c1 ) ? 1 : 0;
 }
 
 #define Q_UC_TO(label, array) \

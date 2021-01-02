@@ -99,7 +99,7 @@ void *Com_GrowListElement(const growList_t *list, int index)
   if (index < 0 || index >= list->currentElements)
   {
     Com_Error(ERR_DROP, "Com_GrowListElement: %i out of range of %i", index, list->currentElements);
-	return 0; //add hypov8
+  return 0; //add hypov8
   }
   return list->elements[index];
 }
@@ -244,9 +244,9 @@ float MemStreamGetFloat(memStream_t *s)
 
 void Q_SnapVectorStd(vec3_t vec)
 {
-	vec[0] = round(vec[0]);
-	vec[1] = round(vec[1]);
-	vec[2] = round(vec[2]);
+  vec[0] = round(vec[0]);
+  vec[1] = round(vec[1]);
+  vec[2] = round(vec[2]);
 }
 
 #ifdef Q3_VM
@@ -313,13 +313,13 @@ char *COM_SkipPath(char *pathname)
  */
 const char *COM_GetExtension(const char *name)
 {
-	const char *dot = strrchr(name, '.');
-	const char *slash = strrchr(name, '/');
+  const char *dot = strrchr(name, '.');
+  const char *slash = strrchr(name, '/');
 
-	if (dot && (!slash || slash < dot))
-		return dot + 1;
-	else
-		return "";
+  if (dot && (!slash || slash < dot))
+    return dot + 1;
+  else
+    return "";
 }
 
 
@@ -331,13 +331,13 @@ const char *COM_GetExtension(const char *name)
  */
 void COM_StripExtension(const char *in, char *out, size_t destsize)
 {
-	const char *dot = strrchr(in, '.');
-	const char *slash = strrchr(in, '/');
+  const char *dot = strrchr(in, '.');
+  const char *slash = strrchr(in, '/');
 
-	if (dot && (!slash || slash < dot))
-		Q_strncpyz(out, in, (destsize < dot-in+1 ? destsize : dot-in+1));
-	else
-	  Q_strncpyz(out, in, destsize);
+  if (dot && (!slash || slash < dot))
+    Q_strncpyz(out, in, ((int)destsize < dot-in+1 ? (int)destsize : dot-in+1));
+  else
+    Q_strncpyz(out, in, destsize);
 }
 
 /*
@@ -390,16 +390,16 @@ string compare the end of the strings and return qtrue if strings match
 */
 qboolean COM_CompareExtension(const char *in, const char *ext)
 {
-	size_t inlen, extlen;
-	inlen = strlen(in);
-	extlen = strlen(ext);
-	if(extlen <= inlen)
-	{
-		in += inlen - extlen;
-		if(!Q_stricmp(in, ext))
-			return qtrue;
-	}
-	return qfalse;
+  size_t inlen, extlen;
+  inlen = strlen(in);
+  extlen = strlen(ext);
+  if(extlen <= inlen)
+  {
+    in += inlen - extlen;
+    if(!Q_stricmp(in, ext))
+      return qtrue;
+  }
+  return qfalse;
 }
 
 /*
@@ -411,13 +411,13 @@ if path doesn't have an extension, then append
  */
 void COM_DefaultExtension(char *path, int maxSize, const char *extension)
 {
-	const char *dot = strrchr(path, '.');
-	const char *slash = strrchr(path, '/');
+  const char *dot = strrchr(path, '.');
+  const char *slash = strrchr(path, '/');
 
-	if (dot && (!slash || slash < dot))
-		return;
-	else
-		Q_strcat(path, maxSize, extension);
+  if (dot && (!slash || slash < dot))
+    return;
+  else
+    Q_strcat(path, maxSize, extension);
 }
 /*
 ============
@@ -426,25 +426,25 @@ Com_HashKey
 */
 int Com_HashKey(char *string, int maxlength)
 {
-	int             i;
-	long            hash;
-	char            letter;
-	hash = 0;
-	i = 0;
-	while(string[i] != '\0' && i < maxlength)
-	{
-		letter = tolower(string[i]);
-		if(letter == '.')
-			break;				// don't include extension
-		if(letter == '\\')
-			letter = '/';		// damn path names
-		if(letter == PATH_SEP)
-			letter = '/';		// damn path names
-		hash += (long)(letter) * (i + 119);
-		i++;
-	}
-	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
-	return hash;
+  int             i;
+  long            hash;
+  char            letter;
+  hash = 0;
+  i = 0;
+  while(string[i] != '\0' && i < maxlength)
+  {
+    letter = tolower(string[i]);
+    if(letter == '.')
+      break;				// don't include extension
+    if(letter == '\\')
+      letter = '/';		// damn path names
+    if(letter == PATH_SEP)
+      letter = '/';		// damn path names
+    hash += (long)(letter) * (i + 119);
+    i++;
+  }
+  hash = (hash ^ (hash >> 10) ^ (hash >> 20));
+  return hash;
 }
 
 /*
@@ -733,7 +733,7 @@ int COM_Compress(char *data_p)
   qboolean newline = qfalse, whitespace = qfalse;
 
   if (!data_p) //add hypov8
-	  return 0; //add hypov8
+    return 0; //add hypov8
 
   in = out = data_p;
   if (in)
@@ -1421,20 +1421,20 @@ MinGW comes with its own snprintf() which is not broken.
 */
 size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 {
-	size_t retval;
-	retval = _vsnprintf(str, size, format, ap);
-	if(retval < 0 || retval == size)
-	{
-		// Microsoft doesn't adhere to the C99 standard of vsnprintf,
-		// which states that the return value must be the number of
-		// bytes written if the output string had sufficient length.
-		//
-		// Obviously we cannot determine that value from Microsoft's
-		// implementation, so we have no choice but to return size.
-		str[size - 1] = '\0';
-		return size;
-	}
-	return retval;
+  size_t retval;
+  retval = _vsnprintf(str, size, format, ap);
+  if(retval < 0 || retval == size)
+  {
+    // Microsoft doesn't adhere to the C99 standard of vsnprintf,
+    // which states that the return value must be the number of
+    // bytes written if the output string had sufficient length.
+    //
+    // Obviously we cannot determine that value from Microsoft's
+    // implementation, so we have no choice but to return size.
+    str[size - 1] = '\0';
+    return size;
+  }
+  return retval;
 }
 #endif
 
@@ -1451,24 +1451,24 @@ int Q_stricmpn(const char *s1, const char *s2, size_t n) {
   else if (s2 == NULL)
     return 1;
 
-	do {
+  do {
     c1 = *s1++;
     c2 = *s2++;
 
-		if (!n--) {
+    if (!n--) {
       return 0; // strings are equal until end point
-		}
+    }
 
-		if (c1 != c2) {
-			if (c1 >= 'a' && c1 <= 'z') {
-				c1 -= ('a' - 'A');
-			}
-			if (c2 >= 'a' && c2 <= 'z') {
-				c2 -= ('a' - 'A');
-			}
-			if (c1 != c2) {
-				return c1 < c2 ? -1 : 1;
-			}
+    if (c1 != c2) {
+      if (c1 >= 'a' && c1 <= 'z') {
+        c1 -= ('a' - 'A');
+      }
+      if (c2 >= 'a' && c2 <= 'z') {
+        c2 -= ('a' - 'A');
+      }
+      if (c1 != c2) {
+        return c1 < c2 ? -1 : 1;
+      }
     }
   } while (c1);
 
@@ -1478,16 +1478,16 @@ int Q_stricmpn(const char *s1, const char *s2, size_t n) {
 int Q_strncmp(const char *s1, const char *s2, size_t n) {
   int c1, c2;
 
-	do {
+  do {
     c1 = *s1++;
     c2 = *s2++;
 
-		if (!n--) {
-			return 0;		// strings are equal until end point
-		}
-		if (c1 != c2) {
-			return c1 < c2 ? -1 : 1;
-		}
+    if (!n--) {
+      return 0;		// strings are equal until end point
+    }
+    if (c1 != c2) {
+      return c1 < c2 ? -1 : 1;
+    }
   } while (c1);
 
   return 0; // strings are equal
@@ -1732,7 +1732,7 @@ char *Q_CleanStr(char *string)
   char *s;
   int c;
   if (!string) //add hypov8
-	  return 0;
+    return 0;
 
   s = string;
   d = string;
@@ -1768,11 +1768,11 @@ size_t QDECL Com_sprintf(char *dest, size_t size, const char *fmt, ...)
   va_list argptr;
 
   va_start(argptr, fmt);
-	len = Q_vsnprintf(dest, size, fmt, argptr);
+  len = Q_vsnprintf(dest, size, fmt, argptr);
   va_end(argptr);
 
   if (len >= size)
-		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", (int)size, (int)len + 1);
+    Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", (int)size, (int)len + 1);
 
   return len;
 }
@@ -2154,20 +2154,20 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
+rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
 void SnapVectorTowards( vec3_t v, vec3_t to ) {
-	int		i;
+  int		i;
 
-	for ( i = 0 ; i < 3 ; i++ ) {
-		if ( to[i] <= v[i] ) {
-			v[i] = (int)v[i];
-		} else {
-			v[i] = (int)v[i] + 1;
-		}
-	}
+  for ( i = 0 ; i < 3 ; i++ ) {
+    if ( to[i] <= v[i] ) {
+      v[i] = (int)v[i];
+    } else {
+      v[i] = (int)v[i] + 1;
+    }
+  }
 }
 //unlagged - attack prediction #3
 

@@ -38,6 +38,8 @@
 #include <cassert>
 #include <utility>
 
+#define NO_DEVELOPER_CMDS
+
 int demo_protocols[] = { 74, 75, 0 }; //hypov8 was 70. for demo playback. added beta and release. probly incompatable
 
 #define MAX_NUM_ARGVS 50
@@ -109,11 +111,11 @@ cvar_t *com_basegame;
 cvar_t *com_homepath;
 cvar_t *com_busyWait;
 #if idx64
-	int (*Q_VMftol)(void);
+  int (*Q_VMftol)(void);
 #elif id386
-	long (QDECL *Q_ftol)(float f);
-	int (QDECL *Q_VMftol)(void);
-	void (QDECL *Q_SnapVector)(vec3_t vec);
+  long (QDECL *Q_ftol)(float f);
+  int (QDECL *Q_VMftol)(void);
+  void (QDECL *Q_SnapVector)(vec3_t vec);
 #endif
 
 // com_speeds times
@@ -279,7 +281,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
   static int errorCount;
   int currentTime;
   if (com_errorEntered)
-		Sys_Error("recursive error after: %s", com_errorMessage);
+    Sys_Error("recursive error after: %s", com_errorMessage);
 
   com_errorEntered = qtrue;
 
@@ -326,9 +328,9 @@ void QDECL Com_Error(int code, const char *fmt, ...)
   }
   else if (code == ERR_DROP)
   {
-		Com_Printf(S_COLOR_RED "********************\n" S_COLOR_RED "ERROR: %s\n" S_COLOR_RED "********************\n", com_errorMessage);
+    Com_Printf(S_COLOR_RED "********************\n" S_COLOR_RED "ERROR: %s\n" S_COLOR_RED "********************\n", com_errorMessage);
     VM_Forced_Unload_Start();
-	  SV_Shutdown(va(S_COLOR_RED "Server crashed: %s" S_COLOR_WHITE, com_errorMessage));
+    SV_Shutdown(va(S_COLOR_RED "Server crashed: %s" S_COLOR_WHITE, com_errorMessage));
     CL_Disconnect(qtrue);
 
     CL_FlushMemory();
@@ -339,10 +341,10 @@ void QDECL Com_Error(int code, const char *fmt, ...)
   }
   else
   {
-		VM_Forced_Unload_Start();
-		CL_Shutdown(va("Client fatal crashed: %s", com_errorMessage), qtrue, qtrue);
-		SV_Shutdown(va(S_COLOR_RED "Server fatal crashed: %s" S_COLOR_WHITE, com_errorMessage));
-		VM_Forced_Unload_Done();
+    VM_Forced_Unload_Start();
+    CL_Shutdown(va("Client fatal crashed: %s", com_errorMessage), qtrue, qtrue);
+    SV_Shutdown(va(S_COLOR_RED "Server fatal crashed: %s" S_COLOR_WHITE, com_errorMessage));
+    VM_Forced_Unload_Done();
   }
 
   Com_Shutdown();
@@ -366,14 +368,14 @@ void Com_Quit_f(void)
   static char s2[] = "Client quit";
   if (!com_errorEntered)
   {
-		// Some VMs might execute "quit" command directly,
-		// which would trigger an unload of active VM error.
-		// Sys_Quit will kill this process anyways, so
-		// a corrupt call stack makes no difference
-		VM_Forced_Unload_Start();
+    // Some VMs might execute "quit" command directly,
+    // which would trigger an unload of active VM error.
+    // Sys_Quit will kill this process anyways, so
+    // a corrupt call stack makes no difference
+    VM_Forced_Unload_Start();
     SV_Shutdown(p[0] ? p : s1);
-		CL_Shutdown(p[0] ? p : s2, qtrue, qtrue);
-		VM_Forced_Unload_Done();
+    CL_Shutdown(p[0] ? p : s2, qtrue, qtrue);
+    VM_Forced_Unload_Done();
     Com_Shutdown();
     FS_Shutdown(qtrue);
   }
@@ -482,12 +484,12 @@ void Com_StartupVariable(const char *match)
     s = Cmd_Argv(1);
     if (!match || !qstrcmp(s, match))
     {
-			if (Cvar_Flags(s) == (int)CVAR_NONEXISTENT)
-				Cvar_Get(s, Cmd_Argv(2), CVAR_USER_CREATED);
-			else
-				Cvar_Set2(s, Cmd_Argv(2), qfalse);
-		}
-	}
+      if (Cvar_Flags(s) == (int)CVAR_NONEXISTENT)
+        Cvar_Get(s, Cmd_Argv(2), CVAR_USER_CREATED);
+      else
+        Cvar_Set2(s, Cmd_Argv(2), qfalse);
+    }
+  }
 }
 
 
@@ -530,8 +532,8 @@ qboolean Com_AddStartupCommands(void)
 
 void Info_Print( const char *s )
 {
-	char	key[BIG_INFO_KEY];
-	char	value[BIG_INFO_VALUE];
+  char	key[BIG_INFO_KEY];
+  char	value[BIG_INFO_VALUE];
   char *o;
   int l;
 
@@ -551,7 +553,7 @@ void Info_Print( const char *s )
     }
     else
       *o = 0;
-		Com_Printf ("%s ", key);
+    Com_Printf ("%s ", key);
 
     if (!*s)
     {
@@ -1392,27 +1394,27 @@ void Com_Meminfo_f(void)
   }
 
 
-	Com_Printf("%9i bytes (%6.2f MB) total hunk\n", s_hunkTotal, s_hunkTotal / Square(1024.f));
-	Com_Printf("%9i bytes (%6.2f MB) total zone\n", s_zoneTotal, s_zoneTotal / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) total hunk\n", s_hunkTotal, s_hunkTotal / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) total zone\n", s_zoneTotal, s_zoneTotal / Square(1024.f));
   Com_Printf("\n");
-	Com_Printf("%9i bytes (%6.2f MB) low mark\n", hunk_low.mark, hunk_low.mark / Square(1024.f));
-	Com_Printf("%9i bytes (%6.2f MB) low permanent\n", hunk_low.permanent, hunk_low.permanent / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) low mark\n", hunk_low.mark, hunk_low.mark / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) low permanent\n", hunk_low.permanent, hunk_low.permanent / Square(1024.f));
   if (hunk_low.temp != hunk_low.permanent)
   {
-		Com_Printf("%9i bytes (%6.2f MB) low temp\n", hunk_low.temp, hunk_low.temp / Square(1024.f));
+    Com_Printf("%9i bytes (%6.2f MB) low temp\n", hunk_low.temp, hunk_low.temp / Square(1024.f));
   }
-	Com_Printf("%9i bytes (%6.2f MB) low tempHighwater\n", hunk_low.tempHighwater, hunk_low.tempHighwater / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) low tempHighwater\n", hunk_low.tempHighwater, hunk_low.tempHighwater / Square(1024.f));
   Com_Printf("\n");
-	Com_Printf("%9i bytes (%6.2f MB) high mark\n", hunk_high.mark, hunk_high.mark / Square(1024.f));
-	Com_Printf("%9i bytes (%6.2f MB) high permanent\n", hunk_high.permanent, hunk_high.permanent / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) high mark\n", hunk_high.mark, hunk_high.mark / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) high permanent\n", hunk_high.permanent, hunk_high.permanent / Square(1024.f));
   if (hunk_high.temp != hunk_high.permanent)
   {
-		Com_Printf("%9i bytes (%6.2f MB) high temp\n", hunk_high.temp, hunk_high.temp / Square(1024.f));
+    Com_Printf("%9i bytes (%6.2f MB) high temp\n", hunk_high.temp, hunk_high.temp / Square(1024.f));
   }
-	Com_Printf("%9i bytes (%6.2f MB) high tempHighwater\n", hunk_high.tempHighwater, hunk_high.tempHighwater / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) high tempHighwater\n", hunk_high.tempHighwater, hunk_high.tempHighwater / Square(1024.f));
   Com_Printf("\n");
-	Com_Printf("%9i bytes (%6.2f MB) total hunk in use\n", hunk_low.permanent + hunk_high.permanent,
-			   (hunk_low.permanent + hunk_high.permanent) / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) total hunk in use\n", hunk_low.permanent + hunk_high.permanent,
+         (hunk_low.permanent + hunk_high.permanent) / Square(1024.f));
   unused = 0;
   if (hunk_low.tempHighwater > hunk_low.permanent)
   {
@@ -1422,14 +1424,14 @@ void Com_Meminfo_f(void)
   {
     unused += hunk_high.tempHighwater - hunk_high.permanent;
   }
-	Com_Printf("%9i bytes (%6.2f MB) unused highwater\n", unused, unused / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) unused highwater\n", unused, unused / Square(1024.f));
   Com_Printf("\n");
-	Com_Printf("%9i bytes (%6.2f MB) in %i zone blocks\n", zoneBytes, zoneBytes / Square(1024.f), zoneBlocks);
-	Com_Printf("        %9i bytes (%6.2f MB) in dynamic botlib\n", botlibBytes, botlibBytes / Square(1024.f));
-	Com_Printf("        %9i bytes (%6.2f MB) in dynamic renderer\n", rendererBytes, rendererBytes / Square(1024.f));
-	Com_Printf("        %9i bytes (%6.2f MB) in dynamic other\n", zoneBytes - (botlibBytes + rendererBytes),
-			   (zoneBytes - (botlibBytes + rendererBytes)) / Square(1024.f));
-	Com_Printf("        %9i bytes (%6.2f MB) in small Zone memory\n", smallZoneBytes, smallZoneBytes / Square(1024.f));
+  Com_Printf("%9i bytes (%6.2f MB) in %i zone blocks\n", zoneBytes, zoneBytes / Square(1024.f), zoneBlocks);
+  Com_Printf("        %9i bytes (%6.2f MB) in dynamic botlib\n", botlibBytes, botlibBytes / Square(1024.f));
+  Com_Printf("        %9i bytes (%6.2f MB) in dynamic renderer\n", rendererBytes, rendererBytes / Square(1024.f));
+  Com_Printf("        %9i bytes (%6.2f MB) in dynamic other\n", zoneBytes - (botlibBytes + rendererBytes),
+         (zoneBytes - (botlibBytes + rendererBytes)) / Square(1024.f));
+  Com_Printf("        %9i bytes (%6.2f MB) in small Zone memory\n", smallZoneBytes, smallZoneBytes / Square(1024.f));
 }
 
 /*
@@ -1607,9 +1609,9 @@ void Hunk_SmallLog(void)
       block2->printed = qtrue;
     }
 #ifdef HUNK_DEBUG
-		Com_sprintf(buf, sizeof(buf), "size = %8d (%6.2f MB / %6.2f MB): %s, line: %d (%s)\r\n", locsize,
-					locsize / Square(1024.f), (size + block->size) / Square(1024.f), block->file, block->line, block->label);
-		FS_Write(buf, qstrlen(buf), logfile);
+    Com_sprintf(buf, sizeof(buf), "size = %8d (%6.2f MB / %6.2f MB): %s, line: %d (%s)\r\n", locsize,
+          locsize / Square(1024.f), (size + block->size) / Square(1024.f), block->file, block->line, block->label);
+    FS_Write(buf, qstrlen(buf), logfile);
 #endif
     size += block->size;
     numBlocks++;
@@ -1809,7 +1811,7 @@ static void Hunk_SwapBanks(void)
 #ifdef HUNK_DEBUG
 void *Hunk_AllocDebug(int size, ha_pref preference, char const *label, char const *file, int line){
 #else
-void *Hunk_Alloc(int size, ha_pref preference){ 
+void *Hunk_Alloc(int size, ha_pref preference){
 #endif
   void *buf;
 
@@ -1903,7 +1905,7 @@ void *Hunk_AllocateTempMemory(int size)
 
   size = PAD(size, sizeof(intptr_t)) + sizeof(hunkHeader_t);
 
-	if ( hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal ) {
+  if ( hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal ) {
     Com_Error(ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", size);
   }
 
@@ -2009,7 +2011,7 @@ void Hunk_Trash(void)
     return;
 
 #ifdef _DEBUG
-	Com_Error(ERR_DROP, "hunk trashed");
+  Com_Error(ERR_DROP, "hunk trashed");
   return;
 
 #endif
@@ -2158,10 +2160,10 @@ sysEvent_t Com_GetSystemEvent(void)
     char *b;
     size_t len;
 
-		len = qstrlen( s ) + 1;
-		b = static_cast<char*>(Z_Malloc( len ));
-		qstrcpy( b, s );
-		Com_QueueEvent( 0, SET_CONSOLE, 0, 0, len, b );
+    len = qstrlen( s ) + 1;
+    b = static_cast<char*>(Z_Malloc( len ));
+    qstrcpy( b, s );
+    Com_QueueEvent( 0, SET_CONSOLE, 0, 0, len, b );
   }
 
   // return if we have data
@@ -2336,8 +2338,8 @@ int Com_EventLoop(void)
 
   MSG_Init(&buf, bufData, sizeof(bufData));
 
-	while (1)
-	{
+  while (1)
+  {
     ev = Com_GetEvent();
 
     // if no more events are available
@@ -2526,40 +2528,40 @@ void Com_GameRestart(int checksumFeed, qboolean disconnect)
   // make sure no recursion can be triggered
   if (!com_gameRestarting && com_fullyInitialized)
   {
-		int clWasRunning;
+    int clWasRunning;
     com_gameRestarting = qtrue;
-		clWasRunning = com_cl_running->integer;
+    clWasRunning = com_cl_running->integer;
 
     // Kill server if we have one
     if (com_sv_running->integer)
       SV_Shutdown("Game directory changed");
 
-		if (clWasRunning)
-		{
-			if (disconnect)
-				CL_Disconnect(qfalse);
+    if (clWasRunning)
+    {
+      if (disconnect)
+        CL_Disconnect(qfalse);
 
-			CL_Shutdown("Game directory changed", disconnect, qfalse);
-		}
+      CL_Shutdown("Game directory changed", disconnect, qfalse);
+    }
     FS_Restart(checksumFeed);
 
     // Clean out any user and VM created cvars
     Cvar_Restart(qtrue);
     Com_ExecuteCfg();
 
-		if (disconnect)
-		{
-			// We don't want to change any network settings if gamedir
-			// change was triggered by a connect to server because the
-			// new network settings might make the connection fail.
-			NET_Restart_f();
-		}
+    if (disconnect)
+    {
+      // We don't want to change any network settings if gamedir
+      // change was triggered by a connect to server because the
+      // new network settings might make the connection fail.
+      NET_Restart_f();
+    }
 
-		if (clWasRunning)
-		{
-			CL_Init();
+    if (clWasRunning)
+    {
+      CL_Init();
       CL_StartHunkUsers(qfalse);
-		}
+    }
 
     com_gameRestarting = qfalse;
   }
@@ -2572,17 +2574,17 @@ void Com_GameRestart(int checksumFeed, qboolean disconnect)
  */
 void Com_GameRestart_f(void)
 {
-	if (!FS_FilenameCompare(Cmd_Argv(1), com_basegame->string))
-	{
-		// This is the standard base game. Servers and clients should
-		// use "" and not the standard basegame name because this messes
-		// up pak file negotiation and lots of other stuff
-		Cvar_Set("fs_game", "");
-	}
-	else
-	{
-	  Cvar_Set("fs_game", Cmd_Argv(1));
-	}
+  if (!FS_FilenameCompare(Cmd_Argv(1), com_basegame->string))
+  {
+    // This is the standard base game. Servers and clients should
+    // use "" and not the standard basegame name because this messes
+    // up pak file negotiation and lots of other stuff
+    Cvar_Set("fs_game", "");
+  }
+  else
+  {
+    Cvar_Set("fs_game", Cmd_Argv(1));
+  }
   Com_GameRestart(0, qtrue);
 }
 
@@ -2608,7 +2610,7 @@ void Com_ReadCDKey(const char *filename)
   char buffer[33];
   char fbuffer[MAX_OSPATH];
 
-	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
+  Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
   FS_SV_FOpenFileRead(fbuffer, &f);
   if (!f)
@@ -2639,7 +2641,7 @@ void Com_AppendCDKey(const char *filename)
   char buffer[33];
   char fbuffer[MAX_OSPATH];
 
-	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
+  Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
   FS_SV_FOpenFileRead(fbuffer, &f);
   if (!f)
@@ -2675,7 +2677,7 @@ static void Com_WriteCDKey(const char *filename, const char *ikey)
   mode_t savedumask;
 #endif
 
-	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
+  Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
   Q_strncpyz(key, ikey, 17);
 
@@ -2737,27 +2739,27 @@ Find out whether we have SSE support for Q_ftol function
 static void Com_DetectSSE(void)
 {
 #if !idx64
-	cpuFeatures_t feat;
-	feat = (cpuFeatures_t)Sys_GetProcessorFeatures();
-	if (feat & CF_SSE)
-	{
-		if (feat & CF_SSE2)
-			Q_SnapVector = qsnapvectorsse;
-		else
-			Q_SnapVector = qsnapvectorx87;
-		Q_ftol = qftolsse;
+  cpuFeatures_t feat;
+  feat = (cpuFeatures_t)Sys_GetProcessorFeatures();
+  if (feat & CF_SSE)
+  {
+    if (feat & CF_SSE2)
+      Q_SnapVector = qsnapvectorsse;
+    else
+      Q_SnapVector = qsnapvectorx87;
+    Q_ftol = qftolsse;
 #endif
-		Q_VMftol = qvmftolsse;
-		Com_Printf("Have SSE support\n");
+    Q_VMftol = qvmftolsse;
+    Com_Printf("Have SSE support\n");
 #if !idx64
-	}
-	else
-	{
-		Q_ftol = qftolx87;
-		Q_VMftol = qvmftolx87;
-		Q_SnapVector = qsnapvectorx87;
-		Com_Printf("No SSE support on this machine\n");
-	}
+  }
+  else
+  {
+    Q_ftol = qftolx87;
+    Q_VMftol = qvmftolx87;
+    Q_SnapVector = qsnapvectorx87;
+    Com_Printf("No SSE support on this machine\n");
+  }
 #endif
 }
 #else
@@ -2779,11 +2781,14 @@ static void Com_InitRand(void)
   else
     srand(time(NULL));
 }
-
+#ifndef NO_DEVELOPER_CMDS
 static void Com_GenerateMediaTXT_f(void);
 static void Com_GenerateCorePK3_f(void);
 static void Com_MathTest_f(void);
+#endif
+#ifdef USE_ASM_LIB
 static void Com_MathTSCTest_f(void);
+#endif
 
 /*
  =================
@@ -2818,22 +2823,22 @@ void Com_Init(char *commandLine)
   //	Swap_Init ();
   Cbuf_Init();
 
-	Com_DetectSSE();
+  Com_DetectSSE();
   // override anything from the config files with command line args
   Com_StartupVariable(NULL);
 
   Com_InitZoneMemory();
   Cmd_Init();
   // get the developer cvar set as early as possible
-	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
+  com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
 
   // done early so bind command exists
   CL_InitKeyCommands();
 
-	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
-	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT);
-	if (!com_basegame->string[0])
-		Cvar_ForceReset("com_basegame");
+  com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
+  com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT);
+  if (!com_basegame->string[0])
+    Cvar_ForceReset("com_basegame");
   FS_InitFilesystem();
 
   Com_InitJournaling();
@@ -2910,8 +2915,8 @@ void Com_Init(char *commandLine)
   com_maxfpsUnfocused = Cvar_Get("com_maxfpsUnfocused", "0", CVAR_ARCHIVE);
   com_minimized = Cvar_Get("com_minimized", "0", CVAR_ROM);
   com_maxfpsMinimized = Cvar_Get("com_maxfpsMinimized", "0", CVAR_ARCHIVE);
-	com_abnormalExit = Cvar_Get( "com_abnormalExit", "0", CVAR_ROM );
-	com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
+  com_abnormalExit = Cvar_Get( "com_abnormalExit", "0", CVAR_ROM );
+  com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
   Cvar_Get("com_errorMessage", "", CVAR_ROM | CVAR_NORESTART);
   com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
 
@@ -2925,7 +2930,7 @@ void Com_Init(char *commandLine)
 #endif
   s = va("%s %s %s", KPQ3_VERSION, PLATFORM_STRING, __DATE__);
   com_version = Cvar_Get("version", s, CVAR_ROM | CVAR_SERVERINFO);
-	com_gamename = Cvar_Get("com_gamename", GAMENAME_FOR_MASTER, CVAR_SERVERINFO | CVAR_INIT);
+  com_gamename = Cvar_Get("com_gamename", GAMENAME_FOR_MASTER, CVAR_SERVERINFO | CVAR_INIT);
   com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_INIT);  //hypov8 "protocol"
 
   Cvar_Get("protocol", va("%i", com_protocol->integer), CVAR_ROM);
@@ -2933,19 +2938,19 @@ void Com_Init(char *commandLine)
 
   Sys_Init();
 
-	if ( Sys_WritePIDFile( ) )
-	{
+  if ( Sys_WritePIDFile( ) )
+  {
 #ifndef DEDICATED
 #ifndef		HYPODEBUG //hypov8 disable this nag when debuging
-		const char *message = "The last time " CLIENT_WINDOW_TITLE " ran, "
-			"it didn't exit properly. This may be due to inappropriate video "
-			"settings. Would you like to start with \"safe\" video settings?";
+    const char *message = "The last time " CLIENT_WINDOW_TITLE " ran, "
+      "it didn't exit properly. This may be due to inappropriate video "
+      "settings. Would you like to start with \"safe\" video settings?";
 
-		if ( Sys_Dialog( DT_YES_NO, message, "Abnormal Exit" ) == DR_YES )
-			Cvar_Set( "com_abnormalExit", "1" );
+    if ( Sys_Dialog( DT_YES_NO, message, "Abnormal Exit" ) == DR_YES )
+      Cvar_Set( "com_abnormalExit", "1" );
 #endif
 #endif
-	}
+  }
 
   // Pick a random port value
   Com_RandomBytes((byte*)&qport, sizeof(int));
@@ -2994,13 +2999,13 @@ void Com_Init(char *commandLine)
   Com_Printf("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
 #endif
 
-	com_pipefile = Cvar_Get( "com_pipefile", "", CVAR_ARCHIVE|CVAR_LATCH );
-	if ( com_pipefile->string[0] )
-	{
-		pipefile = FS_FCreateOpenPipeFile( com_pipefile->string );
-	}
+  com_pipefile = Cvar_Get( "com_pipefile", "", CVAR_ARCHIVE|CVAR_LATCH );
+  if ( com_pipefile->string[0] )
+  {
+    pipefile = FS_FCreateOpenPipeFile( com_pipefile->string );
+  }
 
-	Com_Printf ("--- Common Initialization Complete ---\n");
+  Com_Printf ("--- Common Initialization Complete ---\n");
 }
 /*
 ===============
@@ -3010,41 +3015,41 @@ Read whatever is in com_pipefile, if anything, and execute it
 */
 void Com_ReadFromPipe( void )
 {
-	static char buf[MAX_STRING_CHARS];
-	static int accu = 0;
-	int read;
-	if ( !pipefile )
-		return;
+  static char buf[MAX_STRING_CHARS];
+  static int accu = 0;
+  int read;
+  if ( !pipefile )
+    return;
 
-	while( ( read = FS_Read( buf + accu, sizeof( buf ) - accu - 1, pipefile ) ) > 0 )
-	{
-		char *brk = NULL;
-		int i;
-		for( i = accu; i < accu + read; ++i )
-		{
-			if ( buf[ i ] == '\0' )
-				buf[ i ] = '\n';
+  while( ( read = FS_Read( buf + accu, sizeof( buf ) - accu - 1, pipefile ) ) > 0 )
+  {
+    char *brk = NULL;
+    int i;
+    for( i = accu; i < accu + read; ++i )
+    {
+      if ( buf[ i ] == '\0' )
+        buf[ i ] = '\n';
 
-			if ( buf[ i ] == '\n' || buf[ i ] == '\r' )
-				brk = &buf[ i + 1 ];
-		}
-		buf[ accu + read ] = '\0';
-		accu += read;
-		if ( brk )
-		{
-			char tmp = *brk;
-			*brk = '\0';
-			Cbuf_ExecuteText( EXEC_APPEND, buf );
-			*brk = tmp;
-			accu -= brk - buf;
-			Com_Memmove( buf, brk, accu + 1 );
-		}
-		else if ( accu >= (int)(sizeof( buf ) - 1) ) // full
-		{
-			Cbuf_ExecuteText( EXEC_APPEND, buf );
-			accu = 0;
-		}
-	}
+      if ( buf[ i ] == '\n' || buf[ i ] == '\r' )
+        brk = &buf[ i + 1 ];
+    }
+    buf[ accu + read ] = '\0';
+    accu += read;
+    if ( brk )
+    {
+      char tmp = *brk;
+      *brk = '\0';
+      Cbuf_ExecuteText( EXEC_APPEND, buf );
+      *brk = tmp;
+      accu -= brk - buf;
+      Com_Memmove( buf, brk, accu + 1 );
+    }
+    else if ( accu >= (int)(sizeof( buf ) - 1) ) // full
+    {
+      Cbuf_ExecuteText( EXEC_APPEND, buf );
+      accu = 0;
+    }
+  }
 }
 
 //==================================================================
@@ -3088,11 +3093,11 @@ void Com_WriteConfiguration(void)
 
   Com_WriteConfigToFile(Q3CONFIG_CFG);
 
-	// not needed for dedicated or standalone
+  // not needed for dedicated or standalone
 #if !defined(DEDICATED) && !defined(STANDALONE)
   fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
 
-	if (!com_standalone->integer)
+  if (!com_standalone->integer)
   {
     if (UI_usesUniqueCDKey() && fs && fs->string[0] != 0)
       Com_WriteCDKey(fs->string, &cl_cdkey[16]);
@@ -3187,15 +3192,15 @@ Com_TimeVal
 
 int Com_TimeVal(int minMsec)
 {
-	int		timeVal;
+  int		timeVal;
 
-	timeVal = Sys_Milliseconds() - com_frameTime;
+  timeVal = Sys_Milliseconds() - com_frameTime;
 
-	if (timeVal >= minMsec)
-		timeVal = 0;
-	else
-		timeVal = minMsec - timeVal;
-	return timeVal;
+  if (timeVal >= minMsec)
+    timeVal = 0;
+  else
+    timeVal = minMsec - timeVal;
+  return timeVal;
 }
 /*
 =================
@@ -3203,9 +3208,9 @@ Com_Frame
 =================
 */
 void Com_Frame( void ) {
-	int		msec, minMsec;
-	int		timeVal, timeValSV;
-	static int	lastTime = 0, bias = 0;
+  int		msec, minMsec;
+  int		timeVal, timeValSV;
+  static int	lastTime = 0, bias = 0;
 
   int timeBeforeFirstEvents;
   int timeBeforeServer;
@@ -3218,9 +3223,9 @@ void Com_Frame( void ) {
 
 #if 0
   if (com_maxfps->integer > 125) //hypov8 add limiter to max fps, droped frames cause mouse to loose input
-	  com_maxfps->integer = 125;
+    com_maxfps->integer = 125;
 #endif
-  
+
   timeBeforeFirstEvents = 0;
   timeBeforeServer = 0;
   timeBeforeEvents = 0;
@@ -3238,7 +3243,7 @@ void Com_Frame( void ) {
     timeBeforeFirstEvents = Sys_Milliseconds();
   }
 
-	// Figure out how much time we have
+  // Figure out how much time we have
   if (!com_timedemo->integer)
   {
     if (com_dedicated->integer)
@@ -3287,7 +3292,7 @@ void Com_Frame( void ) {
 
   } while(Com_TimeVal(minMsec));
 
-	lastTime = com_frameTime;
+  lastTime = com_frameTime;
   com_frameTime = Com_EventLoop();
 
   msec = com_frameTime - lastTime;
@@ -3361,7 +3366,7 @@ void Com_Frame( void ) {
   }
 #endif
 
-	NET_FlushPacketQueue();
+  NET_FlushPacketQueue();
   //
   // report timing information
   //
@@ -3375,8 +3380,8 @@ void Com_Frame( void ) {
     sv -= time_game;
     cl -= time_frontend + time_backend;
 
-		Com_Printf ("frame:%i all:%3i sv:%3i ev:%3i cl:%3i gm:%3i rf:%3i bk:%3i\n",
-					 com_frameNumber, all, sv, ev, cl, time_game, time_frontend, time_backend );
+    Com_Printf ("frame:%i all:%3i sv:%3i ev:%3i cl:%3i gm:%3i rf:%3i bk:%3i\n",
+           com_frameNumber, all, sv, ev, cl, time_game, time_frontend, time_backend );
   }
 
   //
@@ -3396,7 +3401,7 @@ void Com_Frame( void ) {
     c_pointcontents = 0;
   }
 
-	Com_ReadFromPipe( );
+  Com_ReadFromPipe( );
 
   com_frameNumber++;
 }
@@ -3420,11 +3425,11 @@ void Com_Shutdown(void)
     com_journalFile = 0;
   }
 
-	if ( pipefile )
-	{
-		FS_FCloseFile( pipefile );
-		FS_HomeRemove( com_pipefile->string );
-	}
+  if ( pipefile )
+  {
+    FS_FCloseFile( pipefile );
+    FS_HomeRemove( com_pipefile->string );
+  }
 }
 
 //------------------------------------------------------------------------
@@ -3559,7 +3564,7 @@ static char *Field_FindFirstSeparator(char *s)
  */
 static qboolean Field_Complete(void)
 {
-	size_t completionOffset;
+  size_t completionOffset;
 
   if (matchCount == 0)
     return qtrue;
@@ -3610,10 +3615,10 @@ void Field_CompleteFilename( const char *dir,	const char *ext, qboolean stripExt
   matchCount = 0;
   shortestMatch[0] = 0;
 
-	FS_FilenameCompletion( dir, ext, stripExt, FindMatches, allowNonPureFilesOnDisk );
+  FS_FilenameCompletion( dir, ext, stripExt, FindMatches, allowNonPureFilesOnDisk );
 
   if (!Field_Complete())
-		FS_FilenameCompletion( dir, ext, stripExt, PrintMatches, allowNonPureFilesOnDisk );
+    FS_FilenameCompletion( dir, ext, stripExt, PrintMatches, allowNonPureFilesOnDisk );
 }
 
 /*
@@ -3642,15 +3647,15 @@ void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars )
 
 #ifndef DEDICATED
   // Unconditionally add a '\' to the start of the buffer
-	if ( completionField->buffer[ 0 ] && completionField->buffer[ 0 ] != '\\' )
+  if ( completionField->buffer[ 0 ] && completionField->buffer[ 0 ] != '\\' )
   {
     if (completionField->buffer[0] != '/')
     {
       // Buffer is full, refuse to complete
-			if (qstrlen(completionField->buffer ) + 1 >= sizeof(completionField->buffer))
+      if (qstrlen(completionField->buffer ) + 1 >= sizeof(completionField->buffer))
         return;
 
-			Com_Memmove( &completionField->buffer[1],	&completionField->buffer[0], qstrlen(completionField->buffer) + 1);
+      Com_Memmove( &completionField->buffer[1],	&completionField->buffer[0], qstrlen(completionField->buffer) + 1);
       completionField->cursor++;
     }
     completionField->buffer[0] = '\\';
@@ -3667,7 +3672,7 @@ void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars )
     if (baseCmd[0] == '\\' || baseCmd[0] == '/')
       baseCmd++;
 #endif
-	p = Field_FindFirstSeparator(cmd);
+  p = Field_FindFirstSeparator(cmd);
     if (p)
       Field_CompleteCommand(p + 1, qtrue, qtrue); // Compound command
     else
@@ -3741,20 +3746,20 @@ If clientNum is negative return if any bit is set.
 */
 qboolean Com_IsVoipTarget(uint8_t *voipTargets, int voipTargetsSize, int clientNum)
 {
-	int index;
-	if (clientNum < 0)
-	{
-		for(index = 0; index < voipTargetsSize; index++)
-		{
-			if (voipTargets[index])
-				return qtrue;
-		}
-		return qfalse;
-	}
-	index = clientNum >> 3;
-	if (index < voipTargetsSize)
-		return (voipTargets[index] & (1 << (clientNum & 0x07)));
-	return qfalse;
+  int index;
+  if (clientNum < 0)
+  {
+    for(index = 0; index < voipTargetsSize; index++)
+    {
+      if (voipTargets[index])
+        return qtrue;
+    }
+    return qfalse;
+  }
+  index = clientNum >> 3;
+  if (index < voipTargetsSize)
+    return (voipTargets[index] & (1 << (clientNum & 0x07)));
+  return qfalse;
 }
 
 typedef struct
@@ -3843,7 +3848,7 @@ static void Com_GenerateMediaTXT_f(void)
   size_t len;
   int shutupCompiler = 0;
   char *svnCmd = "svn proplist -R -v " BASEGAME "/ > " BASEGAME "/PROPERTIES.txt";
-  
+
   //hypov8 add: size_t
   const size_t maxMediaLen = 100;
   const size_t maxCopyrightLen = 50;
@@ -4019,7 +4024,7 @@ static void Com_GenerateMediaTXT_f(void)
 
       FS_Printf(f, "%s", entry->license);
       len = qstrlen(entry->license);
-	  while (len < (size_t)maxLicenseLen)
+    while (len < (size_t)maxLicenseLen)
       {
         FS_Printf(f, " ");
         len++;
@@ -4027,7 +4032,7 @@ static void Com_GenerateMediaTXT_f(void)
 
       FS_Printf(f, "%s", entry->licenseURL);
       len = qstrlen(entry->licenseURL);
-	  while (len < (size_t)maxLicenseURLLen)
+    while (len < (size_t)maxLicenseURLLen)
       {
         FS_Printf(f, " ");
         len++;
@@ -4293,7 +4298,7 @@ static void Com_MathTest_f(void)
   time1 = Com_Milliseconds();
   for (i = 0; i < iend; i++)
   {
-	MatrixCompare(Hilbert4, Hilbert4);
+  MatrixCompare(Hilbert4, Hilbert4);
   }
   time2 = Com_Milliseconds();
   Com_Printf("%d x Mat4_CompareStd(Hilbert4, Hilbert4) :  %d msec\n", iend, time2 - time1);
@@ -4353,7 +4358,7 @@ static void Com_MathTest_f(void)
   time1 = Com_Milliseconds();
   for (i = 0; i < iend; i++)
   {
-	MatrixMultiply(Hilbert4, ASymetric4, out);
+  MatrixMultiply(Hilbert4, ASymetric4, out);
   }
   time2 = Com_Milliseconds();
   Com_Printf("%d x Mat4_MultiplyStd() :  %d msec\n", iend, time2 - time1);
