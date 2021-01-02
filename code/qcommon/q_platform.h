@@ -46,16 +46,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #if (defined(powerc) || defined(powerpc) || defined(ppc) || \
-	defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
+  defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
 #define idppc 1
 #if defined(__VEC__)
 #define idppc_altivec 1
 #ifdef MACOS_X  // Apple's GCC does this differently than the FSF.
 #define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) \
-	(vector unsigned char) (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
+  (vector unsigned char) (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
 #else
 #define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) \
-	(vector unsigned char) {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p}
+  (vector unsigned char) {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p}
 #endif
 #else
 #define idppc_altivec 0
@@ -124,19 +124,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined( _MSC_VER )
   #define ALIGN16( x )         __declspec(align(16)) x
-	#define OS_STRING "win_msvc"
+  #define OS_STRING "win_msvc"
 #elif defined __MINGW32__
   #define ALIGN16( x )         x __attribute__((aligned(16)))
-	#define OS_STRING "win_mingw"
+  #define OS_STRING "win_mingw"
 #endif
 
 #if defined __MINGW32__
-	#define ID_INLINE __inline
-	#define force_inline inline
+  #define ID_INLINE __inline
+  #define force_inline inline
 #else
-	#define ID_INLINE __inline
-	#define force_inline __forceinline
-	//FIXME:
+  #define ID_INLINE __inline
+  #define force_inline __forceinline
+  //FIXME:
 #endif
 
 
@@ -160,26 +160,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if 1 //hypov8 merge:
 // Compat macros
 #ifdef Q3_VM
-	#define STATIC_INLINE
-	//#define QDECL
-	#define INLINE
-	//#define Q_EXPORT
-	#ifdef Q3_VM_INSTANTIATE
-	#define IFDECLARE
-	#else
-	#define IFDECLARE ;
-	#endif
+  #define STATIC_INLINE
+  //#define QDECL
+  #define INLINE
+  //#define Q_EXPORT
+  #ifdef Q3_VM_INSTANTIATE
+  #define IFDECLARE
+  #else
+  #define IFDECLARE ;
+  #endif
 #else // Q3_VM
-	#define Q3_VM_INSTANTIATE
-	//#define QDECL
-	#if defined(_MSC_VER) && !defined(__cplusplus)
-		#define INLINE __inline
-	#else
-		#define INLINE inline
-	#endif
-	#define STATIC_INLINE static INLINE
-	//#define Q_EXPORT DLLEXPORT
-	#define IFDECLARE
+  #define Q3_VM_INSTANTIATE
+  //#define QDECL
+  #if defined(_MSC_VER) && !defined(__cplusplus)
+    #define INLINE __inline
+  #else
+    #define INLINE inline
+  #endif
+  #define STATIC_INLINE static INLINE
+  //#define Q_EXPORT DLLEXPORT
+  #define IFDECLARE
 #endif // Q3_VM
 #endif
 
@@ -233,7 +233,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _restrict __restrict
 #define force_inline __inline __attribute__((__gnu_inline__, __always_inline__))
 #define ALIGN16( x )         x __attribute__((aligned(16)))
-//FIXME (0xA5EA): wirklich __artificial__ ist eigentlich nur für wrapper
 #define _funcname __PRETTY_FUNCTION__
 #define PATH_SEP '/'
 

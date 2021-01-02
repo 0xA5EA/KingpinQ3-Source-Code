@@ -66,19 +66,19 @@ typedef unsigned char 		byte;
 #  define assert_16_byte_aligned( ptr )
 # else
 #  define assert_16_byte_aligned( ptr ) do{                             \
-		  if (!ASSERT_PTR16(ptr))                                          \
-			Com_Error(ERR_FATAL, "not 16 byte alligned %s, line %d , %s",  \
-					  __FILE__, __LINE__, _funcname); }while(0)
+      if (!ASSERT_PTR16(ptr))                                          \
+      Com_Error(ERR_FATAL, "not 16 byte alligned %s, line %d , %s",  \
+            __FILE__, __LINE__, _funcname); }while(0)
 # endif
 
 # define ALIGN4_INITS( X, INIT )  ALIGN16( static X[4] ) = { INIT, INIT, INIT, INIT }
 typedef __m128 float128;
 
 # if defined _LP64
-    ALIGN4_INITS(unsigned int mm_absmask_ps, 0x7FFFFFFF);
+  UNUSED ALIGN4_INITS(unsigned int mm_absmask_ps, 0x7FFFFFFF);
 //FIXME (0xA5EA): does this work on win64 as well ?
 # else
-   ALIGN4_INITS(unsigned long mm_absmask_ps, 0x7FFFFFFF);
+  UNUSED ALIGN4_INITS(unsigned long mm_absmask_ps, 0x7FFFFFFF);
 # endif
 
 # if defined (__cplusplus)
@@ -123,15 +123,15 @@ typedef dvec_t  dvec3_t[3];
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #endif
-typedef union transform_u 
+typedef union transform_u
 {
-  struct 
+  struct
   {
     quat_t rot;
     vec3_t trans;
     vec_t  scale;
   };
-  struct 
+  struct
   {
     __m128 sseRot;
     __m128 sseTransScale;

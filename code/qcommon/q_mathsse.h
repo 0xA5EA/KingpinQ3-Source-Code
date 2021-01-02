@@ -27,9 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef USING_SSE_MATH
 typedef union
 {
-	float128 m128;
-	float f[4];
-	unsigned int ui[4];
+  float128 m128;
+  float f[4];
+  unsigned int ui[4];
 }float128_u;
 
 extern force_inline void Vec4_ClearSSE(vec4_t v)
@@ -146,28 +146,28 @@ extern force_inline void Mat4_MultiplySSE(matrix_t const _restrict a, matrix_t c
 //ungetestet
 
 #define Vec4_MASSE(veca, scale, vecb, vecc) { \
-	float128          _a, _b, _s, _c; \
-	_a = _mm_load_ps(veca); \
-	_b = _mm_load_ps(vecb); \
-	_s = _mm_set1_ps(scale); \
-	_c = _mm_mul_ps(_s, _b); \
-	_c = _mm_add_ps(_a, _c); \
-	_mm_store_ps(vecc, _c); \
+  float128          _a, _b, _s, _c; \
+  _a = _mm_load_ps(veca); \
+  _b = _mm_load_ps(vecb); \
+  _s = _mm_set1_ps(scale); \
+  _c = _mm_mul_ps(_s, _b); \
+  _c = _mm_add_ps(_a, _c); \
+  _mm_store_ps(vecc, _c); \
 }
 //ungetestet
 #define Vec4_ScaleSSE(v, s, o) { \
-	float128          _in, _scale, _out; \
-	_in = _mm_load_ps(in); \
-	_scale = _mm_set1_ps(scale); \
-	_out = _mm_mul_ps(_in, _scale); \
-	_mm_store_ps(out, _out); \
+  float128          _in, _scale, _out; \
+  _in = _mm_load_ps(in); \
+  _scale = _mm_set1_ps(scale); \
+  _out = _mm_mul_ps(_in, _scale); \
+  _mm_store_ps(out, _out); \
 }
 //FIXME: nicht getestet, liest doch wahrscheinlich in coordinate 4 muell
 
 #define Vec4_SetSSE(s,d) \
 { \
-	float128 XMM0 = _mm_set_ps1((s)); \
-	_mm_store_ps((d), XMM0); \
+  float128 XMM0 = _mm_set_ps1((s)); \
+  _mm_store_ps((d), XMM0); \
 }
 
 #define _horizontal_sum(r) {\
