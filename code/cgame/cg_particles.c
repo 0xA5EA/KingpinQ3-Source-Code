@@ -119,61 +119,56 @@ hypov8 grenade spawn smoke for each particle
 */
 static void CG_GrenadeParticleTrail(cparticle_t *p, vec3_t origin)
 {
-	int step;
-	//vec3_t /*origin,*/ lastPos;
-	int t;
-	int contents; // startTime
-	int lastContents;
-	//entityState_t *es;
-	vec3_t up = { 0, 0, 0 };
-	localEntity_t *smoke;
-	qhandle_t smokePuffshader;
+  //int step;
+  //vec3_t /*origin,*/ lastPos;
+  int t;
+  int contents; // startTime
+  int lastContents;
+  vec3_t up = { 0, 0, 0 };
+  localEntity_t *smoke;
+  qhandle_t smokePuffshader;
 
-	if (cg_noProjectileTrail.integer)
-		return;
+  if (cg_noProjectileTrail.integer)
+    return;
 
-	step = 10;
+  //step = 10;
 
-	//t = step * ((cg.time + step) / step);
-	t = cg.time;
+  //t = step * ((cg.time + step) / step);
+  t = cg.time;
 
-	contents = CG_PointContents(origin, -1);
-	lastContents = CG_PointContents(p->org, -1);
-	if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
-	{
-		if (contents & lastContents & CONTENTS_WATER)
-			CG_BubbleTrail(p->oldOrg, origin, 8);
-		return;
-	}
-	smokePuffshader = cgs.media.smokePuffRlShader;
-	//smokePuffshader = cgs.media.onFireShader1;
-	//smokePuffshader = cgs.media.onFireShader2;
-	//smokePuffshader = cgs.media.sparkFlareShader;
-	//smokePuffshader = cgs.media.sparkShader;
-	//smokePuffshader = cgs.media.friendShader;
-	//smokePuffshader = cgs.media.smokePuffShader;
+  contents = CG_PointContents(origin, -1);
+  lastContents = CG_PointContents(p->org, -1);
+  if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
+  {
+    if (contents & lastContents & CONTENTS_WATER)
+      CG_BubbleTrail(p->oldOrg, origin, 8);
+    return;
+  }
+  smokePuffshader = cgs.media.smokePuffRlShader;
+  //smokePuffshader = cgs.media.onFireShader1;
+  //smokePuffshader = cgs.media.onFireShader2;
+  //smokePuffshader = cgs.media.sparkFlareShader;
+  //smokePuffshader = cgs.media.sparkShader;
+  //smokePuffshader = cgs.media.friendShader;
+  //smokePuffshader = cgs.media.smokePuffShader;
 
-	//for (; t <= p->time; t += step)
-		if (p->smokeDelayTime < cg.time )
-	{
-		//      CG_SmokePuff(vec3_t p, vec3_t vel, float radius, r, g, b, a,	duration,	startTime, fadeInTime, leFlags, hShader)
-		smoke = CG_SmokePuff(origin,		up,				2, 1, 1, 1, 0.88f,   500,			t,		0,			0,		smokePuffshader);
-		smoke->leType = LE_SPRITE_EXPLOSION2; // LE_EXPLOSION;// LE_SCALE_FADE; //
+  //for (; t <= p->time; t += step)
+    if (p->smokeDelayTime < cg.time )
+  {
+    //      CG_SmokePuff(vec3_t p, vec3_t vel, float radius, r, g, b, a,	duration,	startTime, fadeInTime, leFlags, hShader)
+    smoke = CG_SmokePuff(origin,		up,				2, 1, 1, 1, 0.88f,   500,			t,		0,			0,		smokePuffshader);
+    smoke->leType = LE_SPRITE_EXPLOSION2; // LE_EXPLOSION;// LE_SCALE_FADE; //
 
-		if (!p->smokeRandTime2)
-		{
-			p->smokeRandTime2 = random();// *.5 + 0.1;//0.3f;
-			if (p->smokeRandTime2 > 1.0f)
-				p->smokeRandTime2 = 1.0f;
-		}
-		smoke->smokeRandTime = p->smokeRandTime2;
+    if (!p->smokeRandTime2)
+    {
+      p->smokeRandTime2 = random();// *.5 + 0.1;//0.3f;
+      if (p->smokeRandTime2 > 1.0f)
+        p->smokeRandTime2 = 1.0f;
+    }
+    smoke->smokeRandTime = p->smokeRandTime2;
 
-
-
-		p->smokeDelayTime = cg.time + 10;
-
-		
-	}
+    p->smokeDelayTime = cg.time + 10;
+  }
 }
 
 
@@ -628,14 +623,14 @@ void CG_AddParticleToScene(cparticle_t *p, vec3_t org, vec4_t color)
     verts[3].modulate[3] = 255;
   }
   else if (p->type == P_SPARK || p->type == P_BLOOD
-	  || p->type == P_SPARK_SMOKE) //add hypov8
+      || p->type == P_SPARK_SMOKE) //add hypov8
   {
     time  = cg.time - p->time;
     time2 = p->endTime - p->time;
     ratio = time / time2;
 
-	if (p->type == P_SPARK_SMOKE)
-		CG_GrenadeParticleTrail(p, org);
+    if (p->type == P_SPARK_SMOKE)
+      CG_GrenadeParticleTrail(p, org);
 
     /*
        if(cg.time > p->startfade)
@@ -715,63 +710,63 @@ void CG_AddParticleToScene(cparticle_t *p, vec3_t org, vec4_t color)
     verts[3].modulate[2] = 255 * color[2];
     verts[3].modulate[3] = 255 * color[3];
   }
-	else if(p->type == P_LIGHTSPARK)
-	{
-		axis_t          axis;
-		vec_t           speed;
-		time = cg.time - p->time;
-		time2 = p->endTime - p->time;
-		ratio = time / time2;
-		// find orientation vectors
-		VectorSubtract(cg.refdef.vieworg, org, axis[0]);
-		VectorSubtract(p->oldOrg, org, axis[1]);
-		CrossProduct(axis[0], axis[1], axis[2]);
-		speed = VectorNormalize(axis[1]);
-		VectorNormalize(axis[2]);
-		width = Q_min(p->width * speed, p->width);	// + (ratio * (p->endWidth - p->width));
-		height = p->height;		// * speed;// + (ratio * (p->endHeight - p->height));
-		// find normal
-		CrossProduct(axis[1], axis[2], axis[0]);
-		VectorNormalize(axis[0]);
-		VectorMA(org, -width, axis[1], oldOrigin);
-		VectorScale(axis[2], height, axis[2]);
-		verts[0].xyz[0] = org[0] - axis[2][0];
-		verts[0].xyz[1] = org[1] - axis[2][1];
-		verts[0].xyz[2] = org[2] - axis[2][2];
-		verts[0].st[0] = 0;
-		verts[0].st[1] = 0;
-		verts[0].modulate[0] = 255 * color[0];
-		verts[0].modulate[1] = 255 * color[1];
-		verts[0].modulate[2] = 255 * color[2];
-		verts[0].modulate[3] = 255 * color[3];
-		verts[1].xyz[0] = org[0] + axis[2][0];
-		verts[1].xyz[1] = org[1] + axis[2][1];
-		verts[1].xyz[2] = org[2] + axis[2][2];
-		verts[1].st[0] = 0;
-		verts[1].st[1] = 1;
-		verts[1].modulate[0] = 255 * color[0];
-		verts[1].modulate[1] = 255 * color[1];
-		verts[1].modulate[2] = 255 * color[2];
-		verts[1].modulate[3] = 255 * color[3];
-		verts[2].xyz[0] = oldOrigin[0] + axis[2][0];
-		verts[2].xyz[1] = oldOrigin[1] + axis[2][1];
-		verts[2].xyz[2] = oldOrigin[2] + axis[2][2];
-		verts[2].st[0] = 1;
-		verts[2].st[1] = 1;
-		verts[2].modulate[0] = 255 * color[0];
-		verts[2].modulate[1] = 255 * color[1];
-		verts[2].modulate[2] = 255 * color[2];
-		verts[2].modulate[3] = 255 * color[3];
-		verts[3].xyz[0] = oldOrigin[0] - axis[2][0];
-		verts[3].xyz[1] = oldOrigin[1] - axis[2][1];
-		verts[3].xyz[2] = oldOrigin[2] - axis[2][2];
-		verts[3].st[0] = 1;
-		verts[3].st[1] = 0;
-		verts[3].modulate[0] = 255 * color[0];
-		verts[3].modulate[1] = 255 * color[1];
-		verts[3].modulate[2] = 255 * color[2];
-		verts[3].modulate[3] = 255 * color[3];
-	}
+  else if(p->type == P_LIGHTSPARK)
+  {
+    axis_t          axis;
+    vec_t           speed;
+    time = cg.time - p->time;
+    time2 = p->endTime - p->time;
+    ratio = time / time2;
+    // find orientation vectors
+    VectorSubtract(cg.refdef.vieworg, org, axis[0]);
+    VectorSubtract(p->oldOrg, org, axis[1]);
+    CrossProduct(axis[0], axis[1], axis[2]);
+    speed = VectorNormalize(axis[1]);
+    VectorNormalize(axis[2]);
+    width = Q_min(p->width * speed, p->width);	// + (ratio * (p->endWidth - p->width));
+    height = p->height;		// * speed;// + (ratio * (p->endHeight - p->height));
+    // find normal
+    CrossProduct(axis[1], axis[2], axis[0]);
+    VectorNormalize(axis[0]);
+    VectorMA(org, -width, axis[1], oldOrigin);
+    VectorScale(axis[2], height, axis[2]);
+    verts[0].xyz[0] = org[0] - axis[2][0];
+    verts[0].xyz[1] = org[1] - axis[2][1];
+    verts[0].xyz[2] = org[2] - axis[2][2];
+    verts[0].st[0] = 0;
+    verts[0].st[1] = 0;
+    verts[0].modulate[0] = 255 * color[0];
+    verts[0].modulate[1] = 255 * color[1];
+    verts[0].modulate[2] = 255 * color[2];
+    verts[0].modulate[3] = 255 * color[3];
+    verts[1].xyz[0] = org[0] + axis[2][0];
+    verts[1].xyz[1] = org[1] + axis[2][1];
+    verts[1].xyz[2] = org[2] + axis[2][2];
+    verts[1].st[0] = 0;
+    verts[1].st[1] = 1;
+    verts[1].modulate[0] = 255 * color[0];
+    verts[1].modulate[1] = 255 * color[1];
+    verts[1].modulate[2] = 255 * color[2];
+    verts[1].modulate[3] = 255 * color[3];
+    verts[2].xyz[0] = oldOrigin[0] + axis[2][0];
+    verts[2].xyz[1] = oldOrigin[1] + axis[2][1];
+    verts[2].xyz[2] = oldOrigin[2] + axis[2][2];
+    verts[2].st[0] = 1;
+    verts[2].st[1] = 1;
+    verts[2].modulate[0] = 255 * color[0];
+    verts[2].modulate[1] = 255 * color[1];
+    verts[2].modulate[2] = 255 * color[2];
+    verts[2].modulate[3] = 255 * color[3];
+    verts[3].xyz[0] = oldOrigin[0] - axis[2][0];
+    verts[3].xyz[1] = oldOrigin[1] - axis[2][1];
+    verts[3].xyz[2] = oldOrigin[2] - axis[2][2];
+    verts[3].st[0] = 1;
+    verts[3].st[1] = 0;
+    verts[3].modulate[0] = 255 * color[0];
+    verts[3].modulate[1] = 255 * color[1];
+    verts[3].modulate[2] = 255 * color[2];
+    verts[3].modulate[3] = 255 * color[3];
+  }
   else if (p->type == P_FLAT)
   {
     VectorCopy(org, verts[0].xyz);
@@ -930,7 +925,7 @@ void CG_AddParticles(void)
       }
     }
 
-		if(p->type == P_LIGHTSPARK)
+    if(p->type == P_LIGHTSPARK)
     {
       if (cg.time > p->endTime)
       {
@@ -939,21 +934,21 @@ void CG_AddParticles(void)
       }
     }
 
-		if(p->type == P_WEATHER_FLURRY)
+    if(p->type == P_WEATHER_FLURRY)
     {
       if (cg.time > p->endTime)
       {
         CG_FreeParticle(p);
         continue;
       }
-		}
-		if(p->type == P_FLAT_SCALEUP_FADE)
-		{
-			if(cg.time > p->endTime)
-			{
-				CG_FreeParticle(p);
-				continue;
-			}
+    }
+    if(p->type == P_FLAT_SCALEUP_FADE)
+    {
+      if(cg.time > p->endTime)
+      {
+        CG_FreeParticle(p);
+        continue;
+      }
     }
 
     if (p->type == P_SPRITE && p->endTime < 0)
@@ -980,22 +975,22 @@ void CG_AddParticles(void)
     // Tr3B: add some collision tests
     if (cg_particleCollision.integer)
     {
-			contents = trap_CM_PointContents(org, 0);
-			// kill all particles in solid
-			if(contents & MASK_SOLID)
-			{
-				CG_FreeParticle(p);
-				continue;
-			}
-			// kill all air only particles in water or slime
-			if(p->flags & PF_AIRONLY)
-			{
-				if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
-				{
-					CG_FreeParticle(p);
-					continue;
-				}
-			}
+      contents = trap_CM_PointContents(org, 0);
+      // kill all particles in solid
+      if(contents & MASK_SOLID)
+      {
+        CG_FreeParticle(p);
+        continue;
+      }
+      // kill all air only particles in water or slime
+      if(p->flags & PF_AIRONLY)
+      {
+        if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
+        {
+          CG_FreeParticle(p);
+          continue;
+        }
+      }
       if (p->bounceFactor)
       {
         trace_t trace;
@@ -1032,22 +1027,22 @@ void CG_AddParticles(void)
               CG_FreeParticle(p);
               continue;
             }
-					}
-					if(p->type == P_BLOOD)
-					{
-						int radius, r = 0;
-						qhandle_t  shader;
-						radius = 3 + random() * 5;
-						r = rand() & 2;
-						shader = cgs.media.bloodMarkShader[r];
-						CG_ImpactMark(shader, trace.endpos, trace.plane.normal, random() * 360, 1, 1, 1, 1, qtrue, radius, qfalse);
-					}
-					VectorCopy(trace.endpos, org);
-					// reset particle
-					p->time = cg.time;
-					//VectorCopy(p->org, p->oldOrg);
-					VectorCopy(org, p->org);
-				}
+          }
+          if(p->type == P_BLOOD)
+          {
+            int radius, r = 0;
+            qhandle_t  shader;
+            radius = 3 + random() * 5;
+            r = rand() & 2;
+            shader = cgs.media.bloodMarkShader[r];
+            CG_ImpactMark(shader, trace.endpos, trace.plane.normal, random() * 360, 1, 1, 1, 1, qtrue, radius, qfalse);
+          }
+          VectorCopy(trace.endpos, org);
+          // reset particle
+          p->time = cg.time;
+          //VectorCopy(p->org, p->oldOrg);
+          VectorCopy(org, p->org);
+        }
       }
     }
 
@@ -1667,10 +1662,10 @@ void CG_ParticleBlood(vec3_t org, vec3_t dir, int count)
     p->height    = 1.1f;
     p->width     = 5;
     p->endHeight = 3;
-		p->endWidth = 50;
+    p->endWidth = 50;
 
     p->time    = cg.time;
-		p->endTime = cg.time + 5000;
+    p->endTime = cg.time + 5000;
     p->color[0] = 1;
     p->color[1] = 1;
     p->color[2] = 1;
@@ -2011,57 +2006,57 @@ void CG_ParticleSparks2(vec3_t org, vec3_t dir, int count)
 //hypov8 add grenade
 void CG_ParticleGrenade(vec3_t org, vec3_t dir)
 {
-	int i, j;
-	cparticle_t *p;
-	float d;
-	int count = 40 ;//rand() & 30
-	for (i = 0; i < count; i++)
-	{
-		p = CG_AllocParticle();
-		if (!p)
-			return;
+  int i, j;
+  cparticle_t *p;
+  float d;
+  int count = 40 ;//rand() & 30
+  for (i = 0; i < count; i++)
+  {
+    p = CG_AllocParticle();
+    if (!p)
+      return;
 
-		//p->flags = 1 | 2 | 3 | 4 | 5 | 6; PARTICLE_OVERBRIGHT | PARTICLE_DIRECTIONAL /* |PARTICLE_BOUNCE */;
-		//p->flags = PARTICLE_OVERBRIGHT | PARTICLE_DIRECTIONAL /* |PARTICLE_BOUNCE */ ;
-		//p->flags = PARTICLE_BOUNCE;
-		p->endTime = cg.time + 20000;
-		
-		p->color[0] = 1;
-		p->color[1] = 1;
-		p->color[2] = 0.3f;
-		p->color[3] = 1.0;
+    //p->flags = 1 | 2 | 3 | 4 | 5 | 6; PARTICLE_OVERBRIGHT | PARTICLE_DIRECTIONAL /* |PARTICLE_BOUNCE */;
+    //p->flags = PARTICLE_OVERBRIGHT | PARTICLE_DIRECTIONAL /* |PARTICLE_BOUNCE */ ;
+    //p->flags = PARTICLE_BOUNCE;
+    p->endTime = cg.time + 20000;
 
-		p->colorVel[0] = 0;
-		p->colorVel[1] = -1;
-		p->colorVel[2] = -1.5;
-		p->colorVel[3] = -1.0 / (1.5 + random() * 1.666);
+    p->color[0] = 1;
+    p->color[1] = 1;
+    p->color[2] = 0.3f;
+    p->color[3] = 1.0;
 
-		p->height = 4;	//5.4f
-		p->width = 4;	//18
-		p->endHeight = 8;	//25
-		p->endWidth = 8;	//80
+    p->colorVel[0] = 0;
+    p->colorVel[1] = -1;
+    p->colorVel[2] = -1.5;
+    p->colorVel[3] = -1.0 / (1.5 + random() * 1.666);
 
-		p->pshader = cgs.media.sparkShader;
+    p->height = 4;	//5.4f
+    p->width = 4;	//18
+    p->endHeight = 8;	//25
+    p->endWidth = 8;	//80
 
-		p->bounceFactor = 0.5f; //hypo
+    p->pshader = cgs.media.sparkShader;
 
-		p->type = P_SPARK_SMOKE; //hypo
-		//p->type = P_LIGHTSPARK; // P_SMOKE_IMPACT; // P_SPRITE; // P_SMOKE;
+    p->bounceFactor = 0.5f; //hypo
 
-		d = rand() & 7;
-		for (j = 0; j < 3; j++)
-		{
-			p->org[j] = org[j] + ((rand() & 7) - 4) + d * dir[j];
-			p->vel[j] = crandom() * 250;
-			if (j==2)
-				p->vel[j] = rand() & 450;
-		}
+    p->type = P_SPARK_SMOKE; //hypo
+    //p->type = P_LIGHTSPARK; // P_SMOKE_IMPACT; // P_SPRITE; // P_SMOKE;
 
-		p->accel[0] = p->accel[1] = 0;
-		p->accel[2] = -PARTICLE_GRAVITY * 10;
+    d = rand() & 7;
+    for (j = 0; j < 3; j++)
+    {
+      p->org[j] = org[j] + ((rand() & 7) - 4) + d * dir[j];
+      p->vel[j] = crandom() * 250;
+      if (j==2)
+        p->vel[j] = rand() & 450;
+    }
 
-		VectorCopy(p->org, p->oldOrg);
-	}
+    p->accel[0] = p->accel[1] = 0;
+    p->accel[2] = -PARTICLE_GRAVITY * 10;
+
+    VectorCopy(p->org, p->oldOrg);
+  }
 }
 
 
@@ -2206,11 +2201,11 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
   cparticle_t *p;
 
   // create particles inside the player box
-	for(i = playerMins[0]; i < playerMaxs[0]; i += 4)
+  for(i = playerMins[0]; i < playerMaxs[0]; i += 4)
   {
-		for(j = playerMins[1]; j < playerMaxs[1]; j += 4)
+    for(j = playerMins[1]; j < playerMaxs[1]; j += 4)
     {
-			for(k = playerMins[2]; k < playerMaxs[2]; k += 4)
+      for(k = playerMins[2]; k < playerMaxs[2]; k += 4)
       {
         p = CG_AllocParticle();
         if (!p)
@@ -2266,64 +2261,64 @@ CG_ParticleGibEffect
 */
 void CG_ParticleGibEffect(const vec3_t origin)
 {
-	int             i, j, k;
-	vec3_t          randVec, dir;
-	cparticle_t    *p;
-	// create particles inside the player box
-	for(i = playerMins[0]; i < playerMaxs[0]; i += 4)
-	{
-		for(j = playerMins[1]; j < playerMaxs[1]; j += 4)
-		{
-			for(k = playerMins[2]; k < playerMaxs[2]; k += 4)
-			{
-				p = CG_AllocParticle();
-				if(!p)
-					return;
-				p->flags = PF_AIRONLY;
-				randVec[0] = origin[0] + i + (rand() & 3);
-				randVec[1] = origin[1] + j + (rand() & 3);
-				randVec[2] = origin[2] + k + (rand() & 3);
-				VectorCopy(randVec, p->org);
-				VectorSubtract(randVec, origin, dir);
-				VectorNormalize(dir);
-				VectorScale(dir, 300.0f, p->vel);
-				p->color[0] = 1.0;
-				p->color[1] = 1.0;
-				p->color[2] = 1.0;
-				p->color[3] = 1.0;
-				p->colorVel[3] = 0;
+  int             i, j, k;
+  vec3_t          randVec, dir;
+  cparticle_t    *p;
+  // create particles inside the player box
+  for(i = playerMins[0]; i < playerMaxs[0]; i += 4)
+  {
+    for(j = playerMins[1]; j < playerMaxs[1]; j += 4)
+    {
+      for(k = playerMins[2]; k < playerMaxs[2]; k += 4)
+      {
+        p = CG_AllocParticle();
+        if(!p)
+          return;
+        p->flags = PF_AIRONLY;
+        randVec[0] = origin[0] + i + (rand() & 3);
+        randVec[1] = origin[1] + j + (rand() & 3);
+        randVec[2] = origin[2] + k + (rand() & 3);
+        VectorCopy(randVec, p->org);
+        VectorSubtract(randVec, origin, dir);
+        VectorNormalize(dir);
+        VectorScale(dir, 300.0f, p->vel);
+        p->color[0] = 1.0;
+        p->color[1] = 1.0;
+        p->color[2] = 1.0;
+        p->color[3] = 1.0;
+        p->colorVel[3] = 0;
 #if 1
-				p->endTime = cg.time + 700 + random() * 500;
-				p->type = P_SMOKE;
-				p->pshader = cgs.media.teleportFlareShader;
-				p->width = 3 + random() * 2;
-				p->height = p->width;
-				p->endHeight = p->width * 0.2;
-				p->endWidth = p->height * 0.2;
-				// add some gravity/randomness
-				p->accel[0] = 0;	//crandom() * 3;
-				p->accel[1] = 0;	//crandom() * 3;
-				p->accel[2] = -PARTICLE_GRAVITY * 3;
-				p->rotate = qtrue;
-				p->roll = rand() % 179;
+        p->endTime = cg.time + 700 + random() * 500;
+        p->type = P_SMOKE;
+        p->pshader = cgs.media.teleportFlareShader;
+        p->width = 3 + random() * 2;
+        p->height = p->width;
+        p->endHeight = p->width * 0.2;
+        p->endWidth = p->height * 0.2;
+        // add some gravity/randomness
+        p->accel[0] = 0;	//crandom() * 3;
+        p->accel[1] = 0;	//crandom() * 3;
+        p->accel[2] = -PARTICLE_GRAVITY * 3;
+        p->rotate = qtrue;
+        p->roll = rand() % 179;
 #else
-				p->endTime = cg.time + 20000;
-				p->type = P_LIGHTSPARK;
-				p->pshader = cgs.media.sparkShader;
-				p->height = 0.7f;
-				p->width = 3.0f;
-				p->endHeight = 1.3f;
-				p->endWidth = 10;
-				p->accel[0] = 0;	//crandom() * 3;
-				p->accel[1] = 0;	//crandom() * 3;
-				p->accel[2] = -PARTICLE_GRAVITY * 20;
+        p->endTime = cg.time + 20000;
+        p->type = P_LIGHTSPARK;
+        p->pshader = cgs.media.sparkShader;
+        p->height = 0.7f;
+        p->width = 3.0f;
+        p->endHeight = 1.3f;
+        p->endWidth = 10;
+        p->accel[0] = 0;	//crandom() * 3;
+        p->accel[1] = 0;	//crandom() * 3;
+        p->accel[2] = -PARTICLE_GRAVITY * 20;
 #endif
-				p->startfade = cg.time;
-				p->bounceFactor = 0.6f;
-				VectorCopy(p->org, p->oldOrg);	// necessary for coldet
-			}
-		}
-	}
+        p->startfade = cg.time;
+        p->bounceFactor = 0.6f;
+        VectorCopy(p->org, p->oldOrg);	// necessary for coldet
+      }
+    }
+  }
 }
 /*
 ===============
@@ -2376,7 +2371,7 @@ void CG_ParticleRocketFire(vec3_t start, vec3_t end)
     p->colorVel[2] = 0;
 
     p->type    = P_SMOKE;
-		p->pshader = cgs.media.teleportFlareShader;
+    p->pshader = cgs.media.teleportFlareShader;
     p->width   = p->height = 1;
 //      p->size = 1;
 //      p->sizeVel = 9;
@@ -2443,7 +2438,7 @@ void CG_ParticleRick(vec3_t org, vec3_t dir)
     p->colorVel[2] = 0;
     p->colorVel[3] = -1.0 / (0.7 + random() * 0.2);
 
-		d = rand() & 5;
+    d = rand() & 5;
 
     for (j = 0; j < 3; j++)
     {
@@ -2459,7 +2454,7 @@ void CG_ParticleRick(vec3_t org, vec3_t dir)
 
 #if 1
   // SMOKE
-	for(i = 0; i < 6; i++)
+  for(i = 0; i < 6; i++)
   {
     p = CG_AllocParticle();
     if (!p)
@@ -2537,7 +2532,7 @@ void CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor)
 #else
     p->endTime   = cg.time + 700 + random() * 500;
     p->type      = P_SMOKE;
-		p->pshader = cgs.media.teleportFlareShader;
+    p->pshader = cgs.media.teleportFlareShader;
     p->width     = 3 + random() * 2;
     p->height    = p->width;
     p->endHeight = p->width * 0.1;
@@ -2574,7 +2569,7 @@ void CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor)
 
 void CG_TestBloodCloud_f(void)
 {
-	  vec3_t start, end;
+    vec3_t start, end;
   Com_Printf("executing CG_ParticleBloodCloud\n");
 
   VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], start);
@@ -2593,7 +2588,7 @@ void CG_TestParticleBlood_f(void)
 
 void CG_TestParticleRocketFire_f(void)
 {
-	  vec3_t start, end;
+    vec3_t start, end;
   Com_Printf("executing CG_ParticleRocketFire\n");
 
   VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], start);
@@ -2612,7 +2607,7 @@ void CG_TestParticleBloodPool_f(void)
 
 void CG_TestParticleBleed_f(void)
 {
-	  vec3_t start, end;
+    vec3_t start, end;
   Com_Printf("executing CG_Bleed\n");
 
   VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], start);
@@ -2667,7 +2662,7 @@ void CG_TestParticles_f(void)
   {
   case 0:
     CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
-	Com_Printf("CG_ParticleBloodCloud \n");
+  Com_Printf("CG_ParticleBloodCloud \n");
     break;
   case 1:
     CG_ParticleRocketFire(start, end);

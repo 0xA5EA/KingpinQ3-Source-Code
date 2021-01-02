@@ -281,7 +281,7 @@ typedef struct
   float blendtime;
 
   int weaponNumber;
-	int				old_weaponNumber;
+  int				old_weaponNumber;
 } lerpFrame_t;
 // debugging values:
 extern int   debug_anim_current;
@@ -307,10 +307,10 @@ typedef struct
   int deathTime;
   float deathScale;
 //add xreal hypov8
-  	// wallwalk
-	vec3_t          lastNormal;
-	vec3_t          lastAxis[3];
-	//smooth_t        sList[MAXSMOOTHS]; //edit hypov8
+    // wallwalk
+  vec3_t          lastNormal;
+  vec3_t          lastAxis[3];
+  //smooth_t        sList[MAXSMOOTHS]; //edit hypov8
 } playerEntity_t;
 
 //=================================================
@@ -521,12 +521,12 @@ typedef struct
   char nikkiTeam[MAX_TEAMNAME];
   qboolean deferred;
 
-  	qboolean    iqm; // true if model is an iqm model
+    qboolean    iqm; // true if model is an iqm model
   qboolean newAnims;      // true if using the new mission pack animations
   qboolean fixedlegs;     // true if legs yaw is always the same as torso yaw
   qboolean fixedtorso;    // true if torso never changes yaw
-	qboolean    nonsegmented; // true if model is Q2 style nonsegmented
-	qboolean    md5; // true if model is in the md5 model format
+  qboolean    nonsegmented; // true if model is Q2 style nonsegmented
+  qboolean    md5; // true if model is in the md5 model format
 
   vec3_t headOffset;      // move head in icon views
   footstep_t footsteps;
@@ -543,11 +543,11 @@ typedef struct
   qhandle_t headModel;
   qhandle_t headSkin;
 
-	qhandle_t   nonSegModel; //non-segmented model system
-	qhandle_t   nonSegSkin; //non-segmented model system
+  qhandle_t   nonSegModel; //non-segmented model system
+  qhandle_t   nonSegSkin; //non-segmented model system
 
-	qhandle_t   bodyModel; //md5 model format
-	qhandle_t   bodySkin; //md5 model format
+  qhandle_t   bodyModel; //md5 model format
+  qhandle_t   bodySkin; //md5 model format
 
   qhandle_t modelIcon;
 
@@ -555,7 +555,7 @@ typedef struct
 
   sfxHandle_t sounds[MAX_CUSTOM_SOUNDS];
 
-	vec_t       modelScale;
+  vec_t       modelScale;
 
   //char firstTorsoBoneName[MAX_QPATH];
   //char lastTorsoBoneName[MAX_QPATH];
@@ -568,21 +568,21 @@ typedef struct
   int neckControlBone; //add hypov8
   char neckControlBoneName[MAX_QPATH]; //add hypov8 needed for lerp sprites
 
-	int         torsoControlBone;
-	//int         leftShoulderBone;
-	//int         rightShoulderBone;
+  int         torsoControlBone;
+  //int         leftShoulderBone;
+  //int         rightShoulderBone;
 
-	int         legBones[ MAX_BONES ];
-	int         numLegBones;
+  int         legBones[ MAX_BONES ];
+  int         numLegBones;
 
-	int         weaponAdjusted; // bitmask of all weapons that have hand deltas
-	int         handBones[ MAX_BONES ];
-	int         numHandBones;
+  int         weaponAdjusted; // bitmask of all weapons that have hand deltas
+  int         handBones[ MAX_BONES ];
+  int         numHandBones;
 
-	char        voice[ 64 ];
-	sfxHandle_t customFootsteps[ 4 ];
-	sfxHandle_t customMetalFootsteps[ 4 ];
-	int         voiceTime;
+  char        voice[ 64 ];
+  sfxHandle_t customFootsteps[ 4 ];
+  sfxHandle_t customMetalFootsteps[ 4 ];
+  int         voiceTime;
 } clientInfo_t;
 
 
@@ -596,7 +596,7 @@ typedef struct weaponInfo_s
   qboolean         md5;
 
   qhandle_t tagModel;					// tags don't actually draw, they just position the muzzle flash/light
-										//hypov8 note: only needed if weapon is shared 1st/3rd and needs offset
+                    //hypov8 note: only needed if weapon is shared 1st/3rd and needs offset
   //match bg gitem_t order
   qhandle_t weaponModel;				//1st person weapon model
   qhandle_t handModel;					//1st person hand model
@@ -605,17 +605,14 @@ typedef struct weaponInfo_s
   qhandle_t worldPlayerWeaponModel;     //3rd person player
   qhandle_t worldWeaponModel;			//map weapon model
 
-  
   qhandle_t mod1WeaponModel;
   qhandle_t mod2WeaponModel;
   qhandle_t mod3WeaponModel;
-
 
   qhandle_t weaponIcon;
   qhandle_t ammoIcon;
   qhandle_t ammoModel; //world/hud ammo clip
   qhandle_t barrelModel;
-
 
   vec3_t weaponMidpoint;                   // so it will rotate centered instead of by tag
   vec3_t eweaponMidpoint;                  // 0xA5EA
@@ -626,8 +623,6 @@ typedef struct weaponInfo_s
   float flashDlight;
   vec3_t flashDlightColor;
   sfxHandle_t flashSound[MAX_FLASH_SOUNDS];   // fast firing weapons randomly choose	0xA5EA, war 2
-
-
 
   qhandle_t missileModel;
   sfxHandle_t missileSound;
@@ -903,22 +898,22 @@ typedef struct
   // information screen text during loading
   progressInfo_t progressInfo[NUM_PROGRESS];
   int progress;
-  
+
 //unlagged - optimized prediction
-	int			lastPredictedCommand;
-	int			lastServerTime;
-	playerState_t savedPmoveStates[NUM_SAVED_STATES];
-	int			stateHead, stateTail;
-	int         ping;
+  int			lastPredictedCommand;
+  int			lastServerTime;
+  playerState_t savedPmoveStates[NUM_SAVED_STATES];
+  int			stateHead, stateTail;
+  int         ping;
 //unlagged - optimized prediction
 
-	// pmove params
-	struct {
-		int synchronous;
-		int fixed;
-		int msec;
-		int accurate;
-	} pmoveParams;
+  // pmove params
+  struct {
+    int synchronous;
+    int fixed;
+    int msec;
+    int accurate;
+  } pmoveParams;
 
 } cg_t;
 
@@ -963,7 +958,7 @@ typedef struct
   qhandle_t dragonsSafeBaseModel;
   qhandle_t nikkisSafeBaseModel;
   qhandle_t cashStolenModel; // add hypov8
-  
+
   //qhandle_t cashStolenSkin; // add hypov8
 
 #ifdef GT_USE_TA_TYPES
@@ -980,7 +975,7 @@ typedef struct
 
   qhandle_t armorModel[3];
   qhandle_t armorIcon[7]; //hypov8 add
- 
+
 
   qhandle_t teamStatusBar;
 
@@ -1062,7 +1057,7 @@ typedef struct
   qhandle_t bulletMarkwood[2];
   qhandle_t bulletMarkglas[2];
 
-	qhandle_t burnMarkShader;
+  qhandle_t burnMarkShader;
   qhandle_t burnMarkShaderRl;
   qhandle_t holeMarkShader;
   qhandle_t energyMarkShader;
@@ -1471,8 +1466,8 @@ typedef struct
   cgMedia_t media;
 
   //unlagged - client options
-	// this will be set to the server's g_delagHitscan
-	int				delagHitscan;
+  // this will be set to the server's g_delagHitscan
+  int				delagHitscan;
 //unlagged - client options
 } cgs_t;
 
@@ -1793,7 +1788,7 @@ qboolean CG_PlayerShadow(centity_t *cent, float *shadowPlane);
 //qboolean CG_FindClientHeadFile(char *filename, int length, clientInfo_t *ci, const char *teamName, const char *headModelName, const char *headSkinName, const char *base, const char *ext);
 //qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *modelName, const char *skinName, const char *base, const char *ext); //add hypov8; duplcate without teams(test)
 qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *headModelName, const char *base, const char *ext); //add hypov8; duplcate with teams(test)
-	//end hypov8
+  //end hypov8
 
 void CG_SwingAngles(float destination, float swingTolerance, float clampTolerance, float speed, float *angle, qboolean *swinging);
 void CG_AddPainTwitch(centity_t *cent, vec3_t torsoAngles);
@@ -2009,7 +2004,7 @@ void CG_PlayBufferedVoiceChats(void);
 void CG_Respawn(void);
 void CG_TransitionPlayerState(playerState_t *ps, playerState_t *ops);
 void CG_CheckChangedPredictableEvents(playerState_t *ps);
-void CG_DamageFeedback(int yawByte, int pitchByte, int damage); 
+void CG_DamageFeedback(int yawByte, int pitchByte, int damage);
 void CG_ShootFeedback(int weaponUsed); //add hypov8 use for recoil????
 
 #ifdef XPPM

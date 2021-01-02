@@ -644,26 +644,26 @@ used to set fps bassed on frame count instead of using animation.cfg "fps" value
 */
 static int CG_WeaponReloadTimeOffset(int weapon)
 {
-	switch (weapon)
-	{
-	default:
-	case WP_PISTOL:
-		return WP_TIME_RELOAD_PISTOL;
-	case WP_SHOTGUN:
-		return WP_TIME_RELOAD_SHOTGUN;
-	case WP_MACHINEGUN:
-		return WP_TIME_RELOAD_MACHINEGUN;
-	case WP_GRENADE_LAUNCHER:
-		return WP_TIME_RELOAD_GRENADE_LAUNCHER;
-	case WP_ROCKET_LAUNCHER:
-		return WP_TIME_RELOAD_ROCKET_LAUNCHER;
-	case WP_HMG:
-		return WP_TIME_RELOAD_HMG;
+  switch (weapon)
+  {
+  default:
+  case WP_PISTOL:
+    return WP_TIME_RELOAD_PISTOL;
+  case WP_SHOTGUN:
+    return WP_TIME_RELOAD_SHOTGUN;
+  case WP_MACHINEGUN:
+    return WP_TIME_RELOAD_MACHINEGUN;
+  case WP_GRENADE_LAUNCHER:
+    return WP_TIME_RELOAD_GRENADE_LAUNCHER;
+  case WP_ROCKET_LAUNCHER:
+    return WP_TIME_RELOAD_ROCKET_LAUNCHER;
+  case WP_HMG:
+    return WP_TIME_RELOAD_HMG;
 #ifdef USE_FLAMEGUN
-	case WP_FLAMER:
-		return WP_TIME_RELOAD_FLAMEGUN;
+  case WP_FLAMER:
+    return WP_TIME_RELOAD_FLAMEGUN;
 #endif
-	}
+  }
 }
 
 /*
@@ -674,35 +674,35 @@ time to complete an animation cycle
 used to set fps bassed on frame count instead of using animation.cfg "fps" value
 
 guns with mods will run full the animation time
-but this gets terminated by a new event  
+but this gets terminated by a new event
 ================
 */
 static int CG_WeaponFireTimeOffset(int weaponIndex)
 {
-	switch (weaponIndex)
-	{
-	default:
-	case WP_CROWBAR:
-		return WP_TIME_FIRE_CROWBAR;
-	case WP_PISTOL:
-		return WP_TIME_FIRE_PISTOL;
-	case WP_SHOTGUN:
-		return WP_TIME_FIRE_SHOTGUN;
-	case WP_MACHINEGUN:
-		return WP_TIME_FIRE_MACHINEGUN;
-	case WP_GRENADE_LAUNCHER:
-		return WP_TIME_FIRE_GRENADE_LAUNCHER;
-	case WP_ROCKET_LAUNCHER:
-		return WP_TIME_FIRE_ROCKET_LAUNCHER;
-	case WP_HMG:
-		return WP_TIME_FIRE_HMG_LAST;
+  switch (weaponIndex)
+  {
+  default:
+  case WP_CROWBAR:
+    return WP_TIME_FIRE_CROWBAR;
+  case WP_PISTOL:
+    return WP_TIME_FIRE_PISTOL;
+  case WP_SHOTGUN:
+    return WP_TIME_FIRE_SHOTGUN;
+  case WP_MACHINEGUN:
+    return WP_TIME_FIRE_MACHINEGUN;
+  case WP_GRENADE_LAUNCHER:
+    return WP_TIME_FIRE_GRENADE_LAUNCHER;
+  case WP_ROCKET_LAUNCHER:
+    return WP_TIME_FIRE_ROCKET_LAUNCHER;
+  case WP_HMG:
+    return WP_TIME_FIRE_HMG_LAST;
 #ifdef USE_FLAMEGUN
-	case WP_FLAMER:
-		return WP_TIME_FIRE_FLAMEGUN;
+  case WP_FLAMER:
+    return WP_TIME_FIRE_FLAMEGUN;
 #endif
-	case WP_GRAPPLING_HOOK:
-		return WP_TIME_FIRE_GRAPPLING_HOOK;
-	}
+  case WP_GRAPPLING_HOOK:
+    return WP_TIME_FIRE_GRAPPLING_HOOK;
+  }
 }
 
 /*
@@ -718,13 +718,13 @@ used to set fps bassed on frame count instead of using animation.cfg "fps" value
 */
 static int CG_WeaponChangeTimeOffset(int weapon)
 {
-	switch (weapon)
-	{
-		case WP_CROWBAR:
-		case WP_GRAPPLING_HOOK:
-			return WP_TIME_CHANGE_MELEE;
-	}
-	return WP_TIME_CHANGE_GUNS;
+  switch (weapon)
+  {
+    case WP_CROWBAR:
+    case WP_GRAPPLING_HOOK:
+      return WP_TIME_CHANGE_MELEE;
+  }
+  return WP_TIME_CHANGE_GUNS;
 }
 
 /*
@@ -740,12 +740,12 @@ used to set fps bassed on frame count instead of using animation.cfg "fps" value
 */
 static int CG_WeaponModTimeOffset(int weapon)
 {
-	switch (weapon)
-	{
-	case WP_SHOTGUN:
-			return WP_TIME_MOD_SHOTGUN*2;
-	}
-	return 0; //todo other mods
+  switch (weapon)
+  {
+  case WP_SHOTGUN:
+      return WP_TIME_MOD_SHOTGUN*2;
+  }
+  return 0; //todo other mods
 }
 
 static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *animations, int weaponNum)
@@ -760,8 +760,8 @@ static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *a
   int maxWepStates = WEAPON_RELOAD_MOD;
 
   if ( weaponNum == WP_SHOTGUN || weaponNum == WP_CROWBAR )
-	maxWepStates = MAX_WEAPON_STATES; //hypov8 todo: add WEAPON_MOD to all animation.cfg
-  
+  maxWepStates = MAX_WEAPON_STATES; //hypov8 todo: add WEAPON_MOD to all animation.cfg
+
   Com_Memset(animations, 0, sizeof(animation_t) * MAX_WEAPON_STATES);
 
   if (cg_debugWeaponAnim.integer)
@@ -811,10 +811,10 @@ static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *a
     if (!token)
       break;
 
-	if (ws == WEAPON_READY && atoi(token) > 0) // disable loop on all but idle
-		animations[ws].loopFrames = animations[ws].numFrames;//hypov8 force looping whole sequence
-	else
-		animations[ws].loopFrames = 0;
+    if (ws == WEAPON_READY && atoi(token) > 0) // disable loop on all but idle
+      animations[ws].loopFrames = animations[ws].numFrames;//hypov8 force looping whole sequence
+    else
+      animations[ws].loopFrames = 0;
 
     token = COM_Parse(&text_p);
     if (!token)
@@ -827,33 +827,33 @@ static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *a
       fps = 15;
     }
 
-	//add hypov8 sync animation using a #defined total animation time in engine, not animation.cfg
-	//this allows the complte animation sequence to run in the set timeframe
-	if (ws == WEAPON_RELOADING && animations[ws].numFrames > 0)
-	{
-		animations[ws].frameLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
-		animations[ws].initialLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
-	}
-	else if (ws == WEAPON_RELOAD_MOD && animations[ws].numFrames > 0)
-	{
-		animations[ws].frameLerp = floor(CG_WeaponModTimeOffset(weaponNum) / animations[ws].numFrames);
-		animations[ws].initialLerp = floor(CG_WeaponModTimeOffset(weaponNum) / animations[ws].numFrames);
-	}
-	else if (ws == WEAPON_FIRING && animations[ws].numFrames > 0)
-	{
-		animations[ws].frameLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
-		animations[ws].initialLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
-	}
-	else if ((ws == WEAPON_DROPPING || ws == WEAPON_RAISING) && animations[ws].numFrames > 0)
-	{
-		animations[ws].frameLerp = floor(CG_WeaponChangeTimeOffset(weaponNum) / animations[ws].numFrames);
-		animations[ws].initialLerp = floor(CG_WeaponChangeTimeOffset(weaponNum) / animations[ws].numFrames);
-	}
-	else //WEAPON_READY
-	{
-		animations[ws].frameLerp  = 1000 / fps;
-		animations[ws].initialLerp = 1000 / fps;
-	}
+  //add hypov8 sync animation using a #defined total animation time in engine, not animation.cfg
+  //this allows the complte animation sequence to run in the set timeframe
+  if (ws == WEAPON_RELOADING && animations[ws].numFrames > 0)
+  {
+    animations[ws].frameLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
+    animations[ws].initialLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
+  }
+  else if (ws == WEAPON_RELOAD_MOD && animations[ws].numFrames > 0)
+  {
+    animations[ws].frameLerp = floor(CG_WeaponModTimeOffset(weaponNum) / animations[ws].numFrames);
+    animations[ws].initialLerp = floor(CG_WeaponModTimeOffset(weaponNum) / animations[ws].numFrames);
+  }
+  else if (ws == WEAPON_FIRING && animations[ws].numFrames > 0)
+  {
+    animations[ws].frameLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
+    animations[ws].initialLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
+  }
+  else if ((ws == WEAPON_DROPPING || ws == WEAPON_RAISING) && animations[ws].numFrames > 0)
+  {
+    animations[ws].frameLerp = floor(CG_WeaponChangeTimeOffset(weaponNum) / animations[ws].numFrames);
+    animations[ws].initialLerp = floor(CG_WeaponChangeTimeOffset(weaponNum) / animations[ws].numFrames);
+  }
+  else //WEAPON_READY
+  {
+    animations[ws].frameLerp  = 1000 / fps;
+    animations[ws].initialLerp = 1000 / fps;
+  }
 
 
     if (cg_debugWeaponAnim.integer)
@@ -898,7 +898,7 @@ static qboolean CG_RegisterWeaponAnimation(animation_t * anim, const char *filen
     frameRate = 1;
   }
 
-	anim->frameLerp = 1000 / frameRate; //hypov8 merge: frameTime
+  anim->frameLerp = 1000 / frameRate; //hypov8 merge: frameTime
   anim->initialLerp = 1000 / frameRate;
 
   if (loop)
@@ -954,22 +954,22 @@ void CG_RegisterWeapon(int weaponNum)
 
   CG_RegisterItemVisuals(item - bg_itemlist);
 
-	// load cmodel before model so filecache works
-	if (item->world_model[WORLD_GUNMODEL_POS])
-		weaponInfo->weaponModel  = trap_R_RegisterModel(item->world_model[WORLD_GUNMODEL_POS]); // 0xA5EA, test, only worldmodel works ?
-	else
-	  CG_Error("Missing view wep for index %i", weaponNum);
+  // load cmodel before model so filecache works
+  if (item->world_model[WORLD_GUNMODEL_POS])
+    weaponInfo->weaponModel  = trap_R_RegisterModel(item->world_model[WORLD_GUNMODEL_POS]); // 0xA5EA, test, only worldmodel works ?
+  else
+    CG_Error("Missing view wep for index %i", weaponNum);
 
-	if (item->world_model[WORLD_HANDMODEL_POS])
-		weaponInfo->handModel = trap_R_RegisterModel(item->world_model[WORLD_HANDMODEL_POS]);
-	if (item->world_model[WORLD_FLASHMODEL_POS])
-		weaponInfo->flashModel = trap_R_RegisterModel(item->world_model[WORLD_FLASHMODEL_POS]);
-	if (item->world_model[WORLD_CLIPMODEL_POS])
-		weaponInfo->ammoClipModel = trap_R_RegisterModel(item->world_model[WORLD_CLIPMODEL_POS]);
-	if (item->world_model[WORLD_PLAYERWEAPONMODEL_POS])
-		weaponInfo->worldPlayerWeaponModel = trap_R_RegisterModel(item->world_model[WORLD_PLAYERWEAPONMODEL_POS]);
-	if (item->world_model[WORLD_WEAPONMODEL_POS])
-		weaponInfo->worldWeaponModel = trap_R_RegisterModel(item->world_model[WORLD_WEAPONMODEL_POS]);
+  if (item->world_model[WORLD_HANDMODEL_POS])
+    weaponInfo->handModel = trap_R_RegisterModel(item->world_model[WORLD_HANDMODEL_POS]);
+  if (item->world_model[WORLD_FLASHMODEL_POS])
+    weaponInfo->flashModel = trap_R_RegisterModel(item->world_model[WORLD_FLASHMODEL_POS]);
+  if (item->world_model[WORLD_CLIPMODEL_POS])
+    weaponInfo->ammoClipModel = trap_R_RegisterModel(item->world_model[WORLD_CLIPMODEL_POS]);
+  if (item->world_model[WORLD_PLAYERWEAPONMODEL_POS])
+    weaponInfo->worldPlayerWeaponModel = trap_R_RegisterModel(item->world_model[WORLD_PLAYERWEAPONMODEL_POS]);
+  if (item->world_model[WORLD_WEAPONMODEL_POS])
+    weaponInfo->worldWeaponModel = trap_R_RegisterModel(item->world_model[WORLD_WEAPONMODEL_POS]);
 
   // calc midpoint for rotation
   trap_R_ModelBounds(weaponInfo->weaponModel, mins, maxs);
@@ -990,16 +990,16 @@ void CG_RegisterWeapon(int weaponNum)
 
   for (ammo = bg_itemlist + 1; ammo->classname; ammo++)
   {
-	  if (weaponNum == WP_PISTOL) //add hypov8. use machinegun ammo as pistol
-	  {
-		  if (ammo->giType == IT_AMMO && ammo->giTag == WP_MACHINEGUN)
-			  break;
-	  }
-	  else
-	  { 
-		 if (ammo->giType == IT_AMMO && ammo->giTag == weaponNum)
-			break;
-	  }
+    if (weaponNum == WP_PISTOL) //add hypov8. use machinegun ammo as pistol
+    {
+      if (ammo->giType == IT_AMMO && ammo->giTag == WP_MACHINEGUN)
+        break;
+    }
+    else
+    {
+     if (ammo->giType == IT_AMMO && ammo->giTag == weaponNum)
+      break;
+    }
   }
 
   if (ammo->classname && ammo->world_model[0])
@@ -1009,7 +1009,7 @@ void CG_RegisterWeapon(int weaponNum)
 
   weaponInfo->tagModel = trap_R_RegisterModel("models/weapons/v_tag.md3"); //add tag to all guns
 
-  switch (weaponNum) //hypov8 todo: clean this up. 
+  switch (weaponNum) //hypov8 todo: clean this up.
   {
   //case WP_PIPE: /hypov8 todo: blackjack
 
@@ -1019,24 +1019,24 @@ void CG_RegisterWeapon(int weaponNum)
     break;
 
   case WP_PISTOL:
-	  MAKERGB(weaponInfo->flashDlightColor, 0.5f, 0.5f, 0); //add hypov8
-	  Com_sprintf(anim_file, MAX_QPATH, "%s", "models/weapons/colt/animation.cfg");
-	  //load mods(complete gun+mod)
-	  weaponInfo->mod1WeaponModel = trap_R_RegisterModel("models/weapons/colt/v_wep_mag.md3");  //PW_WPMOD_PISTOLMAGNUM
-	  weaponInfo->mod2WeaponModel = trap_R_RegisterModel("models/weapons/colt/v_wep_sil.md3");	//PW_WPMOD_SILENCER
-	  weaponInfo->mod3WeaponModel = trap_R_RegisterModel("models/weapons/colt/v_wep_mag_sil.md3"); //PW_WPMOD_PISTOLMAGNUM && PW_WPMOD_SILENCER
-	  //load moded sounds
-	  weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/pistol/ColtPistollouder.ogg", qfalse);
-	  weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/pistol/silencer.ogg", qfalse);
+    MAKERGB(weaponInfo->flashDlightColor, 0.5f, 0.5f, 0); //add hypov8
+    Com_sprintf(anim_file, MAX_QPATH, "%s", "models/weapons/colt/animation.cfg");
+    //load mods(complete gun+mod)
+    weaponInfo->mod1WeaponModel = trap_R_RegisterModel("models/weapons/colt/v_wep_mag.md3");  //PW_WPMOD_PISTOLMAGNUM
+    weaponInfo->mod2WeaponModel = trap_R_RegisterModel("models/weapons/colt/v_wep_sil.md3");	//PW_WPMOD_SILENCER
+    weaponInfo->mod3WeaponModel = trap_R_RegisterModel("models/weapons/colt/v_wep_mag_sil.md3"); //PW_WPMOD_PISTOLMAGNUM && PW_WPMOD_SILENCER
+    //load moded sounds
+    weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/pistol/ColtPistollouder.ogg", qfalse);
+    weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/pistol/silencer.ogg", qfalse);
 
-	  //FIXME: 0xA5EA shader and stuff
-	  //		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-	  weaponInfo->reloadSound = trap_S_RegisterSound("sound/weapons/pistol/clip_in.ogg", qfalse);
-	  weaponInfo->missileTrailFunc = CG_NailTrail;
-	  //FIXME(0xA5EA): nailtrail ok ??
-	  weaponInfo->wiTrailTime = 700;
-	  weaponInfo->trailRadius = 4;
-	  weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
+    //FIXME: 0xA5EA shader and stuff
+    //		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
+    weaponInfo->reloadSound = trap_S_RegisterSound("sound/weapons/pistol/clip_in.ogg", qfalse);
+    weaponInfo->missileTrailFunc = CG_NailTrail;
+    //FIXME(0xA5EA): nailtrail ok ??
+    weaponInfo->wiTrailTime = 700;
+    weaponInfo->trailRadius = 4;
+    weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
     break;
 
   case WP_MACHINEGUN:
@@ -1053,18 +1053,18 @@ void CG_RegisterWeapon(int weaponNum)
     break;
 
   case WP_SHOTGUN:
-	MAKERGB(weaponInfo->flashDlightColor, 0.5f, 0.5f, 0);
+  MAKERGB(weaponInfo->flashDlightColor, 0.5f, 0.5f, 0);
     Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/shotgun/animation.cfg");
     weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/shotgun/fire1.ogg", qfalse);
-	weaponInfo->reloadSound    = trap_S_RegisterSound("sound/weapons/shotgun/reload.ogg", qfalse);
+  weaponInfo->reloadSound    = trap_S_RegisterSound("sound/weapons/shotgun/reload.ogg", qfalse);
     weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
     break;
 
   case WP_ROCKET_LAUNCHER:
-	//models
+  //models
     Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/rocketlauncher/animation.cfg");
     weaponInfo->missileModel = trap_R_RegisterModel("models/weapons/rocketlauncher/rocket.md3");
-	//sounds
+  //sounds
     weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket_launcher/rl_rocket-gverb.ogg", qfalse);
     weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/rocket_launcher/rl_fire.ogg", qfalse);
     weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/rocket_launcher/rl_fire.ogg", qfalse);
@@ -1075,7 +1075,7 @@ void CG_RegisterWeapon(int weaponNum)
     weaponInfo->wiTrailTime   = 2000;
     weaponInfo->trailRadius   = 128;
     weaponInfo->customSmokePuffshader = cgs.media.smokePuffRlShader;
-	//light
+  //light
     MAKERGB(weaponInfo->missileDlightColor[0],   1.f, 0.75f,   0.f);
     MAKERGB(weaponInfo->missileDlightColor[1], 0.75f,   1.f,   0.f);
     MAKERGB(weaponInfo->missileDlightColor[2],   0.f,   1.f, 0.75f);
@@ -1087,7 +1087,7 @@ void CG_RegisterWeapon(int weaponNum)
 
   case WP_GRENADE_LAUNCHER:
     MAKERGB(weaponInfo->flashDlightColor, 1, 0.70f, 0);
-	//models
+  //models
     Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/grenadelauncher/animation.cfg");
     weaponInfo->missileModel = trap_R_RegisterModel("models/ammo/grenade1.md3");
     weaponInfo->missileTrailFunc = CG_GrenadeTrail;
@@ -1100,10 +1100,10 @@ void CG_RegisterWeapon(int weaponNum)
     break;
 
   case WP_HMG:
-	MAKERGB(weaponInfo->flashDlightColor, 0.6f, 0.3f, 0.0f);
+  MAKERGB(weaponInfo->flashDlightColor, 0.6f, 0.3f, 0.0f);
     Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/hmg/animation.cfg");
     weaponInfo->mod1WeaponModel = trap_R_RegisterModel("models/weapons/hmg/hmgcool.md3");
-	weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/hmg/hmg_one.ogg", qfalse);                /* 0xA5EA */
+  weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/hmg/hmg_one.ogg", qfalse);                /* 0xA5EA */
     weaponInfo->reloadSound    = trap_S_RegisterSound("sound/weapons/hmg/hmgcock.ogg", qfalse);            /* 0xA5EA */
     weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 
@@ -1116,19 +1116,19 @@ void CG_RegisterWeapon(int weaponNum)
 
 #ifdef USE_FLAMEGUN
   case WP_FLAMER:
-	//models
-    Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/flamegun/animation.cfg");   
+  //models
+    Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/flamegun/animation.cfg");
 #ifdef HYPODEBUG//	CG_Flamer(cent); //debug
-	weaponInfo->missileModel = trap_R_RegisterModel("models/weapons/rocketlauncher/rocket.md3");
+  weaponInfo->missileModel = trap_R_RegisterModel("models/weapons/rocketlauncher/rocket.md3");
 #endif
     //sounds
-	weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/flame_thrower/flame1.ogg", qfalse);
+  weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/flame_thrower/flame1.ogg", qfalse);
     weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/flame_thrower/flame2.ogg", qfalse);
     weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/flame_thrower/flame3.ogg", qfalse);
     //weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/flame_thrower/flameend.ogg", qfalse);
     //weaponInfo->firingSound //hypov8 todo: looping sound
     weaponInfo->readySound    = trap_S_RegisterSound("sound/weapons/flame_thrower/flamepilot.ogg", qfalse);
-	//light
+  //light
     MAKERGB(weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f);
     //FIXME: 0xA5EA, shader
     break;
@@ -1171,14 +1171,14 @@ Precaches weapons
 */
 void CG_InitWeapons()
 {
-	int i;
+  int i;
 
-	Com_Memset( cg_weapons, 0, sizeof( cg_weapons ) );
+  Com_Memset( cg_weapons, 0, sizeof( cg_weapons ) );
 
-	for ( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-	{
-		CG_RegisterWeapon( i );
-	}
+  for ( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    CG_RegisterWeapon( i );
+  }
 }
 
 
@@ -1249,50 +1249,50 @@ may include ANIM_TOGGLEBIT
 #if 1 //unvan
 static void CG_SetWeaponLerpFrameAnimation( weapon_t weapon, lerpFrame_t *lf, int newAnimation )
 {
-	animation_t *anim;
-	qboolean toggle = qfalse;
+  animation_t *anim;
+  qboolean toggle = qfalse;
 
-	lf->animationNumber = newAnimation;
-	toggle = newAnimation & ANIM_TOGGLEBIT;
-	newAnimation &= ~ANIM_TOGGLEBIT;
+  lf->animationNumber = newAnimation;
+  toggle = newAnimation & ANIM_TOGGLEBIT;
+  newAnimation &= ~ANIM_TOGGLEBIT;
 
-	if ( newAnimation < 0 || newAnimation >= MAX_WEAPON_STATES )
-	{
-		CG_Error( "Bad animation number: %i", newAnimation );
-	}
+  if ( newAnimation < 0 || newAnimation >= MAX_WEAPON_STATES )
+  {
+    CG_Error( "Bad animation number: %i", newAnimation );
+  }
 
-	anim = &cg_weapons[ weapon ].animations[ newAnimation ];
+  anim = &cg_weapons[ weapon ].animations[ newAnimation ];
 
-	lf->animation = anim;
+  lf->animation = anim;
 
-	//animation changed. choose blend mode.
-	if (newAnimation == WEAPON_FIRING || newAnimation == WEAPON_RAISING || lf->animationNumber == -1) //hypov8 add: dont tween animations
-	{
-		lf->animationTime = lf->frameTime = cg.time;
-		lf->frame = lf->oldFrame = anim->firstFrame; //hypov8 md3 is not 0
-	}
-	else
-	{
-		lf->oldFrame = lf->frame;
-		lf->animationTime = lf->frameTime = cg.time + anim->initialLerp; //hypov8 use ani tween time?
-		lf->frame = anim->firstFrame; //hypov8 md3 is not 0
-	}
-	//lf->animationTime = lf->frameTime + anim->initialLerp; //unvan .5
-	//lf->frame = lf->oldFrame = 0; //unvan .5
+  //animation changed. choose blend mode.
+  if (newAnimation == WEAPON_FIRING || newAnimation == WEAPON_RAISING || lf->animationNumber == -1) //hypov8 add: dont tween animations
+  {
+    lf->animationTime = lf->frameTime = cg.time;
+    lf->frame = lf->oldFrame = anim->firstFrame; //hypov8 md3 is not 0
+  }
+  else
+  {
+    lf->oldFrame = lf->frame;
+    lf->animationTime = lf->frameTime = cg.time + anim->initialLerp; //hypov8 use ani tween time?
+    lf->frame = anim->firstFrame; //hypov8 md3 is not 0
+  }
+  //lf->animationTime = lf->frameTime + anim->initialLerp; //unvan .5
+  //lf->frame = lf->oldFrame = 0; //unvan .5
 
-	if (cg_debugAnim.integer)
-	{
-		CG_Printf( "Anim: %i\n", newAnimation );
-	}
+  if (cg_debugAnim.integer)
+  {
+    CG_Printf( "Anim: %i\n", newAnimation );
+  }
 
-	if ( &cg_weapons[ weapon ].md5 && !toggle && lf && lf->old_animation && lf->old_animation->handle )
-	{
-		if ( !trap_R_BuildSkeleton( &oldGunSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->backlerp, lf->old_animation->clearOrigin ) )
-		{
-			CG_Printf( "CG_SetWeaponLerpFrameAnimation: can't build old gunSkeleton\n" );
-			return;
-		}
-	}
+  if ( &cg_weapons[ weapon ].md5 && !toggle && lf && lf->old_animation && lf->old_animation->handle )
+  {
+    if ( !trap_R_BuildSkeleton( &oldGunSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->backlerp, lf->old_animation->clearOrigin ) )
+    {
+      CG_Printf( "CG_SetWeaponLerpFrameAnimation: can't build old gunSkeleton\n" );
+      return;
+    }
+  }
 }
 
 /*
@@ -1302,26 +1302,26 @@ CG_WeaponAnimation
 */
 static void CG_WeaponAnimation( centity_t *cent, int *old, int *now, float *backLerp )
 {
-	lerpFrame_t   *lf = &cent->pe.weapon;
-	entityState_t *es = &cent->currentState;
+  lerpFrame_t   *lf = &cent->pe.weapon;
+  entityState_t *es = &cent->currentState;
 
-	// see if the animation sequence is switching
-	if ( es->weaponAnim != lf->animationNumber || !lf->animation || ( cg_weapons[ es->weapon ].md5 && !lf->animation->handle ) )
-	{
-		CG_SetWeaponLerpFrameAnimation( (weapon_t) es->weapon, lf, es->weaponAnim );
-	}
+  // see if the animation sequence is switching
+  if ( es->weaponAnim != lf->animationNumber || !lf->animation || ( cg_weapons[ es->weapon ].md5 && !lf->animation->handle ) )
+  {
+    CG_SetWeaponLerpFrameAnimation( (weapon_t) es->weapon, lf, es->weaponAnim );
+  }
 
-	CG_RunLerpFrame( lf, 1.0f );
+  CG_RunLerpFrame( lf, 1.0f );
 
-	*old = lf->oldFrame;
-	*now = lf->frame;
-	*backLerp = lf->backlerp;
+  *old = lf->oldFrame;
+  *now = lf->frame;
+  *backLerp = lf->backlerp;
 
-	if ( cg_weapons[ es->weapon ].md5 )
-	{
-		CG_BlendLerpFrame( lf );
-		CG_BuildAnimSkeleton( lf, &gunSkeleton, &oldGunSkeleton );
-	}
+  if ( cg_weapons[ es->weapon ].md5 )
+  {
+    CG_BlendLerpFrame( lf );
+    CG_BuildAnimSkeleton( lf, &gunSkeleton, &oldGunSkeleton );
+  }
 }
 #endif
 /*
@@ -1334,56 +1334,56 @@ hypov8 merge: not used previously+ using old ver
 #if 1
 static int CG_MapTorsoToWeaponFrame(clientInfo_t *ci, int frame, int anim, int weaponNum)
 {
-	if (anim == -1)
-		return 0;
+  if (anim == -1)
+    return 0;
 
-	if (0 /*!cg_highPolyPlayerModels.integer*/) //FIXME(0xA5EA):merge //hypov8 IQM models? with 1 animation file
-	{
-		// change weapon
-		if (frame >= ci->animations[TORSO_DROP].firstFrame
-			&& frame < ci->animations[TORSO_DROP].firstFrame + 9)
-		{
-			return frame - ci->animations[TORSO_DROP].firstFrame + 6;
-		}
+  if (0 /*!cg_highPolyPlayerModels.integer*/) //FIXME(0xA5EA):merge //hypov8 IQM models? with 1 animation file
+  {
+    // change weapon
+    if (frame >= ci->animations[TORSO_DROP].firstFrame
+      && frame < ci->animations[TORSO_DROP].firstFrame + 9)
+    {
+      return frame - ci->animations[TORSO_DROP].firstFrame + 6;
+    }
 
-		// stand attack
-		if (frame >= ci->animations[TORSO_ATTACK].firstFrame
-			&& frame < ci->animations[TORSO_ATTACK].firstFrame + 6)
-		{
-			return 1 + frame - ci->animations[TORSO_ATTACK].firstFrame;
-		}
+    // stand attack
+    if (frame >= ci->animations[TORSO_ATTACK].firstFrame
+      && frame < ci->animations[TORSO_ATTACK].firstFrame + 6)
+    {
+      return 1 + frame - ci->animations[TORSO_ATTACK].firstFrame;
+    }
 
-		// stand attack 2
-		if (frame >= ci->animations[TORSO_ATTACK2].firstFrame && frame < ci->animations[TORSO_ATTACK2].firstFrame + 6)
-		{
-			return 1 + frame - ci->animations[TORSO_ATTACK2].firstFrame;
-		}
+    // stand attack 2
+    if (frame >= ci->animations[TORSO_ATTACK2].firstFrame && frame < ci->animations[TORSO_ATTACK2].firstFrame + 6)
+    {
+      return 1 + frame - ci->animations[TORSO_ATTACK2].firstFrame;
+    }
 
-		// stand attack 3
-		if (frame >= ci->animations[TORSO_ATTACK3].firstFrame && frame < ci->animations[TORSO_ATTACK3].firstFrame + 6)
-		{
-			return 1 + frame - ci->animations[TORSO_ATTACK3].firstFrame;
-		}
-	}
-	else // MD5 animations all start at 0, so there is no way to differentiate them with first frame alone
-	{
-		weaponInfo_t *weapon = &cg_weapons[weaponNum];
-		// change weapon
-		if (anim == TORSO_DROP && frame < 9)
-		{
-			return frame + weapon->animations[WEAPON_DROPPING].firstFrame;
-		}
-		else if (anim == TORSO_RAISE && frame < 9)
-		{
-			return frame + weapon->animations[WEAPON_RAISING].firstFrame;;
-		}
-		else if ((anim == TORSO_ATTACK || anim == TORSO_ATTACK2 || anim == TORSO_ATTACK3))	// stand attack
-		{
-			return frame + weapon->animations[WEAPON_FIRING].firstFrame;
-		}
-	}
+    // stand attack 3
+    if (frame >= ci->animations[TORSO_ATTACK3].firstFrame && frame < ci->animations[TORSO_ATTACK3].firstFrame + 6)
+    {
+      return 1 + frame - ci->animations[TORSO_ATTACK3].firstFrame;
+    }
+  }
+  else // MD5 animations all start at 0, so there is no way to differentiate them with first frame alone
+  {
+    weaponInfo_t *weapon = &cg_weapons[weaponNum];
+    // change weapon
+    if (anim == TORSO_DROP && frame < 9)
+    {
+      return frame + weapon->animations[WEAPON_DROPPING].firstFrame;
+    }
+    else if (anim == TORSO_RAISE && frame < 9)
+    {
+      return frame + weapon->animations[WEAPON_RAISING].firstFrame;;
+    }
+    else if ((anim == TORSO_ATTACK || anim == TORSO_ATTACK2 || anim == TORSO_ATTACK3))	// stand attack
+    {
+      return frame + weapon->animations[WEAPON_FIRING].firstFrame;
+    }
+  }
 
-	return 0;
+  return 0;
 }
 #endif
 
@@ -1464,14 +1464,14 @@ static void CG_LightningBolt(centity_t *cent, vec3_t origin)
   Com_Memset(&beam, 0, sizeof(beam));
 
 //unlagged - attack prediction #1
-	// if the entity is us, unlagged is on server-side, and we've got it on for the lightning gun
-	if ( (cent->currentState.number == cg.predictedPlayerState.clientNum) && cgs.delagHitscan &&
-			( (cg_delag.integer & 1) || (cg_delag.integer & 8) ) ) {
-		// always shoot straight forward from our current position
-		AngleVectors( cg.predictedPlayerState.viewangles, forward, NULL, NULL );
-		VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
-	}
-	else
+  // if the entity is us, unlagged is on server-side, and we've got it on for the lightning gun
+  if ( (cent->currentState.number == cg.predictedPlayerState.clientNum) && cgs.delagHitscan &&
+      ( (cg_delag.integer & 1) || (cg_delag.integer & 8) ) ) {
+    // always shoot straight forward from our current position
+    AngleVectors( cg.predictedPlayerState.viewangles, forward, NULL, NULL );
+    VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
+  }
+  else
 //unlagged - attack prediction #1
   // CPMA  "true" lightning
   if ((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
@@ -1479,9 +1479,9 @@ static void CG_LightningBolt(centity_t *cent, vec3_t origin)
     vec3_t angle;
     int i;
 //unlagged - true lightning
-		// might as well fix up true lightning while we're at it
-		vec3_t viewangles;
-		VectorCopy( cg.predictedPlayerState.viewangles, viewangles );
+    // might as well fix up true lightning while we're at it
+    vec3_t viewangles;
+    VectorCopy( cg.predictedPlayerState.viewangles, viewangles );
 //unlagged - true lightning
     for (i = 0; i < 3; i++)
     {
@@ -1506,8 +1506,8 @@ static void CG_LightningBolt(centity_t *cent, vec3_t origin)
 //unlagged - true lightning
 //    VectorCopy(cent->lerpOrigin, muzzlePoint);
 //		VectorCopy(cg.refdef.vieworg, muzzlePoint );
-		// *this* is the correct origin for true lightning
-		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint );
+    // *this* is the correct origin for true lightning
+    VectorCopy(cg.predictedPlayerState.origin, muzzlePoint );
     //VectorCopy(cent->lerpOrigin, muzzlePoint); //kpq3 unlag
 //		VectorCopy(cg.refdef.vieworg, muzzlePoint ); //old code kpq3 unlag
 //unlagged - true lightning
@@ -1783,25 +1783,25 @@ sound should only be done on the world model case.
 */
 void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent)
 {
-	static refEntity_t gun;
-	static refEntity_t hand;
-	static refEntity_t ammo;
-	static refEntity_t flash;
-	vec3_t       angles;
-	weapon_t weaponNum;
-	weaponInfo_t *weapon;
-	qboolean firing;
-	qboolean    noGunModel;
+  static refEntity_t gun;
+  static refEntity_t hand;
+  static refEntity_t ammo;
+  static refEntity_t flash;
+  vec3_t       angles;
+  weapon_t weaponNum;
+  weaponInfo_t *weapon;
+  qboolean firing;
+  qboolean    noGunModel;
 
-	weaponNum = (weapon_t)cent->currentState.weapon;
+  weaponNum = (weapon_t)cent->currentState.weapon;
 
-	weapon = &cg_weapons[weaponNum];
-	if ( !weapon->registered )
-	{
-		Com_Printf( S_COLOR_RED "CG_AddPlayerWeapon: weapon %d (ss) "
-			"is not registered", weaponNum/*, BG_Weapon( weaponNum )->name*/ );
-		return;
-	}
+  weapon = &cg_weapons[weaponNum];
+  if ( !weapon->registered )
+  {
+    Com_Printf( S_COLOR_RED "CG_AddPlayerWeapon: weapon %d (ss) "
+      "is not registered", weaponNum/*, BG_Weapon( weaponNum )->name*/ );
+    return;
+  }
 
   firing = ((cent->currentState.eFlags & EF_FIRING) != 0);
 
@@ -1821,161 +1821,161 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent)
   //hand.shadowPlane = ammo.shadowPlane = hand.shadowPlane;
   //hand.renderfx = ammo.renderfx = parent->renderfx;
 
-	if (!ps) //third person 
-	{
-		gun.hModel = weapon->worldPlayerWeaponModel;
-	}
-	else //1st person (firstperson)
-	{
-		Vector4Set(gun.shaderRGBA, (byte)255, (byte)255, (byte)255, (byte)255);
+  if (!ps) //third person
+  {
+    gun.hModel = weapon->worldPlayerWeaponModel;
+  }
+  else //1st person (firstperson)
+  {
+    Vector4Set(gun.shaderRGBA, (byte)255, (byte)255, (byte)255, (byte)255);
 
-		if (weapon->item->giTag == WP_HMG)
-		{
-			if(ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_COOLING))
-			{
-				gun.hModel = weapon->mod1WeaponModel;
-			}
-			else
-			{
-				gun.hModel = weapon->weaponModel;
-			}  
-		}		//FIXME (0xA5EA): pistol
-		else if (weapon->item->giTag == WP_PISTOL)
-		{
-			if ((ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_PISTOLMAGNUM)) && (ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_SILENCER)))
-			{
-				gun.hModel = weapon->mod3WeaponModel;
-			}
-			else if (!(ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_PISTOLMAGNUM)) && (ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_SILENCER)))
-			{
-				gun.hModel = weapon->mod2WeaponModel;
-			}
-			else if ((ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_PISTOLMAGNUM)) && !(ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_SILENCER)))
-			{
-				gun.hModel = weapon->mod1WeaponModel;
-			}
-			else
-			{
-				gun.hModel = weapon->weaponModel;
-			}
-		}
-		else //no mods
-		{
-			gun.hModel = weapon->weaponModel;
-		}
-	} //end 1st person
+    if (weapon->item->giTag == WP_HMG)
+    {
+      if(ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_COOLING))
+      {
+        gun.hModel = weapon->mod1WeaponModel;
+      }
+      else
+      {
+        gun.hModel = weapon->weaponModel;
+      }
+    }		//FIXME (0xA5EA): pistol
+    else if (weapon->item->giTag == WP_PISTOL)
+    {
+      if ((ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_PISTOLMAGNUM)) && (ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_SILENCER)))
+      {
+        gun.hModel = weapon->mod3WeaponModel;
+      }
+      else if (!(ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_PISTOLMAGNUM)) && (ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_SILENCER)))
+      {
+        gun.hModel = weapon->mod2WeaponModel;
+      }
+      else if ((ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_PISTOLMAGNUM)) && !(ps->stats[STAT_WEAP_MODS] & (1<<PW_WPMOD_SILENCER)))
+      {
+        gun.hModel = weapon->mod1WeaponModel;
+      }
+      else
+      {
+        gun.hModel = weapon->weaponModel;
+      }
+    }
+    else //no mods
+    {
+      gun.hModel = weapon->weaponModel;
+    }
+  } //end 1st person
 
-  	noGunModel = ( ( !ps || cg.renderingThirdPerson ) && 0 /*weapon->disableIn3rdPerson*/  )|| !gun.hModel;
+    noGunModel = ( ( !ps || cg.renderingThirdPerson ) && 0 /*weapon->disableIn3rdPerson*/  )|| !gun.hModel;
 
  // if (!gun.hModel)
   //  return;
 
-	if (!ps) //third person
-	{
-		// add weapon ready sound
-		cent->pe.lightningFiring = qfalse;
-		if ((cent->currentState.eFlags & EF_FIRING) && weapon->firingSound)
-		{
-			// lightning gun and guantlet make a different sound when fire is held down
-			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
-			cent->pe.lightningFiring = qtrue;
-		}
-		else if (weapon->readySound)
-		{
-			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound);
-		}
-	}
+  if (!ps) //third person
+  {
+    // add weapon ready sound
+    cent->pe.lightningFiring = qfalse;
+    if ((cent->currentState.eFlags & EF_FIRING) && weapon->firingSound)
+    {
+      // lightning gun and guantlet make a different sound when fire is held down
+      trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
+      cent->pe.lightningFiring = qtrue;
+    }
+    else if (weapon->readySound)
+    {
+      trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound);
+    }
+  }
 
-	if (!noGunModel)
-	{
-		if ( ps )	//first person
-		{
-			CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
-			CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
-		}
-		else
-		{
-			angles[PITCH] = 0;
-			angles[YAW] = 90;  //hypov8 todo: fix thug player model tag error. remove this
-			angles[ROLL] = 90;
-			AnglesToAxis(angles, gun.axis);
-			CG_PositionRotatedEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
-		}
+  if (!noGunModel)
+  {
+    if ( ps )	//first person
+    {
+      CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
+      CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
+    }
+    else
+    {
+      angles[PITCH] = 0;
+      angles[YAW] = 90;  //hypov8 todo: fix thug player model tag error. remove this
+      angles[ROLL] = 90;
+      AnglesToAxis(angles, gun.axis);
+      CG_PositionRotatedEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
+    }
 
 #if 0	//use md5?
-		if ( weapon->md5 )
-		{
+    if ( weapon->md5 )
+    {
 
-			gun.skeleton = gunSkeleton;
+      gun.skeleton = gunSkeleton;
 
-			if ( weapon->rotationBone[ 0 ] && ps )
-			{
-				int    boneIndex = trap_R_BoneIndex( gun.hModel, weapon->rotationBone );
-				quat_t rotation;
-				matrix_t mat;
-				vec3_t   nBounds[ 2 ];
+      if ( weapon->rotationBone[ 0 ] && ps )
+      {
+        int    boneIndex = trap_R_BoneIndex( gun.hModel, weapon->rotationBone );
+        quat_t rotation;
+        matrix_t mat;
+        vec3_t   nBounds[ 2 ];
 
-				if ( boneIndex < 0 )
-				{
-					Log::Warn( "Cannot find bone index %s, using root bone",
-								weapon->rotationBone );
-					weapon->rotationBone[ 0 ] = '\0'; // avoid repeated warnings
-					boneIndex = 0;
-				}
+        if ( boneIndex < 0 )
+        {
+          Log::Warn( "Cannot find bone index %s, using root bone",
+                weapon->rotationBone );
+          weapon->rotationBone[ 0 ] = '\0'; // avoid repeated warnings
+          boneIndex = 0;
+        }
 
-				QuatFromAngles( rotation, weapon->rotation[ 0 ], weapon->rotation[ 1 ], weapon->rotation[ 2 ] );
-				QuatMultiply2( gun.skeleton.bones[ boneIndex ].t.rot, rotation );
+        QuatFromAngles( rotation, weapon->rotation[ 0 ], weapon->rotation[ 1 ], weapon->rotation[ 2 ] );
+        QuatMultiply2( gun.skeleton.bones[ boneIndex ].t.rot, rotation );
 
-				// Update bounds to reflect rotation
-				MatrixFromAngles( mat, weapon->rotation[ 0 ], weapon->rotation[ 1 ], weapon->rotation[ 2 ] );
+        // Update bounds to reflect rotation
+        MatrixFromAngles( mat, weapon->rotation[ 0 ], weapon->rotation[ 1 ], weapon->rotation[ 2 ] );
 
-				MatrixTransformBounds(mat, gun.skeleton.bounds[0], gun.skeleton.bounds[1], nBounds[0], nBounds[1]);
+        MatrixTransformBounds(mat, gun.skeleton.bounds[0], gun.skeleton.bounds[1], nBounds[0], nBounds[1]);
 
-				BoundsAdd( gun.skeleton.bounds[ 0 ], gun.skeleton.bounds[ 1 ], nBounds[ 0 ], nBounds[ 1 ] );
-			}
+        BoundsAdd( gun.skeleton.bounds[ 0 ], gun.skeleton.bounds[ 1 ], nBounds[ 0 ], nBounds[ 1 ] );
+      }
 
-			CG_TransformSkeleton( &gun.skeleton, weapon->scale );
-		} //end md5
+      CG_TransformSkeleton( &gun.skeleton, weapon->scale );
+    } //end md5
 #endif
 
-		trap_R_AddRefEntityToScene(&gun);
+    trap_R_AddRefEntityToScene(&gun);
 
-		//add extra models
-		if (ps)	//first person
-		{
-			//add ammo model //hypov8 todo: remove. combine with gun model
-			ammo.hModel = weapon->ammoClipModel;
-			if (ammo.hModel)
-			{
-				CG_PositionEntityOnTag(&ammo, parent, parent->hModel, "tag_weapon");
+    //add extra models
+    if (ps)	//first person
+    {
+      //add ammo model //hypov8 todo: remove. combine with gun model
+      ammo.hModel = weapon->ammoClipModel;
+      if (ammo.hModel)
+      {
+        CG_PositionEntityOnTag(&ammo, parent, parent->hModel, "tag_weapon");
 
-				//copy state from parent
-				VectorCopy( parent->lightingOrigin, ammo.lightingOrigin );
-				ammo.renderfx = parent->renderfx;
-				ammo.oldframe = gun.oldframe;
-				ammo.frame = gun.frame;
-				ammo.backlerp = gun.backlerp;
+        //copy state from parent
+        VectorCopy( parent->lightingOrigin, ammo.lightingOrigin );
+        ammo.renderfx = parent->renderfx;
+        ammo.oldframe = gun.oldframe;
+        ammo.frame = gun.frame;
+        ammo.backlerp = gun.backlerp;
 
-				trap_R_AddRefEntityToScene(&ammo);
-			}
+        trap_R_AddRefEntityToScene(&ammo);
+      }
 
-			//add hand model
-			hand.hModel = weapon->handModel;
-			if (hand.hModel)
-			{
-				CG_PositionEntityOnTag(&hand, parent, parent->hModel, "tag_weapon");
+      //add hand model
+      hand.hModel = weapon->handModel;
+      if (hand.hModel)
+      {
+        CG_PositionEntityOnTag(&hand, parent, parent->hModel, "tag_weapon");
 
-				//copy state from parent
-				VectorCopy( parent->lightingOrigin, hand.lightingOrigin );
-				hand.renderfx = parent->renderfx;
-				hand.oldframe = gun.oldframe;
-				hand.frame = gun.frame;
-				hand.backlerp = gun.backlerp;
+        //copy state from parent
+        VectorCopy( parent->lightingOrigin, hand.lightingOrigin );
+        hand.renderfx = parent->renderfx;
+        hand.oldframe = gun.oldframe;
+        hand.frame = gun.frame;
+        hand.backlerp = gun.backlerp;
 
-				trap_R_AddRefEntityToScene(&hand);
-			}
-		}
-	}
+        trap_R_AddRefEntityToScene(&hand);
+      }
+    }
+  }
 
 
 //hypov8 merge: store origin 4 later
@@ -1993,259 +1993,259 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent)
     //nonPredictedCent = cent;
 
 
-	// add the flash
-	if ((weaponNum == WP_CROWBAR || weaponNum == WP_GRAPPLING_HOOK))/*&& (nonPredictedCent->currentState.eFlags & EF_FIRING)*/
-	{
-		//intermittent flash
-		if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME /*&& !cent->pe.railgunFlash*/)
-			return;
-	}
-	else if (weaponNum == WP_FLAMER)
-	{
-		if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME2 /*&& !cent->pe.railgunFlash*/)
-			return;
-	}  
-	else
-	{   // impulse flash
-		if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME /*&& !cent->pe.railgunFlash*/)
-			return;
-	}
+  // add the flash
+  if ((weaponNum == WP_CROWBAR || weaponNum == WP_GRAPPLING_HOOK))/*&& (nonPredictedCent->currentState.eFlags & EF_FIRING)*/
+  {
+    //intermittent flash
+    if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME /*&& !cent->pe.railgunFlash*/)
+      return;
+  }
+  else if (weaponNum == WP_FLAMER)
+  {
+    if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME2 /*&& !cent->pe.railgunFlash*/)
+      return;
+  }
+  else
+  {   // impulse flash
+    if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME /*&& !cent->pe.railgunFlash*/)
+      return;
+  }
 
 
-	flash.hModel = weapon->flashModel;
-	if (flash.hModel)
-	{
-		VectorCopy(parent->lightingOrigin, flash.lightingOrigin);
-		flash.shadowPlane = parent->shadowPlane;
-		flash.renderfx    = parent->renderfx;
-		angles[YAW] = 0;
-		angles[PITCH] = 0;
-		angles[ROLL] = crandom() * 10;
-		AnglesToAxis(angles, flash.axis);
-		if (noGunModel)
-			CG_PositionRotatedEntityOnTag(&flash, parent, parent->hModel, "tag_weapon");
-		else 
-			CG_PositionRotatedEntityOnTag(&flash, &gun, gun.hModel, "tag_flash");
+  flash.hModel = weapon->flashModel;
+  if (flash.hModel)
+  {
+    VectorCopy(parent->lightingOrigin, flash.lightingOrigin);
+    flash.shadowPlane = parent->shadowPlane;
+    flash.renderfx    = parent->renderfx;
+    angles[YAW] = 0;
+    angles[PITCH] = 0;
+    angles[ROLL] = crandom() * 10;
+    AnglesToAxis(angles, flash.axis);
+    if (noGunModel)
+      CG_PositionRotatedEntityOnTag(&flash, parent, parent->hModel, "tag_weapon");
+    else
+      CG_PositionRotatedEntityOnTag(&flash, &gun, gun.hModel, "tag_flash");
 
-		trap_R_AddRefEntityToScene(&flash);
-	}
+    trap_R_AddRefEntityToScene(&flash);
+  }
 
-	if (ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum)
-	{
-		if (firing && !(cent->currentState.eFlags & (EF_DEAD)))
-		{
-			CG_FlamethrowerFlame(cent, flash.origin);
-		}
+  if (ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum)
+  {
+    if (firing && !(cent->currentState.eFlags & (EF_DEAD)))
+    {
+      CG_FlamethrowerFlame(cent, flash.origin);
+    }
 
-		if (weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2])
-		{
-			trap_R_AddAdditiveLightToScene(flash.origin, 300 + (rand() & 31),
-			weapon->flashDlightColor[0], weapon->flashDlightColor[1], weapon->flashDlightColor[2]);
-		}
+    if (weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2])
+    {
+      trap_R_AddAdditiveLightToScene(flash.origin, 300 + (rand() & 31),
+      weapon->flashDlightColor[0], weapon->flashDlightColor[1], weapon->flashDlightColor[2]);
+    }
     }
 }
 
 #if 0
 void CG_AddPlayerWeaponLight(playerState_t *ps, centity_t *cent, refEntity_t parent)
 {
-	qboolean firing;
-	weapon_t weaponNum;
-	centity_t *nonPredictedCent;
-	static refEntity_t flash;
-	weaponInfo_t *weapon;
-	vec3_t angles;
+  qboolean firing;
+  weapon_t weaponNum;
+  centity_t *nonPredictedCent;
+  static refEntity_t flash;
+  weaponInfo_t *weapon;
+  vec3_t angles;
 
 
-	weaponNum = (weapon_t)cent->currentState.weapon;
-	weapon = &cg_weapons[weaponNum];
-	firing = ((cent->currentState.eFlags & EF_FIRING) != 0);
+  weaponNum = (weapon_t)cent->currentState.weapon;
+  weapon = &cg_weapons[weaponNum];
+  firing = ((cent->currentState.eFlags & EF_FIRING) != 0);
 
-	Com_Memset(&flash, 0, sizeof(flash));
+  Com_Memset(&flash, 0, sizeof(flash));
 
 #if 0
-	static refEntity_t gun;
-	static refEntity_t mod;
-	qboolean firing;
-	CG_RegisterWeapon(weaponNum);
+  static refEntity_t gun;
+  static refEntity_t mod;
+  qboolean firing;
+  CG_RegisterWeapon(weaponNum);
 
-	firing = ((cent->currentState.eFlags & EF_FIRING) != 0);
-	// add the weapon
-	Com_Memset(&gun, 0, sizeof(gun));
-	Com_Memset(&mod, 0, sizeof(mod));
-	Com_Memset(&flash, 0, sizeof(flash));
-	VectorCopy(parent->lightingOrigin, gun.lightingOrigin);
-	VectorCopy(parent->lightingOrigin, mod.lightingOrigin);
+  firing = ((cent->currentState.eFlags & EF_FIRING) != 0);
+  // add the weapon
+  Com_Memset(&gun, 0, sizeof(gun));
+  Com_Memset(&mod, 0, sizeof(mod));
+  Com_Memset(&flash, 0, sizeof(flash));
+  VectorCopy(parent->lightingOrigin, gun.lightingOrigin);
+  VectorCopy(parent->lightingOrigin, mod.lightingOrigin);
 
-	gun.shadowPlane = parent->shadowPlane;
-	gun.renderfx = parent->renderfx;
-	mod.shadowPlane = gun.shadowPlane;
-	mod.renderfx = gun.renderfx;
+  gun.shadowPlane = parent->shadowPlane;
+  gun.renderfx = parent->renderfx;
+  mod.shadowPlane = gun.shadowPlane;
+  mod.renderfx = gun.renderfx;
 
-	if (ps) //1st person (firstperson)
-	{
-		Vec4_Set(gun.shaderRGBA, (byte)255, (byte)255, (byte)255, (byte)255);
-		Vec4_Set(mod.shaderRGBA, (byte)255, (byte)255, (byte)255, (byte)255);
-		gun.hModel = weapon->weaponModel;
-		mod.hModel = weapon->barrelModel;
-	}
-	else //third person 
-		gun.hModel = weapon->worldPlayerWeaponModel;
+  if (ps) //1st person (firstperson)
+  {
+    Vec4_Set(gun.shaderRGBA, (byte)255, (byte)255, (byte)255, (byte)255);
+    Vec4_Set(mod.shaderRGBA, (byte)255, (byte)255, (byte)255, (byte)255);
+    gun.hModel = weapon->weaponModel;
+    mod.hModel = weapon->barrelModel;
+  }
+  else //third person
+    gun.hModel = weapon->worldPlayerWeaponModel;
 
-	if (!gun.hModel)
-		return;
+  if (!gun.hModel)
+    return;
 
-	if (!ps) //third person (gun) (thirdperson)
-	{
-		// add weapon ready sound
-		cent->pe.lightningFiring = qfalse;
-		if ((cent->currentState.eFlags & EF_FIRING) && weapon->firingSound)
-		{
-			// lightning gun and guantlet make a different sound when fire is held down
-			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
-			cent->pe.lightningFiring = qtrue;
-		}
-		else if (weapon->readySound)
-		{
-			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound);
-		}
+  if (!ps) //third person (gun) (thirdperson)
+  {
+    // add weapon ready sound
+    cent->pe.lightningFiring = qfalse;
+    if ((cent->currentState.eFlags & EF_FIRING) && weapon->firingSound)
+    {
+      // lightning gun and guantlet make a different sound when fire is held down
+      trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound);
+      cent->pe.lightningFiring = qtrue;
+    }
+    else if (weapon->readySound)
+    {
+      trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound);
+    }
 
-		CG_PositionRotatedEntityOnBone(&gun, parent, parent->hModel, "tag_weapon");
+    CG_PositionRotatedEntityOnBone(&gun, parent, parent->hModel, "tag_weapon");
 
-		trap_R_AddRefEntityToScene(&gun);
-	}
-	else //1st person (gun+mods)
-	{
-		VectorCopy(parent->origin, gun.origin);
-		Axis_Copy(parent->axis, gun.axis);
+    trap_R_AddRefEntityToScene(&gun);
+  }
+  else //1st person (gun+mods)
+  {
+    VectorCopy(parent->origin, gun.origin);
+    Axis_Copy(parent->axis, gun.axis);
 
-		if (mod.hModel)
-		{
-			VectorCopy(parent->origin, mod.origin);
-			Axis_Copy(parent->axis, mod.axis);
+    if (mod.hModel)
+    {
+      VectorCopy(parent->origin, mod.origin);
+      Axis_Copy(parent->axis, mod.axis);
 
-		}
+    }
 
-		if (weapon->item->giTag == WP_HMG)
-		{
-			if (ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_COOLING))
-			{
-				gun.hModel = weapon->mod1WeaponModel;
-			}
-			//FIXME (0xA5EA): pistol
-		}
-		else if (weapon->item->giTag == WP_PISTOL)
-		{
+    if (weapon->item->giTag == WP_HMG)
+    {
+      if (ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_COOLING))
+      {
+        gun.hModel = weapon->mod1WeaponModel;
+      }
+      //FIXME (0xA5EA): pistol
+    }
+    else if (weapon->item->giTag == WP_PISTOL)
+    {
 #if 0
-			PW_WPMOD_PISTOLMAGNUM,
-				PW_WPMOD_PISTOLDOUBLEFIRE,
-				PW_WPMOD_SILENCER,
+      PW_WPMOD_PISTOLMAGNUM,
+        PW_WPMOD_PISTOLDOUBLEFIRE,
+        PW_WPMOD_SILENCER,
 #endif
-				if ((ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_PISTOLMAGNUM)) && (ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_SILENCER)))
-				{
-					gun.hModel = weapon->mod3WeaponModel;
-				}
-				else if (!(ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_PISTOLMAGNUM)) && (ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_SILENCER)))
-				{
-					gun.hModel = weapon->mod2WeaponModel;
-				}
-				else if ((ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_PISTOLMAGNUM)) && !(ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_SILENCER)))
-				{
-					gun.hModel = weapon->mod1WeaponModel;
-				}
-				else
-				{
-					gun.hModel = weapon->weaponModel;
-				}
-		}
+        if ((ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_PISTOLMAGNUM)) && (ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_SILENCER)))
+        {
+          gun.hModel = weapon->mod3WeaponModel;
+        }
+        else if (!(ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_PISTOLMAGNUM)) && (ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_SILENCER)))
+        {
+          gun.hModel = weapon->mod2WeaponModel;
+        }
+        else if ((ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_PISTOLMAGNUM)) && !(ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_SILENCER)))
+        {
+          gun.hModel = weapon->mod1WeaponModel;
+        }
+        else
+        {
+          gun.hModel = weapon->weaponModel;
+        }
+    }
 
-		// Com_Printf("handframe1: %i\n", parent->frame );
-		//Com_Printf("weaponstate: %i\n", ps->weaponstate );
+    // Com_Printf("handframe1: %i\n", parent->frame );
+    //Com_Printf("weaponstate: %i\n", ps->weaponstate );
 
-		gun.oldframe = parent->oldframe;
-		gun.frame = parent->frame;
-		gun.backlerp = parent->backlerp;
+    gun.oldframe = parent->oldframe;
+    gun.frame = parent->frame;
+    gun.backlerp = parent->backlerp;
 
-		if (mod.hModel)
-		{
-			mod.oldframe = parent->oldframe;
-			mod.frame = parent->frame;
-			mod.backlerp = parent->backlerp;
-		}
+    if (mod.hModel)
+    {
+      mod.oldframe = parent->oldframe;
+      mod.frame = parent->frame;
+      mod.backlerp = parent->backlerp;
+    }
 
-		trap_R_AddRefEntityToScene(&gun);
+    trap_R_AddRefEntityToScene(&gun);
 
-		if (mod.hModel)
-			trap_R_AddRefEntityToScene(&mod);
+    if (mod.hModel)
+      trap_R_AddRefEntityToScene(&mod);
 
-	}
+  }
 #endif
-	// make sure we aren't looking at cg.predictedPlayerEntity for LG
-	nonPredictedCent = &cg_entities[cent->currentState.clientNum];
+  // make sure we aren't looking at cg.predictedPlayerEntity for LG
+  nonPredictedCent = &cg_entities[cent->currentState.clientNum];
 
-	// if the index of the nonPredictedCent is not the same as the clientNum
-	// then this is a fake player (like on teh single player podiums), so
-	// go ahead and use the cent
-	if ((nonPredictedCent - cg_entities) != cent->currentState.clientNum)
-		nonPredictedCent = cent;
+  // if the index of the nonPredictedCent is not the same as the clientNum
+  // then this is a fake player (like on teh single player podiums), so
+  // go ahead and use the cent
+  if ((nonPredictedCent - cg_entities) != cent->currentState.clientNum)
+    nonPredictedCent = cent;
 
 
-	//--
-	// add the flash
-	if ((weaponNum == WP_CROWBAR || weaponNum == WP_GRAPPLING_HOOK/* || weaponNum == WP_FLAMER*/) //test hypov8 removed flamer. cause flash to work at wrong time
-		&& (nonPredictedCent->currentState.eFlags & EF_FIRING))
-	{
-		if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash)
-			return;
-		//hypov8 not!!! continuous flash
-	}
-	else if (weaponNum == WP_FLAMER) //add hypov8 longer muzzel flash
-	{
-		if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME2 && !cent->pe.railgunFlash)
-			return;
-	}
-	else
-	{   // impulse flash
-		if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash)
-			return;
-	}
+  //--
+  // add the flash
+  if ((weaponNum == WP_CROWBAR || weaponNum == WP_GRAPPLING_HOOK/* || weaponNum == WP_FLAMER*/) //test hypov8 removed flamer. cause flash to work at wrong time
+    && (nonPredictedCent->currentState.eFlags & EF_FIRING))
+  {
+    if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash)
+      return;
+    //hypov8 not!!! continuous flash
+  }
+  else if (weaponNum == WP_FLAMER) //add hypov8 longer muzzel flash
+  {
+    if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME2 && !cent->pe.railgunFlash)
+      return;
+  }
+  else
+  {   // impulse flash
+    if (cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash)
+      return;
+  }
 
-	Com_Memset(&flash, 0, sizeof(flash));
-	VectorCopy(tag_flash_origin, flash.lightingOrigin);
+  Com_Memset(&flash, 0, sizeof(flash));
+  VectorCopy(tag_flash_origin, flash.lightingOrigin);
 
-	flash.shadowPlane = tag_flash_shadowPlane;
-	flash.renderfx = tag_flash_renderfx;
+  flash.shadowPlane = tag_flash_shadowPlane;
+  flash.renderfx = tag_flash_renderfx;
 
 
 #ifdef USE_REFENTITY_NOSHADOWID
-	flash.noShadowID = parent->noShadowID; //add hypov8
+  flash.noShadowID = parent->noShadowID; //add hypov8
 #endif
 
-	flash.hModel = weapon->flashModel;
-	//if(!flash.hModel)	 {  return;   }
+  flash.hModel = weapon->flashModel;
+  //if(!flash.hModel)	 {  return;   }
 
-	angles[YAW] = 0;
-	angles[PITCH] = 0;
-	angles[ROLL] = crandom() * 10;
-	AnglesToAxis(angles, flash.axis);
+  angles[YAW] = 0;
+  angles[PITCH] = 0;
+  angles[ROLL] = crandom() * 10;
+  AnglesToAxis(angles, flash.axis);
 
-	// CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->weaponModel, "tag_flash");
-	CG_PositionRotatedEntityOnTag(&flash, &parent, parent.hModel, "tag_flash");
-	trap_R_AddRefEntityToScene(&flash);
+  // CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->weaponModel, "tag_flash");
+  CG_PositionRotatedEntityOnTag(&flash, &parent, parent.hModel, "tag_flash");
+  trap_R_AddRefEntityToScene(&flash);
 
-	//todo: hypo, missing light in 1st person
-	if ( ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum)
-	{
-		if (firing && !(cent->currentState.eFlags & (EF_DEAD)))
-		{
-			CG_FlamethrowerFlame(cent, flash.origin);
+  //todo: hypo, missing light in 1st person
+  if ( ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum)
+  {
+    if (firing && !(cent->currentState.eFlags & (EF_DEAD)))
+    {
+      CG_FlamethrowerFlame(cent, flash.origin);
 
-			if (weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2])
-			{
-				trap_R_AddAdditiveLightToScene(flash.origin, 100 /*300 + (rand() & 31*/, //hypov8 const size
-					weapon->flashDlightColor[0], weapon->flashDlightColor[1], weapon->flashDlightColor[2]);
-			}
-		}
-	}
+      if (weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2])
+      {
+        trap_R_AddAdditiveLightToScene(flash.origin, 100 /*300 + (rand() & 31*/, //hypov8 const size
+          weapon->flashDlightColor[0], weapon->flashDlightColor[1], weapon->flashDlightColor[2]);
+      }
+    }
+  }
 }
 #endif
 
@@ -2260,100 +2260,100 @@ may include ANIM_TOGGLEBIT
 #if 0 //kpq3
 static void CG_SetWeaponLerpFrameAnimation(weaponInfo_t * wi, lerpFrame_t * lf, int weaponNumber, int weaponAnimation, int weaponTime)
 {
-	animation_t    *anim;
-	int             shouldTime, wouldTime;
+  animation_t    *anim;
+  int             shouldTime, wouldTime;
 
-	// save old animation
-	lf->old_animationNumber = lf->animationNumber;
-	lf->old_animation = lf->animation;
-	lf->old_weaponNumber = lf->weaponNumber;
+  // save old animation
+  lf->old_animationNumber = lf->animationNumber;
+  lf->old_animation = lf->animation;
+  lf->old_weaponNumber = lf->weaponNumber;
 
-	lf->weaponNumber = weaponNumber;
-	lf->animationNumber = weaponAnimation;
+  lf->weaponNumber = weaponNumber;
+  lf->animationNumber = weaponAnimation;
 
-	weaponAnimation &= ~ANIM_TOGGLEBIT;
+  weaponAnimation &= ~ANIM_TOGGLEBIT;
 
-	if(weaponAnimation < 0 || weaponAnimation >= MAX_WEAPON_STATES)
-		CG_Error("bad weapon animation number: %i", weaponAnimation);
+  if(weaponAnimation < 0 || weaponAnimation >= MAX_WEAPON_STATES)
+    CG_Error("bad weapon animation number: %i", weaponAnimation);
 
-	anim = &wi->animations[weaponAnimation];
+  anim = &wi->animations[weaponAnimation];
 
-	lf->animation = anim;
-	lf->animationTime = lf->frameTime + anim->initialLerp;
+  lf->animation = anim;
+  lf->animationTime = lf->frameTime + anim->initialLerp;
 
-	shouldTime = weaponTime;
-	wouldTime = anim->numFrames * anim->frameLerp; //hypov8 merge: ok?
+  shouldTime = weaponTime;
+  wouldTime = anim->numFrames * anim->frameLerp; //hypov8 merge: ok?
 
-	 if(cg_debugWeaponAnim.integer)
-	   Com_Printf("(%d, %d) would, should\n", wouldTime, shouldTime);
+   if(cg_debugWeaponAnim.integer)
+     Com_Printf("(%d, %d) would, should\n", wouldTime, shouldTime);
 
-	// if the time for a animation is smaller than the timeoffset between weapon fires
-	// scale the animation
-	if(shouldTime <= wouldTime && shouldTime > 0)
-	{
-		lf->animationScale = (float)wouldTime / shouldTime;
+  // if the time for a animation is smaller than the timeoffset between weapon fires
+  // scale the animation
+  if(shouldTime <= wouldTime && shouldTime > 0)
+  {
+    lf->animationScale = (float)wouldTime / shouldTime;
 
-		 if(cg_debugWeaponAnim.integer)
-		   Com_Printf("lf->animationScale %f\n",lf->animationScale);
-	}
-	else
-	{
-		lf->animationScale = 1.0f;
-	}
+     if(cg_debugWeaponAnim.integer)
+       Com_Printf("lf->animationScale %f\n",lf->animationScale);
+  }
+  else
+  {
+    lf->animationScale = 1.0f;
+  }
 
   if(cg_debugWeaponAnim.integer)
     Com_Printf("CG_SetWeaponLerpFrameAnimation: weapon=%i new anim=%i old anim=%i time=%i\n", weaponNumber, lf->animationNumber, lf->old_animationNumber, weaponTime);
 
-	if(lf->old_animationNumber <= 0 || lf->old_weaponNumber != lf->weaponNumber)
-	{
-		// skip initial / invalid blending
-		lf->blendlerp = 0.0f;
-		return;
-	}
+  if(lf->old_animationNumber <= 0 || lf->old_weaponNumber != lf->weaponNumber)
+  {
+    // skip initial / invalid blending
+    lf->blendlerp = 0.0f;
+    return;
+  }
 
-	// TODO: blend through two blendings!
-	if((lf->blendlerp <= 0.0f))
-		lf->blendlerp = 1.0f;
-	else
-		lf->blendlerp = 1.0f - lf->blendlerp;	// use old blending for smooth blending between two blended animations
+  // TODO: blend through two blendings!
+  if((lf->blendlerp <= 0.0f))
+    lf->blendlerp = 1.0f;
+  else
+    lf->blendlerp = 1.0f - lf->blendlerp;	// use old blending for smooth blending between two blended animations
 
 #if 0
 #if 0
-	Com_Memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
+  Com_Memcpy(&lf->oldSkeleton, &lf->skeleton, sizeof(refSkeleton_t));
 #else
-	if(!trap_R_BuildSkeleton(&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
-	{
-		CG_Printf("CG_SetWeaponLerpFrameAnimation: can't build old skeleton\n");
-		return;
-	}
+  if(!trap_R_BuildSkeleton(&lf->oldSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->blendlerp, lf->old_animation->clearOrigin))
+  {
+    CG_Printf("CG_SetWeaponLerpFrameAnimation: can't build old skeleton\n");
+    return;
+  }
 #endif
 #endif
 
-	if(cg_debugWeaponAnim.integer)//hypov8 merge: ok?
-	{
-		Com_Printf("CG_SetWeaponLerpFrameAnimation: weapon=%i new anim=%i old anim=%i time=%i\n", weaponNumber, weaponAnimation, lf->old_animationNumber, weaponTime);
-	}
+  if(cg_debugWeaponAnim.integer)//hypov8 merge: ok?
+  {
+    Com_Printf("CG_SetWeaponLerpFrameAnimation: weapon=%i new anim=%i old anim=%i time=%i\n", weaponNumber, weaponAnimation, lf->old_animationNumber, weaponTime);
+  }
 
 }
 #elif 0 //ET
 static void CG_SetWeapLerpFrameAnimation( weaponInfo_t *wi, lerpFrame_t *lf, int newAnimation ) {
-	animation_t *anim;
+  animation_t *anim;
 
-	lf->animationNumber = newAnimation;
-	newAnimation &= ~ANIM_TOGGLEBIT;
+  lf->animationNumber = newAnimation;
+  newAnimation &= ~ANIM_TOGGLEBIT;
 
-	if ( newAnimation < 0 || newAnimation >= MAX_WEAPON_STATES ) {
-		CG_Error( "Bad animation number (CG_SWLFA): %i", newAnimation );
-	}
+  if ( newAnimation < 0 || newAnimation >= MAX_WEAPON_STATES ) {
+    CG_Error( "Bad animation number (CG_SWLFA): %i", newAnimation );
+  }
 
-	anim = &wi->animations[ newAnimation ];
+  anim = &wi->animations[ newAnimation ];
 
-	lf->animation       = anim;
-	lf->animationTime   = lf->frameTime + anim->initialLerp;
+  lf->animation       = anim;
+  lf->animationTime   = lf->frameTime + anim->initialLerp;
 
-	if ( cg_debugAnim.integer & 2 ) {
-		CG_Printf( "Weap Anim: %d\n", newAnimation );
-	}
+  if ( cg_debugAnim.integer & 2 ) {
+    CG_Printf( "Weap Anim: %d\n", newAnimation );
+  }
 }
 #endif
 
@@ -2365,13 +2365,13 @@ CG_ClearWeapLerpFrame
 #if 0
 void CG_ClearWeapLerpFrame( weaponInfo_t *wi, lerpFrame_t *lf, int animationNumber ) //hypov8 ET
 {
-	if (cg_debugWeaponAnim.integer)	
-		Com_Printf("newAnim Firing\n");
+  if (cg_debugWeaponAnim.integer)
+    Com_Printf("newAnim Firing\n");
 
-	lf->frameTime = lf->oldFrameTime = cg.time;
-	CG_SetWeapLerpFrameAnimation( wi, lf, animationNumber );
-	lf->oldFrame = lf->frame = lf->animation->firstFrame;
-	//lf->oldFrame = lf->frame = lf->animation->mdxFile;
+  lf->frameTime = lf->oldFrameTime = cg.time;
+  CG_SetWeapLerpFrameAnimation( wi, lf, animationNumber );
+  lf->oldFrame = lf->frame = lf->animation->firstFrame;
+  //lf->oldFrame = lf->frame = lf->animation->mdxFile;
 }
 #endif
 /*
@@ -2384,93 +2384,93 @@ cg.time should be between oldFrameTime and frameTime after exit
 #if 0
 static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weaponNumber, int weaponAnimation, int weaponTime,  float speedScale)
 {
-	int f = 0, numFrames = 0;
-	animation_t *anim;
-	qboolean animChanged = qfalse;
+  int f = 0, numFrames = 0;
+  animation_t *anim;
+  qboolean animChanged = qfalse;
 
-	// debugging tool to get no animations
-	if(cg_animSpeed.integer == 0)
-	{
-		lf->oldFrame = lf->frame = lf->backlerp = 0;
-		return;
-	}
+  // debugging tool to get no animations
+  if(cg_animSpeed.integer == 0)
+  {
+    lf->oldFrame = lf->frame = lf->backlerp = 0;
+    return;
+  }
 
-	// see if the animation sequence is switching
-	if ( !lf->animation ) 
-	{
-		CG_ClearWeapLerpFrame( wi, lf, weaponAnimation );
-	} 
-	else if (weaponAnimation != lf->animationNumber)
-	{
-		if (cg_debugWeaponAnim.integer)	
-			Com_Printf("wep anim changed. From %d to %d\n", lf->animationNumber, (weaponAnimation & ~ANIM_TOGGLEBIT));
+  // see if the animation sequence is switching
+  if ( !lf->animation )
+  {
+    CG_ClearWeapLerpFrame( wi, lf, weaponAnimation );
+  }
+  else if (weaponAnimation != lf->animationNumber)
+  {
+    if (cg_debugWeaponAnim.integer)
+      Com_Printf("wep anim changed. From %d to %d\n", lf->animationNumber, (weaponAnimation & ~ANIM_TOGGLEBIT));
 
-		//animation changed. choose blend mode.
-		if ((weaponAnimation & ~ANIM_TOGGLEBIT) == WEAPON_FIRING || (weaponAnimation & ~ANIM_TOGGLEBIT) == WEAPON_RAISING)
-			CG_ClearWeapLerpFrame(wi, lf, weaponAnimation); //instant
-		else	
-			CG_SetWeapLerpFrameAnimation(wi, lf, weaponAnimation); //smooth
-	}
+    //animation changed. choose blend mode.
+    if ((weaponAnimation & ~ANIM_TOGGLEBIT) == WEAPON_FIRING || (weaponAnimation & ~ANIM_TOGGLEBIT) == WEAPON_RAISING)
+      CG_ClearWeapLerpFrame(wi, lf, weaponAnimation); //instant
+    else
+      CG_SetWeapLerpFrameAnimation(wi, lf, weaponAnimation); //smooth
+  }
 
-	//hypov8 todo: md5? md3 is lossy (vertex wobble!!!)
-	//loss is not noticable if model frames changes are greatly differnt. idle animations are mostly obvious
-	//md2/mdx is very obvious and conversions should not use idle sequence
-	//hypov8 todo: remove idle frames? replace with code idle/sway
-	//copy ET
+  //hypov8 todo: md5? md3 is lossy (vertex wobble!!!)
+  //loss is not noticable if model frames changes are greatly differnt. idle animations are mostly obvious
+  //md2/mdx is very obvious and conversions should not use idle sequence
+  //hypov8 todo: remove idle frames? replace with code idle/sway
+  //copy ET
 
-	// if we have passed the current frame, move it to
-	// oldFrame and calculate a new frame
-	if ( cg.time >= lf->frameTime ) {
-		lf->oldFrame = lf->frame;
-		lf->oldFrameTime = lf->frameTime;
+  // if we have passed the current frame, move it to
+  // oldFrame and calculate a new frame
+  if ( cg.time >= lf->frameTime ) {
+    lf->oldFrame = lf->frame;
+    lf->oldFrameTime = lf->frameTime;
 
-		// get the next frame based on the animation
-		anim = lf->animation;
-		if ( !anim->frameLerp ) {
-			return;     // shouldn't happen
-		}
-		if ( cg.time < lf->animationTime ) {
-			lf->frameTime = lf->animationTime;      // initial lerp
-		} else {
-			lf->frameTime = lf->oldFrameTime + anim->frameLerp;
-		}
-		f = ( lf->frameTime - lf->animationTime ) / anim->frameLerp;
-		f *= speedScale;        // adjust for haste, etc
-		if ( f >= anim->numFrames ) {
-			f -= anim->numFrames;
-			if ( anim->loopFrames ) {
-				f %= anim->loopFrames;
-				f += anim->numFrames - anim->loopFrames;
-			} else {
-				f = anim->numFrames - 1;
-				// the animation is stuck at the end, so it
-				// can immediately transition to another sequence
-				lf->frameTime = cg.time;
-			}
-		}
-		lf->frame = anim->firstFrame + f;
-		//lf->frameModel = anim->mdxFile;
-		if ( cg.time > lf->frameTime ) {
-			lf->frameTime = cg.time;
-			if ( cg_debugAnim.integer ) {
-				CG_Printf( "Clamp lf->frameTime\n" );
-			}
-		}
-	}
+    // get the next frame based on the animation
+    anim = lf->animation;
+    if ( !anim->frameLerp ) {
+      return;     // shouldn't happen
+    }
+    if ( cg.time < lf->animationTime ) {
+      lf->frameTime = lf->animationTime;      // initial lerp
+    } else {
+      lf->frameTime = lf->oldFrameTime + anim->frameLerp;
+    }
+    f = ( lf->frameTime - lf->animationTime ) / anim->frameLerp;
+    f *= speedScale;        // adjust for haste, etc
+    if ( f >= anim->numFrames ) {
+      f -= anim->numFrames;
+      if ( anim->loopFrames ) {
+        f %= anim->loopFrames;
+        f += anim->numFrames - anim->loopFrames;
+      } else {
+        f = anim->numFrames - 1;
+        // the animation is stuck at the end, so it
+        // can immediately transition to another sequence
+        lf->frameTime = cg.time;
+      }
+    }
+    lf->frame = anim->firstFrame + f;
+    //lf->frameModel = anim->mdxFile;
+    if ( cg.time > lf->frameTime ) {
+      lf->frameTime = cg.time;
+      if ( cg_debugAnim.integer ) {
+        CG_Printf( "Clamp lf->frameTime\n" );
+      }
+    }
+  }
 
-	if ( lf->frameTime > cg.time + 200 ) {
-		lf->frameTime = cg.time;
-	}
+  if ( lf->frameTime > cg.time + 200 ) {
+    lf->frameTime = cg.time;
+  }
 
-	if ( lf->oldFrameTime > cg.time ) {
-		lf->oldFrameTime = cg.time;
-	}
-	// calculate current lerp value
-	if ( lf->frameTime == lf->oldFrameTime ) {
-		lf->backlerp = 0;
-	} else {
-		lf->backlerp = 1.0 - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
-	}
+  if ( lf->oldFrameTime > cg.time ) {
+    lf->oldFrameTime = cg.time;
+  }
+  // calculate current lerp value
+  if ( lf->frameTime == lf->oldFrameTime ) {
+    lf->backlerp = 0;
+  } else {
+    lf->backlerp = 1.0 - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
+  }
 }
 #endif
 
@@ -2482,13 +2482,13 @@ CG_WeaponAnimation
 #if 0 //old kpq3
 static void CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weaponNumber, int weaponState, int weaponTime)
 {
-	//int clientNum;
-	float speedScale = 1;
+  //int clientNum;
+  float speedScale = 1;
 
-	//clientNum = cent->currentState.clientNum;
+  //clientNum = cent->currentState.clientNum;
 
-	// change weapon animation
-	CG_RunWeaponLerpFrame(weapon, &cent->pe.weapon, weaponNumber, weaponState, weaponTime, speedScale);
+  // change weapon animation
+  CG_RunWeaponLerpFrame(weapon, &cent->pe.weapon, weaponNumber, weaponState, weaponTime, speedScale);
 }
 #endif
 
@@ -2520,14 +2520,14 @@ static weaponstate_t CG_CalcWeaponState(centity_t * cent, playerState_t *ps)
   int weaponState = ps->weaponstate;
   int animToggleBit = cent->currentState.torsoAnim & ANIM_TOGGLEBIT;
 
-	if (torsoAnim == TORSO_ATTACK && weaponState == WEAPON_FIRING)
-		return (weaponstate_t)(WEAPON_FIRING | animToggleBit);
+  if (torsoAnim == TORSO_ATTACK && weaponState == WEAPON_FIRING)
+    return (weaponstate_t)(WEAPON_FIRING | animToggleBit);
 
-	if (torsoAnim == TORSO_ATTACK2 && weaponState == WEAPON_FIRING) //add hypov8 
-		return (weaponstate_t)(WEAPON_FIRING | animToggleBit);
+  if (torsoAnim == TORSO_ATTACK2 && weaponState == WEAPON_FIRING) //add hypov8
+    return (weaponstate_t)(WEAPON_FIRING | animToggleBit);
 
-	if (torsoAnim == TORSO_ATTACK3 && weaponState == WEAPON_FIRING) //add hypov8 allow pistol to re'shoot animations
-		return (weaponstate_t)(WEAPON_FIRING | animToggleBit);
+  if (torsoAnim == TORSO_ATTACK3 && weaponState == WEAPON_FIRING) //add hypov8 allow pistol to re'shoot animations
+    return (weaponstate_t)(WEAPON_FIRING | animToggleBit);
 
   return (weaponstate_t)ps->weaponstate;
 }
@@ -2541,46 +2541,43 @@ Add the weapon, and flash for the player's view
 */
 void CG_AddViewWeapon(playerState_t *ps)
 {
-	static refEntity_t  hand; // static for proper alignment in QVMs
-	centity_t *cent;
-	clientInfo_t *ci;
-	float fovOffset;
-	vec3_t angles;
-	int weaponNum= ps->weapon;
-	//int weaponState;
-	//int weaponTime;
-	weaponInfo_t *weapon;
-  	qboolean     drawGun = qtrue;
-
- 
-	if (ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
-		return;
-
-	if (ps->pm_type == PM_INTERMISSION)
-		return;
-
-	if (weaponNum == WP_NONE || cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) //hypov8 add
-		return;
-
-  	weapon = &cg_weapons[weaponNum];
+  static refEntity_t  hand; // static for proper alignment in QVMs
+  centity_t *cent;
+  clientInfo_t *ci;
+  float fovOffset;
+  vec3_t angles;
+  int weaponNum= ps->weapon;
+  weaponInfo_t *weapon;
+  qboolean     drawGun = qtrue;
 
 
-	if(! cg_drawGun.integer )
-		drawGun = qfalse;
+  if (ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
+    return;
 
-	if ( !weapon->registered )
-	{
-		    Com_DPrintf(S_COLOR_RED"CG_AddViewWeapon: weapon %d (ss) "
-		            "is not registered", weapon/*, BG_Weapon( weapon )->name */);
-		return;
-	}
+  if (ps->pm_type == PM_INTERMISSION)
+    return;
 
-	cent = &cg.predictedPlayerEntity; // &cg_entities[cg.snap->ps.clientNum];
+  if (weaponNum == WP_NONE || cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) //hypov8 add
+    return;
 
-	if ( ps->pm_type == PM_INTERMISSION )
-	{
-		return;
-	}
+  weapon = &cg_weapons[weaponNum];
+
+
+  if(! cg_drawGun.integer )
+    drawGun = qfalse;
+
+  if ( !weapon->registered )
+  {
+    Com_DPrintf(S_COLOR_RED"CG_AddViewWeapon: weapon (ss) is not registered");
+    return;
+  }
+
+  cent = &cg.predictedPlayerEntity; // &cg_entities[cg.snap->ps.clientNum];
+
+  if ( ps->pm_type == PM_INTERMISSION )
+  {
+    return;
+  }
 
   // no gun if in third person view
   if (cg.renderingThirdPerson)
@@ -2642,62 +2639,62 @@ void CG_AddViewWeapon(playerState_t *ps)
 
 
   /////////////////////////hypov8
-	//if ( ps->weapon > WP_NONE ) 
+  //if ( ps->weapon > WP_NONE )
   //cent = &cg.predictedPlayerEntity;             // &cg_entities[cg.snap->ps.clientNum];
 
-	//weaponTime = ps->weaponTime;
-	//CG_RegisterWeapon(weaponNum); //hypov8 disable
-	//FIXME (0xA5EA): weapons registered every time ???
-
-  
-	Com_Memset(&hand, 0, sizeof(hand));
-
-	// set up gun position
-	CG_CalculateWeaponPosition(hand.origin, angles);
-
-	VectorMA(hand.origin, cg_gun_x.value, cg.refdef.viewaxis[0], hand.origin);
-	VectorMA(hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], hand.origin);
-	VectorMA(hand.origin, (cg_gun_z.value + fovOffset), cg.refdef.viewaxis[2], hand.origin);
-
-	AnglesToAxis(angles, hand.axis);
+  //weaponTime = ps->weaponTime;
+  //CG_RegisterWeapon(weaponNum); //hypov8 disable
+  //FIXME (0xA5EA): weapons registered every time ???
 
 
-	//weaponState = CG_CalcWeaponState(cent, ps);
-	//CG_WeaponAnimation(cent, weapon, weaponNum, weaponState, weaponTime);
-	//FIXME(0xA5EA): merge !!!!!
-	//FIXME (0xA5EA): removed hitmen mask from weaponstate
-	// map torso animations to weapon animations
-	if ( cg_gun_frame.integer )
-	{
-		// development tool
-		hand.frame = hand.oldframe = cg_gun_frame.integer;
-		hand.backlerp = 0;
-	}
-	else
-	{	// get clientinfo for animation map
-		ci = &cgs.clientinfo[cent->currentState.clientNum];
-		hand.frame = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.frame, !weapon->md5 ? cent->pe.torso.animationNumber & ~ANIM_TOGGLEBIT : -1, weaponNum);
-		hand.oldframe = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.oldFrame, !weapon->md5 ? cent->pe.torso.animationNumber & ~ANIM_TOGGLEBIT : -1, weaponNum);
-		hand.backlerp = cent->pe.torso.backlerp; //hypov8 use player lerp value?
-	}
-	//tag.frame    = cent->pe.weapon.frame;
-	//tag.oldframe = cent->pe.weapon.oldFrame;
-	//tag.backlerp = cent->pe.weapon.backlerp;
+  Com_Memset(&hand, 0, sizeof(hand));
 
-	// if((weaponState & 0xF) != WEAPON_READY)
-	//  Com_Printf("tag.frame %d, oldframe = %d, backlerp = %f\n",  tag.frame, tag.oldframe, tag.backlerp);
-	hand.hModel   = weapon->tagModel;
-	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
+  // set up gun position
+  CG_CalculateWeaponPosition(hand.origin, angles);
 
-	// add everything onto the tag
-	if (weapon)
-	{
-		CG_AddPlayerWeapon(&hand, ps, &cg.predictedPlayerEntity);
-		//CG_AddPlayerWeaponLight(ps, &cg.predictedPlayerEntity); //hypov8 todo:
-	}
+  VectorMA(hand.origin, cg_gun_x.value, cg.refdef.viewaxis[0], hand.origin);
+  VectorMA(hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], hand.origin);
+  VectorMA(hand.origin, (cg_gun_z.value + fovOffset), cg.refdef.viewaxis[2], hand.origin);
 
-	if (ps->powerups[PW_FLASHLIGHT])
-		CG_AddViewFlashlight();
+  AnglesToAxis(angles, hand.axis);
+
+
+  //weaponState = CG_CalcWeaponState(cent, ps);
+  //CG_WeaponAnimation(cent, weapon, weaponNum, weaponState, weaponTime);
+  //FIXME(0xA5EA): merge !!!!!
+  //FIXME (0xA5EA): removed hitmen mask from weaponstate
+  // map torso animations to weapon animations
+  if ( cg_gun_frame.integer )
+  {
+    // development tool
+    hand.frame = hand.oldframe = cg_gun_frame.integer;
+    hand.backlerp = 0;
+  }
+  else
+  {	// get clientinfo for animation map
+    ci = &cgs.clientinfo[cent->currentState.clientNum];
+    hand.frame = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.frame, !weapon->md5 ? cent->pe.torso.animationNumber & ~ANIM_TOGGLEBIT : -1, weaponNum);
+    hand.oldframe = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.oldFrame, !weapon->md5 ? cent->pe.torso.animationNumber & ~ANIM_TOGGLEBIT : -1, weaponNum);
+    hand.backlerp = cent->pe.torso.backlerp; //hypov8 use player lerp value?
+  }
+  //tag.frame    = cent->pe.weapon.frame;
+  //tag.oldframe = cent->pe.weapon.oldFrame;
+  //tag.backlerp = cent->pe.weapon.backlerp;
+
+  // if((weaponState & 0xF) != WEAPON_READY)
+  //  Com_Printf("tag.frame %d, oldframe = %d, backlerp = %f\n",  tag.frame, tag.oldframe, tag.backlerp);
+  hand.hModel   = weapon->tagModel;
+  hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
+
+  // add everything onto the tag
+  if (weapon)
+  {
+    CG_AddPlayerWeapon(&hand, ps, &cg.predictedPlayerEntity);
+    //CG_AddPlayerWeaponLight(ps, &cg.predictedPlayerEntity); //hypov8 todo:
+  }
+
+  if (ps->powerups[PW_FLASHLIGHT])
+    CG_AddViewFlashlight();
 
 #if 0
   else
@@ -2820,9 +2817,9 @@ void CG_DrawWeaponSelect(void)
     if (!(bits & (1 << i)))
       continue;
 
-	if ((cg.weaponSelect !=WP_CROWBAR && i == WP_CROWBAR) ||
-		(cg.weaponSelect != WP_GRAPPLING_HOOK && i == WP_GRAPPLING_HOOK)) //hypov8 hide these from view if not selected
-		continue;
+  if ((cg.weaponSelect !=WP_CROWBAR && i == WP_CROWBAR) ||
+    (cg.weaponSelect != WP_GRAPPLING_HOOK && i == WP_GRAPPLING_HOOK)) //hypov8 hide these from view if not selected
+    continue;
 
 
    // CG_RegisterWeapon(i); //hypov8 disable
@@ -2835,7 +2832,7 @@ void CG_DrawWeaponSelect(void)
       CG_DrawPic(x - 4, y - 4, 50, 26, cgs.media.selectShader);
 
     // no ammo cross on top
-	if (!cg.snap->ps.ammo_all[BG_AmmoCombineCheck(i)] && !cg.snap->ps.ammo_mag[i]) // hypov8 ammo combine
+  if (!cg.snap->ps.ammo_all[BG_AmmoCombineCheck(i)] && !cg.snap->ps.ammo_mag[i]) // hypov8 ammo combine
       CG_DrawPic(x + 10, y, 16, 16, cgs.media.noammoShader);
 
     x += 48;
@@ -2860,26 +2857,26 @@ void CG_DrawWeaponSelect(void)
 
 void CG_DrawPickupItem(void /*int index, gitem_t *item*/)
 {
-	float *color;
+  float *color;
 
-	// don't display if dead
-	if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0)
-		return;
+  // don't display if dead
+  if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0)
+    return;
 //hypov8. CG_DrawPickupItem. check item registered???
 
-	color = CG_FadeColor(cg.itemPickupTime, WEAPON_SELECT_TIME);
-	if (!color)
-		return;
-	//value = cg.itemPickup;
-	//cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
-	///////////CG_DrawPic(80, 80, 42, 18, cg_items[ITEM_INDEX(item)].icon);
+  color = CG_FadeColor(cg.itemPickupTime, WEAPON_SELECT_TIME);
+  if (!color)
+    return;
+  //value = cg.itemPickup;
+  //cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
+  ///////////CG_DrawPic(80, 80, 42, 18, cg_items[ITEM_INDEX(item)].icon);
 
-	if (bg_itemlist[cg.itemPickup].giType == IT_WEAPON) /*weps are not square*/
-		CG_DrawPic(320, 462, 32, 18,  cg_items[cg.itemPickup].icon);
-	else
-		CG_DrawPic(320, 448, 32, 32,  cg_items[cg.itemPickup].icon);
-	
-	trap_R_SetColor(color);
+  if (bg_itemlist[cg.itemPickup].giType == IT_WEAPON) /*weps are not square*/
+    CG_DrawPic(320, 462, 32, 18,  cg_items[cg.itemPickup].icon);
+  else
+    CG_DrawPic(320, 448, 32, 32,  cg_items[cg.itemPickup].icon);
+
+  trap_R_SetColor(color);
 }
 /*
 ===============
@@ -2888,27 +2885,27 @@ CG_WeaponSelectable
 */
 static qboolean CG_WeaponSelectable(weapon_t weapon)
 {
-	if ( !BG_InventoryContainsWeapon( weapon, cg.snap->ps.stats ) )
-		return qfalse; //no wep
+  if ( !BG_InventoryContainsWeapon( weapon, cg.snap->ps.stats ) )
+    return qfalse; //no wep
 
-	//if (!(cg.snap->ps.stats[STAT_WEAPONS] & (1 << i)))
-	//	return qfalse; //no wep
+  //if (!(cg.snap->ps.stats[STAT_WEAPONS] & (1 << i)))
+  //	return qfalse; //no wep
 
-	/*if ( cg.weaponSelect >= WP_FIRST && cg.weaponSelect < WP_LAST )
-	{
-		if ( !cg.snap->ps.ammo_all[ BG_AmmoCombineCheck(weapon) ] && !cg.snap->ps.ammo_mag[ weapon ] )
-			return qfalse; //no ammo
-	}*/
+  /*if ( cg.weaponSelect >= WP_FIRST && cg.weaponSelect < WP_LAST )
+  {
+    if ( !cg.snap->ps.ammo_all[ BG_AmmoCombineCheck(weapon) ] && !cg.snap->ps.ammo_mag[ weapon ] )
+      return qfalse; //no ammo
+  }*/
 
   return qtrue; //have wep+ammo
 }
 
 static qboolean CG_WeaponHasAmmo(weapon_t weapon)
 {
-	if ( BG_InventoryContainsAmmo(weapon, &cg.snap->ps) )
-		return true;
+  if ( BG_InventoryContainsAmmo(weapon, &cg.snap->ps) )
+    return true;
 
-	return false;
+  return false;
 }
 
 /*
@@ -2933,19 +2930,19 @@ void CG_NextWeapon_f(void)
 
   for (i = 0; i < WP_NUM_WEAPONS; i++)
   {
-	  newWep++;
+    newWep++;
 
     if (newWep > WP_LAST)
       newWep = WP_FIRST;
 
-	if ( CG_WeaponSelectable(( weapon_t ) newWep) && CG_WeaponHasAmmo(( weapon_t ) newWep) )
-	{ 
-		if ( newWep != original )
-		{
-			cg.weaponSelect = newWep;
-		}
-		return;
-	}
+  if ( CG_WeaponSelectable(( weapon_t ) newWep) && CG_WeaponHasAmmo(( weapon_t ) newWep) )
+  {
+    if ( newWep != original )
+    {
+      cg.weaponSelect = newWep;
+    }
+    return;
+  }
   }
 
   cg.weaponSelect = WP_CROWBAR;
@@ -2958,11 +2955,10 @@ CG_PrevWeapon_f
 */
 void CG_PrevWeapon_f(void)
 {
-  int i, j,k;
+  int i;
   int original, newWep;
   newWep = original = cg.weaponSelect;
 
-  j = k = 0;
   if (!cg.snap)
     return;
 
@@ -2974,17 +2970,17 @@ void CG_PrevWeapon_f(void)
 
   for (i = 0; i < WP_NUM_WEAPONS; i++)
   {
-	  newWep--;
+    newWep--;
 
-	if (newWep < WP_FIRST)
+  if (newWep < WP_FIRST)
       newWep = WP_LAST;
 
     if (CG_WeaponSelectable((weapon_t)newWep) && CG_WeaponHasAmmo((weapon_t)newWep))
-	{
-		if ( newWep != original )
-		{
-			cg.weaponSelect = newWep;
-		}
+  {
+    if ( newWep != original )
+    {
+      cg.weaponSelect = newWep;
+    }
       return;
     }
   }
@@ -3011,14 +3007,14 @@ void CG_Weapon_f(void)
     return;
 
   if ( lastTimeUsed > cg.time )
-	  return;
+    return;
 
   if ( cg.snap->ps.pm_flags & PMF_FOLLOW  || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
   {
-	if (num == TEAM_DRAGONS || num == TEAM_NIKKIS)
-	  trap_SendClientCommand(va("team %i", num)); //join team with wep 1 or 2 key
-	lastTimeUsed = cg.time + 1000; //prevent weaponkey working for short time
-	return;
+  if (num == TEAM_DRAGONS || num == TEAM_NIKKIS)
+    trap_SendClientCommand(va("team %i", num)); //join team with wep 1 or 2 key
+  lastTimeUsed = cg.time + 1000; //prevent weaponkey working for short time
+  return;
   }
 
   //display weapon selected
@@ -3030,10 +3026,10 @@ void CG_Weapon_f(void)
 
   //do we have ammo/rounds?
   if ( !CG_WeaponHasAmmo(( weapon_t ) num) )
-	  return;
+    return;
 
   if ( cg.weaponSelect == num )
-	  return;
+    return;
 
   cg.weaponSelect = num;
 }
@@ -3077,9 +3073,9 @@ void CG_FireWeapon(centity_t *cent, qboolean spistol)
 
  /* if ( ent->weapon == WP_FLAMER )
   {
-	  if ( cg.shootTimeFlamer > cg.time)
-		  return;
-	  cg.shootTimeFlamer = cg.time+100; //hypov8 todo: sounds needs fixing
+    if ( cg.shootTimeFlamer > cg.time)
+      return;
+    cg.shootTimeFlamer = cg.time+100; //hypov8 todo: sounds needs fixing
   }*/
 
   // play a sound
@@ -3093,7 +3089,7 @@ void CG_FireWeapon(centity_t *cent, qboolean spistol)
   {
     if (ent->weapon == WP_PISTOL)
     {
-		if (spistol)	//PW_WPMOD_SILENCER
+    if (spistol)	//PW_WPMOD_SILENCER
         c = 1;
       else
         c = 0;
@@ -3111,10 +3107,10 @@ void CG_FireWeapon(centity_t *cent, qboolean spistol)
     weap->ejectBrassFunc(cent);
 
 
-	 // wep = cent->currentState.weapon;
+   // wep = cent->currentState.weapon;
 
 //unlagged - attack prediction #1
-	//CG_PredictWeaponEffects( cent ); //hypov8 note: disable. do we really need this.
+  //CG_PredictWeaponEffects( cent ); //hypov8 note: disable. do we really need this.
 //unlagged - attack prediction #1
 }
 
@@ -3140,7 +3136,7 @@ void CG_ReloadWeapon(centity_t *cent)
   }
 
   weap = &cg_weapons[ent->weapon];
-  
+
   if ( weap->reloadSound && ent->clientNum == cg.predictedPlayerState.clientNum )
     trap_S_StartSound(NULL, ent->number, CHAN_WEAPON,  weap->reloadSound);
 }
@@ -3154,12 +3150,12 @@ hypo used to reset gun auto switch on sucseful wep switch
 */
 void CG_ResetWeaponSwitch(centity_t *cent, int weapon)
 {
-	if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS)
-	{
-		CG_Error("CG_ResetWeaponSwitch: invalid weapon number");
-		return;
-	}
-	cg.weaponSelect = weapon;
+  if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS)
+  {
+    CG_Error("CG_ResetWeaponSwitch: invalid weapon number");
+    return;
+  }
+  cg.weaponSelect = weapon;
 }
 
 /*
@@ -3221,18 +3217,18 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
     case IMPACTSOUND_GRAVEL:
     case IMPACTSOUND_EARTH:
       sfx = cgs.media.sfx_Pipehgravel;
-	  //mark = cgs.media.bloodExplosionShader;
+    //mark = cgs.media.bloodExplosionShader;
       break;
     case IMPACTSOUND_FLESH:
       sfx = cgs.media.sfx_Pipehbody;
-	  mark = cgs.media.bloodExplosionShader; //hypov8 todo:
+    mark = cgs.media.bloodExplosionShader; //hypov8 todo:
       break;
-	default:
+  default:
     case IMPACTSOUND_DEFAULT:
       sfx = cgs.media.sfx_Pipehcement;
-	  mark = cgs.media.meleeMarkBrick[random_int & 1];
-	  CG_ParticleRick(origin, dir);
-	  //CG_ParticleDirtBulletDebris_Core(origin,vec3_origin, 2222, 20.0f, 20.0f, 0.5f,cgs.media.grenadeExplosionShader  );
+    mark = cgs.media.meleeMarkBrick[random_int & 1];
+    CG_ParticleRick(origin, dir);
+    //CG_ParticleDirtBulletDebris_Core(origin,vec3_origin, 2222, 20.0f, 20.0f, 0.5f,cgs.media.grenadeExplosionShader  );
       break;
     }
     break;
@@ -3241,23 +3237,23 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
     shader   = cgs.media.grenadeExplosionShader;
     sfx      = cgs.media.sfx_GrenExpl[random_int % 3];
     mark     = cgs.media.burnMarkShader;
-		//	cgs.media.sparkFlareShader;
-		//	cgs.media.sparkShader;
-			radius   = 128;
+    //	cgs.media.sparkFlareShader;
+    //	cgs.media.sparkShader;
+      radius   = 128;
     light    = 300;
     isSprite = qtrue;
-			duration = 1000;
-			lightColor[0] = 1;
-			lightColor[1] = 0.75;
-			lightColor[2] = 0.0;
+      duration = 1000;
+      lightColor[0] = 1;
+      lightColor[1] = 0.75;
+      lightColor[2] = 0.0;
     //VectorScale(dir, 100, sprVel);
-			dir[0] = dir[1] = 0; dir[2] = -1;			//set straight up
-			//sprVel[0] = sprVel[1] = 0; sprVel[2] = 100;	//set straight up
+      dir[0] = dir[1] = 0; dir[2] = -1;			//set straight up
+      //sprVel[0] = sprVel[1] = 0; sprVel[2] = 100;	//set straight up
 
-			origin[2] += 8;
-			CG_ParticleGrenade(origin, dir);
-			//CG_ParticleSparks(sprOrg, sprVel, 1400, 20, 30, 600);
-			//CG_ParticleRick(origin, dir);
+      origin[2] += 8;
+      CG_ParticleGrenade(origin, dir);
+      //CG_ParticleSparks(sprOrg, sprVel, 1400, 20, 30, 600);
+      //CG_ParticleRick(origin, dir);
     break;
 ///////////////
 //rocket impact
@@ -3283,43 +3279,43 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
     lightColor[1] = 0.75;
     lightColor[2] = 0.0;
     VectorScale(dir, 100, sprVel);
-	CG_ParticleSparks(origin, sprVel, 1400, 20, 30, 600);
+  CG_ParticleSparks(origin, sprVel, 1400, 20, 30, 600);
     break;
 ///////////////
 //flamer impact
   case WP_FLAMER:
-	  switch ( soundType )
-	  {
-	  case IMPACTSOUND_DEFAULT:
-	  default:
-		  sfx = cgs.media.sfx_rockexp[ 0 ];
+    switch ( soundType )
+    {
+    case IMPACTSOUND_DEFAULT:
+    default:
+      sfx = cgs.media.sfx_rockexp[ 0 ];
 
 
-		  /* mark = cgs.media.burnMarkShaderRl;
-		   radius = 64;
-		   light = 300;
-		   isSprite = qtrue;
-		   duration = 1000;
-		   lightColor[0] = 1;
-		   lightColor[1] = 0.75;
-		   lightColor[2] = 0.0;
-		   VectorScale(dir, 100, sprVel);
-		   CG_ParticleSparks(origin, sprVel, 1400, 20, 30, 600);*/
+      /* mark = cgs.media.burnMarkShaderRl;
+       radius = 64;
+       light = 300;
+       isSprite = qtrue;
+       duration = 1000;
+       lightColor[0] = 1;
+       lightColor[1] = 0.75;
+       lightColor[2] = 0.0;
+       VectorScale(dir, 100, sprVel);
+       CG_ParticleSparks(origin, sprVel, 1400, 20, 30, 600);*/
 
 
-		  mod = cgs.media.dishFlashModel;
-		  shader = cgs.media.rocketExplosionShader;
-		  sfx = 0; // cgs.media.flameSound;
-		  mark = cgs.media.burnMarkShader;
-		  radius = 64;
-		  //FIXME(0xA5EA): flamegun: is this complete ?
-	  }
+      mod = cgs.media.dishFlashModel;
+      shader = cgs.media.rocketExplosionShader;
+      sfx = 0; // cgs.media.flameSound;
+      mark = cgs.media.burnMarkShader;
+      radius = 64;
+      //FIXME(0xA5EA): flamegun: is this complete ?
+    }
 
-	  break;
+    break;
 ///////////////
 //shotty impact
   case WP_SHOTGUN:
-			//mod = cgs.media.bulletFlashModel; //old sparks
+      //mod = cgs.media.bulletFlashModel; //old sparks
     isSprite = qfalse;
     switch (soundType)
     {
@@ -3329,15 +3325,15 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
       break;
     case IMPACTSOUND_WOOD:
       sfx = cgs.media.sfx_BullethWood[random_int % NUM_WOODIMPACTSND];
-	    mark = cgs.media.bulletMarkwood[random_int&1];
+      mark = cgs.media.bulletMarkwood[random_int&1];
       //sfx = cgs.media.sfx_ShottyhitWood[rand()%3];  //rand()&3  //werden nur 2 sounds initialisiert
       break;
     case IMPACTSOUND_GRAVEL: //ToDo: hypov8
     case IMPACTSOUND_EARTH:
-					//sfx = cgs.media.sfx_ShottyhitEarth[random_int& 1]; //hypov8 ToDo: ising tommy copy
-					//copy from tommy below
-					sfx = cgs.media.sfx_BullethEarth[random_int % 3];
-					mark = cgs.media.bulletMark[random_int & 1];
+          //sfx = cgs.media.sfx_ShottyhitEarth[random_int& 1]; //hypov8 ToDo: ising tommy copy
+          //copy from tommy below
+          sfx = cgs.media.sfx_BullethEarth[random_int % 3];
+          mark = cgs.media.bulletMark[random_int & 1];
       break;
     case IMPACTSOUND_GLASS:
       mark = cgs.media.bulletMarkglas[random_int&1]; //note hypov8 not working on glass, using default:
@@ -3357,11 +3353,11 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
   case WP_PISTOL:
   case WP_HMG:
   case WP_MACHINEGUN:
-		 radius = 1;
-	  if (weapon == WP_HMG)
-	    radius = 3;
-			//mod = cgs.media.bulletFlashModel; old sparks
-	  isSprite = qfalse;
+     radius = 1;
+    if (weapon == WP_HMG)
+      radius = 3;
+      //mod = cgs.media.bulletFlashModel; old sparks
+    isSprite = qfalse;
     switch (soundType)
     {
     case IMPACTSOUND_METAL:
@@ -3375,10 +3371,10 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
     case IMPACTSOUND_GRAVEL: //hypov8 todo: gravel
     case IMPACTSOUND_EARTH:
       sfx = cgs.media.sfx_BullethEarth[random_int%3];
-					mark = cgs.media.bulletMark[random_int & 1];
+          mark = cgs.media.bulletMark[random_int & 1];
       break;
     case IMPACTSOUND_GLASS:
-	case IMPACTSOUND_SNOW: //hypov8 todo: snow
+  case IMPACTSOUND_SNOW: //hypov8 todo: snow
       mark = cgs.media.bulletMarkglas[random_int&1];
       sfx = cgs.media.sfx_BullethIce[random_int&1];
       break;
@@ -3391,7 +3387,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 
   case WP_GRAPPLING_HOOK:
       sfx = cgs.media.sfx_HookHitBrick;
-	  break;
+    break;
   }
 
   if (sfx)
@@ -3421,19 +3417,19 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum)
 //hypov8
 #if 0
 if (playerteam->dragons) //hypo TODO: fix what they are called..
-	{
-	if (enamy = dragons)
-		{
-			return;
-		}
-	}
+  {
+  if (enamy = dragons)
+    {
+      return;
+    }
+  }
 if (playerteam->nikki)
-	{
-	if (enamy = nikki)
-		{
-			return;	
-		}	
-	}
+  {
+  if (enamy = nikki)
+    {
+      return;
+    }
+  }
 #endif
 
   CG_Bleed(origin, entityNum);
@@ -3534,7 +3530,7 @@ hit splashes
 //unlagged - attack prediction
 // made this non-static for access from cg_unlagged.c
 //static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum) kpq3 unlag
-void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum ) 
+void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum )
 {
   int i;
   float r, u;

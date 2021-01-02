@@ -256,27 +256,28 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
       pi->animations[i] = pi->animations[LEGS_IDLE];
     }
 
-	UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE,	"ani/tor_gesture",	qfalse, qfalse, qfalse);
-	UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE2,	"ani/tor_gesture2",	qfalse, qfalse, qfalse);
-	UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE3,	"ani/tor_gesture3",	qfalse, qfalse, qfalse);
-	UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND,		"ani/tor_idle",		qtrue, qfalse, qfalse);
-	UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND2,	"ani/tor_idle2",	qtrue, qfalse, qfalse); //pistol
-	UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND3,	"ani/tor_idle3",	qtrue, qfalse, qfalse); //crowbar
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE,	"ani/tor_gesture",	qfalse, qfalse, qfalse);
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE2,	"ani/tor_gesture2",	qfalse, qfalse, qfalse);
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE3,	"ani/tor_gesture3",	qfalse, qfalse, qfalse);
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND,		"ani/tor_idle",		qtrue, qfalse, qfalse);
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND2,	"ani/tor_idle2",	qtrue, qfalse, qfalse); //pistol
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND3,	"ani/tor_idle3",	qtrue, qfalse, qfalse); //crowbar
 
     Com_sprintf(filename, sizeof(filename), "models/players/%s/body_%s.skin", modelName, skinName);
 
-	//team
-	if (teamName[0] != '\0')
-		Com_sprintf(filename, sizeof(filename), "models/players/%s/team_%s_%s.skin", modelName, headModelSkinName, teamName);
-    Com_Printf("UI_XPPM: Loading skin %s\n", filename);
+  //team
+  if (teamName[0] != '\0')
+    Com_sprintf(filename, sizeof(filename), "models/players/%s/team_%s_%s.skin", modelName, headModelSkinName, teamName);
 
-    pi->bodySkin = trap_R_RegisterSkin(filename);
+  Com_Printf("UI_XPPM: Loading skin %s\n", filename);
 
-    if (!pi->bodySkin)
-    {
-      Com_Printf("Body skin load failure: %s\n", filename);
-      return qfalse;
-    }
+  pi->bodySkin = trap_R_RegisterSkin(filename);
+
+  if (!pi->bodySkin)
+  {
+    Com_Printf("Body skin load failure: %s\n", filename);
+    return qfalse;
+  }
 
 
   }
@@ -563,13 +564,13 @@ static void UI_XPPM_PlayerAngles(playerInfo_t * pi, vec3_t legsAngles, vec3_t to
 }
 
 
-
+#if 0 // solves unused compiler warning
 static void UI_XPPM_PositionEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName)
 {
   int i;
   orientation_t lerped;
 
-	Q_UNUSED(parentModel);
+  Q_UNUSED(parentModel);
 
   // lerp the tag
 #if defined(COMPAT_KPQ3) || defined(COMPAT_ET)
@@ -589,7 +590,7 @@ static void UI_XPPM_PositionEntityOnTag(refEntity_t *entity, const refEntity_t *
   AxisMultiply(lerped.axis, ((refEntity_t *)parent)->axis, entity->axis);
   entity->backlerp = parent->backlerp;
 }
-
+#endif
 /*
 ======================
 UI_XPPM_PositionRotatedEntityOnTag
@@ -603,7 +604,7 @@ void UI_XPPM_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *
   orientation_t lerped;
   vec3_t tempAxis[3];
 
-	Q_UNUSED(parentModel);
+  Q_UNUSED(parentModel);
 //AxisClear( entity->axis );
   // lerp the tag
 #if defined(COMPAT_KPQ3) || defined(COMPAT_ET)
@@ -628,26 +629,26 @@ void UI_XPPM_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *
 //add hypov8
 void UI_XPPM_AddPlayerWeapon(refEntity_t *parent)
 {
-	static refEntity_t gun;
-	vec3_t angles;
+  static refEntity_t gun;
+  vec3_t angles;
 
-	// add the weapon
-	Com_Memset(&gun, 0, sizeof(gun));
-	gun.shadowPlane = parent->shadowPlane;
-	gun.renderfx    = parent->renderfx;
-	gun.hModel = trap_R_RegisterModel("models/weapons/tomgun/w_player.md3"); //gitem_t bg_itemlist[] "weapon_tommygun"
+  // add the weapon
+  Com_Memset(&gun, 0, sizeof(gun));
+  gun.shadowPlane = parent->shadowPlane;
+  gun.renderfx    = parent->renderfx;
+  gun.hModel = trap_R_RegisterModel("models/weapons/tomgun/w_player.md3"); //gitem_t bg_itemlist[] "weapon_tommygun"
 
-	if (!gun.hModel)
-	return;
+  if (!gun.hModel)
+  return;
 
-	angles[PITCH] = 0;
-	angles[YAW] = 90; //hypov8 todo: fix thug player model tag error. remove this
-	angles[ROLL] = 90;
-	AnglesToAxis(angles, gun.axis);
-	UI_XPPM_PositionRotatedEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
-	//UI_XPPM_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");	
+  angles[PITCH] = 0;
+  angles[YAW] = 90; //hypov8 todo: fix thug player model tag error. remove this
+  angles[ROLL] = 90;
+  AnglesToAxis(angles, gun.axis);
+  UI_XPPM_PositionRotatedEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
+  //UI_XPPM_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
 
-	trap_R_AddRefEntityToScene(&gun);
+  trap_R_AddRefEntityToScene(&gun);
 }
 
 
@@ -717,10 +718,10 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
   // get the rotation information
 //#if 0 //remove hypov8
-	UI_XPPM_PlayerAngles(pi, legsAngles, torsoAngles, headAngles);
-	legsAngles[YAW] = 150;
-	legsAngles[PITCH] = 0;
-	legsAngles[ROLL] = 0;
+  UI_XPPM_PlayerAngles(pi, legsAngles, torsoAngles, headAngles);
+  legsAngles[YAW] = 150;
+  legsAngles[PITCH] = 0;
+  legsAngles[ROLL] = 0;
 
 //#else //remove hypov8
 #if 0
@@ -751,38 +752,38 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
   //hypov8 simple ler idle animation
 {
-	int fRate = pi->animations[TORSO_STAND].frameLerp;
-	static int lastframe = pi->animations[TORSO_STAND].firstFrame;
-	static int curFrame = lastframe;
-	static int lerpTime = dp_realtime;
+  int fRate = pi->animations[TORSO_STAND].frameLerp;
+  static int lastframe = pi->animations[TORSO_STAND].firstFrame;
+  static int curFrame = lastframe;
+  static int lerpTime = dp_realtime;
 
-	int frames = pi->animations[TORSO_STAND].numFrames;
-	int frame1st = pi->animations[TORSO_STAND].firstFrame;
+  int frames = pi->animations[TORSO_STAND].numFrames;
+  int frame1st = pi->animations[TORSO_STAND].firstFrame;
 
 
-	if (dp_realtime >= lerpTime)
-	{
-		body.oldframe = curFrame;
-		lastframe = curFrame;
+  if (dp_realtime >= lerpTime)
+  {
+    body.oldframe = curFrame;
+    lastframe = curFrame;
 
-		if (curFrame == frames)
-			curFrame = frame1st;
-		else
-			curFrame++;
+    if (curFrame == frames)
+      curFrame = frame1st;
+    else
+      curFrame++;
 
-		body.frame = curFrame;
-		body.backlerp = 1.0f;
+    body.frame = curFrame;
+    body.backlerp = 1.0f;
 
-		lerpTime = dp_realtime + fRate;
-	}
-	else
-	{
-		float percent = (float)(lerpTime - dp_realtime) / (float)fRate;
+    lerpTime = dp_realtime + fRate;
+  }
+  else
+  {
+    float percent = (float)(lerpTime - dp_realtime) / (float)fRate;
 
-		body.frame = curFrame;
-		body.oldframe = lastframe;
-		body.backlerp =  percent;
-	}
+    body.frame = curFrame;
+    body.oldframe = lastframe;
+    body.backlerp =  percent;
+  }
 }
 
   //body.backlerp = 1.0f;

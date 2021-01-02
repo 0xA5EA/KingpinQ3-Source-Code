@@ -74,8 +74,8 @@ void Team_InitGame(void)
     break;
 #ifdef WITH_BAGMAN_MOD
   case GT_BAGMAN:
-	//level.teamScores[TEAM_DRAGONS] = 0;
-	//level.teamScores[TEAM_NIKKIS] = 0;
+  //level.teamScores[TEAM_DRAGONS] = 0;
+  //level.teamScores[TEAM_NIKKIS] = 0;
     //FIXME(0xA5EA): bagman, implement
     break;
 #endif
@@ -187,30 +187,30 @@ static void QDECL PrintMsg(gentity_t *ent, const char *fmt, ...)
  */
 static void AddTeamScore(vec3_t origin, int team, int score)
 {
-	gentity_t *te;
+  gentity_t *te;
 
-	te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND);
-	te->r.svFlags |= SVF_BROADCAST;
+  te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND);
+  te->r.svFlags |= SVF_BROADCAST;
 
-	if (team == TEAM_DRAGONS)
-	{
-		if (level.teamScores[TEAM_DRAGONS] + score == level.teamScores[TEAM_NIKKIS])
-			te->s.eventParm = GTS_TEAMS_ARE_TIED;       //teams are tied sound
-		else if (level.teamScores[TEAM_DRAGONS] <= level.teamScores[TEAM_NIKKIS] && level.teamScores[TEAM_DRAGONS] + score > level.teamScores[TEAM_NIKKIS])
-			te->s.eventParm = GTS_DRAGONTEAM_TOOK_LEAD; // red took the lead sound
-		else
-			te->s.eventParm = GTS_DRAGONTEAM_SCORED;    // red scored sound
-	}
-	else
-	{
-		if (level.teamScores[TEAM_NIKKIS] + score == level.teamScores[TEAM_DRAGONS])
-			te->s.eventParm = GTS_TEAMS_ARE_TIED;  //teams are tied sound
-		else if (level.teamScores[TEAM_NIKKIS] <= level.teamScores[TEAM_DRAGONS] && level.teamScores[TEAM_NIKKIS] + score > level.teamScores[TEAM_DRAGONS])
-			te->s.eventParm = GTS_NIKKITEAM_TOOK_LEAD; // blue took the lead sound
-		else
-			te->s.eventParm = GTS_NIKKITEAM_SCORED; // blue scored sound
-	}
-	level.teamScores[team] += score;
+  if (team == TEAM_DRAGONS)
+  {
+    if (level.teamScores[TEAM_DRAGONS] + score == level.teamScores[TEAM_NIKKIS])
+      te->s.eventParm = GTS_TEAMS_ARE_TIED;       //teams are tied sound
+    else if (level.teamScores[TEAM_DRAGONS] <= level.teamScores[TEAM_NIKKIS] && level.teamScores[TEAM_DRAGONS] + score > level.teamScores[TEAM_NIKKIS])
+      te->s.eventParm = GTS_DRAGONTEAM_TOOK_LEAD; // red took the lead sound
+    else
+      te->s.eventParm = GTS_DRAGONTEAM_SCORED;    // red scored sound
+  }
+  else
+  {
+    if (level.teamScores[TEAM_NIKKIS] + score == level.teamScores[TEAM_DRAGONS])
+      te->s.eventParm = GTS_TEAMS_ARE_TIED;  //teams are tied sound
+    else if (level.teamScores[TEAM_NIKKIS] <= level.teamScores[TEAM_DRAGONS] && level.teamScores[TEAM_NIKKIS] + score > level.teamScores[TEAM_DRAGONS])
+      te->s.eventParm = GTS_NIKKITEAM_TOOK_LEAD; // blue took the lead sound
+    else
+      te->s.eventParm = GTS_NIKKITEAM_SCORED; // blue scored sound
+  }
+  level.teamScores[team] += score;
 }
 
 #ifdef WITH_BAGMAN_MOD
@@ -223,17 +223,17 @@ static void AddTeamScore(vec3_t origin, int team, int score)
  */
 static void BM_AddTeamScore(vec3_t origin, int team, int score)
 {
-	gentity_t *te;
+  gentity_t *te;
 
-	te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND);
-	te->r.svFlags |= SVF_BROADCAST;
+  te = G_TempEntity(origin, EV_GLOBAL_TEAM_SOUND);
+  te->r.svFlags |= SVF_BROADCAST;
 
-	if (team == TEAM_DRAGONS)
-		te->s.eventParm = GTS_DRAGON_DEPOSIT;
-	else
-		te->s.eventParm = GTS_NIKKI_DEPOSIT;
+  if (team == TEAM_DRAGONS)
+    te->s.eventParm = GTS_DRAGON_DEPOSIT;
+  else
+    te->s.eventParm = GTS_NIKKI_DEPOSIT;
 
-	level.teamScores[team] += score;
+  level.teamScores[team] += score;
 }
 #endif
 
@@ -336,7 +336,7 @@ void Team_CheckDroppedItem(gentity_t *dropped)
 /*
 ================
  Team_ForceGesture
- hypov8 ctf only? 
+ hypov8 ctf only?
  will taunt for every team member
  should enforce a specific taunt?
 ================
@@ -801,14 +801,14 @@ Team_TakeBagSound
 */
 static void BM_SafeStolenSound(gentity_t *ent, int team)
 {
-	gentity_t *te;
-	
-	te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
-	te->r.svFlags |= SVF_BROADCAST;
-	if (team == TEAM_NIKKIS)
-		te->s.eventParm = GTS_DRAGON_STOLEN;
-	else
-		te->s.eventParm = GTS_NIKKI_STOLEN;
+  gentity_t *te;
+
+  te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND);
+  te->r.svFlags |= SVF_BROADCAST;
+  if (team == TEAM_NIKKIS)
+    te->s.eventParm = GTS_DRAGON_STOLEN;
+  else
+    te->s.eventParm = GTS_NIKKI_STOLEN;
 }
 
 
@@ -860,26 +860,26 @@ void Team_ReturnFlag(int team)
 #ifdef WITH_BAGMAN_MOD
 static gentity_t *BM_FindTeamsSafe(int team)
 {
-	char *c;
-	gentity_t *ent = NULL;
+  char *c;
+  gentity_t *ent = NULL;
 
-	switch (team)
-	{
-	case TEAM_DRAGONS: 
-		c = "team_bm_dragonssafe"; 
-		break;
-	case TEAM_NIKKIS:  
-		c = "team_bm_nikkissafe";  
-		break;
-	default:
-		return NULL;
-	}
+  switch (team)
+  {
+  case TEAM_DRAGONS:
+    c = "team_bm_dragonssafe";
+    break;
+  case TEAM_NIKKIS:
+    c = "team_bm_nikkissafe";
+    break;
+  default:
+    return NULL;
+  }
 
-	while ((ent = G_Find(ent, FOFS(classname), c)) != NULL)
-	{
-		return ent;
-	}
-	return NULL;
+  while ((ent = G_Find(ent, FOFS(classname), c)) != NULL)
+  {
+    return ent;
+  }
+  return NULL;
 }
 
 /*
@@ -889,28 +889,28 @@ static gentity_t *BM_FindTeamsSafe(int team)
 */
 void BM_ReturnCash(gentity_t *self)
 {
-	int cashTeam = Team_OtherTeam(self->client->sess.sessionTeam);
-	int cash = self->client->ps.stats[STAT_STOLEN_CASH];
+  int cashTeam = Team_OtherTeam(self->client->sess.sessionTeam);
+  int cash = self->client->ps.stats[STAT_STOLEN_CASH];
 
-	if (cashTeam == 1) 
-		level.teamScores[TEAM_DRAGONS] += cash;
-	else if (cashTeam == 2) 
-		level.teamScores[TEAM_NIKKIS] += cash;
-	else 
-	{
-		G_Printf(S_COLOR_YELLOW"Warning: wrong team passed to BM_ReturnCash\n");
-		return; 
-	}
-	//hypov8 need to update scorebord
-	CalculateRanks();
+  if (cashTeam == 1)
+    level.teamScores[TEAM_DRAGONS] += cash;
+  else if (cashTeam == 2)
+    level.teamScores[TEAM_NIKKIS] += cash;
+  else
+  {
+    G_Printf(S_COLOR_YELLOW"Warning: wrong team passed to BM_ReturnCash\n");
+    return;
+  }
+  //hypov8 need to update scorebord
+  CalculateRanks();
 
-	self->client->ps.powerups[PW_STOLENSCASH] = 0;
-	self->client->ps.persistant[PERS_CASH_STOLEN] -= self->client->ps.stats[STAT_STOLEN_CASH];
-	self->client->ps.stats[STAT_STOLEN_CASH] = 0;
+  self->client->ps.powerups[PW_STOLENSCASH] = 0;
+  self->client->ps.persistant[PERS_CASH_STOLEN] -= self->client->ps.stats[STAT_STOLEN_CASH];
+  self->client->ps.stats[STAT_STOLEN_CASH] = 0;
 
-	Team_ReturnFlagSound(BM_FindTeamsSafe(cashTeam), cashTeam);
-	PrintMsg(NULL, "The %s cash %i has returned!\n", TeamName(cashTeam), cash);
-	//FIXME(0xA5EA): is this ok ? something missing ?
+  Team_ReturnFlagSound(BM_FindTeamsSafe(cashTeam), cashTeam);
+  PrintMsg(NULL, "The %s cash %i has returned!\n", TeamName(cashTeam), cash);
+  //FIXME(0xA5EA): is this ok ? something missing ?
 }
 #endif // WITH_BAGMAN_MOD
 /*
@@ -920,18 +920,18 @@ void BM_ReturnCash(gentity_t *self)
 */
 void Team_FreeEntity(gentity_t *ent)
 {
-	switch (ent->item->giTag)
-	{
-	case PW_DRAGONFLAG:
-		Team_ReturnFlag(TEAM_DRAGONS);
-		return;
-	case PW_NIKKIFLAG:
-		Team_ReturnFlag(TEAM_NIKKIS);
-		return;
-	case PW_NEUTRALFLAG:
-		Team_ReturnFlag(TEAM_FREE);
-		return;
-	}
+  switch (ent->item->giTag)
+  {
+  case PW_DRAGONFLAG:
+    Team_ReturnFlag(TEAM_DRAGONS);
+    return;
+  case PW_NIKKIFLAG:
+    Team_ReturnFlag(TEAM_NIKKIS);
+    return;
+  case PW_NEUTRALFLAG:
+    Team_ReturnFlag(TEAM_FREE);
+    return;
+  }
 }
 
 /*
@@ -943,21 +943,21 @@ void Team_FreeEntity(gentity_t *ent)
  */
 void Team_DroppedFlagThink(gentity_t *ent)
 {
-	int team = TEAM_FREE;
-	switch (ent->item->giTag)
-	{
-	case PW_DRAGONFLAG:
-		team = TEAM_DRAGONS;
-		break;
-	case PW_NIKKIFLAG:
-		team = TEAM_NIKKIS;
-		break;
-	case PW_NEUTRALFLAG:
-		team = TEAM_FREE;
-		break;
-	}
+  int team = TEAM_FREE;
+  switch (ent->item->giTag)
+  {
+  case PW_DRAGONFLAG:
+    team = TEAM_DRAGONS;
+    break;
+  case PW_NIKKIFLAG:
+    team = TEAM_NIKKIS;
+    break;
+  case PW_NEUTRALFLAG:
+    team = TEAM_FREE;
+    break;
+  }
 
-	Team_ReturnFlagSound(Team_ResetFlag(team), team);
+  Team_ReturnFlagSound(Team_ResetFlag(team), team);
 }
 
 
@@ -1065,21 +1065,21 @@ static int Team_CaptureFlag(gentity_t *ent, gentity_t *other, int team)
 
 static int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 {
-	if (g_gametype.integer == GT_1FCTF || g_gametype.integer == GT_CTF)
-	{
-		if (ent->flags & FL_DROPPED_ITEM)
-		{
-			// hey, its not home.  return it by teleporting it back
-			PrintMsg(NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n", other->client->pers.netname, TeamName(team));
-			AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
-			other->client->pers.teamState.flagrecovery++;
-			other->client->pers.teamState.lastreturnedflag = level.time;
-			//ResetFlag will remove this entity!  We must return zero
-			Team_ReturnFlagSound(Team_ResetFlag(team), team);
-			return 0;
-		}
-	}
-	return Team_CaptureFlag(ent, other, team);
+  if (g_gametype.integer == GT_1FCTF || g_gametype.integer == GT_CTF)
+  {
+    if (ent->flags & FL_DROPPED_ITEM)
+    {
+      // hey, its not home.  return it by teleporting it back
+      PrintMsg(NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n", other->client->pers.netname, TeamName(team));
+      AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
+      other->client->pers.teamState.flagrecovery++;
+      other->client->pers.teamState.lastreturnedflag = level.time;
+      //ResetFlag will remove this entity!  We must return zero
+      Team_ReturnFlagSound(Team_ResetFlag(team), team);
+      return 0;
+    }
+  }
+  return Team_CaptureFlag(ent, other, team);
 }
 
 
@@ -1131,19 +1131,19 @@ BM_IsSafeEmpty
 */
 static qboolean BM_IsSafeEmpty(int team)
 {
-	switch(team)
-	{
-	case TEAM_DRAGONS:
-		if (level.teamScores[TEAM_DRAGONS] <= 0)
-			return qtrue;
-		break;
-	case TEAM_NIKKIS:
-		if (level.teamScores[TEAM_NIKKIS] <= 0)
-			return qtrue;
-		break;
-	}
+  switch(team)
+  {
+  case TEAM_DRAGONS:
+    if (level.teamScores[TEAM_DRAGONS] <= 0)
+      return qtrue;
+    break;
+  case TEAM_NIKKIS:
+    if (level.teamScores[TEAM_NIKKIS] <= 0)
+      return qtrue;
+    break;
+  }
 
-	return qfalse;
+  return qfalse;
 }
 
 
@@ -1178,7 +1178,7 @@ static void BM_TouchOurSafe(gentity_t *ent, gentity_t *other)
   cl->ps.stats[STAT_CASH] = 0;
   cl->ps.stats[STAT_STOLEN_CASH] = 0;
   cl->ps.powerups[PW_STOLENSCASH] = 0;
- 
+
   //FIXME(0xA5EA): bagman, was noch zurücksetzen ?
   //FIXME(0xA5EA): bagman only if stolen ??
 
@@ -1192,51 +1192,51 @@ BM_TouchEnemySafe
 */
 static void BM_TouchEnemySafe(gentity_t *ent, gentity_t *other)
 {
-	gclient_t *cl = other->client;
-	int enemyTeam = Team_OtherTeam(cl->sess.sessionTeam);
-	int pSafeAmount = 0;
-	int take_amount  = 0;
+  gclient_t *cl = other->client;
+  int enemyTeam = Team_OtherTeam(cl->sess.sessionTeam);
+  int pSafeAmount = 0;
+  int take_amount  = 0;
 
-  
-	if (BM_IsSafeEmpty(enemyTeam))
-		return;
 
-	if (!BG_CanPickupCashStolen(g_cashstolenmax.integer, &cl->ps)) // hypov8 g_cashcollectmax
-		return;
-  
-	//FIXME(0xA5EA):bagman cleanup
-	PrintMsg(NULL, "%s" S_COLOR_WHITE " stole the %s cash!\n", cl->pers.netname, TeamName(enemyTeam));
+  if (BM_IsSafeEmpty(enemyTeam))
+    return;
 
-	take_amount = g_cashstolenmax.integer - cl->ps.stats[STAT_STOLEN_CASH];
-	if (take_amount <= 0)
-	{
-		G_Printf(S_COLOR_RED"Error: invalid take amount %i\n", take_amount);
-		return;
-	}
+  if (!BG_CanPickupCashStolen(g_cashstolenmax.integer, &cl->ps)) // hypov8 g_cashcollectmax
+    return;
 
-	//set safe values
-	if (enemyTeam == TEAM_DRAGONS)
-	{
-		pSafeAmount = level.teamScores[TEAM_DRAGONS];
-		take_amount = (take_amount < pSafeAmount) ? take_amount : pSafeAmount;
-		pSafeAmount = level.teamScores[TEAM_DRAGONS] -= take_amount;
-	}
-	else
-	{
-		pSafeAmount = level.teamScores[TEAM_NIKKIS];
-		take_amount = (take_amount < pSafeAmount) ? take_amount : pSafeAmount;
-		level.teamScores[TEAM_NIKKIS] -= take_amount;
-	}
+  //FIXME(0xA5EA):bagman cleanup
+  PrintMsg(NULL, "%s" S_COLOR_WHITE " stole the %s cash!\n", cl->pers.netname, TeamName(enemyTeam));
 
-	//set client scores
-	cl->ps.stats[STAT_STOLEN_CASH] += take_amount;
-	cl->ps.persistant[PERS_CASH_STOLEN] += take_amount;
-	cl->ps.powerups[PW_STOLENSCASH] = 1; //INT_MAX; // cash never expire
+  take_amount = g_cashstolenmax.integer - cl->ps.stats[STAT_STOLEN_CASH];
+  if (take_amount <= 0)
+  {
+    G_Printf(S_COLOR_RED"Error: invalid take amount %i\n", take_amount);
+    return;
+  }
 
-	AddScore(other, ent->r.currentOrigin, BAGMAN_STEAL_BONUS);
-	cl->pers.teamState.lasttouchedsafe = level.time;
+  //set safe values
+  if (enemyTeam == TEAM_DRAGONS)
+  {
+    pSafeAmount = level.teamScores[TEAM_DRAGONS];
+    take_amount = (take_amount < pSafeAmount) ? take_amount : pSafeAmount;
+    pSafeAmount = level.teamScores[TEAM_DRAGONS] -= take_amount;
+  }
+  else
+  {
+    pSafeAmount = level.teamScores[TEAM_NIKKIS];
+    take_amount = (take_amount < pSafeAmount) ? take_amount : pSafeAmount;
+    level.teamScores[TEAM_NIKKIS] -= take_amount;
+  }
 
-	BM_SafeStolenSound(ent, enemyTeam);
+  //set client scores
+  cl->ps.stats[STAT_STOLEN_CASH] += take_amount;
+  cl->ps.persistant[PERS_CASH_STOLEN] += take_amount;
+  cl->ps.powerups[PW_STOLENSCASH] = 1; //INT_MAX; // cash never expire
+
+  AddScore(other, ent->r.currentOrigin, BAGMAN_STEAL_BONUS);
+  cl->pers.teamState.lasttouchedsafe = level.time;
+
+  BM_SafeStolenSound(ent, enemyTeam);
 }
 
 /*
@@ -1246,31 +1246,31 @@ static void BM_TouchEnemySafe(gentity_t *ent, gentity_t *other)
 */
 int BM_TouchSafe(gentity_t *ent, gentity_t *other)
 {
-	int team;
-	gclient_t *cl = other->client;
+  int team;
+  gclient_t *cl = other->client;
 
 
-	if (g_gametype.integer == GT_BAGMAN)
-	{
-		if (qstrcmp(ent->classname, "team_bm_dragonssafe") == 0)
-			team = TEAM_DRAGONS;
-		else if (qstrcmp(ent->classname, "team_bm_nikkissafe") == 0)
-			team = TEAM_NIKKIS;
-		else
-		{
-			PrintMsg(other, "Don't know what team the safe is on.\n");
-			return 0;
-		}
+  if (g_gametype.integer == GT_BAGMAN)
+  {
+    if (qstrcmp(ent->classname, "team_bm_dragonssafe") == 0)
+      team = TEAM_DRAGONS;
+    else if (qstrcmp(ent->classname, "team_bm_nikkissafe") == 0)
+      team = TEAM_NIKKIS;
+    else
+    {
+      PrintMsg(other, "Don't know what team the safe is on.\n");
+      return 0;
+    }
 
-		//touch own safe
-		if (team == cl->sess.sessionTeam)	
-			BM_TouchOurSafe(ent, other);
-		//touch enemy safe
-		else if (team != cl->sess.sessionTeam)  
-			BM_TouchEnemySafe(ent, other);
-	  }
+    //touch own safe
+    if (team == cl->sess.sessionTeam)
+      BM_TouchOurSafe(ent, other);
+    //touch enemy safe
+    else if (team != cl->sess.sessionTeam)
+      BM_TouchEnemySafe(ent, other);
+    }
 
-	return 0;
+  return 0;
 }
 #endif
 
@@ -1281,44 +1281,44 @@ int BM_TouchSafe(gentity_t *ent, gentity_t *other)
 */
 int Team_Pickup(gentity_t *ent, gentity_t *other)
 {
-	int team;
-	gclient_t *cl = other->client;
+  int team;
+  gclient_t *cl = other->client;
 
 
-	if (g_gametype.integer == GT_1FCTF || g_gametype.integer == GT_CTF)
-	{
-		// figure out what team this flag is
-		if (qstrcmp(ent->classname, "team_ctf_dragonsflag") == 0)
-			team = TEAM_DRAGONS;
-		else if (qstrcmp(ent->classname, "team_ctf_nikkisflag") == 0)
-			team = TEAM_NIKKIS;
-		else if (qstrcmp(ent->classname, "team_ctf_neutralflag") == 0)
-			team = TEAM_FREE;
-		else
-		{
-			PrintMsg(other, "Don't know what team the flag is on.\n");
-			return 0;
-		}
+  if (g_gametype.integer == GT_1FCTF || g_gametype.integer == GT_CTF)
+  {
+    // figure out what team this flag is
+    if (qstrcmp(ent->classname, "team_ctf_dragonsflag") == 0)
+      team = TEAM_DRAGONS;
+    else if (qstrcmp(ent->classname, "team_ctf_nikkisflag") == 0)
+      team = TEAM_NIKKIS;
+    else if (qstrcmp(ent->classname, "team_ctf_neutralflag") == 0)
+      team = TEAM_FREE;
+    else
+    {
+      PrintMsg(other, "Don't know what team the flag is on.\n");
+      return 0;
+    }
 
-		if (g_gametype.integer == GT_1FCTF)
-		{
-			if (team == TEAM_FREE)
-				return Team_TouchEnemyFlag( ent, other, cl->sess.sessionTeam );
+    if (g_gametype.integer == GT_1FCTF)
+    {
+      if (team == TEAM_FREE)
+        return Team_TouchEnemyFlag( ent, other, cl->sess.sessionTeam );
 
-			//reached enemys flag
-			if(team != cl->sess.sessionTeam)
-				return Team_TouchOurFlag( ent, other, cl->sess.sessionTeam );
+      //reached enemys flag
+      if(team != cl->sess.sessionTeam)
+        return Team_TouchOurFlag( ent, other, cl->sess.sessionTeam );
 
-			return 0;
-		}
-		// GT_CTF
-		if(team == cl->sess.sessionTeam)
-			return Team_TouchOurFlag(ent, other, team);
+      return 0;
+    }
+    // GT_CTF
+    if(team == cl->sess.sessionTeam)
+      return Team_TouchOurFlag(ent, other, team);
 
-		return Team_TouchEnemyFlag(ent, other, team);
-	}
+    return Team_TouchEnemyFlag(ent, other, team);
+  }
 
-	return 0;
+  return 0;
 }
 
 /*
@@ -1397,40 +1397,37 @@ qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen)
 #define MAX_TEAM_SPAWN_POINTS 32
 gentity_t *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 {
-  gentity_t *spot, *ent;
+  gentity_t *spot;
   int count;
   int selection;
   gentity_t *spots[MAX_TEAM_SPAWN_POINTS];
   char *classname;
 
-
   //classname2 = NULL;
 
-  if (teamstate == 0 ) /* TEAM_BEGIN */
+  if (teamstate == 0) /* TEAM_BEGIN */
   {
-	  if (team == 1 )  /*TEAM_DRAGONS  */
-		{
-		  classname = "team_dragonsspawn";
-		  {
-			  ent = NULL;
-			  if ( G_Find(NULL, FOFS(classname), "team_dragonsplayer") != NULL ) //note hypov8 any faster way?
-      classname = "team_dragonsplayer";
-		  }
+    if (team == 1) /*TEAM_DRAGONS  */
+    {
+      classname = "team_dragonsspawn";
+      {
+        if (G_Find(NULL, FOFS(classname), "team_dragonsplayer") != NULL) //note hypov8 any faster way?
+          classname = "team_dragonsplayer";
+      }
 
-		}
-	  else if (team == 2) /*TEAM_NIKKIS  */
-	    {
-		  classname = "team_nikkisspawn";
-		  {
-			  ent = NULL;
-			 if ( G_Find(NULL, FOFS(classname), "team_nikkisplayer") != NULL ) //note hypov8 any faster way?
-      classname = "team_nikkisplayer";
-		  }
-		}
+    }
+    else if (team == 2) /*TEAM_NIKKIS  */
+    {
+      classname = "team_nikkisspawn";
+      {
+        if (G_Find(NULL, FOFS(classname), "team_nikkisplayer") != NULL) //note hypov8 any faster way?
+          classname = "team_nikkisplayer";
+      }
+    }
     else
-	   {
-		  return NULL; /* note hypov8 deathmatch starts??? */
-	    }
+    {
+      return NULL; /* note hypov8 deathmatch starts??? */
+    }
   }
   else
   {
@@ -1646,103 +1643,103 @@ void SP_team_Nikkisspawn(gentity_t *ent)
 //waited 500ms
 void BM_Safe_Think(gentity_t *ent)
 {
-	//ent->campcount = 0;
-	ent->nextthink = 0;// level.time + 8.5 * 1000;
+  //ent->campcount = 0;
+  ent->nextthink = 0;// level.time + 8.5 * 1000;
 }
 
 static void BM_Touch_Safe(gentity_t *self, gentity_t *other)
 {
-	int team = other->client->sess.sessionTeam;
+  int team = other->client->sess.sessionTeam;
 
-	if (team == self->s.modelindex) //TEAM_DRAGONS 	TEAM_NIKKIS
-		BM_TouchOurSafe(self, other);
-	else
-		BM_TouchEnemySafe(self, other);
+  if (team == self->s.modelindex) //TEAM_DRAGONS 	TEAM_NIKKIS
+    BM_TouchOurSafe(self, other);
+  else
+    BM_TouchEnemySafe(self, other);
 }
 
 //hypov8 add think for safecamp
 void BM_Safe_Touch(gentity_t *safe, gentity_t *other, trace_t *trace)
 {
-	// can't retrigger until the wait is over
-	if (safe->nextthink)
-		return;
+  // can't retrigger until the wait is over
+  if (safe->nextthink)
+    return;
 
-	//think every 500ms
-	safe->think = BM_Safe_Think;
-	safe->nextthink = level.time + 500;
+  //think every 500ms
+  safe->think = BM_Safe_Think;
+  safe->nextthink = level.time + 500;
 
-	if (!other->client)
-		return;
+  if (!other->client)
+    return;
 
-	BM_Touch_Safe(safe, other);
+  BM_Touch_Safe(safe, other);
 
-	//reset
-	if (safe->enemy && safe->timestamp < level.time)
-	{
-		safe->bmSafe_campcount = 0;
-		safe->enemy = NULL;
-	}
+  //reset
+  if (safe->enemy && safe->timestamp < level.time)
+  {
+    safe->bmSafe_campcount = 0;
+    safe->enemy = NULL;
+  }
 
-	//same player??
-	if (safe->enemy==NULL || safe->enemy != other)
-	{
-		safe->bmSafe_campcount = 0;
-		safe->enemy = other;
-		safe->timestamp = level.time + 10000;
-	}
-	else
-	{
-		safe->bmSafe_campcount += 1;
+  //same player??
+  if (safe->enemy==NULL || safe->enemy != other)
+  {
+    safe->bmSafe_campcount = 0;
+    safe->enemy = other;
+    safe->timestamp = level.time + 10000;
+  }
+  else
+  {
+    safe->bmSafe_campcount += 1;
 
-		if (safe->bmSafe_campcount <= 10 ) //5 seconds
-			return;
-		else if (safe->bmSafe_campcount == 12) //6 seconds
-			PrintMsg(other, S_COLOR_RED"   **SAFE CAMPER**    YOU HAVE 3sec TO MOVE\n");
-		else if (safe->bmSafe_campcount == 14) //7 seconds 
-			PrintMsg(other, S_COLOR_RED"   **SAFE CAMPER**    YOU HAVE 2sec TO MOVE\n");
-		else if (safe->bmSafe_campcount == 16) //8 seconds 
-			PrintMsg(other, S_COLOR_RED"   **SAFE CAMPER**    YOU HAVE 1sec TO MOVE\n");
-		else if (safe->bmSafe_campcount == 18) //9 seconds 
-		{
-			PrintMsg(other, S_COLOR_RED"   **SAFE CAMPER**    YOU ARE DEAD \n");
-			other->client->ps.stats[STAT_HEALTH] = other->health = -999;
-			player_die(other, safe, NULL, 100000, MOD_SUICIDE);
-			
-			safe->bmSafe_campcount = 0;
-			safe->enemy = NULL;
-			return;
-		}
-	}
+    if (safe->bmSafe_campcount <= 10 ) //5 seconds
+      return;
+    else if (safe->bmSafe_campcount == 12) //6 seconds
+      PrintMsg(other, S_COLOR_RED"   **SAFE CAMPER**    YOU HAVE 3sec TO MOVE\n");
+    else if (safe->bmSafe_campcount == 14) //7 seconds
+      PrintMsg(other, S_COLOR_RED"   **SAFE CAMPER**    YOU HAVE 2sec TO MOVE\n");
+    else if (safe->bmSafe_campcount == 16) //8 seconds
+      PrintMsg(other, S_COLOR_RED"   **SAFE CAMPER**    YOU HAVE 1sec TO MOVE\n");
+    else if (safe->bmSafe_campcount == 18) //9 seconds
+    {
+      PrintMsg(other, S_COLOR_RED"   **SAFE CAMPER**    YOU ARE DEAD \n");
+      other->client->ps.stats[STAT_HEALTH] = other->health = -999;
+      player_die(other, safe, NULL, 100000, MOD_SUICIDE);
+
+      safe->bmSafe_campcount = 0;
+      safe->enemy = NULL;
+      return;
+    }
+  }
 }
 
 void BM_Safe_Setup(gentity_t *ent, int team)
 {
-	//ent->r.svFlags = SVF_NOCLIENT;
-	ent->item				= BG_FindItem(ITEMNAME_CASHBAG);
-	ent->s.pos.trTime		= level.time - 50;
-	ent->s.modelindex		= team;
-	ent->s.modelindex2		= 0;
-	ent->clipmask		= SURF_NONSOLID;
-	ent->r.contents		= CONTENTS_TRIGGER;
-	//ent->s.pos.trType = TR_STATIONARY;
-	ent->takedamage		= qfalse;
-	ent->activator			= ent;
-	ent->timestamp			= level.time + 5000;
-	//ent->s.eType = ET_ITEM;// = ET_GENERAL; //ET_ITEM; //hypov8 item. dont works??
-	ent->s.eType = ET_TEAM;
-	ent->touch = BM_Safe_Touch;
-	ent->wait = 0.5;
-	//ent->s.modelindex = G_ModelIndex("models/qpin_gameobj/moneybag.md3");
-	ent->think = BM_Safe_Think;
-	ent->nextthink = level.time + 3000;
+  //ent->r.svFlags = SVF_NOCLIENT;
+  ent->item				= BG_FindItem(ITEMNAME_CASHBAG);
+  ent->s.pos.trTime		= level.time - 50;
+  ent->s.modelindex		= team;
+  ent->s.modelindex2		= 0;
+  ent->clipmask		= SURF_NONSOLID;
+  ent->r.contents		= CONTENTS_TRIGGER;
+  //ent->s.pos.trType = TR_STATIONARY;
+  ent->takedamage		= qfalse;
+  ent->activator			= ent;
+  ent->timestamp			= level.time + 5000;
+  //ent->s.eType = ET_ITEM;// = ET_GENERAL; //ET_ITEM; //hypov8 item. dont works??
+  ent->s.eType = ET_TEAM;
+  ent->touch = BM_Safe_Touch;
+  ent->wait = 0.5;
+  //ent->s.modelindex = G_ModelIndex("models/qpin_gameobj/moneybag.md3");
+  ent->think = BM_Safe_Think;
+  ent->nextthink = level.time + 3000;
 
-	//set bounding box for pickup
-	VectorSet(ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS); // hypov8 adjusted model to suit
-	VectorSet(ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
+  //set bounding box for pickup
+  VectorSet(ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS); // hypov8 adjusted model to suit
+  VectorSet(ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
 
-	//G_SetOrigin(ent, ent->s.origin); 
+  //G_SetOrigin(ent, ent->s.origin);
 
-	trap_LinkEntity(ent);
+  trap_LinkEntity(ent);
 }
 
 /*
@@ -1752,15 +1749,15 @@ void BM_Safe_Setup(gentity_t *ent, int team)
 */
 void SP_team_BM_Dragonssafe(gentity_t *ent)
 {
-	G_Printf(" SP_team_BM_Dragonssafe\n");
-	if (g_gametype.integer != GT_BAGMAN)
-	{
-		G_FreeEntity(ent);
-		return;
-	}
-	G_Printf("ent->classname %s\n", ent->classname);
+  G_Printf(" SP_team_BM_Dragonssafe\n");
+  if (g_gametype.integer != GT_BAGMAN)
+  {
+    G_FreeEntity(ent);
+    return;
+  }
+  G_Printf("ent->classname %s\n", ent->classname);
 
-	BM_Safe_Setup(ent, TEAM_DRAGONS);
+  BM_Safe_Setup(ent, TEAM_DRAGONS);
 }
 
 
@@ -1771,17 +1768,17 @@ SP_team_BM_Nikkissafe
 */
 void SP_team_BM_Nikkissafe(gentity_t *ent)
 {
-	G_Printf(" SP_team_BM_Nikkissafe\n");
+  G_Printf(" SP_team_BM_Nikkissafe\n");
 
-	if (g_gametype.integer != GT_BAGMAN)
-	{
-		G_FreeEntity(ent);
-		return;
-	}
-	G_Printf("ent->classname %s\n", ent->classname);
+  if (g_gametype.integer != GT_BAGMAN)
+  {
+    G_FreeEntity(ent);
+    return;
+  }
+  G_Printf("ent->classname %s\n", ent->classname);
 
-	BM_Safe_Setup(ent, TEAM_NIKKIS);
-	ent->s.modelindex = TEAM_NIKKIS;
+  BM_Safe_Setup(ent, TEAM_NIKKIS);
+  ent->s.modelindex = TEAM_NIKKIS;
 }
 #endif
 
@@ -1798,8 +1795,8 @@ void SP_team_BM_Nikkissafe(gentity_t *ent)
 //#define cashbag 2
 void SP_team_BM_cashspawn(gentity_t *ent)
 {
-	char *type;
-	float cashmultiplyer;
+  char *type;
+  float cashmultiplyer;
 
   G_Printf(" SP_team_BM_cashspawn\n");
   if (g_gametype.integer != GT_BAGMAN)
@@ -1810,38 +1807,38 @@ void SP_team_BM_cashspawn(gentity_t *ent)
 
   G_SpawnFloat("angle",  "1", &ent->angle);
   if (!ent->angle)
-	  ent->angle = -1;
+    ent->angle = -1;
 
-	//hypov8 needed??
-	//if (ent->angle >= 180)
-	//	ent->angle = ent->angle - 360;
-	//hypov8 todo: angles?
+  //hypov8 needed??
+  //if (ent->angle >= 180)
+  //	ent->angle = ent->angle - 360;
+  //hypov8 todo: angles?
 
 
   G_SpawnFloat("speed", "100", &ent->speed);
   if (!ent->speed)
-	  ent->speed = 100.0;
+    ent->speed = 100.0;
 
   //mapper option to change speed, default 1.0
   G_SpawnFloat("cashspawnmultiply", "1", &cashmultiplyer);
   if (!cashmultiplyer)
-	  cashmultiplyer = 1.0f;
-  		   
-	G_SpawnString("type", "cashroll", &type);
-	if (strcmp(type, "cashbag"))
-	{
-		ent->wait = (g_cashspawndelay.value * 1000) / cashmultiplyer;
-		ent->spawnflags = 1; //"cashroll"
-	}		
-	else
-	{    //spawn cashbags half as fast
-		ent->wait = (g_cashspawndelay.value * 1000) * 2.0 / cashmultiplyer;
-		ent->spawnflags = 2; //"cashbag"
-	}
+    cashmultiplyer = 1.0f;
 
-	ent->s.eType = ET_TEAM;
-	ent->think = BM_CashSpawnThink;
-	ent->nextthink = level.time + (int) ent->wait;
+  G_SpawnString("type", "cashroll", &type);
+  if (strcmp(type, "cashbag"))
+  {
+    ent->wait = (g_cashspawndelay.value * 1000) / cashmultiplyer;
+    ent->spawnflags = 1; //"cashroll"
+  }
+  else
+  {    //spawn cashbags half as fast
+    ent->wait = (g_cashspawndelay.value * 1000) * 2.0 / cashmultiplyer;
+    ent->spawnflags = 2; //"cashbag"
+  }
+
+  ent->s.eType = ET_TEAM;
+  ent->think = BM_CashSpawnThink;
+  ent->nextthink = level.time + (int) ent->wait;
 }
 
 #if 0
@@ -1852,17 +1849,17 @@ BM_Touch_Safe
 */
 static void BM_Touch_Safe(gentity_t *self, gentity_t *other, trace_t *trace)
 {
-	int team;
+  int team;
 
-	if (!other->client)
-		return;
+  if (!other->client)
+    return;
 
-	team = other->client->sess.sessionTeam;
+  team = other->client->sess.sessionTeam;
 
-	if (team == self->spawnflags)
-		BM_TouchOurSafe(self, other);
-	else if (team == Team_OtherTeam(self->spawnflags))
-		BM_TouchEnemySafe(self, other);
+  if (team == self->spawnflags)
+    BM_TouchOurSafe(self, other);
+  else if (team == Team_OtherTeam(self->spawnflags))
+    BM_TouchEnemySafe(self, other);
 }
 
 
@@ -1873,165 +1870,165 @@ BM_SpawnSafe
 */
 static gentity_t *BM_SpawnSafe(vec3_t origin, int team, int spawnflags)
 {
-	gentity_t *ent;
-	char *c;
+  gentity_t *ent;
+  char *c;
 
-	c = "team_bm_dragonssafe";
-	switch (team)
-	{
-	case TEAM_DRAGONS: 
-		c = "team_bm_dragonssafe"; 
-		break;
-	case TEAM_NIKKIS:  
-		c = "team_bm_nikkissafe";  
-		break;
-	}
+  c = "team_bm_dragonssafe";
+  switch (team)
+  {
+  case TEAM_DRAGONS:
+    c = "team_bm_dragonssafe";
+    break;
+  case TEAM_NIKKIS:
+    c = "team_bm_nikkissafe";
+    break;
+  }
 
-	ent = G_Spawn();
-	ent					= G_Find(ent, FOFS(classname), c);
-	//ent->s.eType		= ET_TEAM;
-	ent->s.eType		= ET_GENERAL; //ET_ITEM; //hypov8 item. dont works??
-	ent->clipmask		= SURF_NONSOLID; // CONTENTS_SOLID;
-	ent->r.contents		= CONTENTS_TRIGGER | SURF_NONSOLID;
-	ent->s.pos.trType = TR_STATIONARY;
-	ent->s.pos.trTime = 0;
-	ent->s.pos.trDuration = 0;
-	//ent->touch			= BM_Touch_Safe;
+  ent = G_Spawn();
+  ent					= G_Find(ent, FOFS(classname), c);
+  //ent->s.eType		= ET_TEAM;
+  ent->s.eType		= ET_GENERAL; //ET_ITEM; //hypov8 item. dont works??
+  ent->clipmask		= SURF_NONSOLID; // CONTENTS_SOLID;
+  ent->r.contents		= CONTENTS_TRIGGER | SURF_NONSOLID;
+  ent->s.pos.trType = TR_STATIONARY;
+  ent->s.pos.trTime = 0;
+  ent->s.pos.trDuration = 0;
+  //ent->touch			= BM_Touch_Safe;
 
-	VectorCopy(origin, ent->s.origin);
-	VectorCopy(origin, ent->s.pos.trBase);
-	VectorCopy(origin, ent->r.currentOrigin);
-	VectorClear(ent->s.pos.trDelta);
+  VectorCopy(origin, ent->s.origin);
+  VectorCopy(origin, ent->s.pos.trBase);
+  VectorCopy(origin, ent->r.currentOrigin);
+  VectorClear(ent->s.pos.trDelta);
 
-	//safe bounding box
-	VectorSet(ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
-	VectorSet(ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
+  //safe bounding box
+  VectorSet(ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
+  VectorSet(ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
 
 
-	 // suspended
-	if (spawnflags & 1)
-	{
-		G_SetOrigin(ent, ent->s.origin); 
-	}
-	else // drop to floor
-	{
-		vec3_t dest;
-		trace_t tr;
-		// mappers like to put them exactly on the floor, but being coplanar
-		// will sometimes show up as starting in solid, so lif it up one pixel
-		ent->s.origin[2] += 1;
+   // suspended
+  if (spawnflags & 1)
+  {
+    G_SetOrigin(ent, ent->s.origin);
+  }
+  else // drop to floor
+  {
+    vec3_t dest;
+    trace_t tr;
+    // mappers like to put them exactly on the floor, but being coplanar
+    // will sometimes show up as starting in solid, so lif it up one pixel
+    ent->s.origin[2] += 1;
 
-		// drop to floor
-		VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
+    // drop to floor
+    VectorSet(dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096);
 
-		trap_Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID);
+    trap_Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID);
 
-		if (tr.startsolid)
-		{
-			ent->s.origin[2] -= 1;
-			G_Printf("SpawnSave: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
-			ent->s.groundEntityNum = ENTITYNUM_NONE;
-			G_SetOrigin(ent, ent->s.origin);
-		}
-		else
-		{
-			// allow to ride movers
-			ent->s.groundEntityNum = tr.entityNum;
-			G_SetOrigin(ent, tr.endpos);
-		}
-	}
+    if (tr.startsolid)
+    {
+      ent->s.origin[2] -= 1;
+      G_Printf("SpawnSave: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
+      ent->s.groundEntityNum = ENTITYNUM_NONE;
+      G_SetOrigin(ent, ent->s.origin);
+    }
+    else
+    {
+      // allow to ride movers
+      ent->s.groundEntityNum = tr.entityNum;
+      G_SetOrigin(ent, tr.endpos);
+    }
+  }
 
   return ent;
 }
-#endif 
+#endif
 
 void BM_CashSpawn_DropCash(gentity_t *ent)
 {
-	vec3_t angles3;
-	vec3_t anglesOut[3];
-	gentity_t *cash;
+  vec3_t angles3;
+  vec3_t anglesOut[3];
+  gentity_t *cash;
 
-	//not needed anyway
-	if (g_gametype.integer != GT_BAGMAN)	
-		return;	
+  //not needed anyway
+  if (g_gametype.integer != GT_BAGMAN)
+    return;
 
-	//create a new item for spawned cash
-	cash = G_Spawn();
+  //create a new item for spawned cash
+  cash = G_Spawn();
 
-	ent->bmSafe_numCashItems++;
+  ent->bmSafe_numCashItems++;
 
-	if (ent->spawnflags == 2)
-		cash->classname = ITEMNAME_CASHBAG;
-	else
-		cash->classname = ITEMNAME_CASHROLL;
-
-
-	//set up the new item to spawn
-	cash->think				= BM_CashDie;
-	cash->nextthink			= level.time + (60 * 1000);
-	cash->s.eType			= ET_ITEM;
-	cash->target_ent		= NULL;
-	cash->s.pos.trType		= TR_GRAVITY;
-	cash->s.pos.trTime		= level.time - 50;
-	cash->r.contents		= CONTENTS_TRIGGER;
-	cash->s.pos.trDuration	= 0;	
-	cash->item				= BG_FindItem(cash->classname);
-	cash->s.modelindex		= cash->item - bg_itemlist;  // store item number in modelindex
-	cash->s.modelindex2		= 1;
-	cash->touch				= Touch_Item;
-	cash->takedamage		= qfalse;
-	cash->activator			= ent;
-	cash->wait				= 0;
-	cash->speed				= ent->speed;
-	cash->physicsBounce		= 0.3 + crandom() * 0.3; //vary the bounce
-	cash->s.angles[YAW]		= crandom() * 360; //rotate the cash a bit
-	cash->timestamp			= level.time + 5000;
-	cash->bm_SpawnerID		= ent; //set parent
-
-	//set bounding box for pickup
-	VectorSet(cash->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS); // hypov8 adjusted model to suit
-	VectorSet(cash->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
-
-	//copy cash spawner to cash spawned
-	VectorCopy(ent->s.origin, cash->s.origin);
-	VectorCopy(ent->s.pos.trBase, cash->s.pos.trBase);
-	VectorCopy(ent->r.currentOrigin, cash->r.currentOrigin);
+  if (ent->spawnflags == 2)
+    cash->classname = ITEMNAME_CASHBAG;
+  else
+    cash->classname = ITEMNAME_CASHROLL;
 
 
-	//check for angle 0-360 or up/down -1/-2
-	if (ent->angle == -1)
-		VectorSet(angles3, 0, 0, -180);	
-	else if (ent->angle == -2)	
-		VectorSet(angles3, 0, 0, 180);	
-	else	
-		VectorSet(angles3, 0, ent->angle, 0);	
+  //set up the new item to spawn
+  cash->think				= BM_CashDie;
+  cash->nextthink			= level.time + (60 * 1000);
+  cash->s.eType			= ET_ITEM;
+  cash->target_ent		= NULL;
+  cash->s.pos.trType		= TR_GRAVITY;
+  cash->s.pos.trTime		= level.time - 50;
+  cash->r.contents		= CONTENTS_TRIGGER;
+  cash->s.pos.trDuration	= 0;
+  cash->item				= BG_FindItem(cash->classname);
+  cash->s.modelindex		= cash->item - bg_itemlist;  // store item number in modelindex
+  cash->s.modelindex2		= 1;
+  cash->touch				= Touch_Item;
+  cash->takedamage		= qfalse;
+  cash->activator			= ent;
+  cash->wait				= 0;
+  cash->speed				= ent->speed;
+  cash->physicsBounce		= 0.3 + crandom() * 0.3; //vary the bounce
+  cash->s.angles[YAW]		= crandom() * 360; //rotate the cash a bit
+  cash->timestamp			= level.time + 5000;
+  cash->bm_SpawnerID		= ent; //set parent
 
-	//convert angle to 0-1 axis format
-	AxisClear(anglesOut);
-	AngleVectors(angles3, anglesOut[0], anglesOut[2], anglesOut[2]);
+  //set bounding box for pickup
+  VectorSet(cash->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS); // hypov8 adjusted model to suit
+  VectorSet(cash->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
 
-	//select axis xy or z
-	if (ent->angle == -1 || ent->angle == -2)
-		VectorCopy(anglesOut[2], cash->s.pos.trDelta);
-	else	
-		VectorCopy(anglesOut[0], cash->s.pos.trDelta);
+  //copy cash spawner to cash spawned
+  VectorCopy(ent->s.origin, cash->s.origin);
+  VectorCopy(ent->s.pos.trBase, cash->s.pos.trBase);
+  VectorCopy(ent->r.currentOrigin, cash->r.currentOrigin);
 
-	//add speed to its movement direction
-	VectorScale(cash->s.pos.trDelta, ent->speed, cash->s.pos.trDelta);
 
-	// randomize the velocity a bit
-	cash->s.pos.trDelta[0] = cash->s.pos.trDelta[0] + crandom() * 60;
-	cash->s.pos.trDelta[1] = cash->s.pos.trDelta[1] + crandom() * 60;
-	cash->s.pos.trDelta[2] = cash->s.pos.trDelta[2] + crandom() * 30;
+  //check for angle 0-360 or up/down -1/-2
+  if (ent->angle == -1)
+    VectorSet(angles3, 0, 0, -180);
+  else if (ent->angle == -2)
+    VectorSet(angles3, 0, 0, 180);
+  else
+    VectorSet(angles3, 0, ent->angle, 0);
 
-	//hypov8 normalize?
-	Vector4Copy(cash->s.pos.trDelta, cash->s.pos.trDelta);
+  //convert angle to 0-1 axis format
+  AxisClear(anglesOut);
+  AngleVectors(angles3, anglesOut[0], anglesOut[2], anglesOut[2]);
 
-	//add to total cash for world
-	//num_cash_items++;
+  //select axis xy or z
+  if (ent->angle == -1 || ent->angle == -2)
+    VectorCopy(anglesOut[2], cash->s.pos.trDelta);
+  else
+    VectorCopy(anglesOut[0], cash->s.pos.trDelta);
 
-	//add the item 
-	trap_LinkEntity(cash);
+  //add speed to its movement direction
+  VectorScale(cash->s.pos.trDelta, ent->speed, cash->s.pos.trDelta);
+
+  // randomize the velocity a bit
+  cash->s.pos.trDelta[0] = cash->s.pos.trDelta[0] + crandom() * 60;
+  cash->s.pos.trDelta[1] = cash->s.pos.trDelta[1] + crandom() * 60;
+  cash->s.pos.trDelta[2] = cash->s.pos.trDelta[2] + crandom() * 30;
+
+  //hypov8 normalize?
+  Vector4Copy(cash->s.pos.trDelta, cash->s.pos.trDelta);
+
+  //add to total cash for world
+  //num_cash_items++;
+
+  //add the item
+  trap_LinkEntity(cash);
 }
 
 /*
@@ -2041,17 +2038,17 @@ void BM_CashSpawn_DropCash(gentity_t *ent)
 */
 void BM_CashSpawnThink(gentity_t *ent)
 {
-	int maxItems = BAGMAN_MAX_CASH_ITEMS;
+  int maxItems = BAGMAN_MAX_CASH_ITEMS;
 
-	if ( ent->spawnflags == 2 ) //ITEMNAME_CASHBAG
-		maxItems = BAGMAN_MAX_CASH_ITEMS / 2;
+  if ( ent->spawnflags == 2 ) //ITEMNAME_CASHBAG
+    maxItems = BAGMAN_MAX_CASH_ITEMS / 2;
 
-	ent->nextthink = level.time + ent->wait;
+  ent->nextthink = level.time + ent->wait;
 
-	if ((ent->bmSafe_numCashItems >= maxItems) || (level.mode == LM_MATCHSETUP) || (level.mode == LM_FINALCOUNT))
-		return;
+  if ((ent->bmSafe_numCashItems >= maxItems) || (level.mode == LM_MATCHSETUP) || (level.mode == LM_FINALCOUNT))
+    return;
 
-	BM_CashSpawn_DropCash(ent);
+  BM_CashSpawn_DropCash(ent);
 }
 
 /*
@@ -2062,7 +2059,7 @@ void BM_CashSpawnThink(gentity_t *ent)
 #if 0 //disabled
 void BM_FinishCashspawn(gentity_t* ent)
 {
-	
+
 #if 1 //hypov8
   // reduce XY velocity (air friction)
   ent->movedir[0] *= 0.9f;
@@ -2158,9 +2155,9 @@ BM_CashDie
 */
 void BM_CashDie(gentity_t *ent)
 {
-	if (ent->bm_SpawnerID)
-		ent->bm_SpawnerID->bmSafe_numCashItems--;
-	G_FreeEntity(ent);
+  if (ent->bm_SpawnerID)
+    ent->bm_SpawnerID->bmSafe_numCashItems--;
+  G_FreeEntity(ent);
 }
 
 /*
@@ -2170,39 +2167,39 @@ BM_Pickup_Cash
 */
 int BM_Pickup_Cash(gentity_t *self, gentity_t *other)
 {
-	int quantity = 0;
-	int take_maxAmount; // hypov8
-  
-
-	if ((self->flags & FL_DROPPED_ITEM))
-	{
-		quantity = self->count;
-	}
-	else
-	{
-		quantity = self->item->quantity;
-		if ( self->bm_SpawnerID )
-			self->bm_SpawnerID->bmSafe_numCashItems--;
-	}
-   
-	take_maxAmount = g_cashcollectmax.integer - other->client->ps.stats[STAT_CASH];
-	if (take_maxAmount <= 0)	
-	{  
-		G_Printf(S_COLOR_RED"Error: invalid take amount %i\n", take_maxAmount); 
-		return 0;  
-	}
-	take_maxAmount = Q_min(take_maxAmount, quantity);
+  int quantity = 0;
+  int take_maxAmount; // hypov8
 
 
-	//set client cash values
-	other->client->ps.stats[STAT_CASH] += take_maxAmount;
-	other->client->ps.persistant[PERS_CASH_COLLECTED] += take_maxAmount;
+  if ((self->flags & FL_DROPPED_ITEM))
+  {
+    quantity = self->count;
+  }
+  else
+  {
+    quantity = self->item->quantity;
+    if ( self->bm_SpawnerID )
+      self->bm_SpawnerID->bmSafe_numCashItems--;
+  }
 
-	CalculateRanks();
+  take_maxAmount = g_cashcollectmax.integer - other->client->ps.stats[STAT_CASH];
+  if (take_maxAmount <= 0)
+  {
+    G_Printf(S_COLOR_RED"Error: invalid take amount %i\n", take_maxAmount);
+    return 0;
+  }
+  take_maxAmount = Q_min(take_maxAmount, quantity);
 
-	self->flags |= FL_DROPPED_ITEM; //free
-	//G_FreeEntity(self); //remove item
-	return 0;
+
+  //set client cash values
+  other->client->ps.stats[STAT_CASH] += take_maxAmount;
+  other->client->ps.persistant[PERS_CASH_COLLECTED] += take_maxAmount;
+
+  CalculateRanks();
+
+  self->flags |= FL_DROPPED_ITEM; //free
+  //G_FreeEntity(self); //remove item
+  return 0;
 }
 
 /*
@@ -2214,32 +2211,32 @@ when player dies with stolen cash
 */
 int BM_Pickup_Cash_Stolen(gentity_t *self, gentity_t *other)
 {
-	int quantity = 0;
-	int take_maxAmount;
+  int quantity = 0;
+  int take_maxAmount;
 
-	if (self->count >= 0)
-		quantity = self->count;
-	else
-		quantity = self->item->quantity; //hypov8 testimg map item
+  if (self->count >= 0)
+    quantity = self->count;
+  else
+    quantity = self->item->quantity; //hypov8 testimg map item
 
-	take_maxAmount = g_cashstolenmax.integer - other->client->ps.stats[STAT_STOLEN_CASH];
-	if (take_maxAmount <= 0)	
-	{
-		G_Printf(S_COLOR_RED"Error: invalid take amount %i\n", take_maxAmount); 
-		return 0;
-	}
-	take_maxAmount = Q_min(take_maxAmount, quantity);
+  take_maxAmount = g_cashstolenmax.integer - other->client->ps.stats[STAT_STOLEN_CASH];
+  if (take_maxAmount <= 0)
+  {
+    G_Printf(S_COLOR_RED"Error: invalid take amount %i\n", take_maxAmount);
+    return 0;
+  }
+  take_maxAmount = Q_min(take_maxAmount, quantity);
 
-	//set player values
-	other->client->ps.powerups[PW_STOLENSCASH] = 1;// INT_MAX;
-	other->client->ps.stats[STAT_STOLEN_CASH] += take_maxAmount;
-	other->client->ps.persistant[PERS_CASH_STOLEN] += take_maxAmount;
+  //set player values
+  other->client->ps.powerups[PW_STOLENSCASH] = 1;// INT_MAX;
+  other->client->ps.stats[STAT_STOLEN_CASH] += take_maxAmount;
+  other->client->ps.persistant[PERS_CASH_STOLEN] += take_maxAmount;
 
-	CalculateRanks();
+  CalculateRanks();
 
-	self->flags |= FL_DROPPED_ITEM;//free
-	//G_FreeEntity(self); //remove item
-	return 0;
+  self->flags |= FL_DROPPED_ITEM;//free
+  //G_FreeEntity(self); //remove item
+  return 0;
 }
 
 /*
@@ -2251,34 +2248,34 @@ Toss the cash. debug only
 */
 void BM_TossClientCash(gentity_t *self)
 {
-	gitem_t *pcash;
-	gentity_t *drop;
-	vec3_t velocity;
-	vec3_t angles;
+  gitem_t *pcash;
+  gentity_t *drop;
+  vec3_t velocity;
+  vec3_t angles;
 
-	//hypov8 will drop cash onto self!!!
-	if (self->client->ps.stats[STAT_CASH])
-	{
-		pcash = BG_FindItem(ITEMNAME_CASHROLL);
-		if (pcash)
-		{
-			VectorCopy(self->s.apos.trBase, angles);
-			angles[PITCH] = 0;  // always forward
+  //hypov8 will drop cash onto self!!!
+  if (self->client->ps.stats[STAT_CASH])
+  {
+    pcash = BG_FindItem(ITEMNAME_CASHROLL);
+    if (pcash)
+    {
+      VectorCopy(self->s.apos.trBase, angles);
+      angles[PITCH] = 0;  // always forward
 
-			AngleVectors(angles, velocity, NULL, NULL);
-			VectorScale(velocity, 350, velocity);
-			velocity[2] += 200 ;
+      AngleVectors(angles, velocity, NULL, NULL);
+      VectorScale(velocity, 350, velocity);
+      velocity[2] += 200 ;
 
-			drop =  LaunchItem(pcash, self->s.pos.trBase, velocity);
-			drop->nextthink = level.time + g_cashTimeout.integer * 1000;
-			drop->think = G_FreeEntity;
-			drop->spawnflags = self->client->sess.sessionTeam;
-			drop->count = self->client->ps.stats[STAT_CASH];
+      drop =  LaunchItem(pcash, self->s.pos.trBase, velocity);
+      drop->nextthink = level.time + g_cashTimeout.integer * 1000;
+      drop->think = G_FreeEntity;
+      drop->spawnflags = self->client->sess.sessionTeam;
+      drop->count = self->client->ps.stats[STAT_CASH];
 
-			self->client->ps.stats[STAT_CASH] = 0;
-			//self->flags |= FL_DROPPED_ITEM;
-		}
-	}
+      self->client->ps.stats[STAT_CASH] = 0;
+      //self->flags |= FL_DROPPED_ITEM;
+    }
+  }
 }
 #endif // WITH_BAGMAN_MOD
 

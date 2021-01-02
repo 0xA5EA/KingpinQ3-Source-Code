@@ -737,11 +737,11 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
   {
     if (w->style == WINDOW_STYLE_TEAMCOLOR)
     {
-		if (DC->getTeamColor)
-		{
-			DC->getTeamColor(&color); //add hypov8 makes border match team colors
-			color[3] *= 1.5f; // adjust border to 0.3 trans
-		}
+    if (DC->getTeamColor)
+    {
+      DC->getTeamColor(&color); //add hypov8 makes border match team colors
+      color[3] *= 1.5f; // adjust border to 0.3 trans
+    }
       DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color);
     }
     else
@@ -1405,7 +1405,7 @@ void Script_RandomPlay(itemDef_t *item, char **args)
         COM_StripExtension(val, strippedName, sizeof(strippedName));
 
         d   = j - i;
-		random = rand();
+    random = rand();
         idx = (random + (intptr_t)val + ++randincrement) % (d + 1) + i;
         if (idx < 0) idx = -idx;
         Com_sprintf(finalName, sizeof(finalName), "%s%d.%s", strippedName, idx, ext);
@@ -1443,7 +1443,7 @@ void Script_RandomPlayLooped(itemDef_t *item, char **args)
         }
         ext = COM_GetExtension(val);
         COM_StripExtension(val, strippedName, sizeof(strippedName));
-		random = rand();
+    random = rand();
         d   = j - i;
         ++randincrement;
         idx = (random + randincrement) % (d + 1) + i;
@@ -1751,20 +1751,20 @@ float Item_Slider_ThumbPosition(itemDef_t *item)
 
   //if (editDef) // hypov8 dereferencing null pointer
   {
-	  if (value < editDef->minVal)
-		  value = editDef->minVal;
-	  else if (value > editDef->maxVal)
-		  value = editDef->maxVal;
+    if (value < editDef->minVal)
+      value = editDef->minVal;
+    else if (value > editDef->maxVal)
+      value = editDef->maxVal;
 
-	  range = editDef->maxVal - editDef->minVal;
-	  value -= editDef->minVal;
-	  value /= range;
-	  //value /= (editDef->maxVal - editDef->minVal);
-	  value *= SLIDER_WIDTH;
-	  x += value;
-	}
-	  // vm fuckage
-	  //x = x + (((float)value / editDef->maxVal) * SLIDER_WIDTH);
+    range = editDef->maxVal - editDef->minVal;
+    value -= editDef->minVal;
+    value /= range;
+    //value /= (editDef->maxVal - editDef->minVal);
+    value *= SLIDER_WIDTH;
+    x += value;
+  }
+    // vm fuckage
+    //x = x + (((float)value / editDef->maxVal) * SLIDER_WIDTH);
   return x;
 }
 
@@ -3261,8 +3261,8 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item)
     if (item->cvar == NULL)
       return;
 
-      DC->getCVarString(item->cvar, text, sizeof(text));
-      textPtr = text;
+    DC->getCVarString(item->cvar, text, sizeof(text));
+    textPtr = text;
   }
   else
   {
@@ -3338,8 +3338,8 @@ void Item_Text_Wrapped_Paint(itemDef_t *item)
     if (item->cvar == NULL)
       return;
 
-      DC->getCVarString(item->cvar, text, sizeof(text));
-      textPtr = text;
+    DC->getCVarString(item->cvar, text, sizeof(text));
+    textPtr = text;
   }
   else
   {
@@ -3390,8 +3390,8 @@ void Item_Text_Paint(itemDef_t *item)
     if (item->cvar == NULL)
       return;
 
-      DC->getCVarString(item->cvar, text, sizeof(text));
-      textPtr = text;
+    DC->getCVarString(item->cvar, text, sizeof(text));
+    textPtr = text;
   }
   else
   {
@@ -3847,33 +3847,32 @@ void Item_Slider_Paint(itemDef_t *item)
   else
     x = item->window.rect.x;
 
-	// set slider to rectangle dimensions
-	yHeight = (item->window.rect.h - 4);
+  // set slider to rectangle dimensions
+  yHeight = (item->window.rect.h - 4);
 
 
-	//draw the slider background
-	DC->setColor(newColor);
-	DC->drawHandlePic(x, y + 2, SLIDER_WIDTH, item->window.rect.h - 4/*SLIDER_HEIGHT*/, DC->Assets.sliderBar);
+  //draw the slider background
+  DC->setColor(newColor);
+  DC->drawHandlePic(x, y + 2, SLIDER_WIDTH, item->window.rect.h - 4/*SLIDER_HEIGHT*/, DC->Assets.sliderBar);
 
 
-	x = Item_Slider_ThumbPosition(item);
-	DC->drawHandlePic(x - (float)(SLIDER_THUMB_WIDTH/6), y + 2, (float)(SLIDER_THUMB_WIDTH/3), yHeight /*SLIDER_THUMB_HEIGHT/2*/, DC->Assets.sliderThumb);
+  x = Item_Slider_ThumbPosition(item);
+  DC->drawHandlePic(x - (float)(SLIDER_THUMB_WIDTH/6), y + 2, (float)(SLIDER_THUMB_WIDTH/3), yHeight /*SLIDER_THUMB_HEIGHT/2*/, DC->Assets.sliderThumb);
 
-	if (debugMode)
-	{
-		vec4_t color;
-		rectDef_t *r = Item_CorrectedTextRect(item);
-		float xofs;
-	  if (item->text)
-		xofs = item->textRect.x + item->textRect.w + 8;
-	  else
-		xofs =r->x ; //need to test without text...
+  if (debugMode)
+  {
+    vec4_t color;
+    rectDef_t *r = Item_CorrectedTextRect(item);
+    float xofs;
+    if (item->text)
+      xofs = item->textRect.x + item->textRect.w + 8;
+    else
+      xofs =r->x ; //need to test without text...
 
-
-		color[2] = color[3] = 1;
-		color[0] = color[1] = 0;
-		DC->drawRect(xofs, y+2, SLIDER_WIDTH, yHeight /*SLIDER_HEIGHT*/ , 1, color);
-	}
+    color[2] = color[3] = 1;
+    color[0] = color[1] = 0;
+    DC->drawRect(xofs, y+2, SLIDER_WIDTH, yHeight /*SLIDER_HEIGHT*/ , 1, color);
+  }
 }
 
 void Item_Bind_Paint(itemDef_t *item)
@@ -4146,27 +4145,27 @@ void Item_ListBox_Paint(itemDef_t *item)
   // default is vertical if horizontal flag is not here
   if (item->window.flags & WINDOW_HORIZONTAL)
   {
-	  //hypov8 add: stop drawing scrollbar in scoreboards
-	  if (item->special != FEEDER_DRAGONTEAM_LIST && item->special != FEEDER_NIKKITEAM_LIST && item->special != FEEDER_SCOREBOARD)
-	  {
-		  // draw scrollbar in bottom of the window
-		  // bar
-		  x = item->window.rect.x + 1;
-		  y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
-		  DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft);
-		  x += SCROLLBAR_SIZE - 1;
-		  size = item->window.rect.w - (SCROLLBAR_SIZE * 2);
-		  DC->drawHandlePic(x, y, size + 1, SCROLLBAR_SIZE, DC->Assets.scrollBar);
-		  x += size - 1;
-		  DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
-		  // thumb
-		  thumb = Item_ListBox_ThumbDrawPosition(item); //Item_ListBox_ThumbPosition(item);
-		  if (thumb > x - SCROLLBAR_SIZE - 1)
-		  {
-			  thumb = x - SCROLLBAR_SIZE - 1;
-		  }
-		  DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
-	  }
+    //hypov8 add: stop drawing scrollbar in scoreboards
+    if (item->special != FEEDER_DRAGONTEAM_LIST && item->special != FEEDER_NIKKITEAM_LIST && item->special != FEEDER_SCOREBOARD)
+    {
+      // draw scrollbar in bottom of the window
+      // bar
+      x = item->window.rect.x + 1;
+      y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft);
+      x += SCROLLBAR_SIZE - 1;
+      size = item->window.rect.w - (SCROLLBAR_SIZE * 2);
+      DC->drawHandlePic(x, y, size + 1, SCROLLBAR_SIZE, DC->Assets.scrollBar);
+      x += size - 1;
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
+      // thumb
+      thumb = Item_ListBox_ThumbDrawPosition(item); //Item_ListBox_ThumbPosition(item);
+      if (thumb > x - SCROLLBAR_SIZE - 1)
+      {
+        thumb = x - SCROLLBAR_SIZE - 1;
+      }
+      DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
+    }
     //
     listPtr->endPos = listPtr->startPos;
     size            = item->window.rect.w - 2;
@@ -4207,28 +4206,28 @@ void Item_ListBox_Paint(itemDef_t *item)
   }
   else // vertical scroll
   {
-	//hypov8 add: stop drawing scrollbar in scoreboards
-	  if (item->special != FEEDER_DRAGONTEAM_LIST && item->special != FEEDER_NIKKITEAM_LIST && item->special != FEEDER_SCOREBOARD)
-	  {
-		  // draw scrollbar to right side of the window
-		  x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
-		  y = item->window.rect.y + 1;
-		  DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
-		  y += SCROLLBAR_SIZE - 1;
+  //hypov8 add: stop drawing scrollbar in scoreboards
+    if (item->special != FEEDER_DRAGONTEAM_LIST && item->special != FEEDER_NIKKITEAM_LIST && item->special != FEEDER_SCOREBOARD)
+    {
+      // draw scrollbar to right side of the window
+      x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
+      y = item->window.rect.y + 1;
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
+      y += SCROLLBAR_SIZE - 1;
 
-		  listPtr->endPos = listPtr->startPos;
-		  size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
-		  DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size + 1, DC->Assets.scrollBar);
-		  y += size - 1;
-		  DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
-		  // thumb
-		  thumb = Item_ListBox_ThumbDrawPosition(item); //Item_ListBox_ThumbPosition(item);
-		  if (thumb > y - SCROLLBAR_SIZE - 1)
-		  {
-			  thumb = y - SCROLLBAR_SIZE - 1;
-		  }
-		  DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
-	  }
+      listPtr->endPos = listPtr->startPos;
+      size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size + 1, DC->Assets.scrollBar);
+      y += size - 1;
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
+      // thumb
+      thumb = Item_ListBox_ThumbDrawPosition(item); //Item_ListBox_ThumbPosition(item);
+      if (thumb > y - SCROLLBAR_SIZE - 1)
+      {
+        thumb = y - SCROLLBAR_SIZE - 1;
+      }
+      DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
+    }
 
     // adjust size for item painting
     size = item->window.rect.h - 2;

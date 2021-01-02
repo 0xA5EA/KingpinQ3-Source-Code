@@ -107,15 +107,14 @@ typedef double dvec_t;
 typedef dvec_t  dvec3_t[3];
 
 #ifdef USING_SSE_MATH
-
-// A transform_t represents a product of basic
-// transformations, which are a rotation about an arbitrary
-// axis, a uniform scale or a translation. Any a product can
-// alway be brought into the form rotate, then scale, then
-// translate. So the whole transform_t can be stored in 8
-// floats (quat: 4, scale: 1, translation: 3), which is very
-// convenient for SSE and GLSL, which operate on 4-dimensional
-// float vectors.
+  // A transform_t represents a product of basic
+  // transformations, which are a rotation about an arbitrary
+  // axis, a uniform scale or a translation. Any a product can
+  // alway be brought into the form rotate, then scale, then
+  // translate. So the whole transform_t can be stored in 8
+  // floats (quat: 4, scale: 1, translation: 3), which is very
+  // convenient for SSE and GLSL, which operate on 4-dimensional
+  // float vectors.
   // Here we have a union of scalar struct and sse struct, transform_u and the
   // scalar struct must match transform_s so we have to use anonymous structs.
   // We disable compiler warnings when using -Wpedantic for this specific case.

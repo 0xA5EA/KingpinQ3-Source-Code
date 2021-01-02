@@ -37,30 +37,30 @@ Draws a bounding box face
 */
 static void CG_DrawBoxFace( bool solid, vec3_t a, vec3_t b, vec3_t c, vec3_t d )
 {
-	polyVert_t verts[ 4 ];
-	vec4_t     color = { 255.0f, 0.0f, 0.0f, 128.0f };
+  polyVert_t verts[ 4 ];
+  vec4_t     color = { 255.0f, 0.0f, 0.0f, 128.0f };
 
-	VectorCopy( d, verts[ 0 ].xyz );
-	verts[ 0 ].st[ 0 ] = 1;
-	verts[ 0 ].st[ 1 ] = 1;
-	Vector4Copy( color, verts[ 0 ].modulate );
+  VectorCopy( d, verts[ 0 ].xyz );
+  verts[ 0 ].st[ 0 ] = 1;
+  verts[ 0 ].st[ 1 ] = 1;
+  Vector4Copy( color, verts[ 0 ].modulate );
 
-	VectorCopy( c, verts[ 1 ].xyz );
-	verts[ 1 ].st[ 0 ] = 1;
-	verts[ 1 ].st[ 1 ] = 0;
-	Vector4Copy( color, verts[ 1 ].modulate );
+  VectorCopy( c, verts[ 1 ].xyz );
+  verts[ 1 ].st[ 0 ] = 1;
+  verts[ 1 ].st[ 1 ] = 0;
+  Vector4Copy( color, verts[ 1 ].modulate );
 
-	VectorCopy( b, verts[ 2 ].xyz );
-	verts[ 2 ].st[ 0 ] = 0;
-	verts[ 2 ].st[ 1 ] = 0;
-	Vector4Copy( color, verts[ 2 ].modulate );
+  VectorCopy( b, verts[ 2 ].xyz );
+  verts[ 2 ].st[ 0 ] = 0;
+  verts[ 2 ].st[ 1 ] = 0;
+  Vector4Copy( color, verts[ 2 ].modulate );
 
-	VectorCopy( a, verts[ 3 ].xyz );
-	verts[ 3 ].st[ 0 ] = 0;
-	verts[ 3 ].st[ 1 ] = 1;
-	Vector4Copy( color, verts[ 3 ].modulate );
+  VectorCopy( a, verts[ 3 ].xyz );
+  verts[ 3 ].st[ 0 ] = 0;
+  verts[ 3 ].st[ 1 ] = 1;
+  Vector4Copy( color, verts[ 3 ].modulate );
 
-	trap_R_AddPolyToScene( solid ? cgs.media.whiteShader : cgs.media.outlineShader, 4, verts );
+  trap_R_AddPolyToScene( solid ? cgs.media.whiteShader : cgs.media.outlineShader, 4, verts );
 }
 
 /*
@@ -72,51 +72,51 @@ Draws a bounding box
 */
 void CG_DrawBoundingBox( int type, vec3_t origin, vec3_t mins, vec3_t maxs )
 {
-	bool solid = (type > 1);
+  bool solid = (type > 1);
 
-	vec3_t ppp, mpp, mmp, pmp;
-	vec3_t mmm, pmm, ppm, mpm;
+  vec3_t ppp, mpp, mmp, pmp;
+  vec3_t mmm, pmm, ppm, mpm;
 
-	ppp[ 0 ] = origin[ 0 ] + maxs[ 0 ];
-	ppp[ 1 ] = origin[ 1 ] + maxs[ 1 ];
-	ppp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
+  ppp[ 0 ] = origin[ 0 ] + maxs[ 0 ];
+  ppp[ 1 ] = origin[ 1 ] + maxs[ 1 ];
+  ppp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
 
-	mpp[ 0 ] = origin[ 0 ] + mins[ 0 ];
-	mpp[ 1 ] = origin[ 1 ] + maxs[ 1 ];
-	mpp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
+  mpp[ 0 ] = origin[ 0 ] + mins[ 0 ];
+  mpp[ 1 ] = origin[ 1 ] + maxs[ 1 ];
+  mpp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
 
-	mmp[ 0 ] = origin[ 0 ] + mins[ 0 ];
-	mmp[ 1 ] = origin[ 1 ] + mins[ 1 ];
-	mmp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
+  mmp[ 0 ] = origin[ 0 ] + mins[ 0 ];
+  mmp[ 1 ] = origin[ 1 ] + mins[ 1 ];
+  mmp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
 
-	pmp[ 0 ] = origin[ 0 ] + maxs[ 0 ];
-	pmp[ 1 ] = origin[ 1 ] + mins[ 1 ];
-	pmp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
+  pmp[ 0 ] = origin[ 0 ] + maxs[ 0 ];
+  pmp[ 1 ] = origin[ 1 ] + mins[ 1 ];
+  pmp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
 
-	ppm[ 0 ] = origin[ 0 ] + maxs[ 0 ];
-	ppm[ 1 ] = origin[ 1 ] + maxs[ 1 ];
-	ppm[ 2 ] = origin[ 2 ] + mins[ 2 ];
+  ppm[ 0 ] = origin[ 0 ] + maxs[ 0 ];
+  ppm[ 1 ] = origin[ 1 ] + maxs[ 1 ];
+  ppm[ 2 ] = origin[ 2 ] + mins[ 2 ];
 
-	mpm[ 0 ] = origin[ 0 ] + mins[ 0 ];
-	mpm[ 1 ] = origin[ 1 ] + maxs[ 1 ];
-	mpm[ 2 ] = origin[ 2 ] + mins[ 2 ];
+  mpm[ 0 ] = origin[ 0 ] + mins[ 0 ];
+  mpm[ 1 ] = origin[ 1 ] + maxs[ 1 ];
+  mpm[ 2 ] = origin[ 2 ] + mins[ 2 ];
 
-	mmm[ 0 ] = origin[ 0 ] + mins[ 0 ];
-	mmm[ 1 ] = origin[ 1 ] + mins[ 1 ];
-	mmm[ 2 ] = origin[ 2 ] + mins[ 2 ];
+  mmm[ 0 ] = origin[ 0 ] + mins[ 0 ];
+  mmm[ 1 ] = origin[ 1 ] + mins[ 1 ];
+  mmm[ 2 ] = origin[ 2 ] + mins[ 2 ];
 
-	pmm[ 0 ] = origin[ 0 ] + maxs[ 0 ];
-	pmm[ 1 ] = origin[ 1 ] + mins[ 1 ];
-	pmm[ 2 ] = origin[ 2 ] + mins[ 2 ];
+  pmm[ 0 ] = origin[ 0 ] + maxs[ 0 ];
+  pmm[ 1 ] = origin[ 1 ] + mins[ 1 ];
+  pmm[ 2 ] = origin[ 2 ] + mins[ 2 ];
 
-	//phew!
+  //phew!
 
-	CG_DrawBoxFace( solid, ppp, mpp, mmp, pmp );
-	CG_DrawBoxFace( solid, ppp, pmp, pmm, ppm );
-	CG_DrawBoxFace( solid, mpp, ppp, ppm, mpm );
-	CG_DrawBoxFace( solid, mmp, mpp, mpm, mmm );
-	CG_DrawBoxFace( solid, pmp, mmp, mmm, pmm );
-	CG_DrawBoxFace( solid, mmm, mpm, ppm, pmm );
+  CG_DrawBoxFace( solid, ppp, mpp, mmp, pmp );
+  CG_DrawBoxFace( solid, ppp, pmp, pmm, ppm );
+  CG_DrawBoxFace( solid, mpp, ppp, ppm, mpm );
+  CG_DrawBoxFace( solid, mmp, mpp, mpm, mmm );
+  CG_DrawBoxFace( solid, pmp, mmp, mmm, pmm );
+  CG_DrawBoxFace( solid, mmm, mpm, ppm, pmm );
 }
 
 /*
@@ -131,7 +131,7 @@ void CG_PositionEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhan
   int i;
   orientation_t lerped;
 
-	Q_UNUSED(parentModel);
+  Q_UNUSED(parentModel);
 
   // lerp the tag
 #if defined(COMPAT_KPQ3) || defined(COMPAT_ET)
@@ -165,7 +165,7 @@ void CG_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *paren
   orientation_t lerped;
   vec3_t tempAxis[3];
 
-	Q_UNUSED(parentModel);
+  Q_UNUSED(parentModel);
 //AxisClear( entity->axis );
   // lerp the tag
 #if defined(COMPAT_KPQ3) || defined(COMPAT_ET)
@@ -380,8 +380,8 @@ static void CG_Item(centity_t *cent)
 
   if (item->giType == IT_WEAPON)
   {
-	// an extra height boost
-    cent->lerpOrigin[2] += 1;                           
+  // an extra height boost
+    cent->lerpOrigin[2] += 1;
   }
 
   ent.hModel = cg_items[es->modelindex].models[0];        // WORLD_EWEAPONMODEL_POS das sind items, keine Waffen
@@ -749,7 +749,7 @@ static void CG_InterpolateEntityPosition(centity_t *cent)
   if (cg.nextSnap == NULL) /*hypov8 return??, compiler nag about cg.nextSnap missing*/
   {
     CG_Error("CG_InterpoateEntityPosition: cg.nextSnap == NULL");
-	  return; //add hypov8 'Dereferencing null pointer'
+    return; //add hypov8 'Dereferencing null pointer'
   }
 
   f = cg.frameInterpolation;
@@ -779,13 +779,13 @@ CG_CalcEntityLerpPositions
 static void CG_CalcEntityLerpPositions(centity_t *cent)
 {
 //unlagged - projectile nudge
-	// this will be set to how far forward projectiles will be extrapolated
-	int timeshift = 0;
+  // this will be set to how far forward projectiles will be extrapolated
+  int timeshift = 0;
 //unlagged - projectile nudge
 
 //unlagged - smooth clients #2
-	// this is done server-side now - cg_smoothClients is undefined
-	// players will always be TR_INTERPOLATE
+  // this is done server-side now - cg_smoothClients is undefined
+  // players will always be TR_INTERPOLATE
 
   // if this player does not want to see extrapolated players
   if (!cg_smoothClients.integer)
@@ -815,46 +815,46 @@ static void CG_CalcEntityLerpPositions(centity_t *cent)
     return;
   }
 
-	if ( cg_projectileNudge.integer &&
-	     !cg.demoPlayback &&
-	     cent->currentState.eType == ET_MISSILE&&
-	     !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
-	{
-		timeshift = cg.ping; //hypov8 note: antilag on rocket
-	}
+  if ( cg_projectileNudge.integer &&
+       !cg.demoPlayback &&
+       cent->currentState.eType == ET_MISSILE&&
+       !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
+  {
+    timeshift = cg.ping; //hypov8 note: antilag on rocket
+  }
 
   // just use the current frame and evaluate as best we can
-	BG_EvaluateTrajectory( &cent->currentState.pos, 
-		(cg.time + timeshift), cent->lerpOrigin );
-	BG_EvaluateTrajectory( &cent->currentState.apos,
-		(cg.time + timeshift), cent->lerpAngles );
+  BG_EvaluateTrajectory( &cent->currentState.pos,
+    (cg.time + timeshift), cent->lerpOrigin );
+  BG_EvaluateTrajectory( &cent->currentState.apos,
+    (cg.time + timeshift), cent->lerpAngles );
 
-	// if there's a time shift
-	if ( timeshift != 0 ) 
-	{
-		trace_t tr;
-		vec3_t lastOrigin;
+  // if there's a time shift
+  if ( timeshift != 0 )
+  {
+    trace_t tr;
+    vec3_t lastOrigin;
 
-		BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, lastOrigin );
+    BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, lastOrigin );
 
-		CG_Trace( &tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin, 
-			cent->currentState.number, MASK_SHOT );
+    CG_Trace( &tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin,
+      cent->currentState.number, MASK_SHOT );
 
-		// don't let the projectile go through the floor
-		if ( tr.fraction < 1.0f ) {
-			cent->lerpOrigin[0] = lastOrigin[0] + tr.fraction * ( cent->lerpOrigin[0] - lastOrigin[0] );
-			cent->lerpOrigin[1] = lastOrigin[1] + tr.fraction * ( cent->lerpOrigin[1] - lastOrigin[1] );
-			cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * ( cent->lerpOrigin[2] - lastOrigin[2] );
-		}
-	}
+    // don't let the projectile go through the floor
+    if ( tr.fraction < 1.0f ) {
+      cent->lerpOrigin[0] = lastOrigin[0] + tr.fraction * ( cent->lerpOrigin[0] - lastOrigin[0] );
+      cent->lerpOrigin[1] = lastOrigin[1] + tr.fraction * ( cent->lerpOrigin[1] - lastOrigin[1] );
+      cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * ( cent->lerpOrigin[2] - lastOrigin[2] );
+    }
+  }
 //unlagged - projectile nudge
 
   // adjust for riding a mover if it wasn't rolled into the predicted
   // player state
   if (cent != &cg.predictedPlayerEntity)
   {
-    CG_AdjustPositionForMover(cent->lerpOrigin, cent->currentState.groundEntityNum, 
-		cg.snap->serverTime, cg.time, cent->lerpOrigin);
+    CG_AdjustPositionForMover(cent->lerpOrigin, cent->currentState.groundEntityNum,
+    cg.snap->serverTime, cg.time, cent->lerpOrigin);
   }
 }
 
@@ -1073,10 +1073,10 @@ static void CG_AddCEntity(centity_t *cent)
   case ET_GENERAL:
     CG_General(cent);
     break;
-	//hypov8 merge: todo 
-	/*case ET_CORPSE:
-		CG_Corpse( cent );
-	break;*/
+  //hypov8 merge: todo
+  /*case ET_CORPSE:
+    CG_Corpse( cent );
+  break;*/
   case ET_PLAYER:
     CG_Player(cent);
     break;
@@ -1108,9 +1108,9 @@ static void CG_AddCEntity(centity_t *cent)
     break;
   case ET_FLAMETHROWER_CHUNK:
 #ifdef HYPODEBUG
-	CG_FlamerDebug(cent); //debug
+  CG_FlamerDebug(cent); //debug
 #endif
-	  break; //hypov8 note: null. client effects generated localy
+    break; //hypov8 note: null. client effects generated localy
     //FIXME(0xA5EA): flame gun ET_FLAMETHROWER_CHUNK
   }
 }
@@ -1131,17 +1131,17 @@ void CG_AddPacketEntities(void)
   {
     int delta;
     delta = (cg.nextSnap->serverTime - cg.snap->serverTime);
-	if ( delta == 0 )
-		cg.frameInterpolation = 0;
-	else
-		cg.frameInterpolation = ( float ) ( cg.time - cg.snap->serverTime ) / delta; //hypov8 note: should this be 1?
+  if ( delta == 0 )
+    cg.frameInterpolation = 0;
+  else
+    cg.frameInterpolation = ( float ) ( cg.time - cg.snap->serverTime ) / delta; //hypov8 note: should this be 1?
   }
   else
   {
     cg.frameInterpolation = 0;  // actually, it should never be used, because
     // no entities should be marked as interpolating
   }
- 
+
 
   // the auto-rotating items will all have the same axis
   cg.autoAngles[0] = 0;
@@ -1164,48 +1164,48 @@ void CG_AddPacketEntities(void)
 
   // lerp the non-predicted value for lightning gun origins
   CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
-  
+
   // add each entity sent over by the server
   for (num = 0; num < cg.snap->numEntities; num++)
   {
-	cent = &cg_entities[cg.snap->entities[num].number];
+  cent = &cg_entities[cg.snap->entities[num].number];
     CG_AddCEntity(cent);
   }
 
   //unvan .52
-  	//make an attempt at drawing bounding boxes of selected entity types
-	if ( cg_drawBBox.integer )
-	{
-		for ( unsigned num = 0; num < cg.snap->numEntities; num++ )
-		{
-			float         x, zd, zu;
-			vec3_t        mins, maxs;
-			entityState_t *es;
+    //make an attempt at drawing bounding boxes of selected entity types
+  if ( cg_drawBBox.integer )
+  {
+    for ( unsigned int num = 0; num < (unsigned int)cg.snap->numEntities; num++ )
+    {
+      float         x, zd, zu;
+      vec3_t        mins, maxs;
+      entityState_t *es;
 
-			cent = &cg_entities[ cg.snap->entities[ num ].number ];
-			es = &cent->currentState;
+      cent = &cg_entities[ cg.snap->entities[ num ].number ];
+      es = &cent->currentState;
 
-			switch ( es->eType )
-			{
-				case entityType_t::ET_MISSILE:
-				case entityType_t::ET_FLAMETHROWER_CHUNK:
-					x = ( es->solid & 255 );
-					zd = ( ( es->solid >> 8 ) & 255 );
-					zu = ( ( es->solid >> 16 ) & 255 ) - 32;
+      switch ( es->eType )
+      {
+        case entityType_t::ET_MISSILE:
+        case entityType_t::ET_FLAMETHROWER_CHUNK:
+          x = ( es->solid & 255 );
+          zd = ( ( es->solid >> 8 ) & 255 );
+          zu = ( ( es->solid >> 16 ) & 255 ) - 32;
 
-					mins[ 0 ] = mins[ 1 ] = -x;
-					maxs[ 0 ] = maxs[ 1 ] = x;
-					mins[ 2 ] = -zd;
-					maxs[ 2 ] = zu;
+          mins[ 0 ] = mins[ 1 ] = -x;
+          maxs[ 0 ] = maxs[ 1 ] = x;
+          mins[ 2 ] = -zd;
+          maxs[ 2 ] = zu;
 
-					CG_DrawBoundingBox( cg_drawBBox.integer, cent->lerpOrigin, mins, maxs );
-					break;
+          CG_DrawBoundingBox( cg_drawBBox.integer, cent->lerpOrigin, mins, maxs );
+          break;
 
-				default:
-					break;
-			}
-		}
-	}
+        default:
+          break;
+      }
+    }
+  }
 
 
 

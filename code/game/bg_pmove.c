@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define HYPO_DEBUG_MOVE
 const vec3_t playerMins = { -16, -16, -24 };
-const vec3_t playerMaxs = { 16, 16, 48 }; 
+const vec3_t playerMaxs = { 16, 16, 48 };
 //FIXME(0xA5EA): added different player min max, das that fit ??
 
 
@@ -187,8 +187,8 @@ static void PM_StartWeaponAnim( int anim )
     return;
 
 
-	pm->ps->weaponAnim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
-	                     | anim;
+  pm->ps->weaponAnim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
+                       | anim;
 }
 #endif
 
@@ -233,12 +233,12 @@ PM_ContinueWeaponAnim
 */
 static void PM_ContinueWeaponAnim( int anim )
 {
-	if ( ( pm->ps->weaponAnim & ~ANIM_TOGGLEBIT ) == anim )
-	{
-		return;
-	}
+  if ( ( pm->ps->weaponAnim & ~ANIM_TOGGLEBIT ) == anim )
+  {
+    return;
+  }
 
-	PM_StartWeaponAnim( anim );
+  PM_StartWeaponAnim( anim );
 }
 #endif
 
@@ -252,7 +252,7 @@ static void PM_ForceLegsAnim(int anim)
 //add hypov8 should stop previous animations?
 static void PM_ForceTorsoAnim(int anim)
 {
-  pm->ps->torsoTimer = 0; 
+  pm->ps->torsoTimer = 0;
   //PM_StartTorsoAnim(anim);// hypov8 disable
   PM_ContinueTorsoAnim(anim);
 }
@@ -312,8 +312,8 @@ void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
   }
 
 #else
-	float t = -DotProduct( in, normal );//unvan .50
-	VectorMA( in, t, normal, out );
+  float t = -DotProduct( in, normal );//unvan .50
+  VectorMA( in, t, normal, out );
 #endif
 }
 
@@ -466,11 +466,11 @@ static float PM_CmdScale(usercmd_t *cmd)
   total = sqrt((float)(cmd->forwardmove * cmd->forwardmove + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove));
   scale = (float)pm->ps->speed * max / (127.0 * total); //hypov8 todo: change to 127.9?
   //add hypov8 speed up noclips.. taking effect once enter level?
-  	if(pm->ps->pm_type == PM_NOCLIP)
-		scale *= 2;
-	//else
-		//scale *= 1;
-		
+    if(pm->ps->pm_type == PM_NOCLIP)
+    scale *= 2;
+  //else
+    //scale *= 1;
+
 //end add
   return scale;
 }
@@ -522,7 +522,7 @@ PM_CheckJump
 */
 static qboolean PM_CheckJump(void)
 {
-  
+
   if (pm->ps->pm_flags & PMF_RESPAWNED)
     return qfalse;      // don't allow jump until all buttons are up
 
@@ -539,7 +539,7 @@ static qboolean PM_CheckJump(void)
   if (!pml.groundPlane) //add hypov8
   {
     if (pm->debugLevel)
-		Com_Printf("PM_CheckJump. Allready in air \n");
+    Com_Printf("PM_CheckJump. Allready in air \n");
     return qfalse;
   }
 
@@ -554,18 +554,18 @@ static qboolean PM_CheckJump(void)
   // add the to current velocity
   // hypov8 todo: add some forward velocity to?
   ////////////////////////////////////////////////////////////////////////////////////////
-  // hypov8 slope jump 
+  // hypov8 slope jump
   if (pm->ps->velocity[2] >= 0.1f)
   {											//hypo slow down double jump acceleration by half
-	  pm->ps->velocity[2] = JUMP_VELOCITY + (pm->ps->velocity[2]*0.5f); //hypov8 add some height to ram jumps
-	  if (pm->debugLevel)
-		  Com_Printf("slope jump used\n");
+    pm->ps->velocity[2] = JUMP_VELOCITY + (pm->ps->velocity[2]*0.5f); //hypov8 add some height to ram jumps
+    if (pm->debugLevel)
+      Com_Printf("slope jump used\n");
   }
   else
   {
     pm->ps->velocity[2] = JUMP_VELOCITY;
-	  if (pm->debugLevel)
-  	    Com_Printf("regular jump used\n");
+    if (pm->debugLevel)
+        Com_Printf("regular jump used\n");
   }
 
   PM_AddEvent(EV_JUMP);
@@ -594,9 +594,9 @@ static void PM_CheckLadder(void)
   pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, spot, pm->ps->clientNum, MASK_PLAYERSOLID);
 
   if ((trace.fraction < 1) && (trace.surfaceFlags & SURF_LADDER))
- 	  pml.ladder = qtrue;
-	//else /* unvan */ 
-	 // pml.ladder = qfalse; /* unvan */ 
+     pml.ladder = qtrue;
+  //else /* unvan */
+   // pml.ladder = qfalse; /* unvan */
 
   //Com_Printf("Surfladder: %i, pml.ladder: %i \n",(trace.surfaceFlags & SURF_LADDER), pml.ladder);
 }
@@ -747,17 +747,17 @@ static void PM_WaterMove(void)
   }
 
   PM_SlideMove(qfalse);
-  
+
   //add hypov8======
- 	if (pm->ps->velocity[2] >= 50 || pm->xyspeed >= 50)
-	{
-	PM_ContinueLegsAnim(LEGS_SWIM);
+   if (pm->ps->velocity[2] >= 50 || pm->xyspeed >= 50)
+  {
+  PM_ContinueLegsAnim(LEGS_SWIM);
 }
-	else if (pm->ps->velocity[2] < 50 || pm->xyspeed < 50)
-	{
+  else if (pm->ps->velocity[2] < 50 || pm->xyspeed < 50)
+  {
       PM_StartLegsAnim(LEGS_IDLE);
-	} 
-	//==============
+  }
+  //==============
 }
 
 #if 0 // def MISSIONPACK
@@ -1053,7 +1053,7 @@ static void PM_AirMove(void)
   else
 #endif
 
-  { 
+  {
     // Air Control
     wishspeed2 = wishspeed;
     if (DotProduct(pm->ps->velocity, wishdir) < 0)
@@ -1069,15 +1069,15 @@ static void PM_AirMove(void)
       accel = PM_STRAFE_ACCELERATE;
     }
 
-	//add hypov8 makes player stop in mid air forwared/back, like kp1
-	if ((fmove > 0 || fmove < 0) && smove == 0)                                                                                         //0xA5EA, bh-buttons pressed ?
-	{
-		if (wishspeed > pm_wishspeed)
-			wishspeed = pm_wishspeed;
+  //add hypov8 makes player stop in mid air forwared/back, like kp1
+  if ((fmove > 0 || fmove < 0) && smove == 0)                                                                                         //0xA5EA, bh-buttons pressed ?
+  {
+    if (wishspeed > pm_wishspeed)
+      wishspeed = pm_wishspeed;
 
-		accel = PM_STRAFE_ACCELERATE;
-	}
-	//end add hypov8
+    accel = PM_STRAFE_ACCELERATE;
+  }
+  //end add hypov8
 
 
     // Air control
@@ -1088,12 +1088,12 @@ static void PM_AirMove(void)
     // add gravity
     //pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
     //PM_StepSlideMove();
-	//trap_Cvar_Set(); sv_maxvelocity
-	//int checkMaxSpeed = DotProduct(pm->ps->velocity, wishdir);
-	
+  //trap_Cvar_Set(); sv_maxvelocity
+  //int checkMaxSpeed = DotProduct(pm->ps->velocity, wishdir);
+
 //	if (checkMaxSpeed > cvar sv_maxvelocity )
 
-	PM_StepSlideMove(qtrue, qfalse);
+  PM_StepSlideMove(qtrue, qfalse);
   }//end airmove
 
 
@@ -1158,25 +1158,25 @@ static void PM_LadderMove(void)
     VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
   }
   PM_SlideMove(qfalse); // move without gravity
-  
+
 if (pm->ps->velocity[2] <= -2)
      {
        PM_ContinueLegsAnim(BOTH_LDR_DN);
-	   PM_ContinueTorsoAnim(BOTH_LDR_DN);
+     PM_ContinueTorsoAnim(BOTH_LDR_DN);
       }
       else if (pm->ps->velocity[2] >= 2)
       {
         PM_ContinueLegsAnim(BOTH_LDR_UP);
-		PM_ContinueTorsoAnim(BOTH_LDR_UP);
+    PM_ContinueTorsoAnim(BOTH_LDR_UP);
       }
-	 else      
-	  {
-		PM_ContinueLegsAnim(BOTH_LADDER); //note hypov8 can animations pause then resume..
-		PM_ContinueTorsoAnim(BOTH_LADDER);
-#ifdef HYPO_DEBUG_MOVE		
+   else
+    {
+    PM_ContinueLegsAnim(BOTH_LADDER); //note hypov8 can animations pause then resume..
+    PM_ContinueTorsoAnim(BOTH_LADDER);
+#ifdef HYPO_DEBUG_MOVE
         Com_Printf("LAD both IDLE ladder\n");
-#endif		
-	 }
+#endif
+   }
 }
 
 /*
@@ -1420,8 +1420,8 @@ static void PM_NoclipMove(void)
   // move
   VectorMA(pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
     PM_StartLegsAnim(LEGS_IDLE);
-	PM_StartTorsoAnim(TORSO_STAND);
-  
+  PM_StartTorsoAnim(TORSO_STAND);
+
 }
 
 //============================================================================
@@ -1535,7 +1535,7 @@ static void PM_CrashLand(void)
     }
     else if (delta > 45)                                                                                 /* war 7 */
     {
-		BG_AddPredictableEventToPlayerstate(EV_FALL_SHORT, pml.groundTrace.surfaceFlags, pm->ps);        /* 0xA5EA */ /*hypov8 fall damage close to old kp.*/
+    BG_AddPredictableEventToPlayerstate(EV_FALL_SHORT, pml.groundTrace.surfaceFlags, pm->ps);        /* 0xA5EA */ /*hypov8 fall damage close to old kp.*/
     }
     else
     {
@@ -1681,39 +1681,39 @@ static void PM_GroundTrace(void)
   /* 0xA5EA, check this */
   if (trace.fraction == 1.0)
   {
-	 //hypov8 add: xreal. makes player stick to ground when going down stairs
-	qboolean        steppedDown = qfalse;
+   //hypov8 add: xreal. makes player stick to ground when going down stairs
+  qboolean        steppedDown = qfalse;
 
-	  // try to step down
-	  if (pml.groundPlane != qfalse && PM_PredictStepMove())
-	  {
-		  // step down
-		  point[0] = pm->ps->origin[0];
-		  point[1] = pm->ps->origin[1];
-		  point[2] = pm->ps->origin[2] - STEPSIZE;
-		  pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+    // try to step down
+    if (pml.groundPlane != qfalse && PM_PredictStepMove())
+    {
+      // step down
+      point[0] = pm->ps->origin[0];
+      point[1] = pm->ps->origin[1];
+      point[2] = pm->ps->origin[2] - STEPSIZE;
+      pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
 
-		  // if we hit something
-		  if (trace.fraction < 1.0f)
-		  {
-			  PM_StepEvent(pm->ps->origin, trace.endpos, refNormal);
-			  VectorCopy(trace.endpos, pm->ps->origin);
-			  steppedDown = qtrue;
-		  }
-	  }
+      // if we hit something
+      if (trace.fraction < 1.0f)
+      {
+        PM_StepEvent(pm->ps->origin, trace.endpos, refNormal);
+        VectorCopy(trace.endpos, pm->ps->origin);
+        steppedDown = qtrue;
+      }
+    }
 
-	  if (!steppedDown) //end xreal stair fix
-	  {
-		PM_GroundTraceMissed();
-		pml.groundPlane = qfalse;
-		pml.walking     = qfalse;
-		return;
-	  }
+    if (!steppedDown) //end xreal stair fix
+    {
+    PM_GroundTraceMissed();
+    pml.groundPlane = qfalse;
+    pml.walking     = qfalse;
+    return;
+    }
   }
 
-	// BUNNYHOP //hypov8 this stops velocity and not allow a jump+velocity
-	//hypov8 max up velocity for bunyhop would be 270+180. this should stop small step double jump
-	//todo: might need some more checks. water?
+  // BUNNYHOP //hypov8 this stops velocity and not allow a jump+velocity
+  //hypov8 max up velocity for bunyhop would be 270+180. this should stop small step double jump
+  //todo: might need some more checks. water?
 
   // check if getting thrown off the ground
   //if (pm->ps->velocity[2] > 0 && DotProduct(pm->ps->velocity, trace.plane.normal) > 10)
@@ -1776,23 +1776,23 @@ static void PM_GroundTrace(void)
   // don't reset the z velocity for slopes
 //	pm->ps->velocity[2] = 0;
 
-	  if (!pm->ps->bunnyHop) //hypov8 todo: fix this properly, can walk diaginal faster
-	  {						//could also delay rejump
-		  int maxSpeed;
-		  
-		  maxSpeed = G_SPEED_MAX; // pm->ps->maxSpeed; //hypov8 servers cvar g_speed //might use a global macro for forwardspeed
+    if (!pm->ps->bunnyHop) //hypov8 todo: fix this properly, can walk diaginal faster
+    {						//could also delay rejump
+      int maxSpeed UNUSED;
 
-		  if (pm->ps->velocity[0] > G_SPEED_MAX)
-			  pm->ps->velocity[0] = G_SPEED_MAX;
-		  if (pm->ps->velocity[0] < -G_SPEED_MAX)
-			  pm->ps->velocity[0] = -G_SPEED_MAX;
+      maxSpeed = G_SPEED_MAX; // pm->ps->maxSpeed; //hypov8 servers cvar g_speed //might use a global macro for forwardspeed
 
-		  if (pm->ps->velocity[1] > G_SPEED_MAX)
-			  pm->ps->velocity[1] = G_SPEED_MAX;
-		  if (pm->ps->velocity[1] < -G_SPEED_MAX)
-			  pm->ps->velocity[1] = -G_SPEED_MAX;
+      if (pm->ps->velocity[0] > G_SPEED_MAX)
+        pm->ps->velocity[0] = G_SPEED_MAX;
+      if (pm->ps->velocity[0] < -G_SPEED_MAX)
+        pm->ps->velocity[0] = -G_SPEED_MAX;
 
-	  }
+      if (pm->ps->velocity[1] > G_SPEED_MAX)
+        pm->ps->velocity[1] = G_SPEED_MAX;
+      if (pm->ps->velocity[1] < -G_SPEED_MAX)
+        pm->ps->velocity[1] = -G_SPEED_MAX;
+
+    }
 
   PM_AddTouchEnt(trace.entityNum);
 }
@@ -1886,7 +1886,7 @@ static void PM_CheckDuck(void)
   }
   else
   {
-	pm->maxs[2] = playerMaxs[2];
+  pm->maxs[2] = playerMaxs[2];
     pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
   }
 }
@@ -1912,7 +1912,7 @@ static void PM_Footsteps(void)
     // airborne leaves position in cycle intact, but doesn't advance
     if (pm->waterlevel > 1)
      // PM_ContinueLegsAnim(LEGS_SWIM);
-		PM_WaterMove(); //add hypov8
+    PM_WaterMove(); //add hypov8
 
     return;
   }
@@ -1927,10 +1927,10 @@ static void PM_Footsteps(void)
       {
         PM_ContinueLegsAnim(LEGS_CR_IDLE);
       }
-	   else
-	   {
+     else
+     {
         PM_ContinueLegsAnim(LEGS_IDLE);
-	   }
+     }
     }
     return;
   }
@@ -1972,7 +1972,7 @@ static void PM_Footsteps(void)
       else
       {
         PM_ContinueLegsAnim(LEGS_RUN);
-	  }
+    }
       footstep = qtrue;
     }
     else
@@ -1980,11 +1980,11 @@ static void PM_Footsteps(void)
       bobmove = 0.3f; // walking bobs slow
       if (pm->ps->pm_flags & PMF_BACKWARDS_RUN)
       {
-		  PM_ContinueLegsAnim(LEGS_WALK_BACK);
-	  }
+      PM_ContinueLegsAnim(LEGS_WALK_BACK);
+    }
       else
       {
-	    PM_ContinueLegsAnim(LEGS_WALK);
+      PM_ContinueLegsAnim(LEGS_WALK);
       }
     }
   }
@@ -2045,30 +2045,30 @@ PM_WeaponReloadTimeOffset
 */
 static int PM_WeaponReloadTimeOffset(int weapon, int wepState)
 {
-	//hypov8 use global timers. used in cg_weapons
-	switch (weapon)
-	{
-		case WP_PISTOL:
-			return WP_TIME_RELOAD_PISTOL;
-		case WP_SHOTGUN:
-			if (wepState == WEAPON_RELOAD_MOD)
-				return WP_TIME_MOD_SHOTGUN*2;
-			return WP_TIME_RELOAD_SHOTGUN;
-		case WP_MACHINEGUN:
-			return WP_TIME_RELOAD_MACHINEGUN;
-		case WP_GRENADE_LAUNCHER:
-			return WP_TIME_RELOAD_GRENADE_LAUNCHER;
-		case WP_ROCKET_LAUNCHER:
-			return WP_TIME_RELOAD_ROCKET_LAUNCHER;
-		case WP_HMG:
-			return WP_TIME_RELOAD_HMG;
+  //hypov8 use global timers. used in cg_weapons
+  switch (weapon)
+  {
+    case WP_PISTOL:
+      return WP_TIME_RELOAD_PISTOL;
+    case WP_SHOTGUN:
+      if (wepState == WEAPON_RELOAD_MOD)
+        return WP_TIME_MOD_SHOTGUN*2;
+      return WP_TIME_RELOAD_SHOTGUN;
+    case WP_MACHINEGUN:
+      return WP_TIME_RELOAD_MACHINEGUN;
+    case WP_GRENADE_LAUNCHER:
+      return WP_TIME_RELOAD_GRENADE_LAUNCHER;
+    case WP_ROCKET_LAUNCHER:
+      return WP_TIME_RELOAD_ROCKET_LAUNCHER;
+    case WP_HMG:
+      return WP_TIME_RELOAD_HMG;
 #ifdef USE_FLAMEGUN
-		case WP_FLAMER:
-			return WP_TIME_RELOAD_FLAMEGUN;
+    case WP_FLAMER:
+      return WP_TIME_RELOAD_FLAMEGUN;
 #endif
-	}
-	//return pistol if missing
-	return WP_TIME_RELOAD_PISTOL;
+  }
+  //return pistol if missing
+  return WP_TIME_RELOAD_PISTOL;
 }
 
 /*
@@ -2078,43 +2078,43 @@ PM_BeginWeaponReload
 */
 static qboolean PM_BeginWeaponReload(int weapon)
 {
-	if (!BG_IsReloadableWeapon(weapon))
-		return false;
-	if (!(pm->ps->stats[STAT_WEAPONS] & (1 << weapon)))
-		return false;
-	if (pm->ps->weaponstate == WEAPON_RAISING)
-		return false;		
-	if (pm->ps->weaponstate == WEAPON_DROPPING)
-		return false;	
- 
-	//check if gun magazine is full
-	if (pm->ps->ammo_mag[weapon] == BG_WeaponMaxMagCount(weapon))
-		return false; // switch??
-	//no ammo to reload
-	if (!pm->ps->ammo_all[BG_AmmoCombineCheck(weapon)])
-		return false;
+  if (!BG_IsReloadableWeapon(weapon))
+    return false;
+  if (!(pm->ps->stats[STAT_WEAPONS] & (1 << weapon)))
+    return false;
+  if (pm->ps->weaponstate == WEAPON_RAISING)
+    return false;
+  if (pm->ps->weaponstate == WEAPON_DROPPING)
+    return false;
+
+  //check if gun magazine is full
+  if (pm->ps->ammo_mag[weapon] == BG_WeaponMaxMagCount(weapon))
+    return false; // switch??
+  //no ammo to reload
+  if (!pm->ps->ammo_all[BG_AmmoCombineCheck(weapon)])
+    return false;
 
 
-	//pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
-	if ( weapon == WP_SHOTGUN && 
-		(pm->ps->weaponstate == WEAPON_RELOADING ||pm->ps->weaponstate == WEAPON_RELOAD_MOD ))
-	{
-		pm->ps->weaponstate = WEAPON_RELOAD_MOD;
-		PM_ContinueTorsoAnim( TORSO_DROP ); //dont change 3rd person animation.. yet
-		PM_StartWeaponAnim(WEAPON_RELOAD_MOD);
-		BG_AddPredictableEventToPlayerstate( EV_RELOAD_SHOTGUN, pm->ps->weapon, pm->ps );
-	}
-	else
-	{
-		pm->ps->weaponstate = WEAPON_RELOADING;
-		PM_StartTorsoAnim( TORSO_DROP ); //hypov8 todo: TORSO_DROP animation looks odd. make new animations
-		PM_StartWeaponAnim(WEAPON_RELOADING);
-		if (weapon != WP_SHOTGUN) //stop sound event on shotty until reloading
-			BG_AddPredictableEventToPlayerstate( EV_RELOAD_WEAPON, pm->ps->weapon, pm->ps );
-	}
+  //pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
+  if ( weapon == WP_SHOTGUN &&
+    (pm->ps->weaponstate == WEAPON_RELOADING ||pm->ps->weaponstate == WEAPON_RELOAD_MOD ))
+  {
+    pm->ps->weaponstate = WEAPON_RELOAD_MOD;
+    PM_ContinueTorsoAnim( TORSO_DROP ); //dont change 3rd person animation.. yet
+    PM_StartWeaponAnim(WEAPON_RELOAD_MOD);
+    BG_AddPredictableEventToPlayerstate( EV_RELOAD_SHOTGUN, pm->ps->weapon, pm->ps );
+  }
+  else
+  {
+    pm->ps->weaponstate = WEAPON_RELOADING;
+    PM_StartTorsoAnim( TORSO_DROP ); //hypov8 todo: TORSO_DROP animation looks odd. make new animations
+    PM_StartWeaponAnim(WEAPON_RELOADING);
+    if (weapon != WP_SHOTGUN) //stop sound event on shotty until reloading
+      BG_AddPredictableEventToPlayerstate( EV_RELOAD_WEAPON, pm->ps->weapon, pm->ps );
+  }
 
-	pm->ps->weaponTime += PM_WeaponReloadTimeOffset(weapon, pm->ps->weaponstate);
-	return true;
+  pm->ps->weaponTime += PM_WeaponReloadTimeOffset(weapon, pm->ps->weaponstate);
+  return true;
 }
 
 /*
@@ -2133,55 +2133,55 @@ static void PM_FinishWeaponReload(int weapon)
   roundsMax = BG_WeaponMaxMagCount(weapon);
   rounds_needed = roundsMax - pm->ps->ammo_mag[weapon];
   rounds_Avalible = pm->ps->ammo_all[BG_AmmoCombineCheck(weapon)];
-  
-	//max ammo count
-	if (roundsMax)
-	{
-		if (weapon == WP_SHOTGUN)
-		{
-			if ( rounds_needed > 0 && rounds_Avalible > 0)
-			{
-				int minus = 1; //did we reload 3 bullets?
 
-				if ( rounds_needed > rounds_Avalible )
-					rounds_needed = rounds_Avalible;
+  //max ammo count
+  if (roundsMax)
+  {
+    if (weapon == WP_SHOTGUN)
+    {
+      if ( rounds_needed > 0 && rounds_Avalible > 0)
+      {
+        int minus = 1; //did we reload 3 bullets?
 
-				// add 3 bullets per reload. hogie request
-				if ( rounds_needed > 3 )
-					rounds_needed = 3;
-				rounds_needed = 1; //single reload
+        if ( rounds_needed > rounds_Avalible )
+          rounds_needed = rounds_Avalible;
 
-				pm->ps->ammo_mag[  weapon] += rounds_needed;
-				pm->ps->ammo_all[BG_AmmoCombineCheck( weapon ) ] -= rounds_needed;
+        // add 3 bullets per reload. hogie request
+        if ( rounds_needed > 3 )
+          rounds_needed = 3;
+        rounds_needed = 1; //single reload
 
-				minus = rounds_needed;
+        pm->ps->ammo_mag[  weapon] += rounds_needed;
+        pm->ps->ammo_all[BG_AmmoCombineCheck( weapon ) ] -= rounds_needed;
 
-				//continue to reload shotty
-				if ( pm->ps->ammo_mag[ weapon ] < roundsMax && ( rounds_Avalible - minus ) > 0 )
-				{
-					pm->ps->weaponTime = 0;
-					PM_BeginWeaponReload(weapon);
-					return;
-				}
-				else if ( pm->ps->weaponTime > 0 )
-					return; //finish reload animation for last bullet
-			}
-			else if ( pm->ps->weaponTime > 0 )
-				return; //finish reload animation for last bullet
-		}
-		else
-		{
-			if (rounds_Avalible >= rounds_needed)
-			{
-				pm->ps->ammo_mag[weapon] += rounds_needed;
-				pm->ps->ammo_all[BG_AmmoCombineCheck(weapon)] -= rounds_needed;
-			}
-			else
-			{
-				pm->ps->ammo_mag[weapon] += rounds_Avalible;
-				pm->ps->ammo_all[BG_AmmoCombineCheck(weapon)] = 0;
-			}
-		}
+        minus = rounds_needed;
+
+        //continue to reload shotty
+        if ( pm->ps->ammo_mag[ weapon ] < roundsMax && ( rounds_Avalible - minus ) > 0 )
+        {
+          pm->ps->weaponTime = 0;
+          PM_BeginWeaponReload(weapon);
+          return;
+        }
+        else if ( pm->ps->weaponTime > 0 )
+          return; //finish reload animation for last bullet
+      }
+      else if ( pm->ps->weaponTime > 0 )
+        return; //finish reload animation for last bullet
+    }
+    else
+    {
+      if (rounds_Avalible >= rounds_needed)
+      {
+        pm->ps->ammo_mag[weapon] += rounds_needed;
+        pm->ps->ammo_all[BG_AmmoCombineCheck(weapon)] -= rounds_needed;
+      }
+      else
+      {
+        pm->ps->ammo_mag[weapon] += rounds_Avalible;
+        pm->ps->ammo_all[BG_AmmoCombineCheck(weapon)] = 0;
+      }
+    }
   }
 
   pm->ps->weaponstate = WEAPON_READY;
@@ -2190,28 +2190,28 @@ static void PM_FinishWeaponReload(int weapon)
 
 int PM_FindNextBestWeapon(playerState_t *ps)
 {
-	int i, back = qfalse;
-	int	newWep = ps->weapon+1;
-	for ( i = WP_FIRST; i <= WP_LAST; i++ )
-	{
-		if ( newWep > WP_LAST )
-		{	//search back from last active wep
-			newWep = ps->weapon - 1; // WP_FIRST;
-			back = qtrue;
-		}
+  int i, back = qfalse;
+  int	newWep = ps->weapon+1;
+  for ( i = WP_FIRST; i <= WP_LAST; i++ )
+  {
+    if ( newWep > WP_LAST )
+    {	//search back from last active wep
+      newWep = ps->weapon - 1; // WP_FIRST;
+      back = qtrue;
+    }
 
-		if ( BG_InventoryContainsWeapon(newWep, ps->stats) && BG_InventoryContainsAmmo(newWep, ps) )
-			break; //found wep+ammo
+    if ( BG_InventoryContainsWeapon(newWep, ps->stats) && BG_InventoryContainsAmmo(newWep, ps) )
+      break; //found wep+ammo
 
-		if (!back )
-			newWep++;
-		else
-			newWep--;
-	}
-	if ( i > WP_LAST )
-		newWep = WP_CROWBAR;
+    if (!back )
+      newWep++;
+    else
+      newWep--;
+  }
+  if ( i > WP_LAST )
+    newWep = WP_CROWBAR;
 
-	return newWep;
+  return newWep;
 }
 
 /*
@@ -2221,25 +2221,25 @@ PM_BeginWeaponChange
 */
 void PM_BeginWeaponChange(int weapon)
 {
-	if ( pm->ps->weaponstate == WEAPON_DROPPING )
-		return;
-	if (pm->ps->weaponstate == WEAPON_RELOADING || pm->ps->weaponstate == WEAPON_RELOAD_MOD)
-		return;
-	if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS)
-		weapon = WP_CROWBAR;
+  if ( pm->ps->weaponstate == WEAPON_DROPPING )
+    return;
+  if (pm->ps->weaponstate == WEAPON_RELOADING || pm->ps->weaponstate == WEAPON_RELOAD_MOD)
+    return;
+  if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS)
+    weapon = WP_CROWBAR;
 
 
-	PM_AddEvent2(EV_CHANGE_WEAPON_DROP, weapon); //update client weapon key(incase it was hitmen forced)
-	pm->ps->weaponstate = WEAPON_DROPPING;
-	pm->ps->persistant[ PERS_NEWWEAPON ] = weapon;
+  PM_AddEvent2(EV_CHANGE_WEAPON_DROP, weapon); //update client weapon key(incase it was hitmen forced)
+  pm->ps->weaponstate = WEAPON_DROPPING;
+  pm->ps->persistant[ PERS_NEWWEAPON ] = weapon;
 
-	if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
-		pm->ps->weaponTime += WP_TIME_CHANGE_MELEE;
-	else
-		pm->ps->weaponTime += WP_TIME_CHANGE_GUNS; //hypov8 note: kp1 is about 400-600
+  if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
+    pm->ps->weaponTime += WP_TIME_CHANGE_MELEE;
+  else
+    pm->ps->weaponTime += WP_TIME_CHANGE_GUNS; //hypov8 note: kp1 is about 400-600
 
-	PM_StartTorsoAnim(TORSO_DROP); //force wep change animations
-	PM_StartWeaponAnim(WEAPON_DROPPING); //unvan .5
+  PM_StartTorsoAnim(TORSO_DROP); //force wep change animations
+  PM_StartWeaponAnim(WEAPON_DROPPING); //unvan .5
 }
 
 /*
@@ -2249,23 +2249,23 @@ PM_FinishWeaponChange
 */
 static void PM_FinishWeaponChange(int weapon)
 {
-	if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS) //spec = none?
-		weapon = WP_CROWBAR;
+  if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS) //spec = none?
+    weapon = WP_CROWBAR;
 
-	if ( !BG_InventoryContainsWeapon( weapon, pm->ps->stats ) )
-		weapon = PM_FindNextBestWeapon(pm->ps); //find another wep 
+  if ( !BG_InventoryContainsWeapon( weapon, pm->ps->stats ) )
+    weapon = PM_FindNextBestWeapon(pm->ps); //find another wep
 
-	pm->ps->weapon = weapon; // pm->cmd.weapon;
-	pm->ps->weaponstate = WEAPON_RAISING;
+  pm->ps->weapon = weapon; // pm->cmd.weapon;
+  pm->ps->weaponstate = WEAPON_RAISING;
 
-	if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
-		pm->ps->weaponTime += WP_TIME_CHANGE_MELEE;
-	else
-		pm->ps->weaponTime += WP_TIME_CHANGE_GUNS;
+  if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
+    pm->ps->weaponTime += WP_TIME_CHANGE_MELEE;
+  else
+    pm->ps->weaponTime += WP_TIME_CHANGE_GUNS;
 
-	PM_AddEvent2(EV_CHANGE_WEAPON_RAISE, weapon); //tell client wep to use/select
-	PM_StartTorsoAnim(TORSO_RAISE);
-	PM_StartWeaponAnim(WEAPON_RAISING); //unvan .5
+  PM_AddEvent2(EV_CHANGE_WEAPON_RAISE, weapon); //tell client wep to use/select
+  PM_StartTorsoAnim(TORSO_RAISE);
+  PM_StartWeaponAnim(WEAPON_RAISING); //unvan .5
 }
 
 /*
@@ -2275,52 +2275,52 @@ PM_TorsoAnimation
 */
 static void PM_TorsoAnimation(void)
 {
-	pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] +  pm->ps->velocity[1] * pm->ps->velocity[1]);
+  pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] +  pm->ps->velocity[1] * pm->ps->velocity[1]);
 
-	if (pm->ps->weaponstate == WEAPON_READY && !pml.ladder) 
-	{
-		if (!pml.groundPlane) //note: hypov8 can i make it deley groundtrace. hopping along terrain
-		{	//bunnyhop animation
-			if (pm->xyspeed >= 300)
-				PM_StartTorsoAnim(TORSO_RUN); //note hypov8 startTorso. use first frame
-			else
-			{ 
-				if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
-					PM_ContinueTorsoAnim(TORSO_STAND2);
-				else if (pm->ps->weapon == WP_PISTOL)
-					PM_ContinueTorsoAnim(TORSO_STAND3);
-				else PM_ContinueTorsoAnim(TORSO_STAND);
-			}
-		}
-		else //pml.groundPlane true
-		{
-			if ( !( pm->ps->pm_flags & PMF_DUCKED ) && pm->xyspeed > 80 )
-			{
-				if (pm->cmd.buttons & BUTTON_WALKING )
-					PM_ContinueTorsoAnim(TORSO_WALK);
-				else if ( pm->xyspeed < 300 )
-					PM_ContinueTorsoAnim(TORSO_RUN);
-				else  //pushed faster by rocket, bunnyhop etc..
-					PM_ContinueTorsoAnim(TORSO_RUN);
-			}
-			else
-			{ // croutch or idle torso animation
-				if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
-					PM_ContinueTorsoAnim(TORSO_STAND2);
-				else if (pm->ps->weapon == WP_PISTOL)
-					PM_ContinueTorsoAnim(TORSO_STAND3);
-				else
-					PM_ContinueTorsoAnim(TORSO_STAND);
-			}
-		}
+  if (pm->ps->weaponstate == WEAPON_READY && !pml.ladder)
+  {
+    if (!pml.groundPlane) //note: hypov8 can i make it deley groundtrace. hopping along terrain
+    {	//bunnyhop animation
+      if (pm->xyspeed >= 300)
+        PM_StartTorsoAnim(TORSO_RUN); //note hypov8 startTorso. use first frame
+      else
+      {
+        if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
+          PM_ContinueTorsoAnim(TORSO_STAND2);
+        else if (pm->ps->weapon == WP_PISTOL)
+          PM_ContinueTorsoAnim(TORSO_STAND3);
+        else PM_ContinueTorsoAnim(TORSO_STAND);
+      }
+    }
+    else //pml.groundPlane true
+    {
+      if ( !( pm->ps->pm_flags & PMF_DUCKED ) && pm->xyspeed > 80 )
+      {
+        if (pm->cmd.buttons & BUTTON_WALKING )
+          PM_ContinueTorsoAnim(TORSO_WALK);
+        else if ( pm->xyspeed < 300 )
+          PM_ContinueTorsoAnim(TORSO_RUN);
+        else  //pushed faster by rocket, bunnyhop etc..
+          PM_ContinueTorsoAnim(TORSO_RUN);
+      }
+      else
+      { // croutch or idle torso animation
+        if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
+          PM_ContinueTorsoAnim(TORSO_STAND2);
+        else if (pm->ps->weapon == WP_PISTOL)
+          PM_ContinueTorsoAnim(TORSO_STAND3);
+        else
+          PM_ContinueTorsoAnim(TORSO_STAND);
+      }
+    }
 
-		PM_ContinueWeaponAnim( WEAPON_READY ); //daemon .50
-	}
+    PM_ContinueWeaponAnim( WEAPON_READY ); //daemon .50
+  }
 
   return; //end torso... else must be shooting or on a ladder
 }
 
-	
+
 /*
 ================
 PM_WeaponFireTimeOffset
@@ -2328,39 +2328,39 @@ PM_WeaponFireTimeOffset
 */
 static int PM_WeaponFireTimeOffset(int weapon, qboolean hmgLastBullet)
 {
-	switch (pm->ps->weapon)
-	{
-	default:
-	case WP_CROWBAR:
-		return (int)(WP_TIME_FIRE_CROWBAR/2);
-	case WP_PISTOL:
-		return WP_TIME_FIRE_PISTOL;
-		//FIXME (0xA5EA): pistol offset ok ?, pistol mod
-	case WP_SHOTGUN:
-		return WP_TIME_FIRE_SHOTGUN;
-	case WP_MACHINEGUN:
-		return WP_TIME_FIRE_MACHINEGUN;
-	case WP_GRENADE_LAUNCHER:
-		return WP_TIME_FIRE_GRENADE_LAUNCHER;         // 0xA5EA
-		break;
-	case WP_ROCKET_LAUNCHER:
-		return WP_TIME_FIRE_ROCKET_LAUNCHER;         // 0xA5EA
-	case WP_HMG:
-		if (hmgLastBullet)
-			if (pm->ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_COOLING))
-				return (int)(WP_TIME_FIRE_HMG_LAST / 2);
-			else
-				return WP_TIME_FIRE_HMG_LAST;
-		else
-			return WP_TIME_FIRE_HMG;
+  switch (pm->ps->weapon)
+  {
+  default:
+  case WP_CROWBAR:
+    return (int)(WP_TIME_FIRE_CROWBAR/2);
+  case WP_PISTOL:
+    return WP_TIME_FIRE_PISTOL;
+    //FIXME (0xA5EA): pistol offset ok ?, pistol mod
+  case WP_SHOTGUN:
+    return WP_TIME_FIRE_SHOTGUN;
+  case WP_MACHINEGUN:
+    return WP_TIME_FIRE_MACHINEGUN;
+  case WP_GRENADE_LAUNCHER:
+    return WP_TIME_FIRE_GRENADE_LAUNCHER;         // 0xA5EA
+    break;
+  case WP_ROCKET_LAUNCHER:
+    return WP_TIME_FIRE_ROCKET_LAUNCHER;         // 0xA5EA
+  case WP_HMG:
+    if (hmgLastBullet)
+      if (pm->ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_COOLING))
+        return (int)(WP_TIME_FIRE_HMG_LAST / 2);
+      else
+        return WP_TIME_FIRE_HMG_LAST;
+    else
+      return WP_TIME_FIRE_HMG;
 
 #ifdef USE_FLAMEGUN
-	case WP_FLAMER:
-		return WP_TIME_FIRE_FLAMEGUN;
+  case WP_FLAMER:
+    return WP_TIME_FIRE_FLAMEGUN;
 #endif
-	case WP_GRAPPLING_HOOK:
-		return WP_TIME_FIRE_GRAPPLING_HOOK;
-	}
+  case WP_GRAPPLING_HOOK:
+    return WP_TIME_FIRE_GRAPPLING_HOOK;
+  }
 }
 
 /*
@@ -2371,277 +2371,277 @@ Generates weapon events and modifes the weapon counter
 */
 static void PM_Weapon(void)
 {
-	int      addTime = 200; //default addTime - should never be used
-	qboolean attack1 = ( pm->cmd.buttons & BUTTON_ATTACK );
+  int      addTime = 200; //default addTime - should never be used
+  qboolean attack1 = ( pm->cmd.buttons & BUTTON_ATTACK );
 
-	// Ignore weapons in some cases
-	if (pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
-		return;
+  // Ignore weapons in some cases
+  if (pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
+    return;
 
-	// check for dead player
-	if (pm->ps->stats[STAT_HEALTH] <= 0)
-	{
-		pm->ps->weapon = WP_NONE;
-		return;
-	}
+  // check for dead player
+  if (pm->ps->stats[STAT_HEALTH] <= 0)
+  {
+    pm->ps->weapon = WP_NONE;
+    return;
+  }
 
-	// don't allow attack until all buttons are up
-	if (pm->ps->pm_flags & PMF_RESPAWNED)
-		return;
+  // don't allow attack until all buttons are up
+  if (pm->ps->pm_flags & PMF_RESPAWNED)
+    return;
 
-	// make weapon function
-	if (pm->ps->weaponTime > 0)
-		pm->ps->weaponTime -= pml.msec;
+  // make weapon function
+  if (pm->ps->weaponTime > 0)
+    pm->ps->weaponTime -= pml.msec;
 
-	//reset hmg counter
-	if (pm->ps->weaponstate != WEAPON_FIRING)
-		pm->ps->hmgBulletNum = 0;
+  //reset hmg counter
+  if (pm->ps->weaponstate != WEAPON_FIRING)
+    pm->ps->hmgBulletNum = 0;
 
 
-	// check for weapon change
-	// can't change if weapon is firing and counter > 0
-	// can change again if lowering or raising or reloading
-	if ( BG_PlayerCanChangeWeapon( pm->ps ) )
-	{
+  // check for weapon change
+  // can't change if weapon is firing and counter > 0
+  // can change again if lowering or raising or reloading
+  if ( BG_PlayerCanChangeWeapon( pm->ps ) )
+  {
 #if 0 //not currently used
-		// check for item using
-		if (pm->cmd.buttons & BUTTON_USE_HOLDABLE)
-		{
-			if (!(pm->ps->pm_flags & PMF_USE_ITEM_HELD))
-			{
-				if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT && pm->ps->stats[STAT_HEALTH] >= (pm->ps->stats[STAT_MAX_HEALTH] + PLAYER_RESPAWN_HEALTH_ADD))
-				{
-					;// don't use medkit if at max health
-				}
-				else
-				{
-					pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
-					PM_AddEvent(EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag);
-					pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
-				}
-				return;
-			}
-		}
-		else
-		{
-			pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
-		}
+    // check for item using
+    if (pm->cmd.buttons & BUTTON_USE_HOLDABLE)
+    {
+      if (!(pm->ps->pm_flags & PMF_USE_ITEM_HELD))
+      {
+        if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT && pm->ps->stats[STAT_HEALTH] >= (pm->ps->stats[STAT_MAX_HEALTH] + PLAYER_RESPAWN_HEALTH_ADD))
+        {
+          ;// don't use medkit if at max health
+        }
+        else
+        {
+          pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
+          PM_AddEvent(EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag);
+          pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
+        }
+        return;
+      }
+    }
+    else
+    {
+      pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
+    }
 #endif
-		//something thinks a weapon change is necessary
-		if ( pm->ps->pm_flags & PMF_WEAPON_SWITCH || 
-			(pm->ps->weapon != pm->cmd.weapon && BG_InventoryContainsWeapon(pm->cmd.weapon, pm->ps->stats) ) )
-		{
-			int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;
-				
-			if ( pm->ps->weapon != WP_NONE && pm->ps->persistant[ PERS_NEWWEAPON ] != WP_NONE )
-			{
-				PM_BeginWeaponChange(wepNew);
-			}
-			else
-			{	// no current weapon, so just raise the new one
-				PM_FinishWeaponChange(wepNew);
-			}
-			pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
-		}
-	}
+    //something thinks a weapon change is necessary
+    if ( pm->ps->pm_flags & PMF_WEAPON_SWITCH ||
+      (pm->ps->weapon != pm->cmd.weapon && BG_InventoryContainsWeapon(pm->cmd.weapon, pm->ps->stats) ) )
+    {
+      int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;
+
+      if ( pm->ps->weapon != WP_NONE && pm->ps->persistant[ PERS_NEWWEAPON ] != WP_NONE )
+      {
+        PM_BeginWeaponChange(wepNew);
+      }
+      else
+      {	// no current weapon, so just raise the new one
+        PM_FinishWeaponChange(wepNew);
+      }
+      pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
+    }
+  }
 
 
 
-	if ( pm->ps->weaponstate == WEAPON_HM_LOCK ) //fix client sync
-	{
-		/*if ( pm->ps->pm_flags & PMF_WEAPON_LOCK )
-		{
-			pm->ps->pm_flags &= ~PMF_WEAPON_LOCK;
-			PM_AddEvent( EV_HITMEN_INFOMSG );
-			return;
-		}*/
-		return;
-	}
+  if ( pm->ps->weaponstate == WEAPON_HM_LOCK ) //fix client sync
+  {
+    /*if ( pm->ps->pm_flags & PMF_WEAPON_LOCK )
+    {
+      pm->ps->pm_flags &= ~PMF_WEAPON_LOCK;
+      PM_AddEvent( EV_HITMEN_INFOMSG );
+      return;
+    }*/
+    return;
+  }
 
-	//FIXME (0xA5EA): hitmen weapon lock
+  //FIXME (0xA5EA): hitmen weapon lock
 #if 0
-	if (pm->ps->weaponstate == WEAPON_HM_AUTOSWITCH)
-	{
-		//pm->ps->weapon      = level.time;
-		pm->ps->weaponTime = 250; //hypov8 todo: hitman
-		PM_ContinueTorsoAnim(TORSO_RAISE);
-	}
+  if (pm->ps->weaponstate == WEAPON_HM_AUTOSWITCH)
+  {
+    //pm->ps->weapon      = level.time;
+    pm->ps->weaponTime = 250; //hypov8 todo: hitman
+    PM_ContinueTorsoAnim(TORSO_RAISE);
+  }
 #endif
 
-	if (pm->ps->weaponTime > 0)
-	{
-		//allow shotgun attack while reloading
-		if (pm->ps->weapon == WP_SHOTGUN && (pm->ps->weaponstate == WEAPON_RELOADING||pm->ps->weaponstate == WEAPON_RELOAD_MOD))
-		{
-			if ( attack1 && pm->ps->ammo_mag[ pm->ps->weapon ] > 0 )
-			{
-				pm->ps->weaponstate = WEAPON_FIRING;
-				pm->ps->weaponTime = 0; //reset so reload time is removed
-			}
-			else if ( pm->ps->weaponstate == WEAPON_RELOADING && pm->ps->weaponTime < WP_TIME_MOD_SHOTGUN * 2 ) //inital reload
-			{
-				pm->ps->weaponTime = 0;
-				PM_BeginWeaponReload(pm->ps->weapon);
-			}
-			else if ( pm->ps->weaponTime < WP_TIME_MOD_SHOTGUN) //2nd+ bullet
-				PM_FinishWeaponReload(pm->ps->weapon);
+  if (pm->ps->weaponTime > 0)
+  {
+    //allow shotgun attack while reloading
+    if (pm->ps->weapon == WP_SHOTGUN && (pm->ps->weaponstate == WEAPON_RELOADING||pm->ps->weaponstate == WEAPON_RELOAD_MOD))
+    {
+      if ( attack1 && pm->ps->ammo_mag[ pm->ps->weapon ] > 0 )
+      {
+        pm->ps->weaponstate = WEAPON_FIRING;
+        pm->ps->weaponTime = 0; //reset so reload time is removed
+      }
+      else if ( pm->ps->weaponstate == WEAPON_RELOADING && pm->ps->weaponTime < WP_TIME_MOD_SHOTGUN * 2 ) //inital reload
+      {
+        pm->ps->weaponTime = 0;
+        PM_BeginWeaponReload(pm->ps->weapon);
+      }
+      else if ( pm->ps->weaponTime < WP_TIME_MOD_SHOTGUN) //2nd+ bullet
+        PM_FinishWeaponReload(pm->ps->weapon);
 
-			return;
-		}
-		else
-		{	//busy... dont check any more events.
-			return;
-		}
-	}
-
-
-	// change weapon if time
-	if (pm->ps->weaponstate == WEAPON_DROPPING)
-	{
-		int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;	
-		PM_FinishWeaponChange(wepNew);
-		return;
-	}
-
-	// Set proper animation
-	if (pm->ps->weaponstate == WEAPON_RAISING)
-	{
-		pm->ps->weaponstate = WEAPON_READY;
-
-		if (pm->ps->weapon == WP_CROWBAR)
-			PM_ContinueTorsoAnim(TORSO_STAND2);
-		else if (pm->ps->weapon == WP_PISTOL)
-			PM_ContinueTorsoAnim(TORSO_STAND3);
-		else
-			PM_ContinueTorsoAnim(TORSO_STAND);
-
-		PM_ContinueWeaponAnim( WEAPON_READY ); //daemon .50
-
-		return;
-	}
-
-	// check for out of ammo
-	if ( !(pm->ps->ammo_mag[ pm->ps->weapon ] == INFINITE_AMMO) && !BG_InventoryContainsAmmo(pm->ps->weapon, pm->ps))
-	{
-
-		int newWep = PM_FindNextBestWeapon(pm->ps);
-
-		//auto switch to next avalible wep		
-		PM_BeginWeaponChange(newWep);
-		return;
-	}
-
-	//done reloading so give em some ammo
-	if ( pm->ps->weaponstate == WEAPON_RELOADING || pm->ps->weaponstate == WEAPON_RELOAD_MOD)
-	{
-		PM_FinishWeaponReload(pm->ps->weapon);
-		return;
-	}
+      return;
+    }
+    else
+    {	//busy... dont check any more events.
+      return;
+    }
+  }
 
 
-	//start reloading if we have ammo
-	if (!(pm->ps->ammo_mag[ pm->ps->weapon ] == INFINITE_AMMO) &&
-		(pm->ps->ammo_mag[pm->ps->weapon ] <= 0 || pm->cmd.buttons & BUTTON_RELOAD &&
-		pm->ps->ammo_all[BG_AmmoCombineCheck(pm->ps->weapon) ]> 0 ))
-	{
-		if ((pm->ps->weapon != WP_SHOTGUN)||
-			(pm->ps->weapon == WP_SHOTGUN && !attack1 && pm->ps->weaponstate != WEAPON_FIRING))
-		{
-			if (PM_BeginWeaponReload(pm->ps->weapon))
-				return;
-		}
-	}
+  // change weapon if time
+  if (pm->ps->weaponstate == WEAPON_DROPPING)
+  {
+    int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;
+    PM_FinishWeaponChange(wepNew);
+    return;
+  }
+
+  // Set proper animation
+  if (pm->ps->weaponstate == WEAPON_RAISING)
+  {
+    pm->ps->weaponstate = WEAPON_READY;
+
+    if (pm->ps->weapon == WP_CROWBAR)
+      PM_ContinueTorsoAnim(TORSO_STAND2);
+    else if (pm->ps->weapon == WP_PISTOL)
+      PM_ContinueTorsoAnim(TORSO_STAND3);
+    else
+      PM_ContinueTorsoAnim(TORSO_STAND);
+
+    PM_ContinueWeaponAnim( WEAPON_READY ); //daemon .50
+
+    return;
+  }
+
+  // check for out of ammo
+  if ( !(pm->ps->ammo_mag[ pm->ps->weapon ] == INFINITE_AMMO) && !BG_InventoryContainsAmmo(pm->ps->weapon, pm->ps))
+  {
+
+    int newWep = PM_FindNextBestWeapon(pm->ps);
+
+    //auto switch to next avalible wep
+    PM_BeginWeaponChange(newWep);
+    return;
+  }
+
+  //done reloading so give em some ammo
+  if ( pm->ps->weaponstate == WEAPON_RELOADING || pm->ps->weaponstate == WEAPON_RELOAD_MOD)
+  {
+    PM_FinishWeaponReload(pm->ps->weapon);
+    return;
+  }
 
 
-	// fire events for non auto weapons
-	if ( attack1 || (pm->ps->hmgBulletNum && pm->ps->weapon == WP_HMG))
-	{
-		if ( pm->ps->weapon == WP_PISTOL && pm->ps->stats[ STAT_WEAP_MODS ] & ( 1 << PW_WPMOD_SILENCER ) )
-			PM_AddEvent(EV_FIRE_SPISTOL);
-		else
-			PM_AddEvent(EV_FIRE_WEAPON);
-	}
-	else
-	{	// Idle
-		pm->ps->hmgBulletNum = 0;
-		pm->ps->weaponTime = 0;
-		pm->ps->weaponstate = WEAPON_READY;
-		return; //no attack
-	}
+  //start reloading if we have ammo
+  if (!(pm->ps->ammo_mag[ pm->ps->weapon ] == INFINITE_AMMO) &&
+    (pm->ps->ammo_mag[pm->ps->weapon ] <= 0 || pm->cmd.buttons & BUTTON_RELOAD &&
+    pm->ps->ammo_all[BG_AmmoCombineCheck(pm->ps->weapon) ]> 0 ))
+  {
+    if ((pm->ps->weapon != WP_SHOTGUN)||
+      (pm->ps->weapon == WP_SHOTGUN && !attack1 && pm->ps->weaponstate != WEAPON_FIRING))
+    {
+      if (PM_BeginWeaponReload(pm->ps->weapon))
+        return;
+    }
+  }
 
 
-	if (pm->ps->weapon)
-	{
-		switch (pm->ps->weapon)
-		{
-		case WP_CROWBAR:
-			if ( pm->ps->hmgBulletNum == 0 )
-			{
-				pm->ps->hmgBulletNum = 1;
-				PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
-				PM_StartWeaponAnim(WEAPON_FIRING);
-			}
-			else 
-			{
-				pm->ps->hmgBulletNum = 0;
-				PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
-				PM_ContinueWeaponAnim(WEAPON_FIRING);
-			}
-			addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
-			break;
+  // fire events for non auto weapons
+  if ( attack1 || (pm->ps->hmgBulletNum && pm->ps->weapon == WP_HMG))
+  {
+    if ( pm->ps->weapon == WP_PISTOL && pm->ps->stats[ STAT_WEAP_MODS ] & ( 1 << PW_WPMOD_SILENCER ) )
+      PM_AddEvent(EV_FIRE_SPISTOL);
+    else
+      PM_AddEvent(EV_FIRE_WEAPON);
+  }
+  else
+  {	// Idle
+    pm->ps->hmgBulletNum = 0;
+    pm->ps->weaponTime = 0;
+    pm->ps->weaponstate = WEAPON_READY;
+    return; //no attack
+  }
 
-		case WP_PISTOL:
-			PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
-			addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
-			break;
 
-		case WP_HMG:
-			PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
-			if (pm->ps->hmgBulletNum == 0)
-			{
-				pm->ps->hmgBulletNum = 1;
-				addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
-			}
-			else if (pm->ps->hmgBulletNum == 1)
-			{
-				pm->ps->hmgBulletNum = 2;
-				addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
-			}
-			else if (pm->ps->hmgBulletNum == 2)
-			{
-				pm->ps->hmgBulletNum = 0;
-				addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qtrue);
-			}
+  if (pm->ps->weapon)
+  {
+    switch (pm->ps->weapon)
+    {
+    case WP_CROWBAR:
+      if ( pm->ps->hmgBulletNum == 0 )
+      {
+        pm->ps->hmgBulletNum = 1;
+        PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
+        PM_StartWeaponAnim(WEAPON_FIRING);
+      }
+      else
+      {
+        pm->ps->hmgBulletNum = 0;
+        PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
+        PM_ContinueWeaponAnim(WEAPON_FIRING);
+      }
+      addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
+      break;
 
-			break;
+    case WP_PISTOL:
+      PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
+      addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
+      break;
 
-		default:
-		//case WP_SHOTGUN:
-				PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
-				addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
-			break;
-		}
+    case WP_HMG:
+      PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
+      if (pm->ps->hmgBulletNum == 0)
+      {
+        pm->ps->hmgBulletNum = 1;
+        addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
+      }
+      else if (pm->ps->hmgBulletNum == 1)
+      {
+        pm->ps->hmgBulletNum = 2;
+        addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
+      }
+      else if (pm->ps->hmgBulletNum == 2)
+      {
+        pm->ps->hmgBulletNum = 0;
+        addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qtrue);
+      }
 
-		if ( pm->ps->weapon != WP_CROWBAR )
-			PM_StartWeaponAnim(WEAPON_FIRING);
-	}
+      break;
 
-	pm->ps->weaponstate = WEAPON_FIRING;
+    default:
+    //case WP_SHOTGUN:
+        PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
+        addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
+      break;
+    }
 
-	//make view bob with bullet recoil
-	pm->ps->viewShootBob++; 
-	if ( pm->ps->viewShootBob > 255 )
-		pm->ps->viewShootBob = 1;
+    if ( pm->ps->weapon != WP_CROWBAR )
+      PM_StartWeaponAnim(WEAPON_FIRING);
+  }
 
-	// take an ammo away if not infinite
-	if (pm->ps->ammo_mag[pm->ps->weapon] != INFINITE_AMMO)
-	{
-		pm->ps->ammo_mag[pm->ps->weapon]--;
-		if (pm->ps->ammo_mag[pm->ps->weapon] < 0)
-			pm->ps->ammo_mag[pm->ps->weapon] = 0;
-	}
+  pm->ps->weaponstate = WEAPON_FIRING;
 
-	pm->ps->weaponTime += addTime; //+
+  //make view bob with bullet recoil
+  pm->ps->viewShootBob++;
+  if ( pm->ps->viewShootBob > 255 )
+    pm->ps->viewShootBob = 1;
+
+  // take an ammo away if not infinite
+  if (pm->ps->ammo_mag[pm->ps->weapon] != INFINITE_AMMO)
+  {
+    pm->ps->ammo_mag[pm->ps->weapon]--;
+    if (pm->ps->ammo_mag[pm->ps->weapon] < 0)
+      pm->ps->ammo_mag[pm->ps->weapon] = 0;
+  }
+
+  pm->ps->weaponTime += addTime; //+
 }
 
 /*
@@ -2660,33 +2660,33 @@ static void PM_Animate(void)
       index.b[0] = rand() % 3;
       switch (index.b[0])
       {
-	  default:
-      case 0: 
-			PM_ContinueTorsoAnim(TORSO_GESTURE); //edit hypov8 load different taunts on different sounds
-			pm->ps->torsoTimer = TIMER_GESTURE;
-			index.b[1] = rand() % numCustomTaunts1;
-			//Com_Printf("TAUNT 1\n");	//note hypov8 getting multiple nags from fast frame rate
+    default:
+      case 0:
+      PM_ContinueTorsoAnim(TORSO_GESTURE); //edit hypov8 load different taunts on different sounds
+      pm->ps->torsoTimer = TIMER_GESTURE;
+      index.b[1] = rand() % numCustomTaunts1;
+      //Com_Printf("TAUNT 1\n");	//note hypov8 getting multiple nags from fast frame rate
         break;							// compared to server frame rate.
-										//g_synchronousClients "0"
-      case 1: 
-	  		PM_ContinueTorsoAnim(TORSO_GESTURE2); //add hypov8 taunt2
-			pm->ps->torsoTimer = TIMER_GESTURE;
-			index.b[1] = rand() % numCustomTaunts2;
-			//Com_Printf("TAUNT 2\n"); 
+                    //g_synchronousClients "0"
+      case 1:
+        PM_ContinueTorsoAnim(TORSO_GESTURE2); //add hypov8 taunt2
+      pm->ps->torsoTimer = TIMER_GESTURE;
+      index.b[1] = rand() % numCustomTaunts2;
+      //Com_Printf("TAUNT 2\n");
         break;
-		
-	//---------adding 3rd taunt, need sounds?---------------
-      case 2: 
-	  		PM_ContinueTorsoAnim(TORSO_GESTURE3); //add hypov8 taunt3
-			pm->ps->torsoTimer = TIMER_GESTURE;
-			index.b[1] = rand() % numCustomTaunts1; //note hypov8, do we need 3rd sounds?
-			//Com_Printf("TAUNT 3\n");
+
+  //---------adding 3rd taunt, need sounds?---------------
+      case 2:
+        PM_ContinueTorsoAnim(TORSO_GESTURE3); //add hypov8 taunt3
+      pm->ps->torsoTimer = TIMER_GESTURE;
+      index.b[1] = rand() % numCustomTaunts1; //note hypov8, do we need 3rd sounds?
+      //Com_Printf("TAUNT 3\n");
         break;
-		
+
       }
-	  //pm->ps->torsoTimer = TIMER_GESTURE;
+    //pm->ps->torsoTimer = TIMER_GESTURE;
       PM_AddEvent2(EV_TAUNT, index.s);
-	  
+
      // PM_AddEvent(EV_TAUNT);
       //BG_AddPredictableEventToPlayerstate( newEvent, 0, pm->ps );
     }
@@ -2744,34 +2744,34 @@ static void PM_Animate(void)
   //include jumping and going faster then normal speeds(bunny hop) animations
   if (pml.groundPlane == qfalse &&  pml.walking == qfalse &&  pm->ps->groundEntityNum == ENTITYNUM_NONE)
   {
-		  pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
-	  if (pm->cmd.forwardmove >= 0)
-	  {
-		  if (pm->cmd.forwardmove == 0 && pm->xyspeed > 350) //bunny hop animation
-		  {
-			  //PM_ForceLegsAnim(LEGS_IDLE); //removed hypov8 because it allows torso YAW to work while idle
-			  PM_ForceLegsAnim(LEGS_LAND);
-			  pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-		  }
-		  else
-		  {
-			  PM_ForceLegsAnim(LEGS_JUMP);
-			  pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-		  }
-	  }
-	  else //if moving backward true
-	  {
-		  if (pm->xyspeed > 350) //bunny hop backwards
-		  {
-			  PM_ForceLegsAnim(LEGS_IDLE);
-			  pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-		  }
-		  else
-		  {
-			  PM_ForceLegsAnim(LEGS_JUMPB);
-			  pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-		  }
-	  }
+      pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
+    if (pm->cmd.forwardmove >= 0)
+    {
+      if (pm->cmd.forwardmove == 0 && pm->xyspeed > 350) //bunny hop animation
+      {
+        //PM_ForceLegsAnim(LEGS_IDLE); //removed hypov8 because it allows torso YAW to work while idle
+        PM_ForceLegsAnim(LEGS_LAND);
+        pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+      }
+      else
+      {
+        PM_ForceLegsAnim(LEGS_JUMP);
+        pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+      }
+    }
+    else //if moving backward true
+    {
+      if (pm->xyspeed > 350) //bunny hop backwards
+      {
+        PM_ForceLegsAnim(LEGS_IDLE);
+        pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+      }
+      else
+      {
+        PM_ForceLegsAnim(LEGS_JUMPB);
+        pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
+      }
+    }
   }
 
 
@@ -2822,7 +2822,7 @@ are being updated isntead of a full move
 */
 void PM_UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd)
 {
-	short temp[3];
+  short temp[3];
   int i, hyp_angle;
 
   hyp_angle = 16000; // 15200; // hypov8 set the max angle faster. 16384 = 90deg
@@ -2832,18 +2832,18 @@ void PM_UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd)
 
   if (ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0)
   {
-	  ///////// temp[1] = cmd->angles[1] + ps->delta_angles[1];
-	  // rain - always allow this.  viewlocking will take precedence
-	  // if a medic is found
-	  // rain - using a full short and converting on the client so that
-	  // we get >1 degree resolution
-	  /////////////////ps->stats[STAT_DEAD_YAW] = temp[1];
-	  // tjw: don't let corpses bury their heads in the sand
-	  ps->viewangles[2] = 0;
-	  //cmd->angles[2] = 0;
+    ///////// temp[1] = cmd->angles[1] + ps->delta_angles[1];
+    // rain - always allow this.  viewlocking will take precedence
+    // if a medic is found
+    // rain - using a full short and converting on the client so that
+    // we get >1 degree resolution
+    /////////////////ps->stats[STAT_DEAD_YAW] = temp[1];
+    // tjw: don't let corpses bury their heads in the sand
+    ps->viewangles[2] = 0;
+    //cmd->angles[2] = 0;
 
-	  ps->viewangles[0] = 0;
-	  //cmd->angles[0] = 0;
+    ps->viewangles[0] = 0;
+    //cmd->angles[0] = 0;
 
 
     return;     // no view changes at all
@@ -2856,15 +2856,15 @@ void PM_UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd)
     if (i == PITCH)
     {
       // don't let the player look up or down more than 90 degrees
-		if (temp[i] > hyp_angle) // hypov8 was 1600 look up/down
+    if (temp[i] > hyp_angle) // hypov8 was 1600 look up/down
       {
-			ps->delta_angles[i] = hyp_angle - cmd->angles[i]; // hypov8 player look up and down 90 deg.. 
-			temp[i] = hyp_angle;
+      ps->delta_angles[i] = hyp_angle - cmd->angles[i]; // hypov8 player look up and down 90 deg..
+      temp[i] = hyp_angle;
       }
-		else if (temp[i] < -hyp_angle)
+    else if (temp[i] < -hyp_angle)
       {
-			ps->delta_angles[i] = -hyp_angle - cmd->angles[i];
-			temp[i] = -hyp_angle;
+      ps->delta_angles[i] = -hyp_angle - cmd->angles[i];
+      temp[i] = -hyp_angle;
       }
     }
     ps->viewangles[i] = SHORT2ANGLE(temp[i]);
@@ -2883,8 +2883,8 @@ void PmoveSingle(pmove_t *pmove)
   pm = pmove;
 
   if (pm->ps->origin[2] < -65500) //hypov8 add: stop player falling for ever. use entities fall off map?
-	  pm->ps->origin[2] = 65500;
-  
+    pm->ps->origin[2] = 65500;
+
   // this counter lets us debug movement problems with a journal
   // by setting a conditional breakpoint fot the previous frame
   c_pmove++;
@@ -2920,7 +2920,7 @@ void PmoveSingle(pmove_t *pmove)
 #if 0
   // clear the respawned flag if attack and use are cleared
   if (pm->ps->stats[STAT_HEALTH] > 0 &&
-	  !(pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE))) //hypov8 allow shooting soon as respawned
+    !(pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE))) //hypov8 allow shooting soon as respawned
     pm->ps->pm_flags &= ~PMF_RESPAWNED;
 #else
  /// if (pm->ps->stats[STAT_HEALTH] > 0) //hypov8 when dead stop shoot working
@@ -3053,7 +3053,7 @@ void PmoveSingle(pmove_t *pmove)
   }
   else
   {
-	// airborne
+  // airborne
     PM_AirMove(); //NEW_AIRMOVE
   }
 
@@ -3073,7 +3073,7 @@ void PmoveSingle(pmove_t *pmove)
 
   // footstep events / legs animations
   PM_Footsteps();
- 
+
   // torso animation
   PM_TorsoAnimation();
 
@@ -3082,8 +3082,8 @@ void PmoveSingle(pmove_t *pmove)
 
   if ( !pmove->pmove_accurate )
   {
-	// snap some parts of playerstate to save network bandwidth
-	SnapVector( pm->ps->velocity );
+  // snap some parts of playerstate to save network bandwidth
+  SnapVector( pm->ps->velocity );
   }
 }
 

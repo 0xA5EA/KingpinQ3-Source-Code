@@ -1,6 +1,6 @@
 BUILD_GAME_QVM=0
-BUILD_GAME_SO=0
-BUILD_SERVER=1
+BUILD_GAME_SO=1
+BUILD_SERVER=0
 BUILD_CLIENT=1
 BUILD_CLIENT_SMP=0
 BUILD_STANDALONE=1
@@ -26,14 +26,11 @@ USE_OPENMP=0
 # set to 1 if sse calculations should be enabled
 USE_SSE=1
 
-# if 1 cgame, game and ui dll compiles c-language, otherwise c++
-USE_C_DLL=0
-
 USE_CIN_THEORA=1
-USE_CIN_THEORA_BUILDIN=1
+USE_CIN_THEORA_BUILDIN=0
 
 # for kaas built deactivate this, for cgame game and ui dll as well
-USE_ASM_LIB=1
+USE_ASM_LIB=0
 
 #libfreetype is linked with zlib so USE_INTERNAL_ZLIB only makes sense if USE_FREETYPE_BUILDIN is enabled as well
 USE_INTERNAL_ZLIB=0

@@ -57,9 +57,8 @@ ifndef BUILD_GAME_QVM
   BUILD_GAME_QVM = 0
 endif
 
-ifndef USE_C_DLL
-  USE_C_DLL = 1
-endif
+USE_C_DLL = 0
+
 ifndef USE_CPLUS_0X
   USE_CPLUS_0X = 0
 endif
@@ -215,9 +214,7 @@ ifndef USE_OLD_VM64
 USE_OLD_VM64=0
 endif
 
-ifndef USE_SSE
-  USE_SSE=0
-endif
+USE_SSE=1
 
 ifndef USE_ASM_LIB
   USE_ASM_LIB=0
@@ -485,6 +482,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 	  SERVER_CFLAGS+=-DUSE_SSE
       NOTSHLIBCFLAGS +=-DUSE_SSE
 	  KAAS_CFLAGS += -DUSE_SSE
+	  SHLIBCCFLAGS +=-DUSE_SSE
     endif
 
     ifeq ($(USE_INTERNAL_PNG),0) 
@@ -512,6 +510,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 	    CLIENT_CFLAGS += -DUSE_SSE
         NOTSHLIBCFLAGS +=-DUSE_SSE
         KAAS_CFLAGS += -DUSE_SSE
+        SHLIBCCFLAGS +=-DUSE_SSE
       endif
       HAVE_VM_COMPILED=true
       ifeq ($(USE_ASM_LIB),1)
@@ -713,6 +712,7 @@ ifeq ($(PLATFORM),mingw32)
       CLIENT_CFLAGS += -DUSE_SSE
       NOTSHLIBCFLAGS +=-DUSE_SSE
 	  SERVER_CFLAGS+=-DUSE_SSE
+	  SHLIBCCFLAGS +=-DUSE_SSE
     endif
     HAVE_VM_COMPILED = true
   endif

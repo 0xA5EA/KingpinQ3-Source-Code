@@ -313,9 +313,9 @@ A new item was picked up this frame
 */
 static void CG_ItemPickup(int itemNum)
 {
-	cg.itemPickup          = itemNum;
-	cg.itemPickupTime      = cg.time;
-	cg.itemPickupBlendTime = cg.time;
+  cg.itemPickup          = itemNum;
+  cg.itemPickupTime      = cg.time;
+  cg.itemPickupBlendTime = cg.time;
 }
 
 
@@ -327,58 +327,58 @@ Switch to new weapon
 */
 static void CG_AutoSwitch(int itemNum)
 {
-	// see if it should be the grabbed weapon
-	if (cg_autoswitch.integer)
-	{
-		int curWep = cg.predictedPlayerState.weapon;
-		//( bg_itemlist[ itemNum ].giTag == WP_PISTOL )
+  // see if it should be the grabbed weapon
+  if (cg_autoswitch.integer)
+  {
+    int curWep = cg.predictedPlayerState.weapon;
+    //( bg_itemlist[ itemNum ].giTag == WP_PISTOL )
 
-		if ( cg_autoswitch.integer == 2 )
-		{
-			if ( curWep > WP_PISTOL )
-				return;
-		}
-		else if ( cg_autoswitch.integer == 3 )
-		{	//check if we have major weps. if we are holding a minor wep, we must have selected it.
-			if ( curWep <= WP_PISTOL || curWep > WP_LAST )
-			{
-				int i;
-				for ( i = ( WP_FIRST + 1 ); i <= WP_LAST; i++ )
-				{
-					if ( cg.snap->ps.stats[ STAT_WEAPONS ] & ( 1 << i ) )
-						return;
-				}
-			}
-			else
-				return;
-		}
+    if ( cg_autoswitch.integer == 2 )
+    {
+      if ( curWep > WP_PISTOL )
+        return;
+    }
+    else if ( cg_autoswitch.integer == 3 )
+    {	//check if we have major weps. if we are holding a minor wep, we must have selected it.
+      if ( curWep <= WP_PISTOL || curWep > WP_LAST )
+      {
+        int i;
+        for ( i = ( WP_FIRST + 1 ); i <= WP_LAST; i++ )
+        {
+          if ( cg.snap->ps.stats[ STAT_WEAPONS ] & ( 1 << i ) )
+            return;
+        }
+      }
+      else
+        return;
+    }
 
-		cg.weaponSelectTime = cg.time;
-		cg.weaponSelect = bg_itemlist[ itemNum ].giTag;
-	}
+    cg.weaponSelectTime = cg.time;
+    cg.weaponSelect = bg_itemlist[ itemNum ].giTag;
+  }
 }
 
 static void CG_HMInfoMsg(centity_t *cent, int eventParm)
 {
-	if ( eventParm >= 0 && eventParm <= 3 )
-	{
-		switch ( eventParm )
-		{
-		case 2:
-			CG_CenterPrint("Disabling weapons", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-			break;
-		case 1:
-			CG_CenterPrint("Changing weapons", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-			break;
-		case 0:
-			CG_CenterPrint("Fight!!!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-			break;
-		}
-	}
+  if ( eventParm >= 0 && eventParm <= 3 )
+  {
+    switch ( eventParm )
+    {
+    case 2:
+      CG_CenterPrint("Disabling weapons", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
+      break;
+    case 1:
+      CG_CenterPrint("Changing weapons", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
+      break;
+    case 0:
+      CG_CenterPrint("Fight!!!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
+      break;
+    }
+  }
 
-	cg.weapontimer_hm = eventParm;
-	//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.selectSound );  /* 0xA5EA */
-	//FIXME(0xA5EA): enable this ?
+  cg.weapontimer_hm = eventParm;
+  //trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.selectSound );  /* 0xA5EA */
+  //FIXME(0xA5EA): enable this ?
 }
 
 /*
@@ -405,13 +405,13 @@ void CG_PainEvent(centity_t *cent, int health)
     snd = "*pain100_1.ogg";
 #else
   if (health < 10)
-	  snd = "*pain25_1.ogg";
+    snd = "*pain25_1.ogg";
   else if (health < 20)
-	  snd = "*pain50_1.ogg";
+    snd = "*pain50_1.ogg";
   else if (health < 30)
-	  snd = "*pain75_1.ogg";
+    snd = "*pain75_1.ogg";
   else
-	  snd = "*pain100_1.ogg";
+    snd = "*pain100_1.ogg";
 #endif
 
   trap_S_StartSound(NULL, cent->currentState.number, CHAN_VOICE,  CG_CustomSound(cent->currentState.number, snd)); //"*pain25_1.ogg" etc...
@@ -436,9 +436,9 @@ void CG_PainEventSelf()
 
   // save pain time for programitic twitch animation
   if ( cg.renderingThirdPerson )
-  { 
-	  cg.predictedPlayerEntity.pe.painTime =  cg.time;
-	  cg.predictedPlayerEntity.pe.painDirection ^= 1;
+  {
+    cg.predictedPlayerEntity.pe.painTime =  cg.time;
+    cg.predictedPlayerEntity.pe.painDirection ^= 1;
   }
 }
 
@@ -455,22 +455,22 @@ Called on weapon change
 */
 void CG_OnPlayerWeaponChange()
 {
-	/*
-	playerState_t *ps = &cg.snap->ps;
+  /*
+  playerState_t *ps = &cg.snap->ps;
 
-	// Change the HUD to match the weapon. Close the old hud first
-	Rocket_ShowHud( ps->weapon );
+  // Change the HUD to match the weapon. Close the old hud first
+  Rocket_ShowHud( ps->weapon );
 
-	// Rebuild weapon lists if UI is in focus.
-	if ( trap_Key_GetCatcher() == KEYCATCH_UI && ps->persistant[ PERS_TEAM ] == TEAM_HUMANS )
-	{
-		CG_Rocket_BuildArmourySellList( "default" );
-		CG_Rocket_BuildArmouryBuyList( "default" );
-	}
+  // Rebuild weapon lists if UI is in focus.
+  if ( trap_Key_GetCatcher() == KEYCATCH_UI && ps->persistant[ PERS_TEAM ] == TEAM_HUMANS )
+  {
+    CG_Rocket_BuildArmourySellList( "default" );
+    CG_Rocket_BuildArmouryBuyList( "default" );
+  }
 
-	cg.weaponOffsetsFilter.Reset( );*/
+  cg.weaponOffsetsFilter.Reset( );*/
 
-	cg.predictedPlayerEntity.pe.weapon.animationNumber = -1; //force weapon lerpframe recalculation
+  cg.predictedPlayerEntity.pe.weapon.animationNumber = -1; //force weapon lerpframe recalculation
 }
 #endif
 
@@ -516,7 +516,7 @@ static int CG_FootstepForEventParm(int eventparm)
 
 //unlagged - attack prediction #2
 #define ANTILAG_PREDICTED(es) (es->otherEntityNum == cg.predictedPlayerState.clientNum && \
-							cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 4))
+              cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 4))
 //unlagged - attack prediction #2
 
 
@@ -531,12 +531,12 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 {
   entityState_t *es;
   int event;
-  int land_type = FOOTSTEP_NORMAL;         /* 0xA5EA */
-//	int random;
+  //int land_type = FOOTSTEP_NORMAL;         /* 0xA5EA */
+  //	int random;
   vec3_t dir;
   const char *s;
   int clientNum;
-  clientInfo_t *ci;
+  //clientInfo_t *ci;
 
   //cent->currentState.eventParm
   es = &cent->currentState;
@@ -556,7 +556,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
   if (clientNum < 0 || clientNum >= MAX_CLIENTS)
     clientNum = 0;
 
-  ci = &cgs.clientinfo[clientNum];
+  //ci = &cgs.clientinfo[clientNum];
 
   switch (event)
   {
@@ -649,7 +649,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
   case EV_FALL_SHORT:
     DEBUGNAME("EV_FALL_SHORT");
-	trap_S_StartSound(NULL, es->number, CHAN_AUTO, CG_CustomSound(es->number, "*fall1.ogg"));/* 0xA5EA, ci->footsteps*/
+  trap_S_StartSound(NULL, es->number, CHAN_AUTO, CG_CustomSound(es->number, "*fall1.ogg"));/* 0xA5EA, ci->footsteps*/
     if (clientNum == cg.predictedPlayerState.clientNum)
     {
       // smooth landing z changes
@@ -684,7 +684,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
   case EV_STEP_4:
   case EV_STEP_8:
   case EV_STEP_12:
-  case EV_STEP_16:    
+  case EV_STEP_16:
   case EV_STEPDN_4:
   case EV_STEPDN_8:
   case EV_STEPDN_12:
@@ -700,7 +700,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
       // if we are interpolating, we don't need to smooth steps
       if (cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ||
-		  cg_nopredict.integer || cg.pmoveParams.synchronous)
+          cg_nopredict.integer || cg.pmoveParams.synchronous)
         break;
 
       // check for stepping up before a previous step is completed
@@ -711,21 +711,21 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
         oldStep = 0;
 
       // add this amount
-	  if (event >= EV_STEPDN_4)
-	  {
-		  step = 4 * (event - EV_STEPDN_4 + 1);
-		  cg.stepChange = oldStep - step;
-	  }
-	  else
-	  {
-      step  = 4 * (event - EV_STEP_4 + 1);
-      cg.stepChange = oldStep + step;
-	  }
+      if (event >= EV_STEPDN_4)
+      {
+        step = 4 * (event - EV_STEPDN_4 + 1);
+        cg.stepChange = oldStep - step;
+      }
+      else
+      {
+        step  = 4 * (event - EV_STEP_4 + 1);
+        cg.stepChange = oldStep + step;
+      }
 
       if (cg.stepChange > MAX_STEP_CHANGE)
         cg.stepChange = MAX_STEP_CHANGE;
-	  else if (cg.stepChange < -MAX_STEP_CHANGE)
-		  cg.stepChange = -MAX_STEP_CHANGE;
+      else if (cg.stepChange < -MAX_STEP_CHANGE)
+        cg.stepChange = -MAX_STEP_CHANGE;
 
       cg.stepTime = cg.time;
       break;
@@ -747,12 +747,12 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
   case EV_JUMP:
     DEBUGNAME("EV_JUMP");
-	trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*jump%i.ogg", rand() % 3 + 1))); // event - EV_DEATH1 + 1
+  trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*jump%i.ogg", rand() % 3 + 1))); // event - EV_DEATH1 + 1
     break;
   case EV_TAUNT:
     DEBUGNAME("EV_TAUNT");
     {
-	//hypov8 should be fixed now, per model sounds
+  //hypov8 should be fixed now, per model sounds
 #if 0 //oldtaunts //note hypov8 need to match taunts to player models. girls dont fart :)
       shortbytes_t index;
       index.s = es->eventParm;
@@ -775,7 +775,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
         trap_S_StartSound(NULL, es->number, CHAN_VOICE, trap_S_RegisterSound(bg_customTauntNames1[index.b[1]], qfalse));
       }
 #else //hypo 12 taunts per model
-		trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*taunt%i.ogg", rand() % 12 + 1)));
+    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*taunt%i.ogg", rand() % 12 + 1)));
 #endif
     }
     break;
@@ -843,8 +843,8 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
       {
         /* 0xA5EA FIXME:
      //   #ifdef MISSIONPACK
-            switch (item->giTag ) 
-			{
+            switch (item->giTag )
+      {
                 case PW_SCOUT:
                     trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.scoutSound );
                 break;
@@ -861,20 +861,20 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
         #endif
         */
       }
-	  else if (item->giType == IT_WEAPON)	//hypov8 todo: differnt sound?
-	  {
-		  if (es->number == cg.snap->ps.clientNum)
-			  CG_AutoSwitch(index);
-		  trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
-	  }
-	  else //all other sounds
-	  {
-		  trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
-	  }
+    else if (item->giType == IT_WEAPON)	//hypov8 todo: differnt sound?
+    {
+      if (es->number == cg.snap->ps.clientNum)
+        CG_AutoSwitch(index);
+      trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
+    }
+    else //all other sounds
+    {
+      trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
+    }
 
       // show icon and name on status bar. &cg_autoswitch
       if (es->number == cg.snap->ps.clientNum)
-		  CG_ItemPickup(index);
+      CG_ItemPickup(index);
     }
     break;
 
@@ -897,66 +897,66 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
 
       // show icon and name on status bar
-	  if ( es->number == cg.snap->ps.clientNum )
-	  {
-		  if (item->giType == IT_WEAPON)
-			  CG_AutoSwitch(index);
-		  CG_ItemPickup(index);
-	  }
+    if ( es->number == cg.snap->ps.clientNum )
+    {
+      if (item->giType == IT_WEAPON)
+        CG_AutoSwitch(index);
+      CG_ItemPickup(index);
+    }
     }
     break;
 
   // weapon events
   case EV_NOAMMO:
     DEBUGNAME("EV_NOAMMO");
-		if (clientNum == cg.predictedPlayerState.clientNum) //local client only
-			trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound);
-		break;
+    if (clientNum == cg.predictedPlayerState.clientNum) //local client only
+      trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound);
+    break;
 
   case EV_NOROUNDS:
-		DEBUGNAME("EV_ROUNDS");
-		if (clientNum == cg.predictedPlayerState.clientNum) //local client only
-			trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound);
-		break;
+    DEBUGNAME("EV_ROUNDS");
+    if (clientNum == cg.predictedPlayerState.clientNum) //local client only
+      trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound);
+    break;
 
   case EV_HITMEN_INFOMSG:
-	DEBUGNAME("EV_HITMEN_INFOMSG");
-	CG_HMInfoMsg(cent, es->eventParm);
-	break;
+  DEBUGNAME("EV_HITMEN_INFOMSG");
+  CG_HMInfoMsg(cent, es->eventParm);
+  break;
   case EV_CHANGE_WEAPON_DROP:
     DEBUGNAME("EV_CHANGE_WEAPON_DROP");
-	if ( clientNum == cg.predictedPlayerState.clientNum ){ //local client only
-		trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.useNothingSound); //stop old sounds
-		CG_ResetWeaponSwitch(cent, es->eventParm);
-	}
+  if ( clientNum == cg.predictedPlayerState.clientNum ){ //local client only
+    trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.useNothingSound); //stop old sounds
+    CG_ResetWeaponSwitch(cent, es->eventParm);
+  }
     break;
   case EV_CHANGE_WEAPON_RAISE:
-	DEBUGNAME("EV_CHANGE_WEAPON_RAISE");
-	if (clientNum == cg.predictedPlayerState.clientNum) //local client only
-		CG_ResetWeaponSwitch(cent, es->eventParm);
-	break;
+  DEBUGNAME("EV_CHANGE_WEAPON_RAISE");
+  if (clientNum == cg.predictedPlayerState.clientNum) //local client only
+    CG_ResetWeaponSwitch(cent, es->eventParm);
+  break;
   case EV_FIRE_WEAPON:
     DEBUGNAME("EV_FIRE_WEAPON");
-	CG_FireWeapon(cent, qfalse);
+  CG_FireWeapon(cent, qfalse);
     break;
   case EV_FIRE_SHOTGUN:
-	DEBUGNAME("EV_FIRE_SHOTGUN");
-	CG_FireWeapon(cent, qfalse);
-	break;
+  DEBUGNAME("EV_FIRE_SHOTGUN");
+  CG_FireWeapon(cent, qfalse);
+  break;
   case	EV_FIRE_SPISTOL:
-	DEBUGNAME("EV_FIRE_SPISTOL");
-	CG_FireWeapon(cent, qtrue);
-	break;
+  DEBUGNAME("EV_FIRE_SPISTOL");
+  CG_FireWeapon(cent, qtrue);
+  break;
   case EV_FIRE_HMG_SHOT: //hypov8 todo: cleanup. not used anymore
-	DEBUGNAME("EV_FIRE_HMG_SHOT");
-	CG_FireWeapon(cent, qfalse);
-	break;
+  DEBUGNAME("EV_FIRE_HMG_SHOT");
+  CG_FireWeapon(cent, qfalse);
+  break;
   case EV_RELOAD_WEAPON:
-	DEBUGNAME("EV_RELOAD_WEAPON");
-	CG_ReloadWeapon(cent);
-	break;
+  DEBUGNAME("EV_RELOAD_WEAPON");
+  CG_ReloadWeapon(cent);
+  break;
   case EV_RELOAD_SHOTGUN:
-	DEBUGNAME("EV_RELOAD_SHOTGUN");
+  DEBUGNAME("EV_RELOAD_SHOTGUN");
     CG_ReloadWeapon(cent);
     break;
   case EV_USE_ITEM0:
@@ -1153,8 +1153,8 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
   case EV_BULLET_HIT_WALL:
     DEBUGNAME("EV_BULLET_HIT_WALL");
     ByteToDir(es->eventParm, dir);
-	CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD);
-	break;
+  CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD);
+  break;
 
   case EV_BULLET_HIT_METAL:
     DEBUGNAME("EV_BULLET_HIT_METAL");
@@ -1183,7 +1183,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
   case EV_BULLET_HIT_FLESH:
     DEBUGNAME("EV_BULLET_HIT_FLESH");
     ByteToDir(es->eventParm, dir);
-	CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_FLESH, es->eventParm);
+  CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_FLESH, es->eventParm);
     break;
 
   case EV_BULLET_HIT_GLASS:
@@ -1202,21 +1202,21 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
       trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, s));
     }
     break;
-	/*
-	//hypov8 add sound volume?
+  /*
+  //hypov8 add sound volume?
   case EV_GENERAL_SOUND_VOLUME:
-	  int             volume = es->onFireStart;
-	  DEBUGNAME("EV_GENERAL_SOUND_VOLUME");	  
+    int             volume = es->onFireStart;
+    DEBUGNAME("EV_GENERAL_SOUND_VOLUME");
 
-	  if (cgs.gameSounds[es->eventParm])
-		  trap_S_StartSound(NULL, es->number, CHAN_VOICE, cgs.gameSounds[es->eventParm]);
-	  else
-	  {
-		  s = CG_ConfigString(CS_SOUNDS + es->eventParm);
-		  trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, s));
-	  }
-	  break;
-	  */
+    if (cgs.gameSounds[es->eventParm])
+      trap_S_StartSound(NULL, es->number, CHAN_VOICE, cgs.gameSounds[es->eventParm]);
+    else
+    {
+      s = CG_ConfigString(CS_SOUNDS + es->eventParm);
+      trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, s));
+    }
+    break;
+    */
   case EV_GLOBAL_SOUND:            // play from the player's head so it never diminishes
     DEBUGNAME("EV_GLOBAL_SOUND");
     if (cgs.gameSounds[es->eventParm])
@@ -1234,129 +1234,129 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
     switch (es->eventParm)
     {
     case GTS_DRAGON_CAPTURE: // CTF: Dragon team captured the Nikki flag, 1FCTF: Dragon team captured the neutral flag
-		if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
-			CG_AddBufferedSound(cgs.media.captureYourTeamSound);
-		else
-			CG_AddBufferedSound(cgs.media.captureOpponentSound);
-		break;
+    if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+      CG_AddBufferedSound(cgs.media.captureYourTeamSound);
+    else
+      CG_AddBufferedSound(cgs.media.captureOpponentSound);
+    break;
 
     case GTS_NIKKI_CAPTURE:  // CTF: Nikki team captured the Dragon flag, 1FCTF: Nikki team captured the neutral flag
-		if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-			CG_AddBufferedSound(cgs.media.captureYourTeamSound);
-		else
-			CG_AddBufferedSound(cgs.media.captureOpponentSound);
-		break;
+    if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+      CG_AddBufferedSound(cgs.media.captureYourTeamSound);
+    else
+      CG_AddBufferedSound(cgs.media.captureOpponentSound);
+    break;
 
     case GTS_DRAGON_RETURN:  // CTF: Nikki flag returned, 1FCTF: never used
-		if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
-			CG_AddBufferedSound(cgs.media.returnYourTeamSound);
-		else
-			CG_AddBufferedSound(cgs.media.returnOpponentSound);
-		//
-		CG_AddBufferedSound(cgs.media.blueFlagReturnedSound);
-		break;
+    if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+      CG_AddBufferedSound(cgs.media.returnYourTeamSound);
+    else
+      CG_AddBufferedSound(cgs.media.returnOpponentSound);
+    //
+    CG_AddBufferedSound(cgs.media.blueFlagReturnedSound);
+    break;
 
     case GTS_NIKKI_RETURN:   // CTF Dragon flag returned, 1FCTF: neutral flag returned
-		if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-			CG_AddBufferedSound(cgs.media.returnYourTeamSound);
-		else
-			CG_AddBufferedSound(cgs.media.returnOpponentSound);
-		CG_AddBufferedSound(cgs.media.redFlagReturnedSound);
-		break;
+    if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+      CG_AddBufferedSound(cgs.media.returnYourTeamSound);
+    else
+      CG_AddBufferedSound(cgs.media.returnOpponentSound);
+    CG_AddBufferedSound(cgs.media.redFlagReturnedSound);
+    break;
 
     case GTS_DRAGON_TAKEN:   // CTF: Dragon team took Nikki flag, 1FCTF: Nikki team took the neutral flag
-		// if this player picked up the flag then a sound is played in CG_CheckLocalSounds
-		if (cg.snap->ps.powerups[PW_NIKKIFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
-		{
-			;//
-		}
-		else
-		{
-			if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-			{
-				if (cgs.gametype == GT_1FCTF)
-					CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
-				else
-					CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
-			}
-			else if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
-			{
+    // if this player picked up the flag then a sound is played in CG_CheckLocalSounds
+    if (cg.snap->ps.powerups[PW_NIKKIFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
+    {
+      ;//
+    }
+    else
+    {
+      if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+      {
+        if (cgs.gametype == GT_1FCTF)
+          CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
+        else
+          CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
+      }
+      else if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+      {
 
-				if (cgs.gametype == GT_1FCTF)
-					CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
-				//else if (cgs.gametype == GT_BAGMAN)
-				//	trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.yourTeamTookEnemyBagSound); /hypov8 todo: why was this here?
-					//CG_AddBufferedSound(cgs.media.yourTeamTookEnemyBagSound);
-				else
-				CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
-			}
-		}
-		break;
+        if (cgs.gametype == GT_1FCTF)
+          CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
+        //else if (cgs.gametype == GT_BAGMAN)
+        //	trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.yourTeamTookEnemyBagSound); /hypov8 todo: why was this here?
+          //CG_AddBufferedSound(cgs.media.yourTeamTookEnemyBagSound);
+        else
+        CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
+      }
+    }
+    break;
     case GTS_NIKKI_TAKEN: // CTF: Nikki team took the Dragon flag, 1FCTF Dragon team took the neutral flag
-		// if this player picked up the flag then a sound is played in CG_CheckLocalSounds
-		if (cg.snap->ps.powerups[PW_DRAGONFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
-		{
-			;//
-		}
-		else
-		{
-			if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
-			{
-				if (cgs.gametype == GT_1FCTF)
-					CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
-				else
-					CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
-			}
-			else if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-			{
+    // if this player picked up the flag then a sound is played in CG_CheckLocalSounds
+    if (cg.snap->ps.powerups[PW_DRAGONFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
+    {
+      ;//
+    }
+    else
+    {
+      if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+      {
+        if (cgs.gametype == GT_1FCTF)
+          CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
+        else
+          CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
+      }
+      else if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+      {
 
-				if (cgs.gametype == GT_1FCTF)
-					CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
-				//else if (cgs.gametype == GT_BAGMAN)
-				//	trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.yourTeamTookEnemyBagSound); //hypov8 todo: why was this here??
-					//CG_AddBufferedSound(cgs.media.yourTeamTookEnemyBagSound);
-				else
-					CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
-			}
-		}
-		break;
+        if (cgs.gametype == GT_1FCTF)
+          CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
+        //else if (cgs.gametype == GT_BAGMAN)
+        //	trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.yourTeamTookEnemyBagSound); //hypov8 todo: why was this here??
+          //CG_AddBufferedSound(cgs.media.yourTeamTookEnemyBagSound);
+        else
+          CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
+      }
+    }
+    break;
     case GTS_DRAGONOBELISK_ATTACKED: // Overload: Dragon obelisk is being attacked
-		if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
-		{
-			CG_AddBufferedSound(cgs.media.yourBaseIsUnderAttackSound);
-		}
-		break;
+    if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+    {
+      CG_AddBufferedSound(cgs.media.yourBaseIsUnderAttackSound);
+    }
+    break;
     case GTS_NIKKIOBELISK_ATTACKED:  // Overload: Nikki Flag obelisk is being attacked
-		if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-		{
-			CG_AddBufferedSound(cgs.media.yourBaseIsUnderAttackSound);
-		}
-		break;
+    if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+    {
+      CG_AddBufferedSound(cgs.media.yourBaseIsUnderAttackSound);
+    }
+    break;
     case GTS_DRAGONTEAM_SCORED:
-		CG_AddBufferedSound(cgs.media.redScoredSound);
-		break;
+    CG_AddBufferedSound(cgs.media.redScoredSound);
+    break;
     case GTS_NIKKITEAM_SCORED:
-		CG_AddBufferedSound(cgs.media.blueScoredSound);
-		break;
+    CG_AddBufferedSound(cgs.media.blueScoredSound);
+    break;
     case GTS_DRAGONTEAM_TOOK_LEAD:
-		CG_AddBufferedSound(cgs.media.redLeadsSound);
-		break;
+    CG_AddBufferedSound(cgs.media.redLeadsSound);
+    break;
     case GTS_NIKKITEAM_TOOK_LEAD:
-		CG_AddBufferedSound(cgs.media.blueLeadsSound);
-		break;
+    CG_AddBufferedSound(cgs.media.blueLeadsSound);
+    break;
     case GTS_TEAMS_ARE_TIED:
-		CG_AddBufferedSound(cgs.media.teamsTiedSound);
-		break;
+    CG_AddBufferedSound(cgs.media.teamsTiedSound);
+    break;
 
 #ifdef WITH_BAGMAN_MOD
-	case GTS_DRAGON_DEPOSIT:
-	case GTS_NIKKI_DEPOSIT:
-		CG_AddBufferedSound(cgs.media.bmDepositSound);	//hypov8 add
-		break;
-	case GTS_DRAGON_STOLEN:
-	case GTS_NIKKI_STOLEN:
-		CG_AddBufferedSound(cgs.media.bmStolenSound);	//hypov8 add
-		break;
+  case GTS_DRAGON_DEPOSIT:
+  case GTS_NIKKI_DEPOSIT:
+    CG_AddBufferedSound(cgs.media.bmDepositSound);	//hypov8 add
+    break;
+  case GTS_DRAGON_STOLEN:
+  case GTS_NIKKI_STOLEN:
+    CG_AddBufferedSound(cgs.media.bmStolenSound);	//hypov8 add
+    break;
 #endif
 
 #ifdef USE_KAMIKAZE
@@ -1364,8 +1364,8 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
       trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_ANNOUNCER);
       break;
 #endif
-	default:
-		break;
+  default:
+    break;
     }
     break;
   }
@@ -1376,18 +1376,18 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
     DEBUGNAME("EV_PAIN");
     if (cent->currentState.number != cg.snap->ps.clientNum)
       CG_PainEvent(cent, es->eventParm);
-	else
+  else
       CG_PainEventSelf();
     break;
 
   case EV_DEATH1:
-	  DEBUGNAME("EV_DEATH1");
-	  trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*death1.ogg")); //hypov8 match sounds to death animations
-	  break;
+    DEBUGNAME("EV_DEATH1");
+    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*death1.ogg")); //hypov8 match sounds to death animations
+    break;
   case EV_DEATH2:
-	  DEBUGNAME("EV_DEATH2");
-	  trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*death2.ogg"));
-	  break;
+    DEBUGNAME("EV_DEATH2");
+    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*death2.ogg"));
+    break;
   case EV_DEATH3:
     DEBUGNAME("EV_DEATH3");
     trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*death3.ogg"));

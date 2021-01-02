@@ -231,12 +231,12 @@ static cvarTable_t gameCvarTable[] = {
   { &pmove_accurate, "pmove_accurate", "1", 0, 0, qfalse}, //unvan .52
 
 //unlagged - server options
-	{ &g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
-	{ &g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse },
-	{ &g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue },
-	{ &g_lightningDamage, "g_lightningDamage", "8", 0, 0, qtrue },
-	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
-	{ &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse },
+  { &g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue },
+  { &g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse },
+  { &g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue },
+  { &g_lightningDamage, "g_lightningDamage", "8", 0, 0, qtrue },
+  // it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
+  { &sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse },
 //unlagged - server options
   {&g_rankings, "g_rankings", "0", 0, 0, qfalse}
 
@@ -645,35 +645,35 @@ void G_ShutdownGame(int restart)
 //===================================================================
 
 void G_CheckPmoveParamChanges() {
-	if ( pmove_msec.integer < 8 )
-	{
-		trap_Cvar_Set( "pmove_msec", "8" );
-	}
-	else if ( pmove_msec.integer > 33 )
-	{
-		trap_Cvar_Set( "pmove_msec", "33" );
-	}
+  if ( pmove_msec.integer < 8 )
+  {
+    trap_Cvar_Set( "pmove_msec", "8" );
+  }
+  else if ( pmove_msec.integer > 33 )
+  {
+    trap_Cvar_Set( "pmove_msec", "33" );
+  }
 
-	if(! level.pmoveParams.initialized ||
-			level.pmoveParams.synchronous != g_synchronousClients.integer ||
-			level.pmoveParams.msec != pmove_msec.integer ||
-			level.pmoveParams.fixed != pmove_fixed.integer ||
-			level.pmoveParams.accurate != pmove_accurate.integer) {
-		level.pmoveParams.initialized = true;
-		level.pmoveParams.synchronous = g_synchronousClients.integer;
-		level.pmoveParams.msec = pmove_msec.integer;
-		level.pmoveParams.fixed = pmove_fixed.integer;
-		level.pmoveParams.accurate = pmove_accurate.integer;
-		G_SendClientPmoveParams(-1);
-	}
+  if(! level.pmoveParams.initialized ||
+      level.pmoveParams.synchronous != g_synchronousClients.integer ||
+      level.pmoveParams.msec != pmove_msec.integer ||
+      level.pmoveParams.fixed != pmove_fixed.integer ||
+      level.pmoveParams.accurate != pmove_accurate.integer) {
+    level.pmoveParams.initialized = true;
+    level.pmoveParams.synchronous = g_synchronousClients.integer;
+    level.pmoveParams.msec = pmove_msec.integer;
+    level.pmoveParams.fixed = pmove_fixed.integer;
+    level.pmoveParams.accurate = pmove_accurate.integer;
+    G_SendClientPmoveParams(-1);
+  }
 } //unvan .52
 
 void G_SendClientPmoveParams(int client) {
-	trap_SendServerCommand(client, va("pmove_params %i %i %i %i",
-		level.pmoveParams.synchronous,
-		level.pmoveParams.fixed,
-		level.pmoveParams.msec,
-		level.pmoveParams.accurate));
+  trap_SendServerCommand(client, va("pmove_params %i %i %i %i",
+    level.pmoveParams.synchronous,
+    level.pmoveParams.fixed,
+    level.pmoveParams.msec,
+    level.pmoveParams.accurate));
 } //unvan .52
 
 
@@ -724,34 +724,34 @@ void AddTournamentPlayer(void)
   gclient_t *client;
   gclient_t *nextInLine;
 
-	if ( level.numPlayingClients >= 2 )
+  if ( level.numPlayingClients >= 2 )
     return;
 
   // never change during intermission
-	if ( level.intermissiontime )
+  if ( level.intermissiontime )
     return;
 
   nextInLine = NULL;
 
-	for ( i = 0 ; i < level.maxclients ; i++ )
-	{
+  for ( i = 0 ; i < level.maxclients ; i++ )
+  {
     client = &level.clients[i];
-		if ( client->pers.connected != CON_CONNECTED )
-			continue;
+    if ( client->pers.connected != CON_CONNECTED )
+      continue;
 
-		if ( client->sess.sessionTeam != TEAM_SPECTATOR )
-			continue;
+    if ( client->sess.sessionTeam != TEAM_SPECTATOR )
+      continue;
 
     // never select the dedicated follow or scoreboard clients
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD || client->sess.spectatorClient < 0  )
-			continue;
+    if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD || client->sess.spectatorClient < 0  )
+      continue;
 
-		if(!nextInLine || client->sess.spectatorNum > nextInLine->sess.spectatorNum)
+    if(!nextInLine || client->sess.spectatorNum > nextInLine->sess.spectatorNum)
       nextInLine = client;
-	}
+  }
 
-	if ( !nextInLine )
-		return;
+  if ( !nextInLine )
+    return;
 
   level.warmupTime = -1;
 
@@ -767,19 +767,19 @@ Add client to end of tournament queue
 */
 void AddTournamentQueue(gclient_t *client)
 {
-	int index;
-	gclient_t *curclient;
-	for(index = 0; index < level.maxclients; index++)
-	{
-		curclient = &level.clients[index];
-		if(curclient->pers.connected != CON_DISCONNECTED)
-		{
-			if(curclient == client)
-				curclient->sess.spectatorNum = 0;
-			else if(curclient->sess.sessionTeam == TEAM_SPECTATOR)
-				curclient->sess.spectatorNum++;
-		}
-	}
+  int index;
+  gclient_t *curclient;
+  for(index = 0; index < level.maxclients; index++)
+  {
+    curclient = &level.clients[index];
+    if(curclient->pers.connected != CON_DISCONNECTED)
+    {
+      if(curclient == client)
+        curclient->sess.spectatorNum = 0;
+      else if(curclient->sess.sessionTeam == TEAM_SPECTATOR)
+        curclient->sess.spectatorNum++;
+    }
+  }
 }
 /*
 =======================
@@ -876,15 +876,15 @@ int QDECL SortRanks(const void *a, const void *b)
     return -1;
 
   // then spectators
-	if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR )
-	{
-		if ( ca->sess.spectatorNum > cb->sess.spectatorNum )
+  if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR )
+  {
+    if ( ca->sess.spectatorNum > cb->sess.spectatorNum )
       return -1;
 
-		if ( ca->sess.spectatorNum < cb->sess.spectatorNum )
+    if ( ca->sess.spectatorNum < cb->sess.spectatorNum )
       return 1;
 
-		return 0;
+    return 0;
   }
   if (ca->sess.sessionTeam == TEAM_SPECTATOR)
     return 1;
@@ -925,8 +925,8 @@ void CalculateRanks(void)
   level.numPlayingClients      = 0;
   level.numVotingClients       = 0;     // don't count bots
 
-	for (i = 0; i < (int)ARRAY_LEN(level.numteamVotingClients); i++)
-	{
+  for (i = 0; i < (int)ARRAY_LEN(level.numteamVotingClients); i++)
+  {
     level.numteamVotingClients[i] = 0;
   }
   for (i = 0; i < level.maxclients; i++)
@@ -961,7 +961,7 @@ void CalculateRanks(void)
     }
   }
 
-	qsort( level.sortedClients, level.numConnectedClients, sizeof(level.sortedClients[0]), SortRanks );
+  qsort( level.sortedClients, level.numConnectedClients, sizeof(level.sortedClients[0]), SortRanks );
 
   // set the rank value for all clients that are connected and not spectators
   if (g_gametype.integer >= GT_TEAM)
@@ -1984,7 +1984,7 @@ void G_RunFrame(int levelTime)
 {
   int i;
   gentity_t *ent;
-  int msec;
+  int msec UNUSED;
 
   // if we are waiting for the level to restart, do nothing
   if (level.restarted)
@@ -1998,7 +1998,7 @@ void G_RunFrame(int levelTime)
   // get any cvar changes
   G_UpdateCvars();
 
-	// now we are done spawning
+  // now we are done spawning
   level.spawning = false; //unvan .52
 
   G_CheckPmoveParamChanges();
@@ -2046,28 +2046,28 @@ void G_RunFrame(int levelTime)
       continue;
 
 //unlagged - backward reconciliation #2
-		// we'll run missiles separately to save CPU in backward reconciliation
+    // we'll run missiles separately to save CPU in backward reconciliation
 /*
     if (ent->s.eType == ET_MISSILE)
     {
       G_RunMissile(ent);
       continue;
-    }	
+    }
 */
 //unlagged - backward reconciliation #2
-	
-	// Added -KRYPTYK
-	// DHM - Nerve :: Server-side collision for flamethrower
+
+  // Added -KRYPTYK
+  // DHM - Nerve :: Server-side collision for flamethrower
 #if 0 //hypov8 note: used below
-	if( ent->s.eType == ET_FLAMETHROWER_CHUNK ) {
-		G_RunFlamechunk( ent );
-		
-		// ydnar: hack for instantaneous velocity
-		VectorSubtract( ent->r.currentOrigin, ent->oldOrigin, ent->instantVelocity );
-		VectorScale( ent->instantVelocity, 1000.0f / msec, ent->instantVelocity );
-		
-		continue;
-	}
+  if( ent->s.eType == ET_FLAMETHROWER_CHUNK ) {
+    G_RunFlamechunk( ent );
+
+    // ydnar: hack for instantaneous velocity
+    VectorSubtract( ent->r.currentOrigin, ent->oldOrigin, ent->instantVelocity );
+    VectorScale( ent->instantVelocity, 1000.0f / msec, ent->instantVelocity );
+
+    continue;
+  }
 #endif
 
     if (ent->s.eType == ET_ITEM || ent->physicsObject)
@@ -2092,32 +2092,32 @@ void G_RunFrame(int levelTime)
   }
 
 //unlagged - backward reconciliation #2
-	// NOW run the missiles, with all players backward-reconciled
-	// to the positions they were in exactly 50ms ago, at the end
-	// of the last server frame
-	G_TimeShiftAllClients( level.previousTime, NULL );
+  // NOW run the missiles, with all players backward-reconciled
+  // to the positions they were in exactly 50ms ago, at the end
+  // of the last server frame
+  G_TimeShiftAllClients( level.previousTime, NULL );
 
-	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( !ent->inuse ) {
-			continue;
-		}
+  ent = &g_entities[0];
+  for (i=0 ; i<level.num_entities ; i++, ent++) {
+    if ( !ent->inuse ) {
+      continue;
+    }
 
-		// temporary entities don't think
-		if ( ent->freeAfterEvent ) {
-			continue;
-		}
+    // temporary entities don't think
+    if ( ent->freeAfterEvent ) {
+      continue;
+    }
 
-		if ( ent->s.eType == ET_MISSILE ) {
-			G_RunMissile( ent );
-		}
-		if ( ent->s.eType == ET_FLAMETHROWER_CHUNK ) {
-			G_RunFlamechunk( ent );
-		}
+    if ( ent->s.eType == ET_MISSILE ) {
+      G_RunMissile( ent );
+    }
+    if ( ent->s.eType == ET_FLAMETHROWER_CHUNK ) {
+      G_RunFlamechunk( ent );
+    }
 
-	}
+  }
 
-	G_UnTimeShiftAllClients( NULL );
+  G_UnTimeShiftAllClients( NULL );
 //unlagged - backward reconciliation #2
   // perform final fixups on the players
   ent = &g_entities[0];
@@ -2158,9 +2158,9 @@ void G_RunFrame(int levelTime)
     trap_Cvar_Set("g_listEntity", "0");
   }
 //unlagged - backward reconciliation #4
-	// record the time at the end of this frame - it should be about
-	// the time the next frame begins - when the server starts
-	// accepting commands from connected clients
-	level.frameStartTime = trap_Milliseconds();
+  // record the time at the end of this frame - it should be about
+  // the time the next frame begins - when the server starts
+  // accepting commands from connected clients
+  level.frameStartTime = trap_Milliseconds();
 //unlagged - backward reconciliation #4
 }
