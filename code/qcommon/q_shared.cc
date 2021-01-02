@@ -365,7 +365,7 @@ void COM_StripExtension3(const char *src, char *dest, size_t destsize)
 
   Q_strncpyz(dest, src, destsize);
 
-  length = strlen(dest) - 1;
+  length = (int)strlen(dest) - 1;
 
   while (length > 0 && dest[length] != '.')
   {
