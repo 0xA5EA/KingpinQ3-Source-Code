@@ -361,8 +361,8 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
   endif
   SHLIBLIBS=
   LANGFLAGS = -x c
-  SPECIALCC_FLAGS = -fno-rtti -Wno-write-strings 
-  SPECIALSOCC_FLAGS = -fno-rtti -Wno-write-strings 
+  SPECIALCC_FLAGS = -fno-rtti -Wno-write-strings -Wno-class-memaccess
+  SPECIALSOCC_FLAGS = -fno-rtti -Wno-write-strings -Wno-class-memaccess
   ifeq ($(USE_CPLUS_0X),1)
     SPECIALCC_FLAGS += -std=c++14
     SPECIALSOCC_FLAGS += -std=c++14
@@ -656,7 +656,7 @@ ifeq ($(PLATFORM),mingw32)
     WINDRES=windres
   endif
   LANGFLAGS = -x c
-  SPECIALCC_FLAGS = -fno-rtti  -Wno-write-strings
+  SPECIALCC_FLAGS = -fno-rtti  -Wno-write-strings 
   SPECIALSOCC_FLAGS = -fno-rtti -Wno-write-strings 
   SPECIALC_FLAGS = -Wstrict-prototypes 
 

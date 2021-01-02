@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define COMPAT_Q3A 1
 //#define COMPAT_ET 1
-//#defin COMPAT_KPQ3 1 //in build config 
+//#defin COMPAT_KPQ3 1 //in build config
 
 // this enables gametype single player
 // for kpq3 disabled
@@ -71,7 +71,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define HEARTBEAT_FOR_MASTER    PRODUCT_NAME"-1"  //PORT_MASTER
 #define HEARTBEAT_FOR_MASTER	"DarkPlaces" //using ioq3 new protocol. non Q3 game
 
-#define GAMENAME_FOR_MASTER		PRODUCT_NAME "-1"		//"KingpinQ3-1" //HEARTBEAT_FOR_MASTER 
+#define GAMENAME_FOR_MASTER		PRODUCT_NAME "-1"		//"KingpinQ3-1" //HEARTBEAT_FOR_MASTER
 
 //#define FLATLINE_FOR_MASTER		"KPQ3Flatline-1"	// HEARTBEAT_FOR_MASTER
 #define FLATLINE_FOR_MASTER		HEARTBEAT_FOR_MASTER //hypo us DP name. more compatable
@@ -170,7 +170,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #   endif
   // vsnprintf is ISO/IEC 9899:1999
   // abstracting this to make it portable
-	  size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap);
+    size_t Q_vsnprintf(char *str, size_t size, const char *format, va_list ap);
 # else
 # include <stdint.h>
 # define Q_vsnprintf vsnprintf
@@ -223,7 +223,7 @@ typedef int	clipHandle_t;
 #define	BIG_INFO_KEY		     8192
 #define	BIG_INFO_VALUE		   8192
 
-#define	MAX_QPATH			       64 // 256	 ergibt funny lumpsize feehler
+#define	MAX_QPATH			       128 // 256	 ergibt funny lumpsize fehler
 #ifdef PATH_MAX
 # define MAX_OSPATH		  	   PATH_MAX
 #else
@@ -353,12 +353,12 @@ MATHLIB
 
 
 
-	//extern const matrix_t ALIGN16(matrixIdentity);
+  //extern const matrix_t ALIGN16(matrixIdentity);
 
 //#define NO_DEVELOPER_CMDS
 #ifndef NO_DEVELOPER_CMDS
-extern ALIGN16(const matrix_t Hilbert4); //hypov8 merge: const 
-extern ALIGN16(const matrix_t ASymetric4); //hypov8 merge: const 
+extern ALIGN16(const matrix_t Hilbert4); //hypov8 merge: const
+extern ALIGN16(const matrix_t ASymetric4); //hypov8 merge: const
 #endif
 
 typedef	int	fixed4_t;
@@ -449,9 +449,9 @@ extern  vec4_t	colortmRed;
 STATIC_INLINE qboolean Q_IsColorString( const char *p ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
 {
-	return ( p[0] == Q_COLOR_ESCAPE &&
-	         ( /*p[1] == COLOR_NULL ||*/ ( p[1] >= '0' && p[1] != Q_COLOR_ESCAPE && p[1] < 'p' ) ) //hypov8 merge: null??
-	       ) ? qtrue : qfalse;
+  return ( p[0] == Q_COLOR_ESCAPE &&
+           ( /*p[1] == COLOR_NULL ||*/ ( p[1] >= '0' && p[1] != Q_COLOR_ESCAPE && p[1] < 'p' ) ) //hypov8 merge: null??
+         ) ? qtrue : qfalse;
 }
 #endif
 
@@ -502,7 +502,7 @@ void Q_SnapVectorStd(vec3_t vec);
 #if defined (__cplusplus)
 extern "C" {
 #endif
-	extern  long QDECL qftolsse(float f);
+  extern  long QDECL qftolsse(float f);
   extern int QDECL qvmftolsse(void);
   extern  void QDECL qsnapvectorsse(vec3_t vec);
 #if defined (__cplusplus)
@@ -571,72 +571,72 @@ extern "C" {
 //#define Q_bound(a, b, c) (Q_max(a, Q_min(b, c)))
 
 #endif
-	STATIC_INLINE long XreaL_Q_ftol( float f ) IFDECLARE
+  STATIC_INLINE long XreaL_Q_ftol( float f ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		return ( long ) f;
-	}
+  {
+    return ( long ) f;
+  }
 #endif
-	STATIC_INLINE unsigned int Q_floatBitsToUint( float number ) IFDECLARE
+  STATIC_INLINE unsigned int Q_floatBitsToUint( float number ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		floatint_t t;
+  {
+    floatint_t t;
 
-		t.f = number;
-		return t.ui;
-	}
-#endif
-
-	STATIC_INLINE float Q_uintBitsToFloat( unsigned int number ) IFDECLARE
-#ifdef Q3_VM_INSTANTIATE
-	{
-		floatint_t t;
-
-		t.ui = number;
-		return t.f;
-	}
+    t.f = number;
+    return t.ui;
+  }
 #endif
 
-	STATIC_INLINE float Q_rsqrt( float number ) IFDECLARE
+  STATIC_INLINE float Q_uintBitsToFloat( unsigned int number ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		float x = 0.5f * number;
-		float y;
+  {
+    floatint_t t;
 
-		Q_UNUSED(x);
+    t.ui = number;
+    return t.f;
+  }
+#endif
 
-		// compute approximate inverse square root
+  STATIC_INLINE float Q_rsqrt( float number ) IFDECLARE
+#ifdef Q3_VM_INSTANTIATE
+  {
+    float x = 0.5f * number;
+    float y;
+
+    Q_UNUSED(x);
+
+    // compute approximate inverse square root
 #if defined( idx86_sse )
-		_mm_store_ss( &y, _mm_rsqrt_ss( _mm_load_ss( &number ) ) );
+    _mm_store_ss( &y, _mm_rsqrt_ss( _mm_load_ss( &number ) ) );
 #elif idppc
 
 #ifdef __GNUC__
-		asm( "frsqrte %0, %1" : "=f"( y ) : "f"( number ) );
+    asm( "frsqrte %0, %1" : "=f"( y ) : "f"( number ) );
 #else
-		y = __frsqrte( number );
+    y = __frsqrte( number );
 #endif
 #else
-		y = Q_uintBitsToFloat( 0x5f3759df - (Q_floatBitsToUint( number ) >> 1) );
-		y *= ( 1.5f - ( x * y * y ) ); // initial iteration
+    y = Q_uintBitsToFloat( 0x5f3759df - (Q_floatBitsToUint( number ) >> 1) );
+    y *= ( 1.5f - ( x * y * y ) ); // initial iteration
 #endif
 #ifdef RSQRT_PRECISE
-		y *= ( 1.5f - ( x * y * y ) ); // second iteration for higher precision
+    y *= ( 1.5f - ( x * y * y ) ); // second iteration for higher precision
 #endif
-		return y;
-	}
+    return y;
+  }
 #endif
 
 STATIC_INLINE float Q_fabs( float x ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
 {
 #ifndef Q3_VM
-	return fabsf( x );
+  return fabsf( x );
 #else
-	floatint_t tmp;
+  floatint_t tmp;
 
-	tmp.f = x;
-	tmp.i &= 0x7FFFFFFF;
-	return tmp.f;
+  tmp.f = x;
+  tmp.i &= 0x7FFFFFFF;
+  return tmp.f;
 #endif
 }
 #endif
@@ -723,12 +723,12 @@ void SnapVectorTowards( vec3_t v, vec3_t to );
 
 
 // just in case you don't want to use the macros
-	vec_t    _DotProduct( const vec3_t v1, const vec3_t v2 );
-	void     _VectorSubtract( const vec3_t veca, const vec3_t vecb, vec3_t out );
-	void     _VectorAdd( const vec3_t veca, const vec3_t vecb, vec3_t out );
-	void     _VectorCopy( const vec3_t in, vec3_t out );
-	void     _VectorScale( const vec3_t in, float scale, vec3_t out );
-	void     _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc );
+  vec_t    _DotProduct( const vec3_t v1, const vec3_t v2 );
+  void     _VectorSubtract( const vec3_t veca, const vec3_t vecb, vec3_t out );
+  void     _VectorAdd( const vec3_t veca, const vec3_t vecb, vec3_t out );
+  void     _VectorCopy( const vec3_t in, vec3_t out );
+  void     _VectorScale( const vec3_t in, float scale, vec3_t out );
+  void     _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc );
 
 
 unsigned ColorBytes3 (float r, float g, float b);
@@ -739,71 +739,71 @@ float NormalizeColor(const vec3_t in, vec3_t out);
 
 void  ClampColor(vec4_t color);
 
-	float RadiusFromBounds(const vec3_t mins, const vec3_t maxs);
-	void     ZeroBounds( vec3_t mins, vec3_t maxs );
-	void ClearBounds(vec3_t mins, vec3_t maxs);
-	void     AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
+  float RadiusFromBounds(const vec3_t mins, const vec3_t maxs);
+  void     ZeroBounds( vec3_t mins, vec3_t maxs );
+  void ClearBounds(vec3_t mins, vec3_t maxs);
+  void     AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
 
 void VectorReflect(vec3_t const v, vec3_t const normal, vec3_t out);
 // RB: same as BoundsIntersectPoint but kept for compatibility
-	qboolean PointInBounds( const vec3_t v, const vec3_t mins, const vec3_t maxs );
+  qboolean PointInBounds( const vec3_t v, const vec3_t mins, const vec3_t maxs );
 
-	void     BoundsAdd( vec3_t mins, vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
-	qboolean BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
-	qboolean BoundsIntersectSphere( const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius );
-	qboolean BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t origin );
-	STATIC_INLINE void BoundsToCorners( const vec3_t mins, const vec3_t maxs, vec3_t corners[ 8 ] ) IFDECLARE
+  void     BoundsAdd( vec3_t mins, vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
+  qboolean BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
+  qboolean BoundsIntersectSphere( const vec3_t mins, const vec3_t maxs, const vec3_t origin, vec_t radius );
+  qboolean BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t origin );
+  STATIC_INLINE void BoundsToCorners( const vec3_t mins, const vec3_t maxs, vec3_t corners[ 8 ] ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		VectorSet( corners[ 0 ], mins[ 0 ], maxs[ 1 ], maxs[ 2 ] );
-		VectorSet( corners[ 1 ], maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
-		VectorSet( corners[ 2 ], maxs[ 0 ], mins[ 1 ], maxs[ 2 ] );
-		VectorSet( corners[ 3 ], mins[ 0 ], mins[ 1 ], maxs[ 2 ] );
-		VectorSet( corners[ 4 ], mins[ 0 ], maxs[ 1 ], mins[ 2 ] );
-		VectorSet( corners[ 5 ], maxs[ 0 ], maxs[ 1 ], mins[ 2 ] );
-		VectorSet( corners[ 6 ], maxs[ 0 ], mins[ 1 ], mins[ 2 ] );
-		VectorSet( corners[ 7 ], mins[ 0 ], mins[ 1 ], mins[ 2 ] );
-	}
+  {
+    VectorSet( corners[ 0 ], mins[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+    VectorSet( corners[ 1 ], maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+    VectorSet( corners[ 2 ], maxs[ 0 ], mins[ 1 ], maxs[ 2 ] );
+    VectorSet( corners[ 3 ], mins[ 0 ], mins[ 1 ], maxs[ 2 ] );
+    VectorSet( corners[ 4 ], mins[ 0 ], maxs[ 1 ], mins[ 2 ] );
+    VectorSet( corners[ 5 ], maxs[ 0 ], maxs[ 1 ], mins[ 2 ] );
+    VectorSet( corners[ 6 ], maxs[ 0 ], mins[ 1 ], mins[ 2 ] );
+    VectorSet( corners[ 7 ], mins[ 0 ], mins[ 1 ], mins[ 2 ] );
+  }
 #endif
 
 
-	int VectorCompare( const vec3_t v1, const vec3_t v2 );
-	STATIC_INLINE int Vector4Compare( const vec4_t v1, const vec4_t v2 ) IFDECLARE
+  int VectorCompare( const vec3_t v1, const vec3_t v2 );
+  STATIC_INLINE int Vector4Compare( const vec4_t v1, const vec4_t v2 ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		if ( v1[ 0 ] != v2[ 0 ] || v1[ 1 ] != v2[ 1 ] || v1[ 2 ] != v2[ 2 ] || v1[ 3 ] != v2[ 3 ] )
-		{
-			return 0;
-		}
+  {
+    if ( v1[ 0 ] != v2[ 0 ] || v1[ 1 ] != v2[ 1 ] || v1[ 2 ] != v2[ 2 ] || v1[ 3 ] != v2[ 3 ] )
+    {
+      return 0;
+    }
 
-		return 1;
-	}
+    return 1;
+  }
 #endif
-	STATIC_INLINE void VectorLerp( const vec3_t from, const vec3_t to, float frac, vec3_t out ) IFDECLARE
+  STATIC_INLINE void VectorLerp( const vec3_t from, const vec3_t to, float frac, vec3_t out ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		out[ 0 ] = from[ 0 ] + ( ( to[ 0 ] - from[ 0 ] ) * frac );
-		out[ 1 ] = from[ 1 ] + ( ( to[ 1 ] - from[ 1 ] ) * frac );
-		out[ 2 ] = from[ 2 ] + ( ( to[ 2 ] - from[ 2 ] ) * frac );
-	}
+  {
+    out[ 0 ] = from[ 0 ] + ( ( to[ 0 ] - from[ 0 ] ) * frac );
+    out[ 1 ] = from[ 1 ] + ( ( to[ 1 ] - from[ 1 ] ) * frac );
+    out[ 2 ] = from[ 2 ] + ( ( to[ 2 ] - from[ 2 ] ) * frac );
+  }
 #endif
-	STATIC_INLINE int VectorCompareEpsilon( const vec3_t v1, const vec3_t v2, float epsilon ) IFDECLARE
+  STATIC_INLINE int VectorCompareEpsilon( const vec3_t v1, const vec3_t v2, float epsilon ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		vec3_t d;
+  {
+    vec3_t d;
 
-		VectorSubtract( v1, v2, d );
-		d[ 0 ] = fabs( d[ 0 ] );
-		d[ 1 ] = fabs( d[ 1 ] );
-		d[ 2 ] = fabs( d[ 2 ] );
+    VectorSubtract( v1, v2, d );
+    d[ 0 ] = fabs( d[ 0 ] );
+    d[ 1 ] = fabs( d[ 1 ] );
+    d[ 2 ] = fabs( d[ 2 ] );
 
-		if ( d[ 0 ] > epsilon || d[ 1 ] > epsilon || d[ 2 ] > epsilon )
-		{
-			return 0;
-		}
+    if ( d[ 0 ] > epsilon || d[ 1 ] > epsilon || d[ 2 ] > epsilon )
+    {
+      return 0;
+    }
 
-		return 1;
-	}
+    return 1;
+  }
 #endif
 
 
@@ -845,7 +845,7 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out );
 void Vector4Scale(const vec4_t in, vec_t scale, vec4_t out);
 void VectorRotate(vec3_t in, vec3_t matrix[3], vec3_t out);
 
-	int   NearestPowerOfTwo( int val );
+  int   NearestPowerOfTwo( int val );
 int Q_log2(int val);
 float Q_acos(float c);
 int Q_rand(int *seed);
@@ -856,17 +856,17 @@ float	Q_crandom(int *seed);
 #define crandom()	(2.0 * (random() - 0.5))
 
 void VectorToAngles(const vec3_t value1, vec3_t angles);
-	//float vectoyaw( const vec3_t vec ); //hypov8 merge: game dll
+  //float vectoyaw( const vec3_t vec ); //hypov8 merge: game dll
 void AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
 // TTimo: const vec_t ** would require explicit casts for ANSI C conformance
 // see unix/const-arg.c
-	void  AxisToAngles( /*const*/ vec3_t axis[ 3 ], vec3_t angles );
+  void  AxisToAngles( /*const*/ vec3_t axis[ 3 ], vec3_t angles );
 //void AxisToAngles ( const vec3_t axis[3], vec3_t angles );
-	float VectorDistance( vec3_t v1, vec3_t v2 );
-	float VectorDistanceSquared( vec3_t v1, vec3_t v2 );
+  float VectorDistance( vec3_t v1, vec3_t v2 );
+  float VectorDistanceSquared( vec3_t v1, vec3_t v2 );
 
-	float VectorMinComponent( vec3_t v );
-	float VectorMaxComponent( vec3_t v );
+  float VectorMinComponent( vec3_t v );
+  float VectorMaxComponent( vec3_t v );
 
 #if 1
 //0xA5EA, use macros instead of functions, clean this up some time
@@ -875,133 +875,133 @@ void AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
 #endif
 void SetPlaneSignbits(struct cplane_s *out);
 
-	float BoundsMaxExtent( const vec3_t mins, const vec3_t maxs ); //hypov8 merge: unvan .50
+  float BoundsMaxExtent( const vec3_t mins, const vec3_t maxs ); //hypov8 merge: unvan .50
 
-	float	AngleMod(float a);
-	float	LerpAngle(float from, float to, float frac);
-	void  LerpPosition( vec3_t start, vec3_t end, float frac, vec3_t out );
-	float AngleSubtract( float a1, float a2 );
-	void  AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 );
+  float	AngleMod(float a);
+  float	LerpAngle(float from, float to, float frac);
+  void  LerpPosition( vec3_t start, vec3_t end, float frac, vec3_t out );
+  float AngleSubtract( float a1, float a2 );
+  void  AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 );
 
-	float AngleNormalize2Pi( float angle );
+  float AngleNormalize2Pi( float angle );
 
-	float AngleNormalize360(float angle);
-	float AngleNormalize180(float angle);
-	float AngleDelta(float angle1, float angle2);
-	float AngleBetweenVectors( const vec3_t a, const vec3_t b );
-	void  AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up );
+  float AngleNormalize360(float angle);
+  float AngleNormalize180(float angle);
+  float AngleDelta(float angle1, float angle2);
+  float AngleBetweenVectors( const vec3_t a, const vec3_t b );
+  void  AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up );
 
-	vec_t PlaneNormalize( vec4_t plane );  // returns normal length
+  vec_t PlaneNormalize( vec4_t plane );  // returns normal length
 
-	/* greebo: This calculates the intersection point of three planes.
-	 * Returns <0,0,0> if no intersection point could be found, otherwise returns the coordinates of the intersection point
-	 * (this may also be 0,0,0) */
-	qboolean PlanesGetIntersectionPoint( const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out );
-	void     PlaneIntersectRay( const vec3_t rayPos, const vec3_t rayDir, const vec4_t plane, vec3_t res );
+  /* greebo: This calculates the intersection point of three planes.
+   * Returns <0,0,0> if no intersection point could be found, otherwise returns the coordinates of the intersection point
+   * (this may also be 0,0,0) */
+  qboolean PlanesGetIntersectionPoint( const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out );
+  void     PlaneIntersectRay( const vec3_t rayPos, const vec3_t rayDir, const vec4_t plane, vec3_t res );
 
 
 qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c);
 qboolean PlaneFromPointsOrder(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw);
 void ProjectPointOnPlane(vec3_t dst, const vec3_t point, const vec3_t normal);
 void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees);
-	void     RotatePointAroundVertex( vec3_t pnt, float rot_x, float rot_y, float rot_z, const vec3_t origin );
+  void     RotatePointAroundVertex( vec3_t pnt, float rot_x, float rot_y, float rot_z, const vec3_t origin );
 void RotateAroundDirection(vec3_t axis[3], float yaw);
 void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
 
 // perpendicular vector could be replaced by this
 
-	void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out );
+  void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out );
 // RB: NOTE renamed MatrixMultiply to AxisMultiply because it conflicts with most new matrix functions
 // It is important for mod developers to do this change as well or they risk a memory corruption by using
 // the other MatrixMultiply function.
-	void AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
-	void  PerpendicularVector( vec3_t dst, const vec3_t src );
+  void AxisMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
+  void  PerpendicularVector( vec3_t dst, const vec3_t src );
 
 // Ridah
-	void  GetPerpendicularViewVector( const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up );
-	void  ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
-	void  ProjectPointOntoVectorBounded( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
-	float DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
-	float DistanceFromVectorSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
+  void  GetPerpendicularViewVector( const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up );
+  void  ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
+  void  ProjectPointOntoVectorBounded( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj );
+  float DistanceFromLineSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
+  float DistanceFromVectorSquared( vec3_t p, vec3_t lp1, vec3_t lp2 );
 
 // done.
 
-	vec_t DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1,
-	    const vec3_t tP0, const vec3_t tP1, float *s, float *t );
-	vec_t DistanceBetweenLineSegments( const vec3_t sP0, const vec3_t sP1,
-	                                   const vec3_t tP0, const vec3_t tP1, float *s, float *t );
+  vec_t DistanceBetweenLineSegmentsSquared( const vec3_t sP0, const vec3_t sP1,
+      const vec3_t tP0, const vec3_t tP1, float *s, float *t );
+  vec_t DistanceBetweenLineSegments( const vec3_t sP0, const vec3_t sP1,
+                                     const vec3_t tP0, const vec3_t tP1, float *s, float *t );
 
 //=============================================
 
 // RB: XreaL matrix math functions required by the renderer
 
-	void     MatrixIdentity( matrix_t m );
-	void     MatrixClear( matrix_t m );
-	void     MatrixCopy( const matrix_t in, matrix_t out );
-	qboolean MatrixCompare( const matrix_t a, const matrix_t b );
-	void     MatrixTransposeIntoXMM( const matrix_t m );
-	void     MatrixTranspose( const matrix_t in, matrix_t out );
+  void     MatrixIdentity( matrix_t m );
+  void     MatrixClear( matrix_t m );
+  void     MatrixCopy( const matrix_t in, matrix_t out );
+  qboolean MatrixCompare( const matrix_t a, const matrix_t b );
+  void     MatrixTransposeIntoXMM( const matrix_t m );
+  void     MatrixTranspose( const matrix_t in, matrix_t out );
 
 // invert any m4x4 using Kramer's rule.. return qtrue if matrix is singular, else return qfalse
-	qboolean MatrixInverse( matrix_t m );
-	void     MatrixSetupXRotation( matrix_t m, vec_t degrees );
-	void     MatrixSetupYRotation( matrix_t m, vec_t degrees );
-	void     MatrixSetupZRotation( matrix_t m, vec_t degrees );
-	void     MatrixSetupTranslation( matrix_t m, vec_t x, vec_t y, vec_t z );
-	void     MatrixSetupScale( matrix_t m, vec_t x, vec_t y, vec_t z );
-	void     MatrixSetupShear( matrix_t m, vec_t x, vec_t y );
-	void     MatrixMultiply( const matrix_t a, const matrix_t b, matrix_t out );
-	void     MatrixMultiply2( matrix_t m, const matrix_t m2 );
-	void     MatrixMultiplyRotation( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll );
-	void     MatrixMultiplyZRotation( matrix_t m, vec_t degrees );
-	void     MatrixMultiplyTranslation( matrix_t m, vec_t x, vec_t y, vec_t z );
-	void     MatrixMultiplyScale( matrix_t m, vec_t x, vec_t y, vec_t z );
-	void     MatrixMultiplyShear( matrix_t m, vec_t x, vec_t y );
-	void     MatrixToAngles( const matrix_t m, vec3_t angles );
-	void     MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll );
-	void     MatrixFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up );
-	void     MatrixFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up );
-	void     MatrixFromQuat( matrix_t m, const quat_t q );
-	void     MatrixFromPlanes( matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top,
-	                           const vec4_t near, const vec4_t far );
-	void     MatrixToVectorsFLU( const matrix_t m, vec3_t forward, vec3_t left, vec3_t up );
-	void     MatrixToVectorsFRU( const matrix_t m, vec3_t forward, vec3_t right, vec3_t up );
-	void     MatrixSetupTransformFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin );
-	void     MatrixSetupTransformFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up, const vec3_t origin );
-	void     MatrixSetupTransformFromRotation( matrix_t m, const matrix_t rot, const vec3_t origin );
-	void     MatrixSetupTransformFromQuat( matrix_t m, const quat_t quat, const vec3_t origin );
-	void     MatrixAffineInverse( const matrix_t in, matrix_t out );
-	void     MatrixTransformNormal( const matrix_t m, const vec3_t in, vec3_t out );
-	void     MatrixTransformNormal2( const matrix_t m, vec3_t inout );
-	void     MatrixTransformPoint( const matrix_t m, const vec3_t in, vec3_t out );
-	void     MatrixTransformPoint2( const matrix_t m, vec3_t inout );
-	void     MatrixTransform4( const matrix_t m, const vec4_t in, vec4_t out );
-	void     MatrixTransformPlane( const matrix_t m, const vec4_t in, vec4_t out );
-	void     MatrixTransformPlane2( const matrix_t m, vec3_t inout );
-	void     MatrixPerspectiveProjection( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
-	void     MatrixPerspectiveProjectionLH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
-	void     MatrixPerspectiveProjectionRH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
-	void     MatrixPerspectiveProjectionFovYAspectLH( matrix_t m, vec_t fov, vec_t aspect, vec_t near, vec_t far );
-	void     MatrixPerspectiveProjectionFovXYLH( matrix_t m, vec_t fovX, vec_t fovY, vec_t near, vec_t far );
-	void     MatrixPerspectiveProjectionFovXYRH( matrix_t m, vec_t fovX, vec_t fovY, vec_t near, vec_t far );
-	void     MatrixPerspectiveProjectionFovXYInfiniteRH( matrix_t m, vec_t fovX, vec_t fovY, vec_t near );
-	void     MatrixOrthogonalProjection( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
+  qboolean MatrixInverse( matrix_t m );
+  void     MatrixSetupXRotation( matrix_t m, vec_t degrees );
+  void     MatrixSetupYRotation( matrix_t m, vec_t degrees );
+  void     MatrixSetupZRotation( matrix_t m, vec_t degrees );
+  void     MatrixSetupTranslation( matrix_t m, vec_t x, vec_t y, vec_t z );
+  void     MatrixSetupScale( matrix_t m, vec_t x, vec_t y, vec_t z );
+  void     MatrixSetupShear( matrix_t m, vec_t x, vec_t y );
+  void     MatrixMultiply( const matrix_t a, const matrix_t b, matrix_t out );
+  void     MatrixMultiply2( matrix_t m, const matrix_t m2 );
+  void     MatrixMultiplyRotation( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll );
+  void     MatrixMultiplyZRotation( matrix_t m, vec_t degrees );
+  void     MatrixMultiplyTranslation( matrix_t m, vec_t x, vec_t y, vec_t z );
+  void     MatrixMultiplyScale( matrix_t m, vec_t x, vec_t y, vec_t z );
+  void     MatrixMultiplyShear( matrix_t m, vec_t x, vec_t y );
+  void     MatrixToAngles( const matrix_t m, vec3_t angles );
+  void     MatrixFromAngles( matrix_t m, vec_t pitch, vec_t yaw, vec_t roll );
+  void     MatrixFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up );
+  void     MatrixFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up );
+  void     MatrixFromQuat( matrix_t m, const quat_t q );
+  void     MatrixFromPlanes( matrix_t m, const vec4_t left, const vec4_t right, const vec4_t bottom, const vec4_t top,
+                             const vec4_t near, const vec4_t far );
+  void     MatrixToVectorsFLU( const matrix_t m, vec3_t forward, vec3_t left, vec3_t up );
+  void     MatrixToVectorsFRU( const matrix_t m, vec3_t forward, vec3_t right, vec3_t up );
+  void     MatrixSetupTransformFromVectorsFLU( matrix_t m, const vec3_t forward, const vec3_t left, const vec3_t up, const vec3_t origin );
+  void     MatrixSetupTransformFromVectorsFRU( matrix_t m, const vec3_t forward, const vec3_t right, const vec3_t up, const vec3_t origin );
+  void     MatrixSetupTransformFromRotation( matrix_t m, const matrix_t rot, const vec3_t origin );
+  void     MatrixSetupTransformFromQuat( matrix_t m, const quat_t quat, const vec3_t origin );
+  void     MatrixAffineInverse( const matrix_t in, matrix_t out );
+  void     MatrixTransformNormal( const matrix_t m, const vec3_t in, vec3_t out );
+  void     MatrixTransformNormal2( const matrix_t m, vec3_t inout );
+  void     MatrixTransformPoint( const matrix_t m, const vec3_t in, vec3_t out );
+  void     MatrixTransformPoint2( const matrix_t m, vec3_t inout );
+  void     MatrixTransform4( const matrix_t m, const vec4_t in, vec4_t out );
+  void     MatrixTransformPlane( const matrix_t m, const vec4_t in, vec4_t out );
+  void     MatrixTransformPlane2( const matrix_t m, vec3_t inout );
+  void     MatrixPerspectiveProjection( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
+  void     MatrixPerspectiveProjectionLH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
+  void     MatrixPerspectiveProjectionRH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
+  void     MatrixPerspectiveProjectionFovYAspectLH( matrix_t m, vec_t fov, vec_t aspect, vec_t near, vec_t far );
+  void     MatrixPerspectiveProjectionFovXYLH( matrix_t m, vec_t fovX, vec_t fovY, vec_t near, vec_t far );
+  void     MatrixPerspectiveProjectionFovXYRH( matrix_t m, vec_t fovX, vec_t fovY, vec_t near, vec_t far );
+  void     MatrixPerspectiveProjectionFovXYInfiniteRH( matrix_t m, vec_t fovX, vec_t fovY, vec_t near );
+  void     MatrixOrthogonalProjection( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
 
-	void     MatrixOrthogonalProjectionLH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
-	void     MatrixOrthogonalProjectionRH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
+  void     MatrixOrthogonalProjectionLH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
+  void     MatrixOrthogonalProjectionRH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
 
-	void     MatrixPlaneReflection( matrix_t m, const vec4_t plane );
+  void     MatrixPlaneReflection( matrix_t m, const vec4_t plane );
 
-	void     MatrixLookAtLH( matrix_t output, const vec3_t pos, const vec3_t dir, const vec3_t up );
-	void     MatrixLookAtRH( matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up );
-	void     MatrixScaleTranslateToUnitCube( matrix_t m, const vec3_t mins, const vec3_t maxs );
-	void     MatrixCrop( matrix_t m, const vec3_t mins, const vec3_t maxs );
+  void     MatrixLookAtLH( matrix_t output, const vec3_t pos, const vec3_t dir, const vec3_t up );
+  void     MatrixLookAtRH( matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up );
+  void     MatrixScaleTranslateToUnitCube( matrix_t m, const vec3_t mins, const vec3_t maxs );
+  void     MatrixCrop( matrix_t m, const vec3_t mins, const vec3_t maxs );
 
-	STATIC_INLINE void AnglesToMatrix( const vec3_t angles, matrix_t m ) IFDECLARE
+  STATIC_INLINE void AnglesToMatrix( const vec3_t angles, matrix_t m ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		MatrixFromAngles( m, angles[ PITCH ], angles[ YAW ], angles[ ROLL ] );
-	}
+  {
+    MatrixFromAngles( m, angles[ PITCH ], angles[ YAW ], angles[ ROLL ] );
+  }
 #endif
 
 
@@ -1019,181 +1019,181 @@ void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
 
 #define QuatCompare(a,b)   (( a )[ 0 ] == ( b )[ 0 ] && ( a )[ 1 ] == ( b )[ 1 ] && ( a )[ 2 ] == ( b )[ 2 ] && ( a )[ 3 ] == ( b )[ 3 ] )
 
-	STATIC_INLINE void QuatClear( quat_t q ) IFDECLARE
+  STATIC_INLINE void QuatClear( quat_t q ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		q[ 0 ] = 0;
-		q[ 1 ] = 0;
-		q[ 2 ] = 0;
-		q[ 3 ] = 1;
-	}
+  {
+    q[ 0 ] = 0;
+    q[ 1 ] = 0;
+    q[ 2 ] = 0;
+    q[ 3 ] = 1;
+  }
 #endif
 
-	STATIC_INLINE void QuatZero( quat_t o ) IFDECLARE
+  STATIC_INLINE void QuatZero( quat_t o ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		o[ 0 ] = 0.0f;
-		o[ 1 ] = 0.0f;
-		o[ 2 ] = 0.0f;
-		o[ 3 ] = 0.0f;
-	}
+  {
+    o[ 0 ] = 0.0f;
+    o[ 1 ] = 0.0f;
+    o[ 2 ] = 0.0f;
+    o[ 3 ] = 0.0f;
+  }
 #endif
 
-	STATIC_INLINE void QuatAdd( const quat_t p, const quat_t q,
-				    quat_t o ) IFDECLARE
+  STATIC_INLINE void QuatAdd( const quat_t p, const quat_t q,
+            quat_t o ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		o[ 0 ] = p[ 0 ] + q[ 0 ];
-		o[ 1 ] = p[ 1 ] + q[ 1 ];
-		o[ 2 ] = p[ 2 ] + q[ 2 ];
-		o[ 3 ] = p[ 3 ] + q[ 3 ];
-	}
+  {
+    o[ 0 ] = p[ 0 ] + q[ 0 ];
+    o[ 1 ] = p[ 1 ] + q[ 1 ];
+    o[ 2 ] = p[ 2 ] + q[ 2 ];
+    o[ 3 ] = p[ 3 ] + q[ 3 ];
+  }
 #endif
 
-	STATIC_INLINE void QuatMA( const quat_t p, float f, const quat_t q,
-				   quat_t o ) IFDECLARE
+  STATIC_INLINE void QuatMA( const quat_t p, float f, const quat_t q,
+           quat_t o ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		o[ 0 ] = p[ 0 ] + f * q[ 0 ];
-		o[ 1 ] = p[ 1 ] + f * q[ 1 ];
-		o[ 2 ] = p[ 2 ] + f * q[ 2 ];
-		o[ 3 ] = p[ 3 ] + f * q[ 3 ];
-	}
+  {
+    o[ 0 ] = p[ 0 ] + f * q[ 0 ];
+    o[ 1 ] = p[ 1 ] + f * q[ 1 ];
+    o[ 2 ] = p[ 2 ] + f * q[ 2 ];
+    o[ 3 ] = p[ 3 ] + f * q[ 3 ];
+  }
 #endif
 
-	/*
-	STATIC_INLINE int QuatCompare(const quat_t a, const quat_t b) IFDECLARE
+  /*
+  STATIC_INLINE int QuatCompare(const quat_t a, const quat_t b) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-	        if(a[0] != b[0] || a[1] != b[1] || a[2] != b[2] || a[3] != b[3])
-	        {
-	                return 0;
-	        }
-	        return 1;
-	}
+  {
+          if(a[0] != b[0] || a[1] != b[1] || a[2] != b[2] || a[3] != b[3])
+          {
+                  return 0;
+          }
+          return 1;
+  }
 #endif
-	*/
+  */
 
-	STATIC_INLINE void QuatCalcW( quat_t q ) IFDECLARE
+  STATIC_INLINE void QuatCalcW( quat_t q ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
+  {
 #if 1
-		vec_t term = 1.0f - ( q[ 0 ] * q[ 0 ] + q[ 1 ] * q[ 1 ] + q[ 2 ] * q[ 2 ] );
+    vec_t term = 1.0f - ( q[ 0 ] * q[ 0 ] + q[ 1 ] * q[ 1 ] + q[ 2 ] * q[ 2 ] );
 
-		if ( term < 0.0 )
-		{
-			q[ 3 ] = 0.0;
-		}
-		else
-		{
-			q[ 3 ] = -sqrt( term );
-		}
+    if ( term < 0.0 )
+    {
+      q[ 3 ] = 0.0;
+    }
+    else
+    {
+      q[ 3 ] = -sqrt( term );
+    }
 
 #else
-		q[ 3 ] = sqrt( fabs( 1.0f - ( q[ 0 ] * q[ 0 ] + q[ 1 ] * q[ 1 ] + q[ 2 ] * q[ 2 ] ) ) );
+    q[ 3 ] = sqrt( fabs( 1.0f - ( q[ 0 ] * q[ 0 ] + q[ 1 ] * q[ 1 ] + q[ 2 ] * q[ 2 ] ) ) );
 #endif
-	}
+  }
 #endif
 
-	STATIC_INLINE void QuatInverse( quat_t q ) IFDECLARE
+  STATIC_INLINE void QuatInverse( quat_t q ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		q[ 0 ] = -q[ 0 ];
-		q[ 1 ] = -q[ 1 ];
-		q[ 2 ] = -q[ 2 ];
-	}
+  {
+    q[ 0 ] = -q[ 0 ];
+    q[ 1 ] = -q[ 1 ];
+    q[ 2 ] = -q[ 2 ];
+  }
 #endif
 
-	STATIC_INLINE void QuatAntipodal( quat_t q ) IFDECLARE
+  STATIC_INLINE void QuatAntipodal( quat_t q ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		q[ 0 ] = -q[ 0 ];
-		q[ 1 ] = -q[ 1 ];
-		q[ 2 ] = -q[ 2 ];
-		q[ 3 ] = -q[ 3 ];
-	}
+  {
+    q[ 0 ] = -q[ 0 ];
+    q[ 1 ] = -q[ 1 ];
+    q[ 2 ] = -q[ 2 ];
+    q[ 3 ] = -q[ 3 ];
+  }
 #endif
 
-	STATIC_INLINE vec_t QuatLength( const quat_t q ) IFDECLARE
+  STATIC_INLINE vec_t QuatLength( const quat_t q ) IFDECLARE
 #ifdef Q3_VM_INSTANTIATE
-	{
-		return ( vec_t ) sqrt( q[ 0 ] * q[ 0 ] + q[ 1 ] * q[ 1 ] + q[ 2 ] * q[ 2 ] + q[ 3 ] * q[ 3 ] );
-	}
+  {
+    return ( vec_t ) sqrt( q[ 0 ] * q[ 0 ] + q[ 1 ] * q[ 1 ] + q[ 2 ] * q[ 2 ] + q[ 3 ] * q[ 3 ] );
+  }
 #endif
 
-	vec_t QuatNormalize( quat_t q );
+  vec_t QuatNormalize( quat_t q );
 
-	void  QuatFromAngles( quat_t q, vec_t pitch, vec_t yaw, vec_t roll );
+  void  QuatFromAngles( quat_t q, vec_t pitch, vec_t yaw, vec_t roll );
 
-	STATIC_INLINE void AnglesToQuat( const vec3_t angles, quat_t q )
+  STATIC_INLINE void AnglesToQuat( const vec3_t angles, quat_t q )
 #ifdef Q3_VM_INSTANTIATE
-	{
-		QuatFromAngles( q, angles[ PITCH ], angles[ YAW ], angles[ ROLL ] );
-	}
+  {
+    QuatFromAngles( q, angles[ PITCH ], angles[ YAW ], angles[ ROLL ] );
+  }
 #endif
 
-	void QuatFromMatrix( quat_t q, const matrix_t m );
-	void QuatToVectorsFLU( const quat_t quat, vec3_t forward, vec3_t left, vec3_t up );
-	void QuatToVectorsFRU( const quat_t quat, vec3_t forward, vec3_t right, vec3_t up );
+  void QuatFromMatrix( quat_t q, const matrix_t m );
+  void QuatToVectorsFLU( const quat_t quat, vec3_t forward, vec3_t left, vec3_t up );
+  void QuatToVectorsFRU( const quat_t quat, vec3_t forward, vec3_t right, vec3_t up );
 
-	void QuatToAxis( const quat_t q, vec3_t axis[ 3 ] );
-	void QuatToAngles( const quat_t q, vec3_t angles );
+  void QuatToAxis( const quat_t q, vec3_t axis[ 3 ] );
+  void QuatToAngles( const quat_t q, vec3_t angles );
 
 // Quaternion multiplication, analogous to the matrix multiplication routines.
 
 // qa = rotate by qa, then qb
-	void QuatMultiply0( quat_t qa, const quat_t qb );
+  void QuatMultiply0( quat_t qa, const quat_t qb );
 
 // qc = rotate by qa, then qb
-	void QuatMultiply1( const quat_t qa, const quat_t qb, quat_t qc );
+  void QuatMultiply1( const quat_t qa, const quat_t qb, quat_t qc );
 
 // qc = rotate by qa, then by inverse of qb
-	void QuatMultiply2( const quat_t qa, const quat_t qb, quat_t qc );
+  void QuatMultiply2( const quat_t qa, const quat_t qb, quat_t qc );
 
 // qc = rotate by inverse of qa, then by qb
-	void QuatMultiply3( const quat_t qa, const quat_t qb, quat_t qc );
+  void QuatMultiply3( const quat_t qa, const quat_t qb, quat_t qc );
 
 // qc = rotate by inverse of qa, then by inverse of qb
-	void QuatMultiply4( const quat_t qa, const quat_t qb, quat_t qc );
+  void QuatMultiply4( const quat_t qa, const quat_t qb, quat_t qc );
 
-	void QuatSlerp( const quat_t from, const quat_t to, float frac, quat_t out );
-	void QuatTransformVector( const quat_t q, const vec3_t in, vec3_t out );
-	void QuatTransformVectorInverse( const quat_t q, const vec3_t in, vec3_t out );
+  void QuatSlerp( const quat_t from, const quat_t to, float frac, quat_t out );
+  void QuatTransformVector( const quat_t q, const vec3_t in, vec3_t out );
+  void QuatTransformVectorInverse( const quat_t q, const vec3_t in, vec3_t out );
 
 //=============================================
 // combining Transformations
 
 #ifndef	USING_SSE_MATH
-	void TransInit( transform_t *t );
-	void TransCopy( const transform_t *in, transform_t *out );
+  void TransInit( transform_t *t );
+  void TransCopy( const transform_t *in, transform_t *out );
 
-	void TransformPoint( const transform_t *t, const vec3_t in, vec3_t out );
-	void TransformPointInverse( const transform_t *t, const vec3_t in, vec3_t out );
-	void TransformNormalVector( const transform_t *t, const vec3_t in, vec3_t out );
-	void TransformNormalVectorInverse( const transform_t *t, const vec3_t in, vec3_t out );
+  void TransformPoint( const transform_t *t, const vec3_t in, vec3_t out );
+  void TransformPointInverse( const transform_t *t, const vec3_t in, vec3_t out );
+  void TransformNormalVector( const transform_t *t, const vec3_t in, vec3_t out );
+  void TransformNormalVectorInverse( const transform_t *t, const vec3_t in, vec3_t out );
 
-	void TransInitRotationQuat( const quat_t quat, transform_t *t );
-	void TransInitRotation( const vec3_t axis, float angle,
-				transform_t *t );
-	void TransInitTranslation( const vec3_t vec, transform_t *t );
-	void TransInitScale( float factor, transform_t *t );
+  void TransInitRotationQuat( const quat_t quat, transform_t *t );
+  void TransInitRotation( const vec3_t axis, float angle,
+        transform_t *t );
+  void TransInitTranslation( const vec3_t vec, transform_t *t );
+  void TransInitScale( float factor, transform_t *t );
 
-	void TransInsRotationQuat( const quat_t quat, transform_t *t );
-	void TransInsRotation( const vec3_t axis, float angle, transform_t *t );
-	void TransAddRotationQuat( const quat_t quat, transform_t *t );
-	void TransAddRotation( const vec3_t axis, float angle, transform_t *t );
-	void TransInsScale( float factor, transform_t *t );
-	void TransAddScale( float factor, transform_t *t );
-	void TransInsTranslation( const vec3_t vec, transform_t *t );
-	void TransAddTranslation( const vec3_t vec, transform_t *t );
+  void TransInsRotationQuat( const quat_t quat, transform_t *t );
+  void TransInsRotation( const vec3_t axis, float angle, transform_t *t );
+  void TransAddRotationQuat( const quat_t quat, transform_t *t );
+  void TransAddRotation( const vec3_t axis, float angle, transform_t *t );
+  void TransInsScale( float factor, transform_t *t );
+  void TransAddScale( float factor, transform_t *t );
+  void TransInsTranslation( const vec3_t vec, transform_t *t );
+  void TransAddTranslation( const vec3_t vec, transform_t *t );
 
-	void TransCombine( const transform_t *a, const transform_t *b,
-			   transform_t *c );
-	void TransInverse( const transform_t *in, transform_t *out );
+  void TransCombine( const transform_t *a, const transform_t *b,
+         transform_t *c );
+  void TransInverse( const transform_t *in, transform_t *out );
 
-	void TransStartLerp( transform_t *t );
-	void TransAddWeight( float weight, const transform_t *a, transform_t *t );
-	void TransEndLerp( transform_t *t );
+  void TransStartLerp( transform_t *t );
+  void TransAddWeight( float weight, const transform_t *a, transform_t *t );
+  void TransEndLerp( transform_t *t );
 #endif
 
 #endif //hypov8 end merge:
@@ -1831,14 +1831,14 @@ typedef struct playerState_s
 
   int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
 
-				// weapon info
+        // weapon info
   int			weapon;			// copied to entityState_t->weapon
   int			weaponstate;
 
   vec3_t		viewangles;		// for fixed views
   int			viewheight;
 
-  
+
   // damage feedback
   int			damageEvent;	// when it changes, latch the other parms
   int			damageYaw;
@@ -1853,7 +1853,7 @@ typedef struct playerState_s
 
   vec3_t		grapplePoint;	// location of grapple to pull towards if PMF_GRAPPLE_PULL
   int			weaponAnim;		// mask off ANIM_TOGGLEBIT //daemon .50
- 
+
   int			ammo_all[MAX_WEAPONS];	// bullets left on player total
   int			ammo_mag[MAX_WEAPONS];	// bullets left in gun/mag
   int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out// //hypov8 todo: sent as short int. is level.time to long??
@@ -2036,7 +2036,7 @@ typedef struct entityState_s
 
   int		solid;			    // for client side prediction, trap_linkentity sets this properly
 
-		// old style events, in for compatibility only
+    // old style events, in for compatibility only
   int		event;			    // impulse events -- muzzle flashes, footsteps, etc
   int		eventParm;
 
