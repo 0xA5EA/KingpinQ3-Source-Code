@@ -571,7 +571,7 @@ gitem_t bg_itemlist[] =
   /*QUAKED item_pistol_fire_mod (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    #26  */
   {
 			"item_pistol_fire_mod",
-			"",/*sound/misc/w_pkup.ogg*/
+			"sound/misc/w_pkup.ogg",
 			{
 				"models/pu_icon/ro_fire_mod/tris.md3",
 				0, 0, 0, 0,
