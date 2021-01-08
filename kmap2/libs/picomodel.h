@@ -161,6 +161,7 @@ struct picoModel_s
 	picoSurface_t				**surface;
 	
 	const picoModule_t			*module;		/* sea */
+	int vertNormExist;			/*add hypov8 ToDo: 2 = use uv island smoothing*/
 };
 
 

@@ -75,6 +75,8 @@ extern "C"
 #define PICO_IOEOF	1
 #define PICO_IOERR	2
 
+//#define FLOATON1 // add hypov8 compiler errors with float?
+
 /* types */
 typedef struct picoParser_s
 {
@@ -143,7 +145,11 @@ void 			_pico_expand_bounds( picoVec3_t p, picoVec3_t mins, picoVec3_t maxs );
 void 			_pico_zero_vec( picoVec3_t vec );
 void 			_pico_zero_vec2( picoVec2_t vec );
 void 			_pico_zero_vec4( picoVec4_t vec );
-void 			_pico_set_vec( picoVec3_t v, float a, float b, float c );
+#ifdef FLOATON1 // hypov8 double float error
+void 			_pico_set_vec( picoVec3_t v, float a, float b, float c ); /*hypov8 float to double*/
+#else
+void 			_pico_set_vec( picoVec3_t v, double a, double b, double c ); /*hypov8 float to double*/
+#endif
 void 			_pico_set_vec4( picoVec4_t v, float a, float b, float c, float d );
 void			_pico_set_color( picoColor_t c, int r, int g, int b, int a );
 void 			_pico_copy_color( picoColor_t src, picoColor_t dest );
@@ -166,6 +172,10 @@ float			_pico_big_float( float src );
 int 			_pico_little_long( int src );
 short 			_pico_little_short( short src );
 float 			_pico_little_float( float src );
+#ifndef FLOATON1
+	double			_pico_little_double( double src ); /*float to double hypov8*/	
+#endif
+
 
 /* pico ascii parser */
 picoParser_t 	*_pico_new_parser( picoByte_t *buffer, int bufSize );

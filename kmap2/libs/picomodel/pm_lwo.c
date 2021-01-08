@@ -432,6 +432,7 @@ static picoModel_t *_lwo_load( PM_PARAMS_LOAD )
 	convert_elapsed = (double)(convert_finish - convert_start) / CLOCKS_PER_SEC;
 	_pico_printf( PICO_NORMAL, "Loaded model in in %-.2f second(s) (loading: %-.2fs converting: %-.2fs)\n", load_elapsed + convert_elapsed, load_elapsed, convert_elapsed  );
 #endif
+	picoModel->vertNormExist = 2; //hypov8 ToDo: use uv islands to smooth LWO formats or set smoothangle?
 
 	/* return the new pico model */
 	return picoModel;

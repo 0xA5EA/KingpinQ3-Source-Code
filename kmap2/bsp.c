@@ -34,7 +34,8 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "q3map2.h"
+//#include "q3map2.h" 
+#include "kmap2.h" //add hypov8
 
 
 
@@ -300,7 +301,7 @@ static void DrawPortal(portal_t * p, qboolean areaportal)
 static void DrawTreePortals_r(node_t * node)
 {
 	int             s;
-	portal_t       *p, *nextp;
+	portal_t       *p/*, *nextp*/;
 	winding_t      *w;
 	if(node->planenum != PLANENUM_LEAF)
 	{
@@ -329,7 +330,7 @@ static void DrawTreePortals(void)
 }
 static void DrawTreeNodes_r(node_t * node)
 {
-	int             i, s;
+	int             i/*, s*/;
 	brush_t        *b;
 	winding_t      *w;
 	vec4_t			nodeColor = {1, 1, 0, 0.3};
@@ -390,8 +391,8 @@ void ProcessWorldModel(void)
 	tree_t         *tree;
 	face_t         *faces;
 	qboolean        ignoreLeaks, leaked;
-	xmlNodePtr      polyline, leaknode;
-	char            level[2], shader[1024];
+	/*xmlNodePtr      polyline, leaknode;*/
+	char            /*level[2],*/ shader[1024];
 	const char     *value;
 
 

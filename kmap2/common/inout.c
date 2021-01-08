@@ -50,7 +50,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // utf8 conversion
 #include <glib.h>
-#include <glib.h>
 
 #ifdef WIN32
 HWND            hwndOut = NULL;

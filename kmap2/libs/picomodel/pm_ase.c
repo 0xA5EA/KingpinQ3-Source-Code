@@ -537,6 +537,7 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 
 	aseMaterial_t* materials = NULL;
 
+	printf("loading.... %s\n", fileName); //add hypov8 display models loaded. helps detect faluty model/materal
 #ifdef DEBUG_PM_ASE
 	clock_t start, finish;
 	double elapsed;
@@ -695,6 +696,8 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 		{
 			int			index;
 
+			model->vertNormExist = 1; //add hypov8
+
 			if( numVertices == 0 )
 				_ase_error_return("Vertex parse error");
 
@@ -703,6 +706,9 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 				_ase_error_return("Vertex parse error");
 			if (!_pico_parse_vec( p,vertices[index].normal ))
 				_ase_error_return("Vertex parse error");
+			//hypov8 some models need to reset xform b4 export or else normals r screwed
+			//use force smooth instead if model cant be edited
+
 		}
 		/* model mesh face */
 		else if (!_pico_stricmp(p->token,"*mesh_face"))
@@ -811,6 +817,7 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 		{
 			int			index;
 			float		colorInput;
+			float		R, G, B; //hypov8 add. use 0-255
 
 			if( numVertices == 0 )
 				_ase_error_return("Color Vertex parse error");
@@ -823,19 +830,24 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 			if (!_pico_parse_float( p,&colorInput ))
 				_ase_error_return("Color vertex parse error");
 			colors[index].color[0] = (picoByte_t)(colorInput * 255);
+			R = colorInput * 255; //hypov8 add.
+
 
 			/* get G component */
 			if (!_pico_parse_float( p,&colorInput ))
 				_ase_error_return("Color vertex parse error");
 			colors[index].color[1] = (picoByte_t)(colorInput * 255);
+			G = colorInput * 255; //hypov8 add.
 
 			/* get B component */
 			if (!_pico_parse_float( p,&colorInput ))
 				_ase_error_return("Color vertex parse error");
 			colors[index].color[2] = (picoByte_t)(colorInput * 255);
+			B = colorInput * 255; //hypov8 add.
+
+			/* hypov8 combine RGB to get a fake alpha color. For terrain*/
+			colors[index].color[3] = (picoByte_t) ((R+G+B)/3);
 			
-			/* leave alpha alone since we don't get any data from the ASE format */
-			colors[index].color[3] = 255;
 		}
 		/* model color face */
 		else if (!_pico_stricmp(p->token,"*mesh_cface"))
@@ -997,9 +1009,9 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 						_ase_error_return("Material color parse error");
 
 					/* setup 0..255 range color values */
-					ambientColor[ 0 ] = (int)( vec[ 0 ] * 255.0 );
-					ambientColor[ 1 ] = (int)( vec[ 1 ] * 255.0 );
-					ambientColor[ 2 ] = (int)( vec[ 2 ] * 255.0 );
+					ambientColor[ 0 ] = (int)( 255 );//( vec[ 0 ] * 255.0 ); /*hypov8 set full bright*/
+					ambientColor[ 1 ] = (int)( 255 );//( vec[ 1 ] * 255.0 ); /*hypov8 set full bright*/
+					ambientColor[ 2 ] = (int)( 255 );//( vec[ 2 ] * 255.0 ); /*hypov8 set full bright*/
 					ambientColor[ 3 ] = (int)( 255 );
 
 					/* skip rest and continue with next token */
@@ -1016,9 +1028,9 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 						_ase_error_return("Material color parse error");
 
 					/* setup 0..255 range color */
-					diffuseColor[ 0 ] = (int)( vec[ 0 ] * 255.0 );
-					diffuseColor[ 1 ] = (int)( vec[ 1 ] * 255.0 );
-					diffuseColor[ 2 ] = (int)( vec[ 2 ] * 255.0 );
+					diffuseColor[ 0 ] = (int)( 255 );//( vec[ 2 ] * 255.0 ); /*hypov8 set full bright*/
+					diffuseColor[ 1 ] = (int)( 255 );//( vec[ 2 ] * 255.0 ); /*hypov8 set full bright*/
+					diffuseColor[ 2 ] = (int)( 255 );//( vec[ 2 ] * 255.0 ); /*hypov8 set full bright*/
 					diffuseColor[ 3 ] = (int)( 255 );
 
 					/* skip rest and continue with next token */
@@ -1035,15 +1047,18 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 						_ase_error_return("Material color parse error");
 
 					/* setup 0..255 range color */
-					specularColor[ 0 ] = (int)( vec[ 0 ] * 255 );
-					specularColor[ 1 ] = (int)( vec[ 1 ] * 255 );
-					specularColor[ 2 ] = (int)( vec[ 2 ] * 255 );
+					specularColor[ 0 ] = (int)( 255 );//( vec[ 2 ] * 255.0 ); /*hypov8 set full bright*/
+					specularColor[ 1 ] = (int)( 255 );//( vec[ 2 ] * 255.0 ); /*hypov8 set full bright*/
+					specularColor[ 2 ] = (int)( 255 );//( vec[ 2 ] * 255.0 ); /*hypov8 set full bright*/
 					specularColor[ 3 ] = (int)( 255 );
 
 					/* skip rest and continue with next token */
 					_pico_parse_skip_rest( p );
 					continue;
 				}
+#if 0 //hypov8 disable bitmap. max uses this to search for file.
+		//change roots name (*MATERIAL_NAME)
+
 				/* material diffuse map */
 				else if (!_pico_stricmp(p->token,"*map_diffuse") )
 				{
@@ -1076,6 +1091,7 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 					}
 				}
 				/* end map_diffuse block */
+#endif
 			}
 			/* end material block */
 
@@ -1133,7 +1149,8 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
           /* find game root */
           for(; *p != '\0'; ++p)
           {
-            if(_pico_strnicmp(p, "quake", 5) == 0 || _pico_strnicmp(p, "doom", 4) == 0)
+            //if(_pico_strnicmp(p, "quake", 5) == 0 || _pico_strnicmp(p, "doom", 4) == 0)
+			if(!_pico_strnicmp(p, "kingpinq3", 9) == 0 || _pico_strnicmp(p, "kingpin", 6) == 0) //add hypov8 
             {
               break;
             }

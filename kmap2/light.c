@@ -1773,9 +1773,9 @@ void LightWorld(void)
 	vec3_t          color;
 	float           f;
 	int             b, bt;
-	qboolean        minVertex, minGrid, ps;
+	qboolean        minVertex, minGrid/*, ps*/;
 	const char     *value;
-
+	int tmpThreads; //add hypov8: set threadd to 1 to fix overlapping patches
 
 	/* ydnar: smooth normals */
 	if(shade)
@@ -1861,11 +1861,15 @@ void LightWorld(void)
 	subdivideThreshold *= subdivideThreshold;
 
 	/* map the world luxels */
-	Sys_Printf("--- MapRawLightmap ---\n");
+	Sys_Printf("--- MapRawLightmap ---\n"); 	//Bug #89
+	tmpThreads = numthreads; //hypov8 work around for patch not having corect uv space on multi threads
+	numthreads = 1;
+
 	RunThreadsOnIndividual(numRawLightmaps, qtrue, MapRawLightmap);
 	Sys_Printf("%9d luxels\n", numLuxels);
 	Sys_Printf("%9d luxels mapped\n", numLuxelsMapped);
 	Sys_Printf("%9d luxels occluded\n", numLuxelsOccluded);
+	numthreads = tmpThreads; //hypov8 reset to multi thread setting
 
 	/* dirty them up */
 	if(dirty)

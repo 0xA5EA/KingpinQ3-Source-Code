@@ -27,91 +27,84 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // a given brush can contribute multiple content bits
 
 // these definitions also need to be in q_shared.h!
+#define	CONTENTS_SOLID				0x00000001	/*1*/	// an eye is never valid in a solid
+#define CONTENTS_OPAQUE				0x00000002	/*2*/	//  ydnar flags
+#define CONTENTS_LIGHTGRID			0x00000004	/*4*/	//  ydnar flags
+#define	CONTENTS_LAVA				0x00000008	/*8*/
+#define	CONTENTS_SLIME				0x00000010	/*16*/
+#define	CONTENTS_WATER				0x00000020	/*32*/
+#define	CONTENTS_FOG				0x00000040	/*64*/
+#define CONTENTS_NOTTEAM1			0x00000080	/*128*/
+#define CONTENTS_NOTTEAM2			0x00000100	/*256*/
+#define CONTENTS_NOBOTCLIP			0x00000200	/*512*/
+#define CONTENTS_LADDER				0x00000400	/*1024*/	//1024	//0x100000000  //FIXME: 0xA5EA, added for bsp build
+//#define CONTENTS_ITEM				0x00000800	/*2048*/	//unused
+//#define CONTENTS_AI_NOSIGHT		0x00001000	/*4096*/	//unused
+//#define CONTENTS_CLIPSHOT			0x00002000	/*8192*/	//unused
+#define	CONTENTS_MISSILECLIP 		0x00004000	/*16384*/	// add hypov8
+#define	CONTENTS_AREAPORTAL			0x00008000	/*32768*/
+#define	CONTENTS_PLAYERCLIP			0x00010000	/*65536*/
+#define	CONTENTS_MONSTERCLIP		0x00020000	/*131072*/
+#define	CONTENTS_TELEPORTER			0x00040000	/*262144*/ //bot specific contents types
+#define	CONTENTS_JUMPPAD			0x00080000	/*524288*/	
+#define CONTENTS_CLUSTERPORTAL		0x00100000	/*1048576*/
+#define CONTENTS_DONOTENTER			0x00200000	/*2097152*/
+#define CONTENTS_BOTCLIP			0x00400000	/*4194304*/
+#define CONTENTS_MOVER				0x00800000	/*8388608*/
+#define	CONTENTS_ORIGIN				0x01000000	/*16777216*/	// removed before bsping an entity
+#define	CONTENTS_BODY				0x02000000	/*33554432*/	// should never be on a brush, only in game
+#define	CONTENTS_CORPSE				0x04000000	/*67108864*/
+#define	CONTENTS_DETAIL				0x08000000	/*134217728*/	// brushes not used for the bsp
+#define	CONTENTS_STRUCTURAL			0x10000000	/*268435456*/	// brushes used for the bsp
+#define	CONTENTS_TRANSLUCENT		0x20000000	/*536870912*/	// don't consume surface fragments inside
+#define	CONTENTS_TRIGGER			0x40000000	/*1073741824*/
+#define	CONTENTS_NODROP				0x80000000	/*2147483648*/	// don't leave bodies or items (death fog, lava)
 
-#define	CONTENTS_SOLID			1	// an eye is never valid in a solid
-#define	CONTENTS_LAVA			8
-#define	CONTENTS_SLIME			16
-#define	CONTENTS_WATER			32
-#define	CONTENTS_FOG			64
-
-#define CONTENTS_NOTTEAM1		0x0080
-#define CONTENTS_NOTTEAM2		0x0100
-#define CONTENTS_NOBOTCLIP		0x0200
-
-#define	CONTENTS_AREAPORTAL		0x8000
-
-#define	CONTENTS_PLAYERCLIP		0x10000
-#define	CONTENTS_MONSTERCLIP	0x20000
-//bot specific contents types
-#define	CONTENTS_TELEPORTER		0x40000
-#define	CONTENTS_JUMPPAD		0x80000
-#define CONTENTS_CLUSTERPORTAL	0x100000
-#define CONTENTS_DONOTENTER		0x200000
-#define CONTENTS_BOTCLIP		0x400000
-#define CONTENTS_MOVER			0x800000
-
-#define	CONTENTS_ORIGIN			0x1000000	// removed before bsping an entity
-
-#define	CONTENTS_BODY			0x2000000	// should never be on a brush, only in game
-#define	CONTENTS_CORPSE			0x4000000
-#define	CONTENTS_DETAIL			0x8000000	// brushes not used for the bsp
-#define	CONTENTS_STRUCTURAL		0x10000000	// brushes used for the bsp
-#define	CONTENTS_TRANSLUCENT	0x20000000	// don't consume surface fragments inside
-#define	CONTENTS_TRIGGER		0x40000000
-#define	CONTENTS_NODROP			0x80000000	// don't leave bodies or items (death fog, lava)
-
-#define	SURF_NODAMAGE			0x1	// never give falling damage
-#define	SURF_SLICK				0x2	// effects game physics
-#define	SURF_SKY				0x4	// lighting from environment map
-#define	SURF_LADDER				0x8
-#define	SURF_NOIMPACT			0x10	// don't make missile explosions
-#define	SURF_NOMARKS			0x20	// don't leave missile marks
-#define	SURF_FLESH				0x40	// make flesh sounds and effects
-#define	SURF_NODRAW				0x80	// don't generate a drawsurface at all
-#define	SURF_HINT				0x100	// make a primary bsp splitter
-#define	SURF_SKIP				0x200	// completely ignore, allowing non-closed brushes
-#define	SURF_NOLIGHTMAP			0x400	// surface doesn't need a lightmap
-#define	SURF_POINTLIGHT			0x800	// generate lighting info at vertexes
-#define	SURF_METALSTEPS			0x1000	// clanking footsteps
-#define	SURF_NOSTEPS			0x2000	// no footstep sounds
-#define	SURF_NONSOLID			0x4000	// don't collide against curves with this set
-#define	SURF_LIGHTFILTER		0x8000	// act as a light filter during xmap -light
-#define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in xmap
-#define	SURF_COLLISION			0x20000	// don't draw but use for per polygon collision detection
-#define SURF_DUST				0x40000	// leave a dust trail when walking on this surface
-
-
-
-
-/* ydnar flags */
-
-#define CONTENTS_OPAQUE			0x02
-#define CONTENTS_LIGHTGRID		0x04
+#define	SURF_NODAMAGE				0x00000001	// never give falling damage
+#define	SURF_SLICK					0x00000002	// effects game physics
+#define	SURF_SKY					0x00000004	// lighting from environment map
+#define	SURF_LADDER					0x00000008
+#define	SURF_NOIMPACT				0x00000010	// don't make missile explosions
+#define	SURF_NOMARKS				0x00000020	// don't leave missile marks
+#define	SURF_FLESH					0x00000040	// make flesh sounds and effects
+#define	SURF_NODRAW					0x00000080	// don't generate a drawsurface at all
+#define	SURF_HINT					0x00000100	// make a primary bsp splitter
+#define	SURF_SKIP					0x00000200	// completely ignore, allowing non-closed brushes
+#define	SURF_NOLIGHTMAP				0x00000400	// surface doesn't need a lightmap
+#define	SURF_POINTLIGHT				0x00000800	// generate lighting info at vertexes
+#define	SURF_METALSTEPS				0x00001000	// clanking footsteps
+#define	SURF_NOSTEPS				0x00002000	// no footstep sounds
+#define	SURF_NONSOLID				0x00004000	// don't collide against curves with this set
+#define	SURF_LIGHTFILTER			0x00008000	// act as a light filter during q3map -light
+#define	SURF_ALPHASHADOW			0x00010000	// do per-pixel light shadow casting in q3map
+#define	SURF_COLLISION				0x00020000	// don't draw but use for per polygon collision detection
+#define SURF_DUST					0x00040000 // leave a dust trail when walking on this surface
+#define SURF_GRAVEL					0x00080000	// footsteps steps gravel
+#define SURF_METALLIGHT				0x00100000	// footsteps metal light
+#define SURF_RUG 					0x00200000	// footsteps steps rug
+#define SURF_SNOW					0x00400000	// footsteps steps snow
+#define SURF_WOOD					0x00800000	// footsteps steps wood
+#define SURF_ICE					0x01000000	// footsteps steps ice
+#define SURF_GRASS					0x02000000	// footsteps steps crass
+#define SURF_MARBLE					0x04000000	// footsteps steps marble
+#define SURF_TIN				    0x08000000	// footsteps steps tin
+#define SURF_GLASS					0x10000000	// glass damage marks
+//#define	SURF_					0x20000000	// unused
+//#define	SURF_					0x40000000	//unused
+//#define	SURF_					0x80000000	// unused
 
 #define SURF_VERTEXLIT			(SURF_POINTLIGHT | SURF_NOLIGHTMAP)
 
 
+//#define	CONTENTS_ITEM			0x100
+//#define	CONTENTS_AI_NOSIGHT		0x1000
+//#define	CONTENTS_CLIPSHOT		0x2000
+//#define	CONTENTS_DONOTENTER_LARGE	0x400000	/* CONTENTS_BOTCLIP */
 
-/* wolfenstein flags (collisions with valid q3a flags are noted) */
+//#define SURF_MONSTERSLICK			0x4000000
+//#define SURF_MONSLICK_W			0x8000000
+//#define SURF_MONSLICK_N			0x10000000
+//#define SURF_MONSLICK_E			0x20000000
+//#define SURF_MONSLICK_S			0x40000000
 
-#define	CONTENTS_MISSILECLIP	0x80
-#define CONTENTS_ITEM			0x100
-#define	CONTENTS_AI_NOSIGHT		0x1000
-#define	CONTENTS_CLIPSHOT		0x2000
-#define CONTENTS_DONOTENTER_LARGE	0x400000	/* CONTENTS_BOTCLIP */
 
-#define SURF_CERAMIC			0x40	/* SURF_FLESH */
-#define	SURF_METAL  			0x1000	/* SURF_METALSTEPS */
-#define	SURF_WOOD				0x40000	/* SURF_DUST */
-#define	SURF_GRASS				0x80000
-#define SURF_GRAVEL				0x100000
-#define SURF_GLASS				0x200000
-#define SURF_SNOW				0x400000
-#define SURF_ROOF				0x800000
-#define	SURF_RUBBLE				0x1000000
-#define	SURF_CARPET				0x2000000
-#define SURF_MONSTERSLICK		0x4000000
-#define SURF_MONSLICK_W			0x8000000
-#define SURF_MONSLICK_N			0x10000000
-#define SURF_MONSLICK_E			0x20000000
-#define SURF_MONSLICK_S			0x40000000

@@ -351,7 +351,11 @@ void _pico_expand_bounds( picoVec3_t p, picoVec3_t mins, picoVec3_t maxs )
 	int i;
 	for (i=0; i<3; i++)
 	{
+#ifdef FLOATON1
 		float value = p[i];
+#else
+		double value = p[i]; // hypov8 changed float to double
+#endif
 		if (value < mins[i]) mins[i] = value;
 		if (value > maxs[i]) maxs[i] = value;
 	}
@@ -372,7 +376,11 @@ void _pico_zero_vec4( picoVec4_t vec )
 	vec[ 0 ] = vec[ 1 ] = vec[ 2 ] = vec[ 3 ] = 0;
 }
 
+#ifdef FLOATON1
 void _pico_set_vec( picoVec3_t v, float a, float b, float c )
+#else
+		void _pico_set_vec( picoVec3_t v, double a, double b, double c ) /*hypov8 float to double*/
+#endif
 {
 	v[ 0 ] = a;
 	v[ 1 ] = b;
@@ -526,6 +534,10 @@ float _pico_little_float( float src )
 int   _pico_little_long ( int   src ) { return src; }
 short _pico_little_short( short src ) { return src; }
 float _pico_little_float( float src ) { return src; }
+#ifndef FLOATON1
+double _pico_little_double( double src ) { return src; } /*float to double hypov8*/		
+#endif
+
 	
 int _pico_big_long( int src )
 {
@@ -1111,7 +1123,12 @@ int _pico_parse_vec( picoParser_t *p, picoVec3_t out )
 			_pico_zero_vec( out );
 			return 0;
 		}
-		out[ i ] = (double) strtod( token, NULL );
+#ifdef FLOATON1
+		out[ i ] = (float) atof( token ); //note hypov8 float
+#else
+		out[ i ] = (double) strtod( token, NULL ); //note hypov8 converting to double...
+#endif
+		
 	}
 	/* success */
 	return 1;

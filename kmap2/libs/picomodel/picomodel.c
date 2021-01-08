@@ -1959,6 +1959,10 @@ void PicoFixSurfaceNormals(picoSurface_t* surface)
 
 	_pico_normals_zero(normals, normals + surface->numVertexes);
 
+#if 1 /* add hypov8. reset existing normals so it passes angle test below */
+	_pico_normals_zero(surface->normal, surface->normal + surface->numVertexes);
+#endif
+
 	_pico_triangles_generate_weighted_normals(surface->index, surface->index + surface->numIndexes, surface->xyz, normals);
 	_pico_vertices_combine_shared_normals(surface->xyz, surface->smoothingGroup, normals, surface->numVertexes);
 

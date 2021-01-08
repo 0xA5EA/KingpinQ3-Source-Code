@@ -34,7 +34,8 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "q3map2.h"
+//#include "q3map2.h"
+#include "kmap2.h" //add hypov8
 
 
 
@@ -1284,6 +1285,7 @@ static int AddMetaTriangleToSurface(mapDrawSurface_t * ds, metaTriangle_t * tri,
 	/* check vertex underflow */
 	if(ai < 0 || bi < 0 || ci < 0)
 	{
+		Sys_Printf("--- Model has cause error. to many verts for meta? ---\n"); //hypov8, this may cause shader issue ingame
 		memcpy(ds, &old, sizeof(*ds));
 		return 0;
 	}

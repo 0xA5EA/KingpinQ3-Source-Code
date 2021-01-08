@@ -44,7 +44,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 #endif
 #endif
 //FIXME (0xA5EA):
-# define KMAP_VERSION "2.5.17.18"
+# define KMAP_VERSION "2.5.17.19"
 
 
 typedef union {
@@ -87,6 +87,7 @@ dependencies
 #include <windows.h>
 #endif
 
+#include <glib.h> /* add hypov8 from q3map */
 
 /* general */
 //#include "version.h"          /* ttimo: might want to guard that if built outside of the GtkRadiant tree */
@@ -174,26 +175,26 @@ constants
 
 
 /* ydnar: compiler flags, because games have widely varying content/surface flags */
-#define C_SOLID					0x00000001
-#define C_TRANSLUCENT			0x00000002
-#define C_STRUCTURAL			0x00000004
-#define C_HINT					0x00000008
-#define C_NODRAW				0x00000010
-#define C_LIGHTGRID				0x00000020
-#define C_ALPHASHADOW			0x00000040
-#define C_LIGHTFILTER			0x00000080
-#define C_VERTEXLIT				0x00000100
-#define C_LIQUID				0x00000200
-#define C_FOG					0x00000400
-#define C_SKY					0x00000800
-#define C_ORIGIN				0x00001000
-#define C_AREAPORTAL			0x00002000
-#define C_ANTIPORTAL			0x00004000	/* like hint, but doesn't generate portals */
-#define C_SKIP					0x00008000	/* like hint, but skips this face (doesn't split bsp) */
-#define C_NOMARKS				0x00010000	/* no decals */
-#define C_COLLISION             0x00020000
+#define C_SOLID					0x00000001	//CONTENTS_SOLID			0x00000001	/*1*/
+#define C_TRANSLUCENT			0x00000002	//CONTENTS_TRANSLUCENT		0x20000000	/*536870912*/
+#define C_STRUCTURAL			0x00000004	//CONTENTS_STRUCTURAL		0x10000000	/*268435456*/
+#define C_HINT					0x00000008	//SURF_HINT					0x00000100
+#define C_NODRAW				0x00000010	//SURF_NODRAW				0x00000080
+#define C_LIGHTGRID				0x00000020	//CONTENTS_LIGHTGRID		0x00000004
+#define C_ALPHASHADOW			0x00000040	//SURF_ALPHASHADOW			0x00010000
+#define C_LIGHTFILTER			0x00000080	//SURF_LIGHTFILTER			0x00008000	
+#define C_VERTEXLIT				0x00000100	//SURF_VERTEXLIT			(SURF_POINTLIGHT | SURF_NOLIGHTMAP)
+#define C_LIQUID				0x00000200	//CONTENTS_WATER			0x00000020	/*32*/
+#define C_FOG					0x00000400	//CONTENTS_FOG				0x00000040	/*64*/
+#define C_SKY					0x00000800	//SURF_SKY					0x00000004
+#define C_ORIGIN				0x00001000	//CONTENTS_ORIGIN			0x01000000	/*16777216*/
+#define C_AREAPORTAL			0x00002000	//CONTENTS_AREAPORTAL		0x00008000	/*32768*/
+#define C_ANTIPORTAL			0x00004000	//																/* like hint, but doesn't generate portals */
+#define C_SKIP					0x00008000	//SURF_SKIP					0x00000200							/* like hint, but skips this face (doesn't split bsp) */
+#define C_NOMARKS				0x00010000	//SURF_NOMARKS				0x00000020							/* no decals */
+#define C_COLLISION             0x00020000	//SURF_COLLISION			0x00020000
 
-#define C_DETAIL				0x08000000	/* THIS MUST BE THE SAME AS IN RADIANT! */
+#define C_DETAIL				0x08000000	//CONTENTS_DETAIL			0x08000000	/*134217728*/		/* THIS MUST BE THE SAME AS IN RADIANT! */
 
 
 /* shadow flags */
@@ -324,7 +325,7 @@ abstracted bsp file
 #define EXTERNAL_HDRLIGHTMAP	"lm_%04d.hdr"
 
 #define USE_TGA_LIGHTMAP
-//#define USE_PNG_LIGHTMAP
+//#define USE_PNG_LIGHTMAP  //hypov8 enable?
 
 #if defined (USE_PNG_LIGHTMAP)
 #  define EXTERN_LIGHTMAP_FILE EXTERNAL_LIGHTMAP
@@ -372,8 +373,8 @@ abstracted bsp file
 #define	ANGLE_UP				        -1
 #define	ANGLE_DOWN				      -2
 
-#define	LIGHTMAP_WIDTH			    128
-#define	LIGHTMAP_HEIGHT			    128
+#define	LIGHTMAP_WIDTH			    1024 // was 128 hypov8 changed default
+#define	LIGHTMAP_HEIGHT			    1024 // was 128 hypov8 changed default
 
 #define MIN_WORLD_COORD			(-65536)
 #define	MAX_WORLD_COORD			(65536)
@@ -802,6 +803,7 @@ typedef struct shaderInfo_s
 	char            editorImagePath[MAX_QPATH];	/* use this image to generate texture coordinates */
 	char            lightImagePath[MAX_QPATH];	/* use this image to generate color / averageColor */
 	char            normalImagePath[MAX_QPATH];	/* ydnar: normalmap image for bumpmapping */
+	char            diffuseImagePath[MAX_QPATH];	/* hypov8 add diffuse to path for light */
 
 	implicitMap_t   implicitMap;	/* ydnar: enemy territory implicit shaders */
 	char            implicitImagePath[MAX_QPATH];
@@ -834,7 +836,7 @@ typedef struct shaderInfo_s
 	vec3_t          fogDir;		/* ydnar */
 
 	char           *shaderText;	/* ydnar */
-	qb_t            explicit;	/* Tr3B: .mtr material was found */
+	qb_t            explicitDef;	/* Tr3B: .mtr material was found */ /* hypov8 was 'explicit'*/
 	qb_t            custom;
 	qb_t            finished;
 }
@@ -1628,6 +1630,7 @@ brush_t        *FinishBrush(void);
 
 
 /* portals.c */
+winding_t      *BaseWindingForNode(node_t * node); /* add hypov8 q3map2 */
 void            MakeHeadnodePortals(tree_t * tree);
 void            MakeNodePortal(node_t * node);
 void            SplitNodePortals(node_t * node);
@@ -1697,7 +1700,8 @@ void            CreateMapFogs(void);
 /* facebsp.c */
 face_t         *MakeStructuralBSPFaceList(brush_t * list);
 face_t         *MakeVisibleBSPFaceList(brush_t * list);
-tree_t         *FaceBSP(face_t * list);
+tree_t         *FaceBSP(face_t * list, qboolean drawDebug); /* hypov8 copy from q3map3.h */
+															/* tree_t         *FaceBSP(face_t * list); */
 
 
 /* model.c */
@@ -1707,7 +1711,7 @@ picoModel_t    *FindModel(char *name, int frame);
 picoModel_t    *LoadModel(char *name, int frame);
 void            InsertModel(char *name, int frame, matrix_t fullTransform, matrix_t rotation, remap_t * remap,
 							shaderInfo_t * celShader, int eNum, int castShadows, int recvShadows, int spawnFlags,
-							float lightmapScale, int lightmapSampleSize, float shadeAngle);
+							float lightmapScale, int lightmapSampleSize, float shadeAngle, int vertNormInUse); /*add hypov8 manual smooth*/
 void            AddTriangleModel(entity_t * e);
 void            AddTriangleModels(entity_t * e);
 
@@ -1883,6 +1887,7 @@ image_t        *ImageLoad(const char *filename);
 
 /* shaders.c */
 void            ColorMod(colorMod_t * am, int numVerts, bspDrawVert_t * drawVerts);
+void			VertexAlphaFloat(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts); // hypov8 change vertex alpa mods to 0-1 scale
 
 void            TCMod(tcMod_t mod, float st[2]);
 void            TCModIdentity(tcMod_t mod);
@@ -1955,11 +1960,13 @@ void            WriteXBSPFile(const char *filename);
 
 
 /* gldraw.c */
-void            Draw_Winding(winding_t * w);
+void            Draw_Winding(winding_t * w, float r, float g, float b, float a); /* q3map2 */
+
 void            Draw_AuxWinding(winding_t * w);
 void            Draw_Scene(void (*drawFunc) (void));
 void            Draw_AuxWinding(winding_t * w);
 void			Draw_AABB(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color);
+void            Draw_Scene(void (*drawFunc) (void)); /* add hypov8 q3map2 */
 
 /* -------------------------------------------------------------------------------
 
@@ -2443,6 +2450,7 @@ abstracted bsp globals
 Q_EXTERN int				numEntities Q_ASSIGN( 0 );
 Q_EXTERN int				numBSPEntities Q_ASSIGN( 0 );
 Q_EXTERN entity_t			entities[ MAX_MAP_ENTITIES ];
+Q_EXTERN entity_t			convertDetailBrushesEntity; // add hypov8 q3map2.h 
 
 Q_EXTERN int				numBSPModels Q_ASSIGN( 0 );
 Q_EXTERN int				allocatedBSPModels Q_ASSIGN( 0 );

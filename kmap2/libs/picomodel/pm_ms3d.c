@@ -353,13 +353,13 @@ static picoModel_t *_ms3d_load( PM_PARAMS_LOAD )
 
 				/* store vertex origin */
 				//void PicoSetSurfaceNormal( picoSurface_t *surface, int num, picoVec3_t normal )
-				PicoSetSurfaceXYZ( surface,vertexIndex,vertex->xyz );
-
+				PicoSetSurfaceXYZ( surface,vertexIndex,(double*)vertex->xyz );
+				
 				/* store vertex color */
 				PicoSetSurfaceColor( surface,0,vertexIndex,white );
 
 				/* store vertex normal */
-				PicoSetSurfaceNormal( surface,vertexIndex,triangle->vertexNormals[ m ] );
+				PicoSetSurfaceNormal( surface,vertexIndex,(double*)triangle->vertexNormals[ m ] );
 
 				/* store current face vertex index */
 				PicoSetSurfaceIndex( surface,(k * 3 + (2 - m)),(picoIndex_t)vertexIndex );

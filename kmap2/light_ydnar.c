@@ -34,7 +34,8 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "q3map2.h"
+//#include "q3map2.h"
+#include "kmap2.h" //add hypov8
 
 
 
@@ -1174,7 +1175,7 @@ void MapRawLightmap(int rawLightmapNum)
 						dv[0] = &verts[bspDrawIndexes[ds->firstIndex + i]];
 						dv[1] = &verts[bspDrawIndexes[ds->firstIndex + i + 1]];
 						dv[2] = &verts[bspDrawIndexes[ds->firstIndex + i + 2]];
-						MapTriangle(lm, info, dv, mapNonAxial);
+						MapTriangle(lm, info, dv, (mapNonAxial==0)? qfalse : qtrue); //qboolean
 					}
 				}
 				break;

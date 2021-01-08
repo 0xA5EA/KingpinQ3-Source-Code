@@ -34,6 +34,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
+/*
+=======hypov8
+working obj support, was not loading material and crashing
+
+copied file from 
+nexuiz / netradiant
+
+git@gitorious.org:nexuiz/netradiant.git
+
+the shader paths does not contail forward slash, so need to manualy edit obj after export
+*/
+
+
+
+
+
+
+
 /* marker */
 #define PM_OBJ_C
 
@@ -190,7 +208,7 @@ static TObjVertexData *SizeObjVertexData(
 #endif
 		/* try to reallocate */
 		vertexData = (TObjVertexData *)
-			_pico_realloc( (void *)&vertexData,
+			_pico_realloc( (void **)&vertexData, /*add * hypov8. copy from source*/
 				sizeof(TObjVertexData) * (*allocated),
 				sizeof(TObjVertexData) * (newAllocated));
 
@@ -251,8 +269,11 @@ static int _obj_mtl_load( picoModel_t *model )
 	_pico_load_file( fileName,&mtlBuffer,&mtlBufSize );
 
 	/* check result */
-	if (mtlBufSize == 0) return 1;		/* file is empty: no error */
-	if (mtlBufSize  < 0) return 0;		/* load failed: error */
+	if (mtlBufSize == 0) {
+		return 1;	}	/* file is empty: no error */
+	if (mtlBufSize  < 0) {
+		_pico_printf( PICO_WARNING,"Missing mtl file for above model") ; //,fileName); //hypo
+		return 0;	}	/* load failed: error */
 
 	/* create a new pico parser */
 	p = _pico_new_parser( mtlBuffer, mtlBufSize );
@@ -265,7 +286,7 @@ static int _obj_mtl_load( picoModel_t *model )
 		/* get next token in material file */
 		if (_pico_parse( p,1 ) == NULL)
 			break;
-#if 0
+#if 1
 
 		/* skip empty lines */
 		if (p->token == NULL || !strlen( p->token ))
@@ -307,6 +328,7 @@ static int _obj_mtl_load( picoModel_t *model )
 		else if (!_pico_stricmp(p->token,"map_kd"))
 		{
 			char *mapName;
+			picoShader_t *shader;
 
 			/* pointer to current shader must be valid */
 			if (curShader == NULL)
@@ -321,6 +343,10 @@ static int _obj_mtl_load( picoModel_t *model )
 				_pico_printf( PICO_ERROR,"Missing material map name in MTL, line %d.",p->curLine);
 				_obj_mtl_error_return;
 			}
+			/* create a new pico shader */
+			shader = PicoNewShader( model );
+			if (shader == NULL)
+				_obj_mtl_error_return;
 			/* set shader map name */
 			PicoSetShaderMapName( shader,mapName );
 		}
@@ -359,14 +385,24 @@ static int _obj_mtl_load( picoModel_t *model )
 			 *   honestly, what's up with the 3d app coders? happens when
 			 *   you smoke too much weed i guess. -sea
 			 */
+#ifndef FLOATON1
 			float value;
+#else
+		double value; /* float to double hypov8*/
+#endif
+			
+			
 
 			/* pointer to current shader must be valid */
 			if (curShader == NULL)
 				_obj_mtl_error_return;
 
 			/* get totally screwed up shininess (a random value in fact ;) */
-			if (!_pico_parse_float( p,&value ))
+#ifndef FLOATON1
+		if (!_pico_parse_float( p,&value )) /*float to double hypov8*/
+#else
+		if (!_pico_parse_double( p,&value ))
+#endif
 				_obj_mtl_error_return;
 
 			/* okay, there is no way to set this correctly, so we simply */
@@ -374,16 +410,16 @@ static int _obj_mtl_load( picoModel_t *model )
 
 			/* assume 0..2048 range */
 			if (value > 1000)
-				value = 128.0 * (value / 2048.0);
+				value = 128.0f * (value / 2048.0f);
 			/* assume 0..1000 range */
 			else if (value > 200)
-				value = 128.0 * (value / 1000.0);
+				value = 128.0f * (value / 1000.0f);
 			/* assume 0..200 range */
 			else if (value > 100)
-				value = 128.0 * (value / 200.0);
+				value = 128.0f * (value / 200.0f);
 			/* assume 0..100 range */
 			else if (value > 1)
-				value = 128.0 * (value / 100.0);
+				value = 128.0f * (value / 100.0f);
 			/* assume 0..1 range */
 			else {
 				value *= 128.0;
@@ -495,6 +531,35 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 	int				curVertex	= 0;
 	int				curFace		= 0;
 
+	int mtl_FileExists;
+
+	int autoGroupNumber = 0;
+	char autoGroupNameBuf[64];
+
+	printf("loading.... %s\n", fileName);  //add hypov8 display models loaded. helps detect faluty model/materal
+
+#define AUTO_GROUPNAME(namebuf) \
+	sprintf(namebuf, "__autogroup_%d", autoGroupNumber++)
+#define NEW_SURFACE(name) \
+{ \
+	picoSurface_t *newSurface; \
+	/* allocate a pico surface */ \
+	newSurface = PicoNewSurface( model ); \
+	if (newSurface == NULL) \
+	_obj_error_return("Error allocating surface"); \
+	/* reset face index for surface */ \
+	curFace = 0; \
+	/* if we can, assign the previous shader to this surface */ \
+	if(curSurface) \
+		PicoSetSurfaceShader(newSurface, curSurface->shader); \
+	/* set ptr to current surface */ \
+	curSurface = newSurface; \
+	/* we use triangle meshes */ \
+	PicoSetSurfaceType( newSurface,PICO_TRIANGLES ); \
+	/* set surface name */ \
+	PicoSetSurfaceName( newSurface,name ); \
+}
+
 	/* helper */
 	#define _obj_error_return(m) \
 	{ \
@@ -521,8 +586,8 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 	PicoSetModelFileName( model,fileName );
 
 	/* try loading the materials; we don't handle the result */
-#if 0
-	_obj_mtl_load( model );
+#if 1
+	mtl_FileExists = _obj_mtl_load( model ); //hypov8
 #endif
 
 	/* parse obj line by line */
@@ -592,6 +657,8 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 			TObjVertexData *data;
 			picoVec3_t n;
 
+			model->vertNormExist = 1; /*add hypov8 */
+
 			vertexData = SizeObjVertexData( vertexData,numNormals+1,&entries,&allocated );
 			if (vertexData == NULL)
 				_obj_error_return("Realloc of vertex data failed (3)");
@@ -611,7 +678,6 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 		/* new group (for us this means a new surface) */
 		else if (!_pico_stricmp(p->token,"g"))
 		{
-			picoSurface_t *newSurface;
 			char *groupName;
 
 			/* get first group name (ignore 2nd,3rd,etc.) */
@@ -627,22 +693,15 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 				_obj_error_return("Invalid or missing group name");
 #endif
 			}
-			/* allocate a pico surface */
-			newSurface = PicoNewSurface( model );
-			if (newSurface == NULL)
-				_obj_error_return("Error allocating surface");
 
-			/* reset face index for surface */
-			curFace = 0;
-
-			/* set ptr to current surface */
-			curSurface = newSurface;
-
-			/* we use triangle meshes */
-			PicoSetSurfaceType( newSurface,PICO_TRIANGLES );
-
-			/* set surface name */
-			PicoSetSurfaceName( newSurface,groupName );
+			if(curFace == 0)
+			{
+				PicoSetSurfaceName( curSurface,groupName );
+			}
+			else
+			{
+				NEW_SURFACE(groupName);
+			}
 
 #ifdef DEBUG_PM_OBJ_EX
 			printf("Group: '%s'\n",groupName);
@@ -669,6 +728,13 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 			int slashcount;
 			int doubleslash;
 			int i;
+
+			if(curSurface == NULL)
+			{
+				_pico_printf( PICO_ERROR,"No group defined for faces, so creating an autoSurface in OBJ, line %d.",p->curLine);
+				AUTO_GROUPNAME(autoGroupNameBuf);
+				NEW_SURFACE(autoGroupNameBuf);
+			}
 
 			/* group defs *must* come before faces */
 			if (curSurface == NULL)
@@ -773,6 +839,9 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 					normals[ i ][ 0 ] = vertexData[ ivn[ i ] - 1 ].vn[ 0 ];
 					normals[ i ][ 1 ] = vertexData[ ivn[ i ] - 1 ].vn[ 1 ];
 					normals[ i ][ 2 ] = vertexData[ ivn[ i ] - 1 ].vn[ 2 ];
+					//hypov8 some models need to reset xform b4 export or else normals r screwed
+					//use force smooth instead if model cant be edited
+
 				}
 				/* set texture coordinate */
 				if (has_vt)
@@ -828,6 +897,49 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 				}
 				/* increase vertex count */
 				curVertex += max;
+			}
+		}
+		else if (!_pico_stricmp(p->token,"usemtl"))
+		{
+			picoShader_t *shader;
+			char *name;
+
+			/* get material name */
+			name = _pico_parse( p,0 );
+
+			if(curFace != 0 || curSurface == NULL)
+			{
+				_pico_printf( PICO_WARNING,"No group defined for usemtl, so creating an autoSurface in OBJ, line %d.",p->curLine);
+				AUTO_GROUPNAME(autoGroupNameBuf);
+				NEW_SURFACE(autoGroupNameBuf);
+			}
+
+			/* validate material name */
+			if (name == NULL || !strlen(name))
+			{
+				_pico_printf( PICO_ERROR,"Missing material name in OBJ, line %d.",p->curLine);
+			}
+			else
+			{
+				shader = PicoFindShader( model, name, 1 );
+				if (shader == NULL)
+				{
+					if (mtl_FileExists) //hypo only print when mtl exists but wrong
+						_pico_printf( PICO_ERROR,"Undefined material name in OBJ, line %d. Making a default shader.",p->curLine);
+
+					/* create a new pico shader */
+					shader = PicoNewShader( model );
+					if (shader != NULL)
+					{
+						PicoSetShaderName( shader,name );
+						PicoSetShaderMapName( shader,name );
+						PicoSetSurfaceShader( curSurface, shader );
+					}
+				}
+				else
+				{
+					PicoSetSurfaceShader( curSurface, shader );
+				}
 			}
 		}
 		/* skip unparsed rest of line and continue */

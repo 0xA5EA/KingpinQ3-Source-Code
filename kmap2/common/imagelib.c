@@ -1300,7 +1300,7 @@ void LoadJPGBuffer(const char *filename, byte * fbuffer, int fbufferSize, byte *
 	JSAMPARRAY      buffer;		/* Output row buffer */
 	unsigned        row_stride;	/* physical row width in output buffer */
 	unsigned        pixelcount;
-	unsigned char  *out, *out_converted;
+	unsigned char  *out/*, *out_converted*/;
 	byte           *bbuf;
 
 	/* In this example we want to open the input file before doing anything else,
@@ -1490,7 +1490,7 @@ void LoadPNGBuffer(byte * data, byte ** pic, int *width, int *height)
 	png_structp     png;
 	png_bytep      *row_pointers;
 	byte           *out;
-	int             size;
+	//int             size;
 	byte            alphaByte = 255;
 
 	// load png
@@ -1695,7 +1695,7 @@ void WritePNG(const char *name, const byte * pic, int width, int height, qboolea
 	{
 		for(i = height - 1; i >= 0; i--)
 		{
-			row_pointers[i] = row;
+			row_pointers[i] = (png_bytep)row;
 			row -= row_stride;
 		}
 	}
@@ -1703,7 +1703,7 @@ void WritePNG(const char *name, const byte * pic, int width, int height, qboolea
 	{
 		for(i = 0; i < height; i++)
 		{
-			row_pointers[i] = row;
+			row_pointers[i] = (png_bytep)row;
 			row -= row_stride;
 		}
 	}

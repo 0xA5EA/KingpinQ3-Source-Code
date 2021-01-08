@@ -277,7 +277,7 @@ void Foliage(mapDrawSurface_t * src)
 
 		/* add the model to the bsp */
 		InsertModel(foliage->model, 0, transform, rotation, NULL, NULL, src->entityNum, src->castShadows, src->recvShadows, 0,
-					src->lightmapScale, 0, 0);
+					src->lightmapScale, 0, 0, 0); //add hypov8 forceSmoothGroups
 
 		/* walk each new surface */
 		for(i = oldNumMapDrawSurfs; i < numMapDrawSurfs; i++)

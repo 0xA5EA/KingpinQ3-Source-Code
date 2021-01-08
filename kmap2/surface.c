@@ -34,7 +34,8 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "q3map2.h"
+//#include "q3map2.h"
+#include "kmap2.h" //add hypov8
 
 
 
@@ -3147,7 +3148,7 @@ int AddSurfaceModelsToTriangle_r(mapDrawSurface_t * ds, surfaceModel_t * model, 
 
 			/* insert the model */
 			InsertModel((char *)model->model, 0, transform, temp, NULL, ds->celShader, ds->entityNum, ds->castShadows, ds->recvShadows,
-						0, ds->lightmapScale, 0, 0);
+						0, ds->lightmapScale, 0, 0, 0); //add hypov8 forceSmoothGroups = 0
 
 			/* return to sender */
 			return 1;
@@ -3469,6 +3470,10 @@ void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 
 			/* ydnar: apply brush colormod */
 			VolumeColorMods(e, ds);
+
+			/* hypov8 set alpha scale 0-1 */
+			/* vertexcolor is stil 0-255 but engine reads it 0-1? */
+			VertexAlphaFloat(ds->shaderInfo->colorMod, ds->numVerts, ds->verts); //hypov8 VertexAlphaFloat
 
 			/* ydnar: make fur surfaces */
 			if(si->furNumLayers > 0)

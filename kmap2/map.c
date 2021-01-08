@@ -34,8 +34,8 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "q3map2.h"
-
+//#include "q3map2.h"
+#include "kmap2.h" //add hypov8
 
 
 /* FIXME: remove these vars */
@@ -1589,6 +1589,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 	entity_t       *otherEnt;
 	float           lightmapScale, shadeAngle;
 	int             lightmapSampleSize;
+	int valueInt; //add hypov8
 //	char            shader[MAX_QPATH];
 	shaderInfo_t   *celShader = NULL;
 	brush_t        *brush;
@@ -1756,13 +1757,376 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 			SetKeyValue(mapEnt, "classname", "func_static");
 		}
 #endif
+
+#if 1
+//////////////////////////////////////////////////////////////////////////
+		/* hypov8 add kpq3 convert form kp1 maps, renames items */
+//////////////////////////////////////////////////////////////////////////
+
+		/*
+trigger_hurt_fire		-> trigger_hurt
+trigger_hurt_electric	-> trigger_hurt
+func_wall				-> func_static
+hmg_mod_cooling			-> item_hmg_mod_cooling
+pistol_mod_damage		-> item_pistol_damage_mod
+weapon_spistol			-> item_silencer_mod
+pistol_mod_rof			-> item_pistol_damage_mod
+pistol_mod_reload		-> item_pistol_damage_mod
+target_speaker			-> speaker
+           ??item_pistol_fire_mod?? missing kpq3
+misc_teleporter				->	trigger_teleport
+misc_teleporter_dest	-> target_teleporter
+trigger_relay			-> target_relay
+ */
+	if(!Q_stricmp("trigger_hurt_fire", classname))
+	{
+		SetKeyValue(mapEnt, "classname", "trigger_hurt");	
+		SetKeyValue(mapEnt, "sounds", "1"); //add sounds fire
+
+	}
+	if(!Q_stricmp("trigger_hurt_electric", classname))
+			{
+				SetKeyValue(mapEnt, "classname", "trigger_hurt");		//add sounds electric
+
+			}
+	if(!Q_stricmp("func_wall", classname))
+			SetKeyValue(mapEnt, "classname", "func_static");
+	if(!Q_stricmp("hmg_mod_cooling", classname))
+			SetKeyValue(mapEnt, "classname", "item_hmg_mod_cooling");
+	if(!Q_stricmp("pistol_mod_damage", classname))
+			SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
+	if(!Q_stricmp("weapon_spistol", classname))
+			SetKeyValue(mapEnt, "classname", "item_silencer_mod");
+	if(!Q_stricmp("pistol_mod_rof", classname))
+			SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
+	if(!Q_stricmp("pistol_mod_reload", classname))
+			SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
+	if(!Q_stricmp("target_speaker", classname))
+			SetKeyValue(mapEnt, "classname", "speaker");
+			//item_pistol_fire_mod
+	//if(!Q_stricmp("misc_teleporter", classname))
+	//		SetKeyValue(mapEnt, "classname", "trigger_teleport"); //note hypov8 entity->bmodel not working
+	if(!Q_stricmp("misc_teleporter_dest", classname))
+			SetKeyValue(mapEnt, "classname", "target_teleporter");
+	if(!Q_stricmp("trigger_relay", classname))
+			SetKeyValue(mapEnt, "classname", "target_relay");
+	/*
+
+*/
+/*
+
+
+light_bulb			-> models/mapobjects/kpq3/light_bulb.ase
+light_chandelier 	-> models/mapobjects/kpq3/light_chandelier.ase
+light_deco_sconce 	-> models/mapobjects/kpq3/light_deco_sconce.ase
+light_pendant 		-> models/mapobjects/kpq3/light_pendant.ase
+light_sconce 		-> models/mapobjects/kpq3/light_sconce.ase
+light_fire_esm 		-> models/mapobjects/kpq3/fire_xsmall.ase
+light_fire_sm 		-> models/mapobjects/kpq3/fire_small.ase
+light_fire_med 		-> models/mapobjects/kpq3/fire_med.ase
+light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
+*/
+
+
+		if(!Q_stricmp("light_bulb", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_bulb.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "spawnflags");
+		}
+
+		if(!Q_stricmp("light_chandelier", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_chandelier.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "spawnflags");
+		}
+		if(!Q_stricmp("light_deco_sconce", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_deco_sconce.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "spawnflags");
+		}
+		if(!Q_stricmp("light_pendant", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_pendant.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "spawnflags");
+		}
+		if(!Q_stricmp("light_sconce", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_sconce.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "spawnflags");
+		}
+
+
+		if(!Q_stricmp("light_fire_esm", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/fire_xsmall.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "alphalevel");
+		}
+		if(!Q_stricmp("light_fire_sm", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/fire_small.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "alphalevel");
+		}	
+		if(!Q_stricmp("light_fire_med", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/fire_med.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "alphalevel");
+		}
+		if(!Q_stricmp("light_fire_lg", classname))
+		{						
+			SetKeyValue(mapEnt, "classname", "misc_model");
+			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/fire_large.ase");
+			RemoveKey(mapEnt, "health");
+			RemoveKey(mapEnt, "dmg");
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "movedir");
+			RemoveKey(mapEnt, "alphalevel");
+		}
+
+
+//ToDo:  delet junior
+		//Q_stricmp("junior", classname);
+//ToDo: classname lightflare
+//ToDo: item_pack
+
+//worldspawn:	fogval		-> fogColor
+//worldspawn:	_ambient	-> ambient
+//worldspawn:	light		-> ambient
+//worldspawn:	_mingridlight = 30
+//worldspawn:	_minvertexlight = 30
+//light:		_fade		-> fade
+//light:		style		-> 01-20 realtime light flicker replacements
+
+		if(!Q_stricmp("worldspawn", classname))
+		{
+				value = ValueForKey(mapEnt, "fogval");
+			if (KeyExists(mapEnt, "fogval"))	
+				{
+					SetKeyValue(mapEnt, "fogColor", value);
+					RemoveKey(mapEnt, "fogval");	
+				}
+
+			value = ValueForKey(mapEnt, "light");
+			if (KeyExists(mapEnt, "light"))	
+				{
+					SetKeyValue(mapEnt, "ambient", value);
+					SetKeyValue(mapEnt, "_mingridlight", "30");
+					SetKeyValue(mapEnt, "_minvertexlight", "30");
+					RemoveKey(mapEnt, "light");	
+				}
+
+			else if  (KeyExists(mapEnt, "_ambient"))
+				{
+				value = ValueForKey(mapEnt, "_ambient");
+					SetKeyValue(mapEnt, "ambient", value);
+					SetKeyValue(mapEnt, "_mingridlight", "30");
+					SetKeyValue(mapEnt, "_minvertexlight", "30");
+					RemoveKey(mapEnt, "_ambient");
+				}
+			else
+				{
+					SetKeyValue(mapEnt, "ambient", "20");
+					SetKeyValue(mapEnt, "_mingridlight", "30");
+					SetKeyValue(mapEnt, "_minvertexlight", "30");
+				}
+
+		}
+
+		if(!Q_stricmp("light", classname))
+		{		
+			value = ValueForKey(mapEnt, "_fade");
+			if (KeyExists(mapEnt, "_fade"))	
+				{
+					SetKeyValue(mapEnt, "fade", value);
+					RemoveKey(mapEnt, "_fade");	
+				}
+
+			value = ValueForKey(mapEnt, "light");
+				if (KeyExists(mapEnt, "light")) 
+					{
+						char out_rad[20]= "";
+
+
+						sprintf(out_rad,"%s %s %s", value, value, value);
+						SetKeyValue(mapEnt, "light_radius", out_rad);
+
+						RemoveKey(mapEnt, "light");
+					}
+				else
+					{ 
+						SetKeyValue(mapEnt, "light_radius", "308 308 308"); 
+						RemoveKey(mapEnt, "light");
+					}
+
+			valueInt = IntForKey(mapEnt, "style");
+			if (KeyExists(mapEnt, "style")) 
+				{	//convertStyleToReal();	
+						 if(valueInt == 1)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_01");}
+					else if(valueInt == 2)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_02");}
+					else if(valueInt == 3)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_03");}
+					else if(valueInt == 4)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_04");}
+					else if(valueInt == 5)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_05");}
+					else if(valueInt == 6)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_06");}
+					else if(valueInt == 7)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_07");}
+					else if(valueInt == 8)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_08");}
+					else if(valueInt == 9)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_09");}
+					else if(valueInt == 10) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_10");}
+					else if(valueInt == 11) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_11");}
+					else if(valueInt == 12) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_12");}
+					else if(valueInt == 13) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_13");}
+					else if(valueInt == 14) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_14");}
+					else if(valueInt == 15) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_15");}
+					else if(valueInt == 16) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_16");}
+					else if(valueInt == 17) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_17");}
+					else if(valueInt == 18) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_18");}
+					else if(valueInt == 19) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_19");}
+					else if(valueInt == 20) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_20");}
+					SetKeyValue(mapEnt, "noradiosity", "1");
+
+					if(valueInt >= 20 ||valueInt == 0 ) 
+					{
+						RemoveKey(mapEnt, "noradiosity");	
+					} 
+				}
+			SetKeyValue(mapEnt, "spawnflags", "1");		//use linear lights
+			SetKeyValue(mapEnt, "_filterradius", "1"); //add soft shadows to light edges
+			RemoveKey(mapEnt, "style"); //includes removing invalid kp styles
+			RemoveKey(mapEnt, "health");				//flare size
+			RemoveKey(mapEnt, "dmg");					//flare type			
+			RemoveKey(mapEnt, "movedir");				//flare color in kingpin1, can use _flare if it works
+		}
+
+	
+
+/*
+info_player_deathmatch style 1=dragons	-> team_dragonsspawn
+info_player_deathmatch style 2=nikki	-> team_nikkisspawn
+dm_props_banner: style: 1=dragons		-> models/flags/flag_drag_angle.ase
+dm_props_banner: style: 2=nikki/runts	-> models/flags/flag_nikki_angle.ase
+dm_cashspawn: type=cashroll				-> team_bm_cashspawn
+dm_cashspawn: type=cashbag				-> team_bm_cashspawn
+dm_safebag: style 1=dragons				-> team_bm_dragonssafe
+dm_safebag: style 2=nikki				-> team_bm_nikkissafe
+	
+*/
+		if(!Q_stricmp("info_player_deathmatch", classname))
+		{	
+			valueInt = IntForKey(mapEnt, "style");
+			//value = ValueForKey(mapEnt, "style");
+			if (KeyExists(mapEnt, "style"))
+				if(valueInt == 1)
+					{
+						SetKeyValue(mapEnt, "classname", "team_dragonsspawn");
+						RemoveKey(mapEnt, "style");
+					}
+				else 
+					{
+						SetKeyValue(mapEnt, "classname", "team_nikkisspawn");
+						RemoveKey(mapEnt, "style");
+					}
+		}
+
+		if(!Q_stricmp("dm_props_banner", classname))
+		{	
+			valueInt = IntForKey(mapEnt, "style");
+			//value = ValueForKey(mapEnt, "style");
+			if (KeyExists(mapEnt, "style"))
+				if(valueInt == 1)
+					{
+						SetKeyValue(mapEnt, "classname", "misc_model");
+						SetKeyValue(mapEnt, "model", "models/flags/flag_drag_angle.ase");
+						RemoveKey(mapEnt, "style");
+					}
+				else //value=2 niki
+					{
+						SetKeyValue(mapEnt, "classname", "misc_model");
+						SetKeyValue(mapEnt, "model", "models/flags/flag_nikki_angle.ase");
+						RemoveKey(mapEnt, "style");
+					}
+			else //default if no style
+				{
+					SetKeyValue(mapEnt, "classname", "misc_model");
+					SetKeyValue(mapEnt, "model", "models/flags/flag_drag_angle.ase");
+				}
+		}
+
+		if(!Q_stricmp("dm_cashspawn", classname))
+			SetKeyValue(mapEnt, "classname", "team_bm_cashspawn");
+
+		if(!Q_stricmp("dm_safebag", classname))
+		{	
+			valueInt = IntForKey(mapEnt, "style");
+			//value = ValueForKey(mapEnt, "style");
+			if (KeyExists(mapEnt, "style"))
+				if(valueInt == 1)
+					{
+						SetKeyValue(mapEnt, "classname", "team_bm_dragonssafe");
+						RemoveKey(mapEnt, "style");
+					}
+				else 
+					{
+						SetKeyValue(mapEnt, "classname", "team_bm_nikkissafe");
+						RemoveKey(mapEnt, "style");
+					}
+			else //default if no style
+				{
+					SetKeyValue(mapEnt, "classname", "team_bm_dragonssafe");
+					RemoveKey(mapEnt, "style");
+				}
+		}
+
+
+//////////////////////////////////////////////////////////////////////////
+#endif //hypo finish convert kingpin1 entities
+//////////////////////////////////////////////////////////////////////////
+
+
 		/* Tr3B: rename targetname to name if necessary */
 		targetname = ValueForKey(mapEnt, "targetname");
 		if(targetname[0])
 		{
-			SetKeyValue(mapEnt, "name", targetname);
+			SetKeyValue(mapEnt, "name", targetname); /* hypov8 keeping 'name' for xreal-doom3 compatability */
 			name = ValueForKey(mapEnt, "name");
-			RemoveKey(mapEnt, "targetname");
+			// RemoveKey(mapEnt, "targetname"); /* hypov8 commented out, kmap and kpq3 use target->targetname */ 
 		}
 		/* Tr3B: check for empty name */
 		if(!name[0] && numEntities != 1)
@@ -1809,6 +2173,12 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		}
 		// Tr3B
 		if(!model[0] && Q_stricmp("func_static", classname) && (mapEnt->brushes || mapEnt->patches) && numEntities != 1)
+		{
+			SetKeyValue(mapEnt, "model", name);
+			model = ValueForKey(mapEnt, "model");
+		}
+		//add hypov8 added 'model' to bmodel
+		if(!model[0] && Q_stricmp("func_wall", classname) && (mapEnt->brushes || mapEnt->patches) && numEntities != 1)
 		{
 			SetKeyValue(mapEnt, "model", name);
 			model = ValueForKey(mapEnt, "model");
@@ -1891,7 +2261,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 				SetKeyValue(&convertDetailBrushesEntity, "classname", "func_static");
 				SetKeyValue(&convertDetailBrushesEntity, "name", "worldspawn_detail_brushes_0");
 				SetKeyValue(&convertDetailBrushesEntity, "model", "worldspawn_detail_brushes_0");
-				SetKeyValue(&convertDetailBrushesEntity, "description", "Generated by ETXMap (XreaL)");
+				SetKeyValue(&convertDetailBrushesEntity, "description", "Generated by KMap (XreaL)");
 			}
 			// move brushes
 			for(b = mapEnt->brushes, prev = NULL; b != NULL; b = next)
@@ -1906,7 +2276,8 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 				{
 					structuralBrushes = g_slist_append(structuralBrushes, b);
 				}
-				numDetailBrushes = g_list_length(detailBrushes);
+				//numDetailBrushes = g_list_length(detailBrushes);
+				numDetailBrushes = g_slist_length(detailBrushes); //add hypov8
 			}
 			// add detail brushes to new func_static entity
 			while(detailBrushes)
@@ -1963,7 +2334,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 				structuralBrushes = g_slist_remove(structuralBrushes, structuralBrushes->data);
 			}
 		}
-	}
+	} //note hypov8 end conversion
 	if(model[0] && !Q_stricmp("func_group", classname) && !mapEnt->brushes && !mapEnt->patches)
 	{
 		RemoveKey(mapEnt, "model");

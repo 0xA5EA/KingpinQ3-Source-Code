@@ -207,6 +207,7 @@ static picoModel_t *_md3_load( PM_PARAMS_LOAD )
 	md3 loading
 	------------------------------------------------- */
 
+	printf("loading.... %s\n", fileName);  //add hypov8 display models loaded. helps detect faluty model/materal
 
 	/* set as md3 */
 	bb = (picoByte_t*) buffer;
@@ -328,6 +329,8 @@ static picoModel_t *_md3_load( PM_PARAMS_LOAD )
 	
 	/* md3 surfaces become picomodel surfaces */
 	surface = (md3Surface_t*) (bb + md3->ofsSurfaces);
+	
+	picoModel->vertNormExist = 1; // add hypov8
 	
 	/* run through md3 surfaces */
 	for( i = 0; i < md3->numSurfaces; i++ )

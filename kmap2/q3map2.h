@@ -1726,7 +1726,7 @@ picoModel_t    *FindModel(char *name, int frame);
 picoModel_t    *LoadModel(char *name, int frame);
 void            InsertModel(char *name, int frame, matrix_t fullTransform, matrix_t rotation, remap_t * remap,
 							shaderInfo_t * celShader, int eNum, int castShadows, int recvShadows, int spawnFlags,
-							float lightmapScale, int lightmapSampleSize, float shadeAngle);
+							float lightmapScale, int lightmapSampleSize, float shadeAngle, int vertNormInUse); /*add hypov8 manual smooth*/
 void            AddTriangleModel(entity_t * e);
 void            AddTriangleModels(entity_t * e);
 

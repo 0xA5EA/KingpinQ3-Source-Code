@@ -34,7 +34,8 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "q3map2.h"
+//#include "q3map2.h"
+#include "kmap2.h" //add hypov8
 
 
 
@@ -206,7 +207,7 @@ adds a picomodel into the bsp
 */
 
 void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform, remap_t * remap, shaderInfo_t * celShader, int eNum, int castShadows,
-				 int recvShadows, int spawnFlags, float lightmapScale, int lightmapSampleSize, float shadeAngle)
+				 int recvShadows, int spawnFlags, float lightmapScale, int lightmapSampleSize, float shadeAngle, int forceSmoothGroups)
 {
 	int             i, j, k, s, numSurfaces;
 	matrix_t        identity;
@@ -269,8 +270,11 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 		if(PicoGetSurfaceType(surface) != PICO_TRIANGLES)
 			continue;
 
-		/* fix the surface's normals */
-		PicoFixSurfaceNormals(surface);
+
+		 /*hypov8 duplicate...............*/
+		/* fix the surface's normals */ /*note hypov8 only if normals r wrong???*/
+	//	if (!model->vertNormExist == 1) /*hypov8 only if no vertex normals defined */
+		//PicoFixSurfaceNormals(surface); 
 
 		/* allocate a surface (ydnar: gs mods) */
 		ds = AllocDrawSurface(SURFACE_TRIANGLES);
@@ -350,13 +354,32 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 		/* set shader */
 		ds->shaderInfo = si;
 
+		/* hypov8 delet collision surface if model is not forced to clip */
+		if ((si->compileFlags & C_COLLISION) && !(spawnFlags & 2) && !(spawnFlags & 128))
+			continue;
+
 
 		/* force to meta? */
-		if((si != NULL && si->forceMeta) || (spawnFlags & 4))	/* 3rd bit */
+		if((si != NULL && si->forceMeta) 
+			|| (spawnFlags & 4)
+			|| (meta && !(si->compileFlags & C_VERTEXLIT)) /* hypov8 add meta to every model when using -meta */ 
+			)	/* 3rd bit */								/* but not if shader specifies pointlight/nolightmap */
+															/* or models will not show vertex light info (rgbgen vertex) */	
 			ds->type = SURFACE_FORCED_META;
 		/* fix the surface's normals (jal: conditioned by shader info) */
-		//if(!(spawnFlags & 64) && (shadeAngle == 0.0f || ds->type != SURFACE_FORCED_META))
-		//	PicoFixSurfaceNormals(surface);
+		if(!(spawnFlags & 64) && (shadeAngle == 0.0f || ds->type != SURFACE_FORCED_META))
+		{	/*add hypov8 conditional fix the surface's normals*/
+			if (forceSmoothGroups == 1)
+			{
+				PicoFixSurfaceNormals(surface);
+			}
+			else if (!(model->vertNormExist== 1)) 
+			{
+				PicoFixSurfaceNormals(surface);
+			}
+		}
+
+
 		/* set sample size */
 		if(lightmapSampleSize > 0.0f)
 			ds->sampleSize = lightmapSampleSize;
@@ -444,16 +467,22 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 		ds->celShader = celShader;
 
 		/* ydnar: giant hack land: generate clipping brushes for model triangles */
-		if(si->clipModel || (spawnFlags & 2))	/* 2nd bit */
+		if(si->clipModel || (spawnFlags & 2) || (spawnFlags & 128))	/* 2nd bit */
 		{
 			vec3_t          points[4], backs[3];
 			vec4_t          plane, reverse, pa, pb, pc;
 
 
 			/* temp hack */
-			if(!si->clipModel &&
-			   (((si->compileFlags & C_TRANSLUCENT) && !(si->compileFlags & C_COLLISION)) || !(si->compileFlags & C_SOLID)))
+			if(!si->clipModel &&  /* not hypov8: C_TRANSLUCENT? this will catch some valid solid textures and remove them for clipping */
+				(((si->compileFlags & C_TRANSLUCENT) && !(si->compileFlags & C_COLLISION)) || !(si->compileFlags & C_SOLID))) //hypov8
 				continue;
+
+
+			//add hypov8 spawnflag 128 = 'forceCollsionTexOnlyclip' 
+			//clip parts of model. only via surface collision, skip rest
+			if((spawnFlags & 128) && !(si->compileFlags & C_COLLISION))
+				continue; //not a collision forced surface. skip this surface
 
 
 			/* walk triangle list */
@@ -622,7 +651,7 @@ void AddTriangleModel(entity_t * e)
 	const char     *name, *model, *value;
 	char            shader[MAX_QPATH];
 	shaderInfo_t   *celShader;
-	float           temp, baseLightmapScale, lightmapScale;
+	float           temp/*, baseLightmapScale*/, lightmapScale;
 	float           shadeAngle;
 	int             lightmapSampleSize;
 	vec3_t          scale;
@@ -630,6 +659,12 @@ void AddTriangleModel(entity_t * e)
 	epair_t        *ep;
 	remap_t        *remap, *remap2;
 	char           *split;
+
+
+	//add hypov8
+	int useSmoothGroup;
+	int forceSmoothGroups = 0;
+
 
 	/* note it */
 	Sys_FPrintf(SYS_VRB, "--- AddTriangleModel ---\n");
@@ -678,6 +713,9 @@ void AddTriangleModel(entity_t * e)
 
 	/* : added forceMeta option */
 	spawnFlags |= (IntForKey(e, "forceMeta") > 0) ? 4 : 0;
+
+	/* : added forced colision texture option */ /* hypov8 */
+	spawnFlags |= (IntForKey(e, "forceCollsionTexOnly") > 0) ? 128 : 0;
 
 	/* get scale */
 	scale[0] = scale[1] = scale[2] = 1.0f;
@@ -781,9 +819,15 @@ void AddTriangleModel(entity_t * e)
 	if(shadeAngle > 0.0f)
 		Sys_Printf("misc_model has shading angle of %.4f\n", shadeAngle);
 
+	/* add hypov8 use smothgroups or use vertexnormals*/
+	/*md3 can only have 1 sg, but normals are set*/
+	useSmoothGroup = IntForKey(e, "usesmoothgroup");
+	if (useSmoothGroup == 1)
+		forceSmoothGroups = 1;
+
 	/* insert the model */
 	InsertModel((char *)model, frame, transform, rotation, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
-				lightmapScale, lightmapSampleSize, shadeAngle);
+				lightmapScale, lightmapSampleSize, shadeAngle, forceSmoothGroups); /*add hypov8 manual smooth*/
 
 	/* free shader remappings */
 	while(remap != NULL)
@@ -816,6 +860,10 @@ void AddTriangleModels(entity_t * e)
 	epair_t        *ep;
 	remap_t        *remap, *remap2;
 	char           *split;
+
+	//add hypov8
+	int useSmoothGroup;
+	int forceSmoothGroups = 0; //Default: use vertex normals if they exist. unless SG forged in map
 
 
 	/* note it */
@@ -901,6 +949,9 @@ void AddTriangleModels(entity_t * e)
 
 		/* : added forceMeta option */
 		spawnFlags |= (IntForKey(e2, "forceMeta") > 0) ? 4 : 0;
+
+		/* : added forced colision texture option */ /* hypov8 */
+		spawnFlags |= (IntForKey(e2, "forceCollsionTexOnly") > 0) ? 128 : 0;
 
 		/* get origin */
 		GetVectorForKey(e2, "origin", origin);
@@ -1034,9 +1085,17 @@ void AddTriangleModels(entity_t * e)
 		if(shadeAngle > 0.0f)
 			Sys_Printf("misc_model has shading angle of %.4f\n", shadeAngle);
 
+
+		/* add hypov8 use smothgroups or use vertexnormal info*/
+		/*md3 can only have 1 sg. vertex normals are set in model*/
+		useSmoothGroup = IntForKey(e2, "usesmoothgroup");
+		if (useSmoothGroup == 1)
+			forceSmoothGroups = 1;
+
+
 		/* insert the model */
 		InsertModel((char *)model, frame, transform, rotation, remap, celShader, mapEntityNum, castShadows, recvShadows, spawnFlags,
-					lightmapScale, lightmapSampleSize, shadeAngle);
+					lightmapScale, lightmapSampleSize, shadeAngle, forceSmoothGroups ); /*add hypov8 manual smooth*/
 
 		/* free shader remappings */
 		while(remap != NULL)

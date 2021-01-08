@@ -30,7 +30,8 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "q3map2.h"
+//#include "q3map2.h"
+#include "kmap2.h" //add hypov8
 
 
 //#define USE_HDR_LIGHTMAPS
@@ -2351,13 +2352,13 @@ void StoreSurfaceLightmaps(void)
 	float           lmx, lmy, efficiency;
 	vec3_t          color;
 	vec3_t			lightDirection;
-	bspDrawSurface_t *ds, *parent, dsTemp;
+	bspDrawSurface_t *ds= NULL, *parent, dsTemp;
 	surfaceInfo_t  *info;
 	rawLightmap_t  *lm, *lm2;
 	outLightmap_t  *olm;
 	bspDrawVert_t  *dv, *ydv, *dvParent;
 	char            dirname[1024], filename[1024];
-	shaderInfo_t   *csi;
+	shaderInfo_t   *csi = NULL;
 	char            lightmapName[128];
 	char           *rgbGenValues[256];
 	char           *alphaGenValues[256];

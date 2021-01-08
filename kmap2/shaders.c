@@ -30,7 +30,8 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 #define SHADERS_C
 
 /* dependencies */
-#include "q3map2.h"
+//#include "q3map2.h"
+#include "kmap2.h" //add hypov8
 
 #define PREFIX_LEN 5  // len of kmap_ and xmap_
 /*
@@ -153,7 +154,56 @@ void ColorMod(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts)
 	}
 }
 
+/*
+hypov8 add
+change vertex alpha scale from 0-255 to 0-1
+should this be done on the engine side?
+*/
 
+void VertexAlphaFloat(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts)
+{
+	int             i, k;
+	float           c;
+	bspDrawVert_t  *dv;
+	//colorMod_t     *cm2;
+
+	/* skip if colormod has been applied */
+	if (cm && cm->type == CM_ALPHA_SET)
+		return;
+
+	/* dummy check */
+	if(numVerts < 1 || drawVerts == NULL)
+		return;
+
+	/* walk vertex list */
+	for(i = 0; i < numVerts; i++)
+	{
+		/* get vertex */
+		dv = &drawVerts[i];
+
+		/* loop through alpha verts */
+		for(k = 0; k < 4; k++)
+		{
+			c =  dv->lightColor[k][3];
+
+			/* check what scale alpha value is in 0>255?? */
+			if (c > 0.f && c < 1.0f || c > 255)
+				printf("alpha out of range %f \n", c);
+
+			/* set min/max if wrong*/
+			if(c < 0)
+				c = 0;
+			else if(c > 255)
+				c = 255;
+
+			/* scale to 0-1 */
+			c = c/ 255;
+
+			/* set vert alpha */
+			dv->lightColor[k][3] = c;
+		}
+	}
+}
 
 /*
 TCMod*()
@@ -736,6 +786,10 @@ static void LoadShaderImages(shaderInfo_t * si)
 		if(si->shaderImage == NULL)
 			si->shaderImage = ImageLoad(si->shader);
 
+		/* hypov8 add diffusemap to search paths. Is this ok above light image? incase alphashadow? */
+		if(si->shaderImage == NULL)
+			si->shaderImage = ImageLoad(si->diffuseImagePath);
+
 		/* then try implicit image path (note: new behavior!) */
 		if(si->shaderImage == NULL)
 			si->shaderImage = ImageLoad(si->implicitImagePath);
@@ -1041,7 +1095,10 @@ static void ParseShaderFile(const char *filename)
 						break;
 
 					/* only care about images if we don't have a editor/light image */
-					if(si->editorImagePath[0] == '\0' && si->lightImagePath[0] == '\0' && si->implicitImagePath[0] == '\0')
+					if(si->editorImagePath[0] == '\0' 
+						&& si->lightImagePath[0] == '\0' 
+						&& si->implicitImagePath[0] == '\0' 
+						&& si->diffuseImagePath[0] == '\0')
 					{
 						/* digest any images */
 						if(!Q_stricmp(token, "map") ||
@@ -1086,6 +1143,19 @@ static void ParseShaderFile(const char *filename)
 			else if(!Q_stricmp(token, "polygonoffset"))
 				si->polygonOffset = qtrue;
 
+			/* add hypov8 shortcut */
+			else if(!Q_stricmp(token, "DECAL_MACRO"))
+			{
+				si->polygonOffset = qtrue; //"polygonoffset"
+				ApplySurfaceParm("detail", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
+			}
+			else if(!Q_stricmp(token, "DECAL_ALPHATEST_MACRO"))
+			{
+				si->polygonOffset = qtrue; //"polygonoffset"
+				ApplySurfaceParm("detail", &si->contentFlags, &si->surfaceFlags, &si->compileFlags);
+			}
+
+
 			/* tesssize is used to force liquid surfaces to subdivide */
 			else if(!Q_stricmp(token, "tessSize") || !Q_stricmp(token+ PREFIX_LEN, "tessSize") )
 			{
@@ -1099,7 +1169,24 @@ static void ParseShaderFile(const char *filename)
 				GetTokenAppend(shaderText, qfalse);
 				if(!Q_stricmp(token, "none") || !Q_stricmp(token, "disable") || !Q_stricmp(token, "twosided"))
 					si->twoSided = qtrue;
+				else if (!Q_stricmp(token, "front") || !Q_stricmp(token, "frontside") || !Q_stricmp(token, "backsided"))
+				{ 
+					//si->invert = qtrue; //hypov8 is this right
+				}
 			}
+
+			/* hypov8 add 'twosided' in shader to replace 'cull none' matching engine */
+			else if(!Q_stricmp(token, "twosided"))
+			{
+				si->twoSided = qtrue;
+			}
+			else if(!Q_stricmp(token, "backsided"))
+			{
+				//si->invert = qtrue; //hypov8 is this right
+					//side->shaderInfo->invert
+			}
+
+
 
 			/* Tr3B: forceOpaque will override translucent */
 			else if(!Q_stricmp(token, "forceOpaque"))
@@ -1110,7 +1197,7 @@ static void ParseShaderFile(const char *filename)
 			/* deformVertexes autosprite[ 2 ]
 			   we catch this so autosprited surfaces become point
 			   lights instead of area lights */
-			else if(!Q_stricmp(token, "deformVertexes"))
+			else if(!Q_stricmp(token, "deformVertexes") || !Q_stricmp(token, "deform")) /// add hypov8 deform
 			{
 				GetTokenAppend(shaderText, qfalse);
 
@@ -1263,10 +1350,12 @@ static void ParseShaderFile(const char *filename)
 			/* Tr3B: check if this shader has shortcut passes */
 			else if(!Q_stricmp(token, "diffusemap"))
 			{
-				// TODO lightImagePath with extended parser support
-				GetToken(qfalse);
-				//strcpy(si->lightImagePath, token);
-				//DefaultExtension(si->lightImagePath, ".tga");
+				//GetToken(qfalse);
+
+				//hypov8 add diffusemap to avalible images. if qer_editorImage missing etc..
+				GetTokenAppend(shaderText, qfalse);
+				strcpy(si->diffuseImagePath, token);
+				DefaultExtension(si->diffuseImagePath, ".tga");
 				si->hasPasses = qtrue;
 			}
 
