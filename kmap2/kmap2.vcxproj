@@ -1,0 +1,480 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="debug light|Win32">
+      <Configuration>debug light</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="debug mapconvert|Win32">
+      <Configuration>debug mapconvert</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8ED67991-58A6-44AA-9B3A-3217085EF187}</ProjectGuid>
+    <RootNamespace>q3map2</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:/Kingpin2/radiant/</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">D:/Kingpin2/radiant/</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">D:/Kingpin2/radiant/</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../build/debug-win32/kmap2\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">../build/debug-win32/kmap2\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">../build/debug-win32/kmap2\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:/Kingpin2/radiant/</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../build/release-win32/kmap2\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\MinGW\msys\1.0\home\dave\jpeg-8b;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\lib\glib-2.0\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\include\glib-2.0;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">C:\MinGW\msys\1.0\home\dave\jpeg-8b;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\lib\glib-2.0\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\include\glib-2.0;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">C:\MinGW\msys\1.0\home\dave\jpeg-8b;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\lib\glib-2.0\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\include\glib-2.0;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\lib\glib-2.0\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\include;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\include\glib-2.0;$(IncludePath)</IncludePath>
+    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;</SourcePath>
+    <SourcePath Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;</SourcePath>
+    <SourcePath Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;</SourcePath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\bin;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\bin;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\bin;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\Debug_NonRedist\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\lib;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\Debug_NonRedist\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\lib;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\Debug_NonRedist\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\lib;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\bin;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\redist\Debug_NonRedist\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\radiantdeps\lib;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\MinGW\msys\1.0\home\dave\netradiant-dependencies-mingw32\gtk\lib;$(LibraryPath)</LibraryPath>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EnableManagedIncrementalBuild>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">true</EnableManagedIncrementalBuild>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">true</EnableManagedIncrementalBuild>
+    <ExcludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ExcludePath)</ExcludePath>
+    <ExcludePath Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">$(ExcludePath)</ExcludePath>
+    <ExcludePath Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">$(ExcludePath)</ExcludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Debug/q3map2.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\radiant/w32deps/gtk2/lib/glib-2.0/include;..\radiant\w32deps\gtk2\include\glib-2.0;..\code\png;..\radiant\w32deps\win_iconv\include;zlib;..\radiant\w32deps\libxml2\include;common;libs;..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;XMAP;_CRT_SECURE_NO_WARNINGS;KMAP2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeaderOutputFile>../build/debug-win32/kmap2/q3map2.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>../build/debug-win32/kmap2/</AssemblerListingLocation>
+      <ObjectFileName>../build/debug-win32/kmap2/</ObjectFileName>
+      <ProgramDataBaseFileName>../build/debug-win32/kmap2/</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>glib-2.0.lib;wsock32.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)kmap2.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../build/debug-win32/kmap2/q3map2.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../build/debug-win32/kmap2/q3map2.map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <StackReserveSize>4194304</StackReserveSize>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Debug/q3map2.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\radiant/w32deps/gtk2/lib/glib-2.0/include;..\radiant\w32deps\gtk2\include\glib-2.0;..\code\png;..\radiant\w32deps\win_iconv\include;zlib;..\radiant\w32deps\libxml2\include;common;libs;..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;XMAP;_CRT_SECURE_NO_WARNINGS;KMAP2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeaderOutputFile>../build/debug-win32/kmap2/q3map2.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>../build/debug-win32/kmap2/</AssemblerListingLocation>
+      <ObjectFileName>../build/debug-win32/kmap2/</ObjectFileName>
+      <ProgramDataBaseFileName>../build/debug-win32/kmap2/</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>glib-2.0.lib;wsock32.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)kmap2.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../build/debug-win32/kmap2/q3map2.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../build/debug-win32/kmap2/q3map2.map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <StackReserveSize>4194304</StackReserveSize>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Debug/q3map2.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\radiant/w32deps/gtk2/lib/glib-2.0/include;..\radiant\w32deps\gtk2\include\glib-2.0;..\code\png;..\radiant\w32deps\win_iconv\include;zlib;..\radiant\w32deps\libxml2\include;common;libs;..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;XMAP;_CRT_SECURE_NO_WARNINGS;KMAP2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeaderOutputFile>../build/debug-win32/kmap2/q3map2.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>../build/debug-win32/kmap2/</AssemblerListingLocation>
+      <ObjectFileName>../build/debug-win32/kmap2/</ObjectFileName>
+      <ProgramDataBaseFileName>../build/debug-win32/kmap2/</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>glib-2.0.lib;wsock32.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)kmap2.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>../build/debug-win32/kmap2/q3map2.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../build/debug-win32/kmap2/q3map2.map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <StackReserveSize>4194304</StackReserveSize>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Release/q3map2.tlb</TypeLibraryName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>common;libs;..\radiant/w32deps/gtk2/lib/glib-2.0/include;..\radiant\w32deps\gtk2\include\glib-2.0;..\code\png;..\radiant\w32deps\win_iconv\include;zlib;..\radiant\w32deps\libxml2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;XMAP;_CRT_SECURE_NO_WARNINGS;KMAP2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeaderOutputFile>../build/release-win32/kmap2/q3map2.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>../build/release-win32/kmap2/</AssemblerListingLocation>
+      <ObjectFileName>../build/release-win32/kmap2/</ObjectFileName>
+      <ProgramDataBaseFileName>../build/release-win32/kmap2/</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>glib-2.0.lib;wsock32.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)kmap2.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\radiant\w32deps\gtk2\lib;..\radiant\w32deps\libxml2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ProgramDatabaseFile>../build/release-win32/kmap2/q3map2.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>../build/release-win32/kmap2/q3map2.map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <StackReserveSize>4194304</StackReserveSize>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="bspfile_abstract.c" />
+    <ClCompile Include="bspfile_ibsp.c" />
+    <ClCompile Include="bspfile_rbsp.c" />
+    <ClCompile Include="bspfile_xbsp.c" />
+    <ClCompile Include="gldraw.c" />
+    <ClCompile Include="image.c" />
+    <ClCompile Include="jpeg-6\jaricom.c" />
+    <ClCompile Include="jpeg-6\jcapimin.c" />
+    <ClCompile Include="jpeg-6\jcapistd.c" />
+    <ClCompile Include="jpeg-6\jcarith.c" />
+    <ClCompile Include="jpeg-6\jccoefct.c" />
+    <ClCompile Include="jpeg-6\jccolor.c" />
+    <ClCompile Include="jpeg-6\jcdctmgr.c" />
+    <ClCompile Include="jpeg-6\jchuff.c" />
+    <ClCompile Include="jpeg-6\jcinit.c" />
+    <ClCompile Include="jpeg-6\jcmainct.c" />
+    <ClCompile Include="jpeg-6\jcmarker.c" />
+    <ClCompile Include="jpeg-6\jcmaster.c" />
+    <ClCompile Include="jpeg-6\jcomapi.c" />
+    <ClCompile Include="jpeg-6\jcparam.c" />
+    <ClCompile Include="jpeg-6\jcprepct.c" />
+    <ClCompile Include="jpeg-6\jcsample.c" />
+    <ClCompile Include="jpeg-6\jctrans.c" />
+    <ClCompile Include="jpeg-6\jdapimin.c" />
+    <ClCompile Include="jpeg-6\jdapistd.c" />
+    <ClCompile Include="jpeg-6\jdarith.c" />
+    <ClCompile Include="jpeg-6\jdatadst.c" />
+    <ClCompile Include="jpeg-6\jdatasrc.c" />
+    <ClCompile Include="jpeg-6\jdcoefct.c" />
+    <ClCompile Include="jpeg-6\jdcolor.c" />
+    <ClCompile Include="jpeg-6\jddctmgr.c" />
+    <ClCompile Include="jpeg-6\jdhuff.c" />
+    <ClCompile Include="jpeg-6\jdinput.c" />
+    <ClCompile Include="jpeg-6\jdmainct.c" />
+    <ClCompile Include="jpeg-6\jdmarker.c" />
+    <ClCompile Include="jpeg-6\jdmaster.c" />
+    <ClCompile Include="jpeg-6\jdmerge.c" />
+    <ClCompile Include="jpeg-6\jdpostct.c" />
+    <ClCompile Include="jpeg-6\jdsample.c" />
+    <ClCompile Include="jpeg-6\jdtrans.c" />
+    <ClCompile Include="jpeg-6\jerror.c" />
+    <ClCompile Include="jpeg-6\jfdctflt.c" />
+    <ClCompile Include="jpeg-6\jfdctfst.c" />
+    <ClCompile Include="jpeg-6\jfdctint.c" />
+    <ClCompile Include="jpeg-6\jidctflt.c" />
+    <ClCompile Include="jpeg-6\jidctfst.c" />
+    <ClCompile Include="jpeg-6\jidctint.c" />
+    <ClCompile Include="jpeg-6\jmemmgr.c" />
+    <ClCompile Include="jpeg-6\jmemnobs.c" />
+    <ClCompile Include="jpeg-6\jquant1.c" />
+    <ClCompile Include="jpeg-6\jquant2.c" />
+    <ClCompile Include="jpeg-6\jutils.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="mesh.c" />
+    <ClCompile Include="model.c" />
+    <ClCompile Include="path_init.c" />
+    <ClCompile Include="shaders.c" />
+    <ClCompile Include="surface_extra.c" />
+    <ClCompile Include="common\cmdlib.c" />
+    <ClCompile Include="common\imagelib.c" />
+    <ClCompile Include="common\inout.c" />
+    <ClCompile Include="common\mathlib.c" />
+    <ClCompile Include="common\mutex.c" />
+    <ClCompile Include="common\netlib.c" />
+    <ClCompile Include="common\polylib.c" />
+    <ClCompile Include="common\scriplib.c" />
+    <ClCompile Include="common\threads.c" />
+    <ClCompile Include="common\unzip.c" />
+    <ClCompile Include="common\vfs.c" />
+    <ClCompile Include="brush.c" />
+    <ClCompile Include="brush_primit.c" />
+    <ClCompile Include="bsp.c" />
+    <ClCompile Include="decals.c" />
+    <ClCompile Include="facebsp.c" />
+    <ClCompile Include="fog.c" />
+    <ClCompile Include="leakfile.c" />
+    <ClCompile Include="map.c" />
+    <ClCompile Include="patch.c" />
+    <ClCompile Include="portals.c" />
+    <ClCompile Include="prtfile.c" />
+    <ClCompile Include="surface.c" />
+    <ClCompile Include="surface_foliage.c" />
+    <ClCompile Include="surface_fur.c" />
+    <ClCompile Include="surface_meta.c" />
+    <ClCompile Include="tjunction.c" />
+    <ClCompile Include="tree.c" />
+    <ClCompile Include="writebsp.c" />
+    <ClCompile Include="light.c" />
+    <ClCompile Include="light_bounce.c" />
+    <ClCompile Include="light_trace.c" />
+    <ClCompile Include="light_ydnar.c" />
+    <ClCompile Include="lightmaps_ydnar.c" />
+    <ClCompile Include="vis.c" />
+    <ClCompile Include="visflow.c" />
+    <ClCompile Include="convert_ase.c" />
+    <ClCompile Include="convert_map.c" />
+    <ClCompile Include="libs\picomodel\picointernal.c" />
+    <ClCompile Include="libs\picomodel\picomodel.c" />
+    <ClCompile Include="libs\picomodel\picomodules.c" />
+    <ClCompile Include="libs\picomodel\pm_3ds.c" />
+    <ClCompile Include="libs\picomodel\pm_ase.c" />
+    <ClCompile Include="libs\picomodel\pm_fm.c" />
+    <ClCompile Include="libs\picomodel\pm_lwo.c" />
+    <ClCompile Include="libs\picomodel\pm_md2.c" />
+    <ClCompile Include="libs\picomodel\pm_md3.c" />
+    <ClCompile Include="libs\picomodel\pm_mdc.c" />
+    <ClCompile Include="libs\picomodel\pm_ms3d.c" />
+    <ClCompile Include="libs\picomodel\pm_obj.c" />
+    <ClCompile Include="libs\picomodel\pm_terrain.c" />
+    <ClCompile Include="libs\picomodel\lwo\clip.c" />
+    <ClCompile Include="libs\picomodel\lwo\envelope.c" />
+    <ClCompile Include="libs\picomodel\lwo\list.c" />
+    <ClCompile Include="libs\picomodel\lwo\lwio.c" />
+    <ClCompile Include="libs\picomodel\lwo\lwo2.c" />
+    <ClCompile Include="libs\picomodel\lwo\lwob.c" />
+    <ClCompile Include="libs\picomodel\lwo\pntspols.c" />
+    <ClCompile Include="libs\picomodel\lwo\surface.c">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='debug light|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='debug mapconvert|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="libs\picomodel\lwo\vecmath.c" />
+    <ClCompile Include="libs\picomodel\lwo\vmap.c" />
+    <ClCompile Include="..\code\png\png.c" />
+    <ClCompile Include="..\code\png\pngerror.c" />
+    <ClCompile Include="..\code\png\pnggccrd.c" />
+    <ClCompile Include="..\code\png\pngget.c" />
+    <ClCompile Include="..\code\png\pngmem.c" />
+    <ClCompile Include="..\code\png\pngpread.c" />
+    <ClCompile Include="..\code\png\pngread.c" />
+    <ClCompile Include="..\code\png\pngrio.c" />
+    <ClCompile Include="..\code\png\pngrtran.c" />
+    <ClCompile Include="..\code\png\pngrutil.c" />
+    <ClCompile Include="..\code\png\pngset.c" />
+    <ClCompile Include="..\code\png\pngtrans.c" />
+    <ClCompile Include="..\code\png\pngvcrd.c" />
+    <ClCompile Include="..\code\png\pngwio.c" />
+    <ClCompile Include="..\code\png\pngwrite.c" />
+    <ClCompile Include="..\code\png\pngwtran.c" />
+    <ClCompile Include="..\code\png\pngwutil.c" />
+    <ClCompile Include="zlib\adler32.c" />
+    <ClCompile Include="zlib\compress.c" />
+    <ClCompile Include="zlib\crc32.c" />
+    <ClCompile Include="zlib\deflate.c" />
+    <ClCompile Include="zlib\gzio.c" />
+    <ClCompile Include="zlib\infback.c" />
+    <ClCompile Include="zlib\inffast.c" />
+    <ClCompile Include="zlib\inflate.c" />
+    <ClCompile Include="zlib\inftrees.c" />
+    <ClCompile Include="zlib\ioapi.c" />
+    <ClCompile Include="zlib\trees.c" />
+    <ClCompile Include="zlib\uncompr.c" />
+    <ClCompile Include="zlib\zutil.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common\cmdlib.h" />
+    <ClInclude Include="common\imagelib.h" />
+    <ClInclude Include="common\inout.h" />
+    <ClInclude Include="common\mathlib.h" />
+    <ClInclude Include="common\netlib.h" />
+    <ClInclude Include="common\polylib.h" />
+    <ClInclude Include="common\polyset.h" />
+    <ClInclude Include="common\threads.h" />
+    <ClInclude Include="common\unzip.h" />
+    <ClInclude Include="common\vfs.h" />
+    <ClInclude Include="game_kingpinq3.h" />
+    <ClInclude Include="kmap2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="kmap2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="kmap2.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
