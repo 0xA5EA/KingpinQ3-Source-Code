@@ -2266,6 +2266,7 @@ static void PM_FinishWeaponChange(int weapon)
   PM_AddEvent2(EV_CHANGE_WEAPON_RAISE, weapon); //tell client wep to use/select
   PM_StartTorsoAnim(TORSO_RAISE);
   PM_StartWeaponAnim(WEAPON_RAISING); //unvan .5
+  pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH; //reset hitman weapon select
 }
 
 /*
@@ -2441,7 +2442,7 @@ static void PM_Weapon(void)
       {	// no current weapon, so just raise the new one
         PM_FinishWeaponChange(wepNew);
       }
-      pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
+      //pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
     }
   }
 

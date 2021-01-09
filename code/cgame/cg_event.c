@@ -470,7 +470,7 @@ void CG_OnPlayerWeaponChange()
 
   cg.weaponOffsetsFilter.Reset( );*/
 
-  cg.predictedPlayerEntity.pe.weapon.animationNumber = -1; //force weapon lerpframe recalculation
+  //cg.predictedPlayerEntity.pe.weapon.animationNumber = -1; //force weapon lerpframe recalculation
 }
 #endif
 
