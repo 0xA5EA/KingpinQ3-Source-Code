@@ -2756,7 +2756,7 @@ $(B)/kmap2/%.o: $(KMAP2DIR)/zlib/%.c
 	$(DO_KMAP2_CC)
 $(B)/kmap2/%.o: $(PNGDIR)/%.c
 	$(DO_KMAP2_CC)
-$(B)/kmap2/%.o: $(KMAP2DIR)/jpeg/%.c
+$(B)/kmap2/%.o: $(KMAP2DIR)/jpeg-6/%.c
 	$(DO_KMAP2_CC)
 
 #############################################################################
