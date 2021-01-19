@@ -2236,6 +2236,40 @@ int BotSynonymContext(bot_state_t *bs)
 
 /*
  ==================
+ BotHasWeapon
+
+ fix for weapon switch in hitmen
+ weapon could have been swaped by server
+ ==================
+ */
+qboolean BotHasWeapon(bot_state_t *bs, int weapon)
+{
+  switch (weapon)
+  {
+    case WEAPONINDEX_CROWBAR:
+      return bs->inventory[INVENTORY_CROWBAR];
+    case WEAPONINDEX_PISTOL:
+      return bs->inventory[INVENTORY_PISTOL];
+    case WEAPONINDEX_SHOTGUN:
+      return bs->inventory[INVENTORY_SHOTGUN];
+    case WEAPONINDEX_MACHINEGUN:
+      return bs->inventory[INVENTORY_MACHINEGUN];
+    case WEAPONINDEX_GRENADE_LAUNCHER:
+      return bs->inventory[INVENTORY_GRENADELAUNCHER];
+    case WEAPONINDEX_ROCKET_LAUNCHER:
+      return bs->inventory[INVENTORY_ROCKETLAUNCHER];
+    case WEAPONINDEX_HMG:
+      return bs->inventory[INVENTORY_HMG];
+    case WEAPONINDEX_FLAMER:
+      return bs->inventory[INVERTORY_FLAMER];
+    case WEAPONINDEX_GRAPPLING_HOOK:
+      return bs->inventory[INVENTORY_GRAPPLINGHOOK];
+    default:
+      return qfalse;
+  }
+}
+/*
+ ==================
  BotChooseWeapon
  ==================
  */
@@ -2243,7 +2277,9 @@ void BotChooseWeapon(bot_state_t *bs)
 {
   int newweaponnum;
 
-  if (bs->weaponnum > 0 && ( bs->cur_ps.weaponstate == WEAPON_RAISING || bs->cur_ps.weaponstate == WEAPON_DROPPING))
+  if (bs->weaponnum > 0 &&
+    ( bs->cur_ps.weaponstate == WEAPON_RAISING || bs->cur_ps.weaponstate == WEAPON_DROPPING ) &&
+    BotHasWeapon(bs, bs->weaponnum)) //hypov8 add: make sure we have the weapon
   {
     trap_EA_SelectWeapon(bs->client, bs->weaponnum); //bs->cur_ps.weapon
   }
@@ -2251,15 +2287,17 @@ void BotChooseWeapon(bot_state_t *bs)
   {
     newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
 
-  if (bs->weaponnum != newweaponnum)
-    bs->weaponchange_time = FloatTime();
-  bs->weaponnum = newweaponnum;
-#if DEBUG
-  if (bs->cur_ps.weapon != bs->weaponnum || bs->weaponnum == 0)
-    BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
-#endif
-  trap_EA_SelectWeapon(bs->client, bs->weaponnum);
+    if (bs->weaponnum != newweaponnum)
+    {
+      bs->weaponchange_time = FloatTime();
+      bs->weaponnum = newweaponnum;
     }
+#if DEBUG
+    if (bs->cur_ps.weapon != bs->weaponnum || bs->weaponnum == 0)
+      BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
+#endif
+    trap_EA_SelectWeapon(bs->client, bs->weaponnum);
+  }
 }
 
 /*
@@ -6051,6 +6089,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state)
   int event;
   char buf[128];
   aas_entityinfo_t entinfo;
+  int i;
 
   //NOTE: this sucks, we're accessing the gentity_t directly
   //but there's no other fast way to do it right now
@@ -6067,7 +6106,18 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state)
   {
     event = state->event & ~EV_EVENT_BITS;
   }
-  //
+
+  //hypov8 add: hitmen fix for server changed weapons. note: below events dont work
+  for (i = 0; i < MAX_PS_EVENTS; i++)
+  {
+    if (bs->cur_ps.events[i] == EV_CHANGE_WEAPON_DROP || bs->cur_ps.events[i] == EV_CHANGE_WEAPON_RAISE)
+    { //set weapon select to server forced
+      bs->weaponnum = bs->cur_ps.eventParms[i];
+      break;
+    }
+  }
+
+
   switch (event)
   {
   //client obituary event

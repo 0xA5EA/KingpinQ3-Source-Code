@@ -851,7 +851,8 @@ static void Render_vertexLighting_DBS_world( int stage )
 
 	stateBits = pStage->stateBits;
 
-	bool normalMapping = r_normalMapping->integer && ( pStage->bundle[ TB_NORMALMAP ].image[ 0 ] != NULL );
+	bool normalMapping = r_normalMapping->integer && ( pStage->bundle[TB_NORMALMAP].image[0] != NULL ) &&
+		tess.lightmapNum >= 0; //hypov8 add: fullbright uncompiled maps
 	bool glowMapping = ( pStage->bundle[ TB_GLOWMAP ].image[ 0 ] != NULL );
 
 	// choose right shader program ----------------------------------

@@ -681,7 +681,7 @@ void CG_PredictPlayerState(void)
 
 	// we check for cg_latentCmds because it'll mess up the optimization
 	// FIXME: make cg_latentCmds work with cg_optimizePrediction?
-	if ( cg_optimizePrediction.integer && !cg_latentCmds.integer ) 
+	if ( cg_optimizePrediction.integer /*&& !cg_latentCmds.integer */) 
 	{
 		if ( cg.nextFrameTeleport || cg.thisFrameTeleport ) 
 		{
@@ -902,7 +902,7 @@ void CG_PredictPlayerState(void)
   {
     if (cg_showmiss.integer)
       CG_Printf("not moved\n");
-    return;
+    //return; //hypov8 disabled:
   }
 
   // adjust for the movement of the groundentity

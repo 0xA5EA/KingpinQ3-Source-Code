@@ -27,9 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_public.h"
 #include "bg_local.h"
 
-//#define HYPO_DEBUG_MOVE
-const vec3_t playerMins = { -16, -16, -24 };
-const vec3_t playerMaxs = { 16, 16, 48 };
+static const vec3_t playerMins = { -15, -15, -24 };
+static const vec3_t playerMaxs = { 15, 15, 48 };
 //FIXME(0xA5EA): added different player min max, das that fit ??
 
 
@@ -2257,6 +2256,7 @@ static void PM_FinishWeaponChange(int weapon)
 
   pm->ps->weapon = weapon; // pm->cmd.weapon;
   pm->ps->weaponstate = WEAPON_RAISING;
+  pm->ps->persistant[PERS_NEWWEAPON] = weapon;
 
   if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
     pm->ps->weaponTime += WP_TIME_CHANGE_MELEE;
@@ -2266,7 +2266,6 @@ static void PM_FinishWeaponChange(int weapon)
   PM_AddEvent2(EV_CHANGE_WEAPON_RAISE, weapon); //tell client wep to use/select
   PM_StartTorsoAnim(TORSO_RAISE);
   PM_StartWeaponAnim(WEAPON_RAISING); //unvan .5
-  pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH; //reset hitman weapon select
 }
 
 /*
@@ -2430,11 +2429,12 @@ static void PM_Weapon(void)
 #endif
     //something thinks a weapon change is necessary
     if ( pm->ps->pm_flags & PMF_WEAPON_SWITCH ||
-      (pm->ps->weapon != pm->cmd.weapon && BG_InventoryContainsWeapon(pm->cmd.weapon, pm->ps->stats) ) )
+      (pm->ps->weapon != pm->cmd.weapon && pm->cmd.weapon != WP_NONE ) ||
+      (pm->cmd.weapon == WP_NONE && pm->ps->weapon == WP_NONE)) //only switch if no weap.
     {
       int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;
 
-      if ( pm->ps->weapon != WP_NONE && pm->ps->persistant[ PERS_NEWWEAPON ] != WP_NONE )
+      if ( pm->ps->weapon != WP_NONE)
       {
         PM_BeginWeaponChange(wepNew);
       }
@@ -2442,7 +2442,7 @@ static void PM_Weapon(void)
       {	// no current weapon, so just raise the new one
         PM_FinishWeaponChange(wepNew);
       }
-      //pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
+      pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
     }
   }
 

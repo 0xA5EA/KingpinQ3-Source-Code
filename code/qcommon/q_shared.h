@@ -1794,7 +1794,7 @@ typedef struct playerState_s
   int			commandTime;	// cmd->serverTime of last executed command
   int			pm_type;
   int			bobCycle;		// for view bobbing and footstep generation
-  uint32_t		pm_flags;		// ducked, jump_held, etc
+  unsigned int	pm_flags;		// ducked, jump_held, etc
   int			pm_time;
 
   vec3_t		origin;
@@ -1819,7 +1819,7 @@ typedef struct playerState_s
                 // when at rest, the value will remain unchanged
                 // used to twist the legs during strafing
 
-  uint32_t		eFlags;			// copied to entityState_t->eFlags
+  unsigned int	eFlags;			// copied to entityState_t->eFlags
 
   int			eventSequence;	// pmove generated events
   int			events[MAX_PS_EVENTS];

@@ -21,6 +21,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+///////////////////////////////////////////////
+//bot inventory (match to inv.h in game folder)
+///////////////////////////////////////////////
+
 #define INVENTORY_NONE 0
 //armor
 #define INVENTORY_ARMOR_LEGS 1
@@ -46,7 +50,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INVENTORY_FLAMETANK 19
 //weaponmods
 #define INVENTORY_HMG_MOD_COOL 20
-#define INVENTORY_RL_MOD_FIRE 21
+//#define INVENTORY_RL_MOD_FIRE 21
+#define INVENTORY_PISTOL_MOD_DAMAGE 21 //"item_pistol_damage_mod"
 #define INVENTORY_PISTOL_MOD_FIRE 22
 #define INVENTORY_SILENCER_MOD 23
 //powerups
@@ -121,7 +126,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define MODELINDEX_FLIGHT 28
 
 #define MODELINDEX_HMG_MOD_COOLING 24
-#define MODELINDEX_RL_MOD_FIRE 25
+//#define MODELINDEX_RL_MOD_FIRE 25
+#define MODELINDEX_PISTOL_MOD_DAMAGE 25 //"item_pistol_damage_mod"
 #define MODELINDEX_PISTOL_MOD_FIRE 26
 #define MODELINDEX_SILENCER 27
 
@@ -129,28 +135,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MODELINDEX_CASHBAG 29
 #define MODELINDEX_CASHBAG_STOLEN 30//add hypov8
 
-#define MODELINDEX_DRAGONSAFE 31
-#define MODELINDEX_NIKKISAFE 32
+//#define MODELINDEX_DRAGONSAFE 31
+//#define MODELINDEX_NIKKISAFE 32
 
-#define MODELINDEX_DRAGONFLAG 33
-#define MODELINDEX_NIKKIFLAG 34
+#define MODELINDEX_DRAGONFLAG 31
+#define MODELINDEX_NIKKIFLAG 32
+#define MODELINDEX_NEUTRALFLAG 33
 
-// mission pack only defines
-//#define MODELINDEX_KAMIKAZE 39
-
-#define MODELINDEX_NEUTRALFLAG 35
-//#define MODELINDEX_REDCUBE 41
-//#define MODELINDEX_BLUECUBE 42
 
 /* 0xA5EA -------------------------------------------------------------------->  */
-#define MODELINDEX_ARMOR_HELMET 36                     //"item_armor_helmet"
-#define MODELINDEX_ARMOR_HHELMET 37                    //"item_armor_helmet_heavy"
-#define MODELINDEX_ARMOR_LEGS 38                       //"item_armor_legs"
-#define MODELINDEX_ARMOR_HLEGS 39                      //"item_armor_legs_heavy"
-//#define MODELINDEX_ARMOR_HBODY		35						//"item_armor_body_heavy"
+#define MODELINDEX_ARMOR_HELMET 34                     //"item_armor_helmet"
+#define MODELINDEX_ARMOR_HHELMET 35                    //"item_armor_helmet_heavy"
+#define MODELINDEX_ARMOR_LEGS 36                       //"item_armor_legs"
+#define MODELINDEX_ARMOR_HLEGS 37                      //"item_armor_legs_heavy"
 /* <--------------------------------------------------------------------  0xA5EA  */
 
 //
+//todo: pipe?
 #define WEAPONINDEX_CROWBAR 1
 #define WEAPONINDEX_PISTOL 2
 #define WEAPONINDEX_SHOTGUN 3

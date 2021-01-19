@@ -1063,9 +1063,6 @@ static void CM_AddFacetBevels(cFacet_t *facet)
           ChopWindingInPlace(&w2, newplane, newplane[3], 0.1f);
           if(!w2)
           {
-            //hypov8 report the location of errors. so issues can be fixed
-            Com_DPrintf("WARNING: Invalid patch %f %f %f \n", w->p[0][0], w->p[0][1], w->p[0][2]);
-
             continue;
           }
           else

@@ -548,7 +548,7 @@ gitem_t bg_itemlist[] =
     /* sounds */ ""
   },
 
-  /*QUAKED item_pistol_damage_mod (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    30  */
+  /*QUAKED item_pistol_damage_mod (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    	#25  */
   {
     "item_pistol_damage_mod",
     "sound/misc/w_pkup.ogg",
@@ -606,7 +606,7 @@ gitem_t bg_itemlist[] =
     /* sounds */ ""
   },
 #ifdef WITH_BAGMAN_MOD
-  /*QUAKED item_cashroll (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    33  */
+  /*QUAKED item_cashroll (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    28  */
   {
     "item_cashroll",
     "sound/world/pickups/cash.ogg",
@@ -624,7 +624,7 @@ gitem_t bg_itemlist[] =
     ""						/* sounds */ 
   },
 
-  /*QUAKED item_cashbag (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    34  */
+  /*QUAKED item_cashbag (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    29  */
   {
     "item_cashbag",
     "sound/world/pickups/cash.ogg",
@@ -659,8 +659,8 @@ gitem_t bg_itemlist[] =
 	  "",						/* precache */ 
 	  ""						/* sounds */ 
   },
-#if 0
-	/*QUAKED team_bm_dragonssafe (1 0 0) (-16 -16 -16) (16 16 16)      #31 */
+#if 0 //hypov8 note: updated bot files/indexes instead
+	/*QUAKED team_bm_dragonssafe (1 0 0) (-16 -16 -16) (16 16 16)      #00 */
 	//SP_team_BM_Nikkissafe
 	{
 		"team_bm_dragonssafe",
@@ -678,7 +678,7 @@ gitem_t bg_itemlist[] =
 		""						/* sounds */ 
 	},
 
-	/*QUAKED team_bm_nikkissafe (0 0 1) (-16 -16 -16) (16 16 16)      #32  */
+	/*QUAKED team_bm_nikkissafe (0 0 1) (-16 -16 -16) (16 16 16)      #00  */
 	{
 		  "team_bm_nikkissafe",
 		  NULL,
@@ -697,7 +697,7 @@ gitem_t bg_itemlist[] =
 #endif
 #endif // WITH_BAGMAN_MOD
 
-  /*QUAKED team_ctf_dragonsflag (1 0 0) (-16 -16 -16) (16 16 16)      37 */
+  /*QUAKED team_ctf_dragonsflag (1 0 0) (-16 -16 -16) (16 16 16)      31 */
   {
     "team_ctf_dragonsflag",
     NULL,
@@ -715,7 +715,7 @@ gitem_t bg_itemlist[] =
     /* sounds */ ""
   },
 
-  /*QUAKED team_ctf_nikkisflag (0 0 1) (-16 -16 -16) (16 16 16)      38  */
+  /*QUAKED team_ctf_nikkisflag (0 0 1) (-16 -16 -16) (16 16 16)      32  */
   {
     "team_ctf_nikkisflag",
     NULL,
@@ -733,7 +733,7 @@ gitem_t bg_itemlist[] =
     ""									/* sounds */ 
   },
 
-  /*QUAKED team_ctf_neutralflag (0 0 1) (-16 -16 -16) (16 16 16) suspended   #35 */
+  /*QUAKED team_ctf_neutralflag (0 0 1) (-16 -16 -16) (16 16 16) suspended   #33 */
   {
     "team_ctf_neutralflag",
     NULL,
@@ -752,7 +752,7 @@ gitem_t bg_itemlist[] =
   },
 
 
-  /*QUAKED item_armor_helmet (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    43  */
+  /*QUAKED item_armor_helmet (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    34  */
   {
     "item_armor_helmet",
     "sound/world/pickups/generic.ogg",
@@ -771,7 +771,7 @@ gitem_t bg_itemlist[] =
   },
 
 
-  /*QUAKED item_armor_helmet_heavy (.3 .3 1) (-16 -16 -16) (16 16 16) suspended  44  */
+  /*QUAKED item_armor_helmet_heavy (.3 .3 1) (-16 -16 -16) (16 16 16) suspended  35  */
   {
     "item_armor_helmet_heavy",
     "sound/world/pickups/generic.ogg",
@@ -789,7 +789,7 @@ gitem_t bg_itemlist[] =
     /* sounds */ ""
   },
 
-  /*QUAKED item_armor_legs (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    45  */
+  /*QUAKED item_armor_legs (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    36  */
   {
     "item_armor_legs",
     "sound/world/pickups/generic.ogg",
@@ -807,7 +807,7 @@ gitem_t bg_itemlist[] =
     /* sounds */ ""
   },
 
-  /*QUAKED item_armor_legs_heavy (.3 .3 1) (-16 -16 -16) (16 16 16) suspended   46 */
+  /*QUAKED item_armor_legs_heavy (.3 .3 1) (-16 -16 -16) (16 16 16) suspended   37 */
   {
     "item_armor_legs_heavy",
     "sound/world/pickups/generic.ogg",
