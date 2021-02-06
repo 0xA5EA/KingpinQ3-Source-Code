@@ -244,12 +244,12 @@ gitem_t bg_itemlist[] =
     "weapon_grenadelauncher",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/grenadelauncher/gl.md3",
-      "models/weapons/grenadelauncher/lhand.md3",
-      "models/weapons/grenadelauncher/glflash.md3",
-      "models/weapons/grenadelauncher/clip.md3",
-      "models/weapons/grenadelauncher/worldplayer.md3",
-      "models/weapons/grenadelauncher/world.md3"
+      "models/weapons/grenadelauncher/v_wep.md3",        //"v_wep.md3",     // first person view wep
+      "models/weapons/grenadelauncher/v_hand.md3",       //"v_hand.md3",    // first person view hand
+      "models/weapons/grenadelauncher/glflash.md3",      //"flash.md3",     // first person+3rd person flash model sprite
+      0, // "models/weapons/grenadelauncher/clip.md3",   //"v_ammo.md3",    // first person ammo clip
+      "models/weapons/grenadelauncher/worldplayer.md3",  //"w_player.md3",  // world player weaponmodel
+      "models/weapons/grenadelauncher/world.md3"         //"w_map.md3"      // world map model 
       //FIXME (0xA5EA): add model to data
     },
     "gfx/icons/h_grenade_l",      // icon
