@@ -2544,7 +2544,7 @@ void CG_AddViewWeapon(playerState_t *ps)
   static refEntity_t  hand; // static for proper alignment in QVMs
   centity_t *cent;
   clientInfo_t *ci;
-  float fovOffset;
+  float fovOffset, wsOffset;
   vec3_t angles;
   int weaponNum= ps->weapon;
   weaponInfo_t *weapon;
@@ -2636,7 +2636,8 @@ void CG_AddViewWeapon(playerState_t *ps)
     fovOffset = 0;
   }
 
-
+  // widescreen offset. move gun out X
+  wsOffset = 0.05f * (73.7f - cg.refdef.fov_y); // 73.7 = default (4/3)
 
   /////////////////////////hypov8
   //if ( ps->weapon > WP_NONE )
