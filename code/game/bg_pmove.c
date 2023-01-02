@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_public.h"
 #include "bg_local.h"
 
-static const vec3_t playerMins = { -15, -15, -24 };
-static const vec3_t playerMaxs = { 15, 15, 48 };
+const vec3_t playerMins = { -15, -15, -24 };
+const vec3_t playerMaxs = { 15, 15, 48 };
 //FIXME(0xA5EA): added different player min max, das that fit ??
 
 
