@@ -244,6 +244,7 @@ gitem_t bg_itemlist[] =
     "weapon_grenadelauncher",
     "sound/misc/w_pkup.ogg",
     {
+
       "models/weapons/grenadelauncher/v_wep.md3",       // first person view wep
       "models/weapons/grenadelauncher/v_hand.md3",      // first person view hand
       "models/weapons/grenadelauncher/flash.md3",       // first person+3rd person flash model sprite
@@ -309,6 +310,7 @@ gitem_t bg_itemlist[] =
     "weapon_flamethrower",
     "sound/misc/w_pkup.ogg",
     {
+
       "models/weapons/flamegun/v_wep.md3",     // first person view wep
       "models/weapons/flamegun/v_hand.md3",    // first person view hand
       "models/weapons/flamegun/flash.md3",     // first person+3rd person flash model sprite
@@ -316,6 +318,7 @@ gitem_t bg_itemlist[] =
       "models/weapons/flamegun/w_player.md3",  // world player weaponmodel
       "models/weapons/flamegun/w_map.md3"      // world map model 
       //FIXME (0xA5EA): add model to data
+
     },
     "gfx/icons/h_flamethrower",    // icon
     "Flamegun",                // pickup name
