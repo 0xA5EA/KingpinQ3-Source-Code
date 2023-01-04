@@ -163,24 +163,37 @@ void CG_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *paren
 {
   int i;
   orientation_t lerped;
+  orientation_t offsetTag;
   vec3_t tempAxis[3];
 
   Q_UNUSED(parentModel);
-//AxisClear( entity->axis );
+
+  //AxisClear( entity->axis );
+
   // lerp the tag
 #if defined(COMPAT_KPQ3) || defined(COMPAT_ET)
   trap_R_LerpTag( &lerped, parent, tagName, 0 );
+
+  //hypov8 add: offset gun using internal tag. so 1 model can be used for w_map and w_player
+  trap_R_LerpTag( &offsetTag, entity, "tag_weapon", 0 );
 #else
   trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
 #endif
 
+
   // FIXME: allow origin offsets along tag?
   VectorCopy(parent->origin, entity->origin);
+
+#if 0 //not working properly
+  //hypov8 offset using local tag "tag_weapon"
+  VectorSubtract(entity->origin, offsetTag.origin, entity->origin);
+#endif
 
   for (i = 0; i < 3; i++)
   {
     VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
   }
+
 
   // had to cast away the const to avoid compiler problems...
   AxisMultiply(entity->axis, lerped.axis, tempAxis);

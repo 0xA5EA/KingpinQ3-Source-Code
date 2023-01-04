@@ -667,7 +667,7 @@ void ClientEvents(gentity_t *ent, int oldEventSequence)
 
     switch (event)
     {
-	case EV_FALL_SHORT: //add hypov8 fall short
+    case EV_FALL_SHORT: //add hypov8 fall short
     case EV_FALL_MEDIUM:
     case EV_FALL_FAR:
       if (ent->s.eType != ET_PLAYER)
@@ -677,11 +677,11 @@ void ClientEvents(gentity_t *ent, int oldEventSequence)
         break;
 
       if (event == EV_FALL_FAR)
-		  damage = 60;	//hypov8 increase fall damage
-	  else if (event == EV_FALL_MEDIUM)
-		  damage = 35;	//hypov8 add fall damage event
+        damage = 60;	//hypov8 increase fall damage
+      else if (event == EV_FALL_MEDIUM)
+        damage = 35;	//hypov8 add fall damage event
       else
-          damage = 15;
+        damage = 15;
 
       //VectorSet(dir, 0, 0, 1);
       ent->pain_debounce_time = level.time + 200; // no normal pain sound
@@ -689,8 +689,8 @@ void ClientEvents(gentity_t *ent, int oldEventSequence)
       break;
 
     case EV_FIRE_WEAPON:
-	case EV_FIRE_SHOTGUN: //
-	case EV_FIRE_SPISTOL: //hypov8
+    case EV_FIRE_SHOTGUN: //
+    case EV_FIRE_SPISTOL: //hypov8
     case EV_FIRE_HMG_SHOT:
       FireWeapon(ent);
       break;
@@ -715,21 +715,21 @@ void ClientEvents(gentity_t *ent, int oldEventSequence)
         item = BG_FindItemForPowerup(PW_NEUTRALFLAG);
         j = PW_NEUTRALFLAG;
       }
-	  /* add hypov8 */
-	 /* else if (ent->client->ps.powerups[PW_STOLENSCASH])
-	  {
-		  item = BG_FindItemForPowerup(PW_STOLENSCASH);
-		  j = PW_STOLENSCASH; // hypov8 add cash 'stay' time limit??
-	  }*/
+      /* add hypov8 */
+      /* else if (ent->client->ps.powerups[PW_STOLENSCASH])
+      {
+          item = BG_FindItemForPowerup(PW_STOLENSCASH);
+          j = PW_STOLENSCASH; // hypov8 add cash 'stay' time limit??
+      }*/
 
-	  
+
 
       if (item)
       {
         drop = Drop_Item(ent, item, 0);
         // decide how many seconds it has left
         //drop->count = (ent->client->ps.powerups[j] - level.time) / 1000;
-		drop->count = G_PowerupCountdown(j, ent->client->ps.powerups[j]); //hypov8 add
+        drop->count = G_PowerupCountdown(j, ent->client->ps.powerups[j]); //hypov8 add
         if (drop->count < 1)
           drop->count = 1;
 

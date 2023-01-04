@@ -195,7 +195,7 @@ static cvarTable_t gameCvarTable[] = {
   {&g_weaponmod, "g_weaponmod", "0", CVAR_SERVERINFO  | CVAR_LATCH, 0, qfalse},            /* 0xA5EA */
 
   {&g_hmWeapontime, "g_hmWeapontime", "66", CVAR_SERVERINFO , 0, qfalse},                  /* 0xA5EA   */
-  {&g_hmWeapons, "g_hmWeapons", "63", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse},             /* 0xA5EA,  */
+  {&g_hmWeapons, "g_hmWeapons", "127", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse}, /* hypov8 was 63. add flammer  0xA5EA */
   {&g_hmFlags, "g_hmFlags", "0", CVAR_SERVERINFO , 0, qfalse},
 #ifdef WITH_BAGMAN_MOD
   {&g_cashlimit, "g_cashlimit", "3000", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},

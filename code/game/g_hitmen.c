@@ -259,11 +259,11 @@ static int HM_InitWeaponlist(void)
     if (bg_itemlist[i].giTag == WP_GRAPPLING_HOOK)
       continue;
 
-    if (g_weaponmod.integer == WM_HITMEN && bg_itemlist[i].giTag < WP_SHOTGUN)
-      continue;
+    if (g_weaponmod.integer == WM_HITMEN && bg_itemlist[i].giTag < WP_FIRST)
+      continue; //hypov8 was WP_SHOTGUN. allow cycle pistol weapon. redundant 
 
-    if (g_weaponmod.integer == WM_HITMENREALMODE && bg_itemlist[i].giTag > WP_SHOTGUN)
-      continue;
+    if (g_weaponmod.integer == WM_HITMENREALMODE && bg_itemlist[i].giTag > WP_MACHINEGUN)
+      continue; //hypov8 was WP_SHOTGUN. stop GR, RL, HMG, FL cycle
 
     // item is a valid weapon, is it disabled ?
     if (HM_IsWeaponDisabled((weapon_t)bg_itemlist[i].giTag))

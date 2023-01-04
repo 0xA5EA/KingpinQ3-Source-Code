@@ -244,12 +244,12 @@ gitem_t bg_itemlist[] =
     "weapon_grenadelauncher",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/grenadelauncher/gl.md3",
-      "models/weapons/grenadelauncher/lhand.md3",
-      "models/weapons/grenadelauncher/glflash.md3",
-      "models/weapons/grenadelauncher/clip.md3",
-      "models/weapons/grenadelauncher/worldplayer.md3",
-      "models/weapons/grenadelauncher/world.md3"
+      "models/weapons/grenadelauncher/v_wep.md3",       // first person view wep
+      "models/weapons/grenadelauncher/v_hand.md3",      // first person view hand
+      "models/weapons/grenadelauncher/flash.md3",       // first person+3rd person flash model sprite
+      0,                                                // first person ammo clip
+      "models/weapons/grenadelauncher/w_player.md3",    // world player weaponmodel
+      "models/weapons/grenadelauncher/w_map.md3"        // world map model 
       //FIXME (0xA5EA): add model to data
     },
     "gfx/icons/h_grenade_l",      // icon
@@ -309,24 +309,13 @@ gitem_t bg_itemlist[] =
     "weapon_flamethrower",
     "sound/misc/w_pkup.ogg",
     {
-#if 1 
-      "models/weapons/flamegun/flamegun.md3",
-      "models/weapons/flamegun/hand.md3",
-      "models/weapons/flamegun/flash.md3",
-      0,
-      "models/weapons/flamegun/worldplayer.md3", // world player weaponmodel
-      "models/weapons/flamegun/world.md3" // world spawn weaponmodel
+      "models/weapons/flamegun/v_wep.md3",     // first person view wep
+      "models/weapons/flamegun/v_hand.md3",    // first person view hand
+      "models/weapons/flamegun/flash.md3",     // first person+3rd person flash model sprite
+      0,                                       // first person ammo clip
+      "models/weapons/flamegun/w_player.md3",  // world player weaponmodel
+      "models/weapons/flamegun/w_map.md3"      // world map model 
       //FIXME (0xA5EA): add model to data
-
-#else //hypov8 todo: renamed game models 
-	  "v_wep.md3",		// first person view wep
-	  "v_hand.md3",		// first person view hand
-	  "flash.md3",		// first person+3rd person flash model sprite
-	  "v_ammo.md3",		// first person ammo clip
-	  "w_player.md3",	// world player weaponmodel
-	  "w_map.md3"		// world map model 
-#endif
-
     },
     "gfx/icons/h_flamethrower",    // icon
     "Flamegun",                // pickup name

@@ -497,33 +497,33 @@ typedef enum
 } holdable_t;
 
 
-//WEAPON_FIRING							(kp wep frame count) *100ms
-#define WP_TIME_FIRE_PISTOL             (5*100) //
+//WEAPON_FIRING                         (kp wep frame count) *100ms
+#define WP_TIME_FIRE_PISTOL             (5*100)
 #define WP_TIME_FIRE_CROWBAR            (10*100)
 #define WP_TIME_FIRE_SHOTGUN            (12*100)
 #define WP_TIME_FIRE_MACHINEGUN         (1*100)
-#define WP_TIME_FIRE_GRENADE_LAUNCHER   ((4+8)*100)
+#define WP_TIME_FIRE_GRENADE_LAUNCHER   ((4+8)*100) //fire + cycle mag
 #define WP_TIME_FIRE_ROCKET_LAUNCHER    (8*100)
-#define WP_TIME_FIRE_HMG				(2*100)
+#define WP_TIME_FIRE_HMG                (2*100)
 #define WP_TIME_FIRE_HMG_LAST           (12*100)
-#define WP_TIME_FIRE_FLAMEGUN			(1*100)
+#define WP_TIME_FIRE_FLAMEGUN           (1*100)
 #define WP_TIME_FIRE_GRAPPLING_HOOK     (4*100)
 
-//WEAPON_RELOADING							(kp wep frame count) *100ms
-#define WP_TIME_RELOAD_PISTOL				(18*100)
-#define WP_TIME_RELOAD_SHOTGUN				(15*100)
-#define WP_TIME_RELOAD_MACHINEGUN			(24*100)
-#define WP_TIME_RELOAD_GRENADE_LAUNCHER		(16*100)
-#define WP_TIME_RELOAD_ROCKET_LAUNCHER		(14*100)
-#define WP_TIME_RELOAD_HMG					(18*100)
-#define WP_TIME_RELOAD_FLAMEGUN				(11*100)
+//WEAPON_RELOADING                      (kp wep frame count) *100ms
+#define WP_TIME_RELOAD_PISTOL           (18*100)
+#define WP_TIME_RELOAD_SHOTGUN          (15*100)
+#define WP_TIME_RELOAD_MACHINEGUN       (24*100)
+#define WP_TIME_RELOAD_GRENADE_LAUNCHER (16*100)
+#define WP_TIME_RELOAD_ROCKET_LAUNCHER  (14*100)
+#define WP_TIME_RELOAD_HMG              (18*100)
+#define WP_TIME_RELOAD_FLAMEGUN         (14*100)
 
 //WEAPON_RAISING || WEAPON_DROPPING
-#define WP_TIME_CHANGE_GUNS		500
-#define WP_TIME_CHANGE_MELEE	250
+#define WP_TIME_CHANGE_GUNS             500
+#define WP_TIME_CHANGE_MELEE            250
 
-//WEAPON_RELOAD_MOD					//shotty needs to <startReload> <reload> <finishReload>
-#define WP_TIME_MOD_SHOTGUN		(5*100) //reload a 2nd bullet faster ( animations should be broken into 1/3 total time)
+//WEAPON_RELOAD_MOD                     //shotty needs to <startReload> <reload> <finishReload>
+#define WP_TIME_MOD_SHOTGUN             (5*100) //reload a 2nd bullet faster ( animations should be broken into 1/3 total time)
 
 
 //WEAPON_READY

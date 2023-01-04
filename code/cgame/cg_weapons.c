@@ -811,7 +811,7 @@ static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *a
     if (!token)
       break;
 
-    if (ws == WEAPON_READY && atoi(token) > 0) // disable loop on all but idle
+    if ((ws == WEAPON_READY || ws == WEAPON_FIRING) && atoi(token) > 0) // allow loop on fire and idle
       animations[ws].loopFrames = animations[ws].numFrames;//hypov8 force looping whole sequence
     else
       animations[ws].loopFrames = 0;
@@ -828,7 +828,7 @@ static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *a
     }
 
   //add hypov8 sync animation using a #defined total animation time in engine, not animation.cfg
-  //this allows the complte animation sequence to run in the set timeframe
+  //this allows the complete animation sequence to run in the set timeframe
   if (ws == WEAPON_RELOADING && animations[ws].numFrames > 0)
   {
     animations[ws].frameLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
@@ -841,8 +841,16 @@ static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *a
   }
   else if (ws == WEAPON_FIRING && animations[ws].numFrames > 0)
   {
-    animations[ws].frameLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
-    animations[ws].initialLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
+    if (animations[ws].loopFrames == 0)
+    {
+      animations[ws].frameLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
+      animations[ws].initialLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
+    }
+    else //hypov8 allow looping. use fps. adds variance to fast fire weapons (tommy/flamer)
+    {
+      animations[ws].frameLerp = 1000 / fps;
+      animations[ws].initialLerp = 1000 / fps;
+    }
   }
   else if ((ws == WEAPON_DROPPING || ws == WEAPON_RAISING) && animations[ws].numFrames > 0)
   {
@@ -2544,7 +2552,7 @@ void CG_AddViewWeapon(playerState_t *ps)
   static refEntity_t  hand; // static for proper alignment in QVMs
   centity_t *cent;
   clientInfo_t *ci;
-  float fovOffset;
+  float fovOffset, wsOffset;
   vec3_t angles;
   int weaponNum= ps->weapon;
   weaponInfo_t *weapon;
@@ -2636,7 +2644,8 @@ void CG_AddViewWeapon(playerState_t *ps)
     fovOffset = 0;
   }
 
-
+  // widescreen offset. move gun out X
+  wsOffset = 0.05f * (73.7f - cg.refdef.fov_y); // 73.7 = default (4/3)
 
   /////////////////////////hypov8
   //if ( ps->weapon > WP_NONE )
@@ -2652,7 +2661,7 @@ void CG_AddViewWeapon(playerState_t *ps)
   // set up gun position
   CG_CalculateWeaponPosition(hand.origin, angles);
 
-  VectorMA(hand.origin, cg_gun_x.value, cg.refdef.viewaxis[0], hand.origin);
+  VectorMA(hand.origin, cg_gun_x.value + wsOffset, cg.refdef.viewaxis[0], hand.origin);
   VectorMA(hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], hand.origin);
   VectorMA(hand.origin, (cg_gun_z.value + fovOffset), cg.refdef.viewaxis[2], hand.origin);
 
@@ -3089,7 +3098,7 @@ void CG_FireWeapon(centity_t *cent, qboolean spistol)
   {
     if (ent->weapon == WP_PISTOL)
     {
-    if (spistol)	//PW_WPMOD_SILENCER
+      if (spistol)	//PW_WPMOD_SILENCER
         c = 1;
       else
         c = 0;

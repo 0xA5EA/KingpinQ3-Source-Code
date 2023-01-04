@@ -833,8 +833,8 @@ void ClearRegisteredItems(void)
   // precache weapons on hitmen
   if(g_weaponmod.integer & WM_HITMEN)
   {
-    int w = WP_NONE+1;
-    for (; w < WP_GRAPPLING_HOOK; ++w)   //WP_NUM_WEAPONS
+    int w;
+    for (w = WP_FIRST; w < WP_GRAPPLING_HOOK; ++w)   //WP_NUM_WEAPONS
     {
       if (!HM_IsWeaponDisabled((weapon_t)w))
          RegisterItem(BG_FindItemForWeapon((weapon_t)w));

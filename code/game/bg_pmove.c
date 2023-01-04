@@ -538,7 +538,7 @@ static qboolean PM_CheckJump(void)
   if (!pml.groundPlane) //add hypov8
   {
     if (pm->debugLevel)
-    Com_Printf("PM_CheckJump. Allready in air \n");
+        Com_Printf("PM_CheckJump. Allready in air \n");
     return qfalse;
   }
 
@@ -1826,17 +1826,17 @@ static void PM_SetWaterLevel(void)
     sample1 = sample2 / 2;
 
     pm->watertype  = cont;
-    pm->waterlevel = 1;
+    pm->waterlevel = 1; //ankle deep
     point[2]       = pm->ps->origin[2] + MINS_Z + sample1;
     cont           = pm->pointcontents(point, pm->ps->clientNum);
     if (cont & MASK_WATER)
     {
-      pm->waterlevel = 2;
+      pm->waterlevel = 2; //waist deep
       point[2] = pm->ps->origin[2] + MINS_Z + sample2;
       cont = pm->pointcontents(point, pm->ps->clientNum);
 
       if (cont & MASK_WATER)
-        pm->waterlevel = 3;
+        pm->waterlevel = 3; //head deep
     }
   }
 }
@@ -2623,8 +2623,13 @@ static void PM_Weapon(void)
       break;
     }
 
-    if ( pm->ps->weapon != WP_CROWBAR )
-      PM_StartWeaponAnim(WEAPON_FIRING);
+    if (pm->ps->weapon != WP_CROWBAR)
+    {   //cycle animation using fps in animation.cfg
+      if (pm->ps->weapon == WP_FLAMER || pm->ps->weapon == WP_MACHINEGUN )
+        PM_ContinueWeaponAnim(WEAPON_FIRING);
+      else
+        PM_StartWeaponAnim(WEAPON_FIRING);
+    }
   }
 
   pm->ps->weaponstate = WEAPON_FIRING;
