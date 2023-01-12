@@ -159,12 +159,12 @@ gitem_t bg_itemlist[] =
     "weapon_crowbar",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/crowbar/crowbar.md3",
-      "models/weapons/crowbar/hand.md3",
-      0, //"models/weapons/crowbar/grapple_flash.md3",
+      "models/weapons/crowbar/v_wep.md3",
+      "models/weapons/crowbar/v_hand.md3",
+      0, //"models/weapons/crowbar/flash.md3",
       0,
-      "models/weapons/crowbar/world.md3",
-      "models/weapons/crowbar/world.md3"
+      "models/weapons/crowbar/w_player.md3",
+      "models/weapons/crowbar/w_map.md3"
     },
     "gfx/icons/h_cbar",         // icon
     "Crowbar",              // pickup name
@@ -183,8 +183,8 @@ gitem_t bg_itemlist[] =
 			  "models/weapons/colt/v_hand.md3", 		// first person view hand
 			  "models/weapons/colt/flash.md3",			// first person+3rd person flash model sprite 
 			  0,		// first person ammo clip
-			  "models/weapons/colt/worldpistol.md3",	// world player weapon model
-			  "models/weapons/colt/world.md3"			// world map model
+			  "models/weapons/colt/w_player.md3",	// world player weapon model
+			  "models/weapons/colt/w_map.md3"			// world map model
 			  //FIXME (0xA5EA): use world pistol model
 		  },
 		  "gfx/icons/h_pistol_mag",    // icon
@@ -267,12 +267,12 @@ gitem_t bg_itemlist[] =
     "weapon_bazooka",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/rocketlauncher/rlaunch.md3",
-      "models/weapons/rocketlauncher/hand.md3",
-      "models/weapons/rocketlauncher/rocketl_flash.md3",
-      "models/weapons/rocketlauncher/shell_a.md3",
-      "models/weapons/rocketlauncher/worldplayer.md3",  // world player weaponmodel
-      "models/weapons/rocketlauncher/world.md3"         // world spawn weaponmodel
+      "models/weapons/rocketlauncher/v_wep.md3",
+      "models/weapons/rocketlauncher/v_hand.md3",
+      "models/weapons/rocketlauncher/flash.md3",
+      "models/weapons/rocketlauncher/v_ammo.md3",    //hypov8 todo: merge
+      "models/weapons/rocketlauncher/w_player.md3",  // world player weaponmodel
+      "models/weapons/rocketlauncher/w_map.md3"      // world spawn weaponmodel
     },
     "gfx/icons/h_bazooka",      // icon
     "Rocket Launcher",      // pickup name
@@ -288,12 +288,12 @@ gitem_t bg_itemlist[] =
     "weapon_heavymachinegun",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/hmg/hmg.md3",
+      "models/weapons/hmg/v_wep.md3",
       0,
       "models/weapons/hmg/flash.md3",
       0,
-      "models/weapons/hmg/worldplayer.md3",        // world player weaponmodel
-      "models/weapons/hmg/world.md3"               // world spawn weaponmodel
+      "models/weapons/hmg/w_player.md3",        // world player weaponmodel
+      "models/weapons/hmg/w_map.md3"               // world spawn weaponmodel
       //FIXME (0xA5EA): add model to data
     },
     "gfx/icons/iconw_hmg",       // icon

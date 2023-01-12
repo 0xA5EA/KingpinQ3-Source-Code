@@ -1071,7 +1071,7 @@ void CG_RegisterWeapon(int weaponNum)
   case WP_ROCKET_LAUNCHER:
   //models
     Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/rocketlauncher/animation.cfg");
-    weaponInfo->missileModel = trap_R_RegisterModel("models/weapons/rocketlauncher/rocket.md3");
+    weaponInfo->missileModel = trap_R_RegisterModel("models/ammo/rocket.md3");
   //sounds
     weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/rocket_launcher/rl_rocket-gverb.ogg", qfalse);
     weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/rocket_launcher/rl_fire.ogg", qfalse);
@@ -1110,7 +1110,7 @@ void CG_RegisterWeapon(int weaponNum)
   case WP_HMG:
   MAKERGB(weaponInfo->flashDlightColor, 0.6f, 0.3f, 0.0f);
     Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/hmg/animation.cfg");
-    weaponInfo->mod1WeaponModel = trap_R_RegisterModel("models/weapons/hmg/hmgcool.md3");
+    weaponInfo->mod1WeaponModel = trap_R_RegisterModel("models/weapons/hmg/v_wep_cool.md3");
   weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/hmg/hmg_one.ogg", qfalse);                /* 0xA5EA */
     weaponInfo->reloadSound    = trap_S_RegisterSound("sound/weapons/hmg/hmgcock.ogg", qfalse);            /* 0xA5EA */
     weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
@@ -1127,7 +1127,7 @@ void CG_RegisterWeapon(int weaponNum)
   //models
     Com_sprintf(anim_file, MAX_QPATH, "%s","models/weapons/flamegun/animation.cfg");
 #ifdef HYPODEBUG//	CG_Flamer(cent); //debug
-  weaponInfo->missileModel = trap_R_RegisterModel("models/weapons/rocketlauncher/rocket.md3");
+  weaponInfo->missileModel = trap_R_RegisterModel("models/ammo/rocket.md3");
 #endif
     //sounds
   weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/flame_thrower/flame1.ogg", qfalse);
