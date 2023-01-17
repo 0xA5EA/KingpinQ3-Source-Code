@@ -1634,7 +1634,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
   wrapType_t   wrapType;
 //	qboolean   uncompressed;
   char         *buffer_p = &buffer[ 0 ];
-#ifdef HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   int start, end;
 #endif
 
@@ -1766,7 +1766,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
   }
 
 
-#ifdef HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   start = Sys_Milliseconds();
 #endif
 
@@ -1779,7 +1779,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
     return qfalse;
   }
 
-#if HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   end = Sys_Milliseconds();
   Com_Printf("load image time=: %i msec. %s\n", end - start, buffer); //add hypo degbug
 #endif
@@ -1794,7 +1794,7 @@ static qboolean LoadCubeMap( shaderStage_t *stage, char *buffer )
   wrapType_t   wrapType;
 //	qboolean   uncompressed;
   char         *buffer_p = &buffer[ 0 ];
-#ifdef HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   int start, end;
 #endif
 
@@ -1847,7 +1847,7 @@ static qboolean LoadCubeMap( shaderStage_t *stage, char *buffer )
   }
 
 
-#ifdef HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   start = Sys_Milliseconds();
 #endif
   // try to load the image
@@ -1862,7 +1862,7 @@ static qboolean LoadCubeMap( shaderStage_t *stage, char *buffer )
   }
 
 
-#if HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   end = Sys_Milliseconds();
   Com_Printf("load image time=: %i msec. %s\n", end - start, buffer); //add hypov8 degbug
 #endif
@@ -1878,7 +1878,7 @@ static qboolean LoadCubeBlendedMap( shaderStage_t *stage, char *buffer )
   wrapType_t   wrapType;
   char         *buffer_p = &buffer[ 0 ];
 
-#ifdef HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   int start, end;
 #endif
 
@@ -1905,7 +1905,7 @@ static qboolean LoadCubeBlendedMap( shaderStage_t *stage, char *buffer )
     imageBits |= IF_ALPHATEST;
 
 
-#ifdef HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   start = Sys_Milliseconds();
 #endif
 
@@ -1921,7 +1921,7 @@ static qboolean LoadCubeBlendedMap( shaderStage_t *stage, char *buffer )
   }
 
 
-#if HYPODEBUG_IMG_TIME
+#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
   end = Sys_Milliseconds();
   Com_Printf("load image time=: %i msec. %s\n", end - start, buffer); //add hypov8 degbug
 #endif

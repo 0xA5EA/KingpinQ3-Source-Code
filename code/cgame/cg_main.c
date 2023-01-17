@@ -197,6 +197,7 @@ vmCvar_t cg_trueLightning;
 vmCvar_t cg_larshelp;   /* 0xA5EA */
 vmCvar_t cg_larshelp2;  /* 0xA5EA */
 vmCvar_t cg_larshelp3;  /* 0xA5EA */
+vmCvar_t com_printmap;  /* hypov8*/
 //FIXME(0xA5EA): remove them again
 
 vmCvar_t cg_particles;
@@ -368,6 +369,8 @@ static cvarTable_t cvarTable[] =
  {&cg_larshelp,              "cg_larshelp",                "0", CVAR_ARCHIVE},
  {&cg_larshelp2,             "cg_larshelp2",               "0", CVAR_ARCHIVE},
  {&cg_larshelp3,             "cg_larshelp3",               "0", CVAR_ARCHIVE},
+ {&com_printmap,             "com_printmap",                "", CVAR_ARCHIVE},
+
   //FIXME(0xA5EA): removed this cvars again
 #ifdef USE_GT_SINGLEPLAYER
   {&cg_recordSPDemo,          "ui_recordSPDemo",          "0", CVAR_ARCHIVE},

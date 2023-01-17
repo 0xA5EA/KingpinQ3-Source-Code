@@ -1224,13 +1224,14 @@ static void SV_VerifyPaks_f(client_t *cl)
 	//
 	if (sv_pure->integer != 0)
 	{
-
+		bGood = qtrue;
 		nChkSum1 = nChkSum2 = 0;
+#ifdef VM_SV_PURE //copy xreal
 		// we run the game, so determine which cgame and ui the client "should" be running
 		bGood = (FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
 		if (bGood)
 			bGood = (FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
-
+#endif
 		nClientPaks = Cmd_Argc();
 
 		// start at arg 2 ( skip serverId cl_paks )
@@ -1256,7 +1257,7 @@ static void SV_VerifyPaks_f(client_t *cl)
 		// we basically use this while loop to avoid using 'goto' :)
 		while(bGood)
 		{
-
+#ifdef VM_SV_PURE
 			// must be at least 6: "cl_paks cgame ui @ firstref ... numChecksums"
 			// numChecksums is encoded
 			if (nClientPaks < 6)
@@ -1264,23 +1265,45 @@ static void SV_VerifyPaks_f(client_t *cl)
 				bGood = qfalse;
 				break;
 			}
+#endif
 			// verify first to be the cgame checksum
 			pArg = Cmd_Argv(nCurArg++);
-			if (!pArg || *pArg == '@' || atoi(pArg) != nChkSum1)
+			if (!pArg || *pArg != '@')
 			{
-				bGood = qfalse;
-				break;
+#ifdef VM_SV_PURE
+				if (atoi(pArg) != nChkSum1)
+				{
+					Com_Printf("Bad cgame checksum from client %s\n", cl->name);
+					bGood = qfalse;
+					break;
+				}
+#endif
+				// verify the second to be the ui checksum
+				pArg = Cmd_Argv(nCurArg++);
+				if (!pArg || *pArg == '@')
+				{
+#ifdef VM_SV_PURE
+					if ( atoi(pArg) != nChkSum2)
+					{
+						Com_Printf("Bad ui checksum from client %s\n", cl->name);
+						bGood = qfalse;
+						break;
+					}
+#endif
+				}
+				// should be sitting at the delimeter now
+				pArg = Cmd_Argv(nCurArg++);
+				if (*pArg != '@')
+				{
+					bGood = qfalse;
+					break;
+				}
 			}
-			// verify the second to be the ui checksum
-			pArg = Cmd_Argv(nCurArg++);
-			if (!pArg || *pArg == '@' || atoi(pArg) != nChkSum2)
+			else if(pArg[0] && *pArg == '@')
 			{
-				bGood = qfalse;
-				break;
+				// should be sitting at the delimeter now
 			}
-			// should be sitting at the delimeter now
-			pArg = Cmd_Argv(nCurArg++);
-			if (*pArg != '@')
+			else
 			{
 				bGood = qfalse;
 				break;

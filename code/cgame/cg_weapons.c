@@ -2912,9 +2912,9 @@ static qboolean CG_WeaponSelectable(weapon_t weapon)
 static qboolean CG_WeaponHasAmmo(weapon_t weapon)
 {
   if ( BG_InventoryContainsAmmo(weapon, &cg.snap->ps) )
-    return true;
+    return qtrue;
 
-  return false;
+  return qfalse;
 }
 
 /*

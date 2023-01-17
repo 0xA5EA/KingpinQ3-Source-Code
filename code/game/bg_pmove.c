@@ -2078,20 +2078,20 @@ PM_BeginWeaponReload
 static qboolean PM_BeginWeaponReload(int weapon)
 {
   if (!BG_IsReloadableWeapon(weapon))
-    return false;
+    return qfalse;
   if (!(pm->ps->stats[STAT_WEAPONS] & (1 << weapon)))
-    return false;
+    return qfalse;
   if (pm->ps->weaponstate == WEAPON_RAISING)
-    return false;
+    return qfalse;
   if (pm->ps->weaponstate == WEAPON_DROPPING)
-    return false;
+    return qfalse;
 
   //check if gun magazine is full
   if (pm->ps->ammo_mag[weapon] == BG_WeaponMaxMagCount(weapon))
-    return false; // switch??
+    return qfalse; // switch??
   //no ammo to reload
   if (!pm->ps->ammo_all[BG_AmmoCombineCheck(weapon)])
-    return false;
+    return qfalse;
 
 
   //pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
@@ -2113,7 +2113,7 @@ static qboolean PM_BeginWeaponReload(int weapon)
   }
 
   pm->ps->weaponTime += PM_WeaponReloadTimeOffset(weapon, pm->ps->weaponstate);
-  return true;
+  return qtrue;
 }
 
 /*

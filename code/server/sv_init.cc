@@ -385,6 +385,7 @@ SV_TouchCGame
 ================
 */
 static void SV_TouchCGame(void) {
+#ifdef USE_LLVM
 	fileHandle_t f;
 	char filename[MAX_QPATH];
 
@@ -393,6 +394,7 @@ static void SV_TouchCGame(void) {
 	if ( f ) {
 		FS_FCloseFile(f);
 	}
+#endif
 }
 
 /*
@@ -658,7 +660,7 @@ void SV_Init (void)
 	// systeminfo
 	Cvar_Get("sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM);
 	sv_serverid = Cvar_Get("sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM);
-	sv_pure			= Cvar_Get("sv_pure", "0", CVAR_SYSTEMINFO | CVAR_SERVERINFO); //hypov8 default 0 for beta, untill packaged
+	sv_pure			= Cvar_Get("sv_pure", "0", CVAR_SYSTEMINFO | CVAR_SERVERINFO); //hypov8 default 0 for beta, untill packaged.
 #ifdef USE_VOIP
 	sv_voip = Cvar_Get("sv_voip", "1", CVAR_SYSTEMINFO | CVAR_LATCH);
 	Cvar_CheckRange(sv_voip, 0, 1, qtrue);

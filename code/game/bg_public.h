@@ -1081,9 +1081,9 @@ qboolean BG_PlayerTouchesItem(playerState_t *ps, entityState_t *item, int atTime
 
 void VectorToAngles(const vec3_t value1, vec3_t angles); //hypov8 merge:
 
-bool BG_PlayerCanChangeWeapon(playerState_t *ps); //unvan .52
-bool BG_InventoryContainsWeapon(int weapon, const int stats[ ]); //unvan .52
-bool BG_InventoryContainsAmmo(int weapon, playerState_t *ps); //unvan .52
+qboolean BG_PlayerCanChangeWeapon(playerState_t *ps); //unvan .52
+qboolean BG_InventoryContainsWeapon(int weapon, const int stats[ ]); //unvan .52
+qboolean BG_InventoryContainsAmmo(int weapon, playerState_t *ps); //unvan .52
 
 
 

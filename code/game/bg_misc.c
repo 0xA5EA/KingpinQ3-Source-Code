@@ -1034,7 +1034,7 @@ qboolean BG_PlayerTouchesItem(playerState_t *ps, entityState_t *item, int atTime
 BG_PlayerCanChangeWeapon
 =================
 */
-bool BG_PlayerCanChangeWeapon(playerState_t *ps) //unvan .52
+qboolean BG_PlayerCanChangeWeapon(playerState_t *ps) //unvan .52
 {
 	if ( ps->weaponstate == WEAPON_RELOADING
 		|| ps->weaponstate == WEAPON_RELOAD_MOD
@@ -1042,9 +1042,9 @@ bool BG_PlayerCanChangeWeapon(playerState_t *ps) //unvan .52
 		|| ps->weaponstate == WEAPON_DROPPING 
 		|| ps->weaponstate == WEAPON_RAISING
 		|| ps->weaponTime > 0 )
-		return false;
+		return qfalse;
 
-	return true;
+	return qtrue;
 }
 
 /*
@@ -1054,30 +1054,30 @@ BG_InventoryContainsWeapon
 Does the player hold a weapon?
 ========================
 */
-bool BG_InventoryContainsWeapon(int weapon, const int stats[ ]) //unvan .52
+qboolean BG_InventoryContainsWeapon(int weapon, const int stats[ ]) //unvan .52
 {
 	if ( weapon == WP_CROWBAR )
-		return true;
+		return qtrue;
 
 	if ( !( stats[ STAT_WEAPONS ] & (1 << weapon)) )
-		return false;
+		return qfalse;
 
-	return true;
+	return qtrue;
 }
 
-bool BG_InventoryContainsAmmo(int weapon, playerState_t *ps)
+qboolean BG_InventoryContainsAmmo(int weapon, playerState_t *ps)
 {
 	if ( weapon <= WP_CROWBAR  || weapon >  WP_LAST) //infinate?
 	{
-		return true;
+		return qtrue;
 	}
 
 	if ( ps->ammo_mag[ weapon ] <= 0 && ps->ammo_all[ BG_AmmoCombineCheck(weapon) ] <= 0 )
 	{
-		return false;
+		return qfalse;
 	}
 
-	return true;
+	return qtrue;
 }
 /*
 bool BG_SetWeaponState(int weapon, playerState_t *ps)

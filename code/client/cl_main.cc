@@ -3112,7 +3112,7 @@ void QDECL CL_RefPrintf(int print_level, const char *fmt, ...)
   }
   else if (print_level == PRINT_DEVELOPER)
   {
-    Com_DPrintf(S_COLOR_RED "%s", msg);         // red
+    Com_DPrintf(S_COLOR_MAGENTA "%s", msg);         // red //hypov8: was S_COLOR_RED. Red should be errors
   }
 }
 

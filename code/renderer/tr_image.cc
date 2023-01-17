@@ -2199,6 +2199,46 @@ static const imageExtToLoaderMap_t imageLoaders[] =
 
 static int                   numImageLoaders = ARRAY_LEN( imageLoaders );
 
+#if defined(HYPODEBUG_MAP_PRINT)
+//int load_start; // = Sys_Milliseconds(), end;
+
+/*
+=================
+R_Print_ImageLoad
+
+print map textures on load with adding string xcopy command
+use to generate pk3 files for map
+com_printmap xcopy -t -x
+=================
+*/
+static void R_Print_ImageLoad(char * name)
+{
+	cvar_t * var = Cvar_Get("com_printmap", "", 0);
+
+	if (var->string[0])
+	{
+		int l = strlen(name);
+		//int end = Sys_Milliseconds();
+		//skip any known KingpinQ3 files
+		if (Q_strnicmp(name, "textures/decals/", 16) && 
+			Q_strnicmp(name, "textures/kpq3_", 14) && 
+			Q_strnicmp(name, "textures/misc_", 14) &&
+			Q_strnicmp(name, "textures/ex/", 12) &&
+			Q_strnicmp(name, "lights/kpq3/", 12) && 
+			//Q_strnicmp(name, "cubemaps/", 9) && 
+			Q_strnicmp(name, "sprites/", 8) && 
+			Q_strnicmp(name, "gfx4/", 4) &&
+			Q_strnicmp(name, "ui/", 3)
+			)
+		{
+			//Com_Printf("load image time=: %i msec. %s\n", end - start, buffer); //add hypo degbug
+			Com_Printf("%s %s\n", var->string, name); //add hypov8
+			//write file or save to zip?
+		}
+	}
+}
+#endif
+
 /*
 =================
 R_LoadImage
@@ -2374,6 +2414,9 @@ static void R_LoadImage( char **buffer, byte **pic, int *width, int *height, int
 				}
 				else
 				{
+#if defined(HYPODEBUG_MAP_PRINT)
+					R_Print_ImageLoad(filename);
+#endif
 					// something loaded
 					return;
 				}
@@ -2394,7 +2437,9 @@ static void R_LoadImage( char **buffer, byte **pic, int *width, int *height, int
 				{
 					//ri.Printf(PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n", token, altName);
 				}
-
+#if defined(HYPODEBUG_MAP_PRINT)
+				R_Print_ImageLoad(altName);
+#endif
 				break;
 			}
 		}

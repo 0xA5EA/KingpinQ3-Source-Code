@@ -1202,11 +1202,21 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
             }
           }
 
-					if(strstr(filename, "cgame.qvm"))
+          if (strstr(filename, "qagame.qvm")) //hypov8 in xreal
+            pak->referenced |= FS_QAGAME_REF;
+          if (strstr(filename, "cgame.qvm"))
             pak->referenced |= FS_CGAME_REF;
-					if(strstr(filename, "ui.qvm"))
+          if (strstr(filename, "ui.qvm"))
             pak->referenced |= FS_UI_REF;
 
+#ifdef USE_LLVM //hypov8 in xreal
+          if(!(pak->referenced & FS_QAGAME_REF) && strstr(filename, "qagamellvm.bc"))
+            pak->referenced |= FS_QAGAME_REF;
+          if(!(pak->referenced & FS_CGAME_REF) && strstr(filename, "cgamellvm.bc"))
+            pak->referenced |= FS_CGAME_REF;
+          if(!(pak->referenced & FS_UI_REF) && strstr(filename, "uillvm.bc"))
+            pak->referenced |= FS_UI_REF;
+#endif
           if(uniqueFILE)
           {
             // open a new file on the pakfile
@@ -1367,7 +1377,11 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
 		search = lastSearch->next;
 	while(search)
 	{
-		if(search->dir && !fs_numServerPaks)
+		if(search->dir
+#ifdef USE_LLVM
+			&& !fs_numServerPaks
+#endif
+		)
 		{
 			dir = search->dir;
 			if(enableDll)
@@ -1380,7 +1394,7 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
 					return VMI_NATIVE;
 				}
 			}
-
+#ifdef USE_LLVM
 			if(FS_FOpenFileReadDir(qvmName, search, NULL, qfalse, qfalse) > 0)
 			{
 				*startSearch = search;
@@ -1406,6 +1420,7 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
 				*startSearch = search;
 				return VMI_COMPILED;
 			}
+#endif
 		}
 		search = search->next;
 	}

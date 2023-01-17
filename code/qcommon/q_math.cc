@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "q_shared.h"
-#include <cfloat>
+//#include <cfloat>
 
 #ifdef BSPC
 #include <math.h>
@@ -53,7 +53,7 @@ matrix_t matrixIdentity = {     1, 0, 0, 0,
                           };
 
 
-#ifndef NO_DEVELOPER_CMDS
+#if 0 //ndef NO_DEVELOPER_CMDS
 //vec_t **I4x4;
 const matrix_t ALIGN16(Hilbert4) =
 {
@@ -1208,11 +1208,11 @@ qboolean BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_
 float BoundsMaxExtent( const vec3_t mins, const vec3_t maxs ) {
   float result = Q_fabs( mins[0] );
 
-  result = std::max( result, Q_fabs( mins[ 1 ] ) );
-  result = std::max( result, Q_fabs( mins[ 2 ] ) );
-  result = std::max( result, Q_fabs( maxs[ 0 ] ) );
-  result = std::max( result, Q_fabs( maxs[ 1 ] ) );
-  result = std::max( result, Q_fabs( maxs[ 2 ] ) );
+  result = Q_max( result, Q_fabs( mins[ 1 ] ) );
+  result = Q_max( result, Q_fabs( mins[ 2 ] ) );
+  result = Q_max( result, Q_fabs( maxs[ 0 ] ) );
+  result = Q_max( result, Q_fabs( maxs[ 1 ] ) );
+  result = Q_max( result, Q_fabs( maxs[ 2 ] ) );
   return result;
 }
 
@@ -2432,7 +2432,7 @@ void MatrixToAngles( const matrix_t m, vec3_t angles )
   theta = -asin( sp );
   cp = cos( theta );
 
-  if ( cp > 8192 * FLT_EPSILON )
+  if ( cp > 8192 *  1.192092896e-07F) //FLT_EPSILON
   {
     angles[ PITCH ] = RAD2DEG( theta );
     angles[ YAW ] = RAD2DEG( atan2( m[ 1 ], m[ 0 ] ) );
@@ -2937,7 +2937,7 @@ void MatrixTransformPlane2(const matrix_t m, vec4_t inout)
   vec4_t			tmp ;
 
   MatrixTransformPlane(m, inout, tmp);
-  VectorCopy(tmp, inout);
+  Vector4Copy(tmp, inout);
 }
 
 

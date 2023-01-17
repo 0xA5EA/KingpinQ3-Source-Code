@@ -169,9 +169,9 @@ static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
   if ((r | g | b) > 255)
   {
     int max_div;
-  int max; //= Max3(r, g, b);
-  max = r > g ? r : g; //hypov8 merge:
-  max = max > b ? max : b; //hypov8 merge:
+    int max; //= Max3(r, g, b);
+    max = r > g ? r : g; //hypov8 merge:
+    max = max > b ? max : b; //hypov8 merge:
 
     max_div = int(255) / max;
     r *= max_div;
@@ -9469,6 +9469,8 @@ R_LoadMarksurfaces(&header->lumps[LUMP_LEAFSURFACES]);
   ClearLink(&tr.occlusionQueryList);
 
   ri.FS_FreeFile(buffer);
-
+#ifdef HYPODEBUG_MAP_PRINT
+	Cvar_Set("com_printmap", "");
+#endif
   ri.Printf( PRINT_DEVELOPER, "----- RE_LoadWorldMap ( Complete ) -----\n" );
 }

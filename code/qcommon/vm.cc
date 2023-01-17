@@ -540,6 +540,9 @@ vm_t *VM_Restart(vm_t *vm, qboolean unpure)
 		vm = VM_Create( name, systemCall, VMI_NATIVE );
 		return vm;
 	}
+#ifndef USE_LLVM
+  return NULL;
+#else
 
 	// load the image
 	Com_Printf( "VM_Restart()\n" );
@@ -555,6 +558,7 @@ vm_t *VM_Restart(vm_t *vm, qboolean unpure)
 	FS_FreeFile( header );
 
 	return vm;
+#endif
 }
 
 /*
@@ -617,9 +621,9 @@ vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 				vm->systemCall = systemCalls;
 				return vm;
 			}
-
 			Com_Printf("Failed loading dll, trying next\n");
 		}
+#ifdef USE_LLVM
 		else if(retval == VMI_COMPILED)
 		{
 			vm->searchPath = startSearch;
@@ -630,11 +634,13 @@ vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 			// VM_Free overwrites the name on failed load
 			Q_strncpyz(vm->name, module, sizeof(vm->name));
 		}
+#endif
 	} while(retval >= 0);
 
 	if(retval < 0)
 		return NULL;
 
+#if USE_LLVM
 	vm->systemCall = systemCalls;
 
 	// allocate space for the jump targets, which will be filled in by the compile/prep functions
@@ -677,6 +683,9 @@ vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 	Com_Printf("%s loaded in %d bytes on the hunk\n", module, remaining - Hunk_MemoryRemaining());
 
 	return vm;
+#else
+	return NULL;
+#endif
 }
 
 /*
@@ -949,6 +958,7 @@ void VM_VmInfo_f( void ) {
 			Com_Printf( "native\n" );
 			continue;
 		}
+#if USE_LLVM
 		if ( vm->compiled ) {
 			Com_Printf( "compiled on load\n" );
 		} else {
@@ -957,6 +967,7 @@ void VM_VmInfo_f( void ) {
 		Com_Printf( "    code length : %7i\n", vm->codeLength );
 		Com_Printf( "    table length: %7i\n", vm->instructionCount*4 );
 		Com_Printf( "    data length : %7i\n", vm->dataMask + 1 );
+#endif
 	}
 }
 

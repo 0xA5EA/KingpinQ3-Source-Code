@@ -35,7 +35,7 @@ CG_DrawBoxFace
 Draws a bounding box face
 ======================
 */
-static void CG_DrawBoxFace( bool solid, vec3_t a, vec3_t b, vec3_t c, vec3_t d )
+static void CG_DrawBoxFace( qboolean solid, vec3_t a, vec3_t b, vec3_t c, vec3_t d )
 {
   polyVert_t verts[ 4 ];
   vec4_t     color = { 255.0f, 0.0f, 0.0f, 128.0f };
@@ -72,7 +72,7 @@ Draws a bounding box
 */
 void CG_DrawBoundingBox( int type, vec3_t origin, vec3_t mins, vec3_t maxs )
 {
-  bool solid = (type > 1);
+  qboolean solid = (type > 1);
 
   vec3_t ppp, mpp, mmp, pmp;
   vec3_t mmm, pmm, ppm, mpm;
@@ -1200,8 +1200,8 @@ void CG_AddPacketEntities(void)
 
       switch ( es->eType )
       {
-        case entityType_t::ET_MISSILE:
-        case entityType_t::ET_FLAMETHROWER_CHUNK:
+        case ET_MISSILE:
+        case ET_FLAMETHROWER_CHUNK:
           x = ( es->solid & 255 );
           zd = ( ( es->solid >> 8 ) & 255 );
           zu = ( ( es->solid >> 16 ) & 255 ) - 32;
@@ -1219,8 +1219,5 @@ void CG_AddPacketEntities(void)
       }
     }
   }
-
-
-
-
+  
 }

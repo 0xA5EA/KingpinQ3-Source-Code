@@ -1129,8 +1129,13 @@ void SV_InitGameProgs(void)
 		bot_enable = 0;
 	}
 
+#if defined(USE_LLVM)
 	// load the dll or bytecode
 	gvm = VM_Create("qagame", SV_GameSystemCalls, (vmInterpret_t)(int)Cvar_VariableValue("vm_game"));
+#else
+	// load the dll
+  gvm = VM_Create("qagame", SV_GameSystemCalls, VMI_NATIVE);
+#endif
 	if(!gvm)
 	{
 		Com_Error(ERR_FATAL, "VM_Create on game failed");

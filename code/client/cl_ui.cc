@@ -1324,29 +1324,32 @@ CL_InitUI
 void CL_InitUI(void)
 {
   int v;
-  vmInterpret_t interpret;
+  vmInterpret_t interpret = VMI_NATIVE;
 
+#if defined(USE_LLVM)
   // load the dll or bytecode
-	interpret = static_cast<vmInterpret_t>(static_cast<int>(Cvar_VariableValue("vm_ui")));
-	if(cl_connectedToPureServer)
+  interpret = static_cast<vmInterpret_t>(static_cast<int>(Cvar_VariableValue("vm_ui")));
+  if (cl_connectedToPureServer)
   {
     // if sv_pure is set we only allow qvms to be loaded
-		if(interpret != VMI_COMPILED && interpret != VMI_BYTECODE)
-    interpret = VMI_COMPILED;
+    if (interpret != VMI_COMPILED && interpret != VMI_BYTECODE)
+      interpret = VMI_COMPILED;
   }
-
+#endif
   uivm = VM_Create("ui", CL_UISystemCalls, interpret);
   if (!uivm)
   {
-	  if (cl_connectedToPureServer) //hypov8 pure server crashes game if dev build
-	  {
-		  Com_Printf(S_COLOR_YELLOW "VM_Create on UI failed\n" 
-									"------- Dissconected from 'PURE' server -------\n"
-									"------- Server Reqires .pk3 game files  -------\n");
-		Com_Error(ERR_DISCONNECT, "VM_Create on UI failed");
-	  }
-	  else
-	  Com_Error(ERR_FATAL, "VM_Create on UI failed\nSV_Pure Server is %i", cl_connectedToPureServer);
+#if defined(USE_LLVM)
+    if (cl_connectedToPureServer) //hypov8 pure server crashes game if dev build. fixed with dedicated pk3
+    {
+      Com_Printf(S_COLOR_YELLOW "VM_Create on UI failed\n"
+        "------- Dissconected from 'PURE' server -------\n"
+        "------- Server Reqires .pk3 game files  -------\n");
+      Com_Error(ERR_DISCONNECT, "VM_Create on UI failed");
+    }
+    else
+#endif
+      Com_Error(ERR_FATAL, "VM_Create on UI failed\nSV_Pure Server is %i", cl_connectedToPureServer);
   }
 
   // sanity check

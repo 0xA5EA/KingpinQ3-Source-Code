@@ -356,7 +356,7 @@ MATHLIB
   //extern const matrix_t ALIGN16(matrixIdentity);
 
 //#define NO_DEVELOPER_CMDS
-#ifndef NO_DEVELOPER_CMDS
+#if 0 //ndef NO_DEVELOPER_CMDS
 extern ALIGN16(const matrix_t Hilbert4); //hypov8 merge: const
 extern ALIGN16(const matrix_t ASymetric4); //hypov8 merge: const
 #endif
@@ -660,7 +660,9 @@ void ByteToDir(int b, vec3_t dir);
 #define VectorAdd( a,b,c )           ( ( c )[ 0 ] = ( a )[ 0 ] + ( b )[ 0 ],( c )[ 1 ] = ( a )[ 1 ] + ( b )[ 1 ],( c )[ 2 ] = ( a )[ 2 ] + ( b )[ 2 ] )
 #define VectorCopy( a,b )            ( ( b )[ 0 ] = ( a )[ 0 ],( b )[ 1 ] = ( a )[ 1 ],( b )[ 2 ] = ( a )[ 2 ] )
 #define VectorScale( v, s, o )       ( ( o )[ 0 ] = ( v )[ 0 ] * ( s ),( o )[ 1 ] = ( v )[ 1 ] * ( s ),( o )[ 2 ] = ( v )[ 2 ] * ( s ) )
-#define VectorMA( v, s, b, o )       ( ( o )[ 0 ] = ( v )[ 0 ] + ( b )[ 0 ] * ( s ),( o )[ 1 ] = ( v )[ 1 ] + ( b )[ 1 ] * ( s ),( o )[ 2 ] = ( v )[ 2 ] + ( b )[ 2 ] * ( s ) )
+#define VectorMA( v, s, b, o )       (( o )[ 0 ] = ( v )[ 0 ] + ( b )[ 0 ] * ( s ), \
+                                      ( o )[ 1 ] = ( v )[ 1 ] + ( b )[ 1 ] * ( s ), \
+                                      ( o )[ 2 ] = ( v )[ 2 ] + ( b )[ 2 ] * ( s ))
 #define VectorLerpTrem( f, s, e, r ) (( r )[ 0 ] = ( s )[ 0 ] + ( f ) * (( e )[ 0 ] - ( s )[ 0 ] ), \
                                       ( r )[ 1 ] = ( s )[ 1 ] + ( f ) * (( e )[ 1 ] - ( s )[ 1 ] ), \
                                       ( r )[ 2 ] = ( s )[ 2 ] + ( f ) * (( e )[ 2 ] - ( s )[ 2 ] ))
@@ -977,7 +979,7 @@ void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
   void     MatrixTransformPoint2( const matrix_t m, vec3_t inout );
   void     MatrixTransform4( const matrix_t m, const vec4_t in, vec4_t out );
   void     MatrixTransformPlane( const matrix_t m, const vec4_t in, vec4_t out );
-  void     MatrixTransformPlane2( const matrix_t m, vec3_t inout );
+  void     MatrixTransformPlane2( const matrix_t m, vec4_t inout );
   void     MatrixPerspectiveProjection( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
   void     MatrixPerspectiveProjectionLH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
   void     MatrixPerspectiveProjectionRH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
