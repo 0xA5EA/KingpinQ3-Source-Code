@@ -1404,16 +1404,16 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
 		else if(search->pack)
 		{
 			pack = search->pack;
-		        if(lastSearch && lastSearch->pack)
-		        {
-		                // make sure we only try loading one VM file per game dir
-		                // i.e. if VM from pak7.pk3 fails we won't try one from pak6.pk3
-		                if(!FS_FilenameCompare(lastSearch->pack->pakPathname, pack->pakPathname))
-                                {
-                                        search = search->next;
-                                        continue;
-                                }
-		        }
+			if(lastSearch && lastSearch->pack)
+			{
+				// make sure we only try loading one VM file per game dir
+				// i.e. if VM from pak7.pk3 fails we won't try one from pak6.pk3
+				if(!FS_FilenameCompare(lastSearch->pack->pakPathname, pack->pakPathname))
+				{
+					search = search->next;
+					continue;
+				}
+			}
 
 			if(FS_FOpenFileReadDir(qvmName, search, NULL, qfalse, qfalse) > 0)
 			{

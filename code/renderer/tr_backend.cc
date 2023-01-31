@@ -623,7 +623,7 @@ void GL_VertexAttribsState( uint32_t stateBits )
   uint32_t diff;
   uint32_t i;
 
-  if ( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning )
+  if ( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning ) //hypov8 bones
   {
     stateBits |= ( ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS );
   }
@@ -1825,7 +1825,7 @@ static void RB_SetupLightForShadowing( trRefLight_t *light, int index,
         GL_Scissor( 0, 0, shadowMapResolutions[ light->shadowLOD ], shadowMapResolutions[ light->shadowLOD ] );
 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        backEnd.depthRenderImageValid = qfalse;
+        //backEnd.depthRenderImageValid = qfalse;
 
         switch ( cubeSide )
         {
@@ -1946,7 +1946,7 @@ static void RB_SetupLightForShadowing( trRefLight_t *light, int index,
         GL_Scissor( 0, 0, shadowMapResolutions[ light->shadowLOD ], shadowMapResolutions[ light->shadowLOD ] );
 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        backEnd.depthRenderImageValid = qfalse;
+        //backEnd.depthRenderImageValid = qfalse;
 
         GL_LoadProjectionMatrix( light->projectionMatrix );
         break;
@@ -2001,7 +2001,7 @@ static void RB_SetupLightForShadowing( trRefLight_t *light, int index,
         GL_Scissor( 0, 0, sunShadowMapResolutions[ splitFrustumIndex ], sunShadowMapResolutions[ splitFrustumIndex ] );
 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        backEnd.depthRenderImageValid = qfalse;
+        //backEnd.depthRenderImageValid = qfalse;
 
 #if 1
         VectorCopy( tr.sunDirection, lightDirection );
@@ -3324,15 +3324,12 @@ void RB_RenderGlobalFog()
   if ( r_noFog->integer )
     return;
 
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_ET ) //hypov8 fog: //
-
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined( COMPAT_ET ) //hypov8 fog: //
   if ( !tr.world || tr.world->globalFog < 0 )
   {
     return;
   }
-
 #else
-
   if ( r_forceFog->value <= 0 && VectorLength( tr.fogColor ) <= 0 )
   {
     return;
@@ -3354,7 +3351,7 @@ void RB_RenderGlobalFog()
 
   gl_fogGlobalShader->SetUniform_ViewOrigin( backEnd.viewParms.orientation.origin );  // world space
 
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_ET ) //hypov8 fog: //
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined( COMPAT_ET ) //hypov8 fog: //
   {
     fog_t	*fog;
     vec3_t   local;
@@ -3412,17 +3409,18 @@ void RB_RenderGlobalFog()
   // bind u_DepthMap
   GL_SelectTexture( 1 );
 
-  if ( HDR_ENABLED() )
+ // if ( HDR_ENABLED() )
   {
-    GL_Bind( tr.depthRenderImage );
+  //  GL_Bind( tr.depthRenderImage );
   }
-  else
+  //else
   {
     // depth texture is not bound to a FBO
-    if (!backEnd.depthRenderImageValid) { //hypov8 merge: .4
+    //if (!backEnd.depthRenderImageValid) 
+		{ //hypov8 merge: .4
       GL_Bind(tr.depthRenderImage);
       glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
-      backEnd.depthRenderImageValid = true;
+      //backEnd.depthRenderImageValid = true;
     }
   }
 
@@ -3622,13 +3620,13 @@ void RB_RenderMotionBlur( void )
            tr.currentRenderImage->uploadWidth,
            tr.currentRenderImage->uploadHeight );
 
-  if( !backEnd.depthRenderImageValid ) //hypov8 merge: .4
+  //if( !backEnd.depthRenderImageValid ) //hypov8 merge: .4
   {
     GL_Bind( tr.depthRenderImage );
     glCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0,
            tr.depthRenderImage->uploadWidth,
            tr.depthRenderImage->uploadHeight );
-    backEnd.depthRenderImageValid = qtrue;
+    //backEnd.depthRenderImageValid = qtrue;
   }
 
   gl_motionblurShader->BindProgram();
@@ -6675,7 +6673,7 @@ void DebugDrawVertex(const vec3_t pos, unsigned int color, const vec2_t uv) {
   tess.xyz[ tess.numVertexes ][ 1 ] = pos[ 1 ];
   tess.xyz[ tess.numVertexes ][ 2 ] = pos[ 2 ];
   tess.xyz[ tess.numVertexes ][ 3 ] = 1;
-  Vector4Copy(colors, tess.colors[ tess.numVertexes ]);
+  Vector4Copy(colors, tess.lightColor[ tess.numVertexes ]);
   if( uv ) {
     tess.texCoords[ tess.numVertexes ][ 0 ] = uv[ 0 ];
     tess.texCoords[ tess.numVertexes ][ 1 ] = uv[ 1 ];
@@ -6770,7 +6768,7 @@ static void RB_RenderView( void )
   // clear relevant buffers
   clearBits = GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_ET )  //hypov8 fog: //
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined( COMPAT_ET )  //hypov8 todo: fog?
   // ydnar: global q3 fog volume
   if ( tr.world && tr.world->globalFog >= 0 )
   {
@@ -6913,7 +6911,7 @@ static void RB_RenderView( void )
     }
   }
 
-#elif !defined( COMPAT_KPQ3 ) //se
+#else /*if !defined( COMPAT_KPQ3 )*/ //se
 
   if ( !( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) )
   {
@@ -6937,7 +6935,7 @@ static void RB_RenderView( void )
 #endif
 
   glClear( clearBits );
-  backEnd.depthRenderImageValid = qfalse;
+  //backEnd.depthRenderImageValid = qfalse;
 
   if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
   {
@@ -7515,11 +7513,11 @@ const void     *RB_StretchPic( const void *data )
     backEnd.currentEntity = &backEnd.entity2D;
     Tess_Begin( Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, -1, 0 );
   }
-
+#if 0
   if( !tess.indexes ) { //daemon .50
     Tess_Begin( Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, -1, 0 );
   }
-
+#endif
 
   Tess_CheckOverflow( 4, 6 );
   numVerts = tess.numVertexes;
@@ -7537,10 +7535,10 @@ const void     *RB_StretchPic( const void *data )
 
   for ( i = 0; i < 4; i++ )
   {
-    tess.colors[ numVerts + i ][ 0 ] = backEnd.color2D[ 0 ];
-    tess.colors[ numVerts + i ][ 1 ] = backEnd.color2D[ 1 ];
-    tess.colors[ numVerts + i ][ 2 ] = backEnd.color2D[ 2 ];
-    tess.colors[ numVerts + i ][ 3 ] = backEnd.color2D[ 3 ];
+    tess.lightColor[ numVerts + i ][ 0 ] = backEnd.color2D[ 0 ];
+    tess.lightColor[ numVerts + i ][ 1 ] = backEnd.color2D[ 1 ];
+    tess.lightColor[ numVerts + i ][ 2 ] = backEnd.color2D[ 2 ];
+    tess.lightColor[ numVerts + i ][ 3 ] = backEnd.color2D[ 3 ];
   }
 
   tess.xyz[ numVerts ][ 0 ] = cmd->x;
@@ -7668,10 +7666,10 @@ const void     *RB_Draw2dPolys( const void *data )
     tess.texCoords[ tess.numVertexes ][ 0 ] = cmd->verts[ i ].st[ 0 ];
     tess.texCoords[ tess.numVertexes ][ 1 ] = cmd->verts[ i ].st[ 1 ];
 
-    tess.colors[ tess.numVertexes ][ 0 ] = cmd->verts[ i ].modulate[ 0 ] * ( 1.0 / 255.0f );
-    tess.colors[ tess.numVertexes ][ 1 ] = cmd->verts[ i ].modulate[ 1 ] * ( 1.0 / 255.0f );
-    tess.colors[ tess.numVertexes ][ 2 ] = cmd->verts[ i ].modulate[ 2 ] * ( 1.0 / 255.0f );
-    tess.colors[ tess.numVertexes ][ 3 ] = cmd->verts[ i ].modulate[ 3 ] * ( 1.0 / 255.0f );
+    tess.lightColor[ tess.numVertexes ][ 0 ] = cmd->verts[ i ].modulate[ 0 ] * ( 1.0 / 255.0f );
+    tess.lightColor[ tess.numVertexes ][ 1 ] = cmd->verts[ i ].modulate[ 1 ] * ( 1.0 / 255.0f );
+    tess.lightColor[ tess.numVertexes ][ 2 ] = cmd->verts[ i ].modulate[ 2 ] * ( 1.0 / 255.0f );
+    tess.lightColor[ tess.numVertexes ][ 3 ] = cmd->verts[ i ].modulate[ 3 ] * ( 1.0 / 255.0f );
     tess.numVertexes++;
   }
 
@@ -7727,10 +7725,10 @@ const void     *RB_RotatedPic( const void *data )
   tess.indexes[ numIndexes + 4 ] = numVerts + 0;
   tess.indexes[ numIndexes + 5 ] = numVerts + 1;
 
-  Vector4Copy( backEnd.color2D, tess.colors[ numVerts + 0 ] );
-  Vector4Copy( backEnd.color2D, tess.colors[ numVerts + 1 ] );
-  Vector4Copy( backEnd.color2D, tess.colors[ numVerts + 2 ] );
-  Vector4Copy( backEnd.color2D, tess.colors[ numVerts + 3 ] );
+  Vector4Copy( backEnd.color2D, tess.lightColor[ numVerts + 0 ] );
+  Vector4Copy( backEnd.color2D, tess.lightColor[ numVerts + 1 ] );
+  Vector4Copy( backEnd.color2D, tess.lightColor[ numVerts + 2 ] );
+  Vector4Copy( backEnd.color2D, tess.lightColor[ numVerts + 3 ] );
 
   mx = cmd->x + ( cmd->w / 2 );
   my = cmd->y + ( cmd->h / 2 );
@@ -7829,13 +7827,13 @@ const void     *RB_StretchPicGradient( const void *data )
   //*(int *)tess.vertexColors[numVerts].v = *(int *)tess.vertexColors[numVerts + 1].v = *(int *)backEnd.color2D;
   //*(int *)tess.vertexColors[numVerts + 2].v = *(int *)tess.vertexColors[numVerts + 3].v = *(int *)cmd->gradientColor;
 
-  Vector4Copy( backEnd.color2D, tess.colors[ numVerts + 0 ] );
-  Vector4Copy( backEnd.color2D, tess.colors[ numVerts + 1 ] );
+  Vector4Copy( backEnd.color2D, tess.lightColor[ numVerts + 0 ] );
+  Vector4Copy( backEnd.color2D, tess.lightColor[ numVerts + 1 ] );
 
   for ( i = 0; i < 4; i++ )
   {
-    tess.colors[ numVerts + 2 ][ i ] = cmd->gradientColor[ i ] * ( 1.0f / 255.0f );
-    tess.colors[ numVerts + 3 ][ i ] = cmd->gradientColor[ i ] * ( 1.0f / 255.0f );
+    tess.lightColor[ numVerts + 2 ][ i ] = cmd->gradientColor[ i ] * ( 1.0f / 255.0f );
+    tess.lightColor[ numVerts + 3 ][ i ] = cmd->gradientColor[ i ] * ( 1.0f / 255.0f );
   }
 
   tess.xyz[ numVerts ][ 0 ] = cmd->x;
@@ -8008,7 +8006,7 @@ const void *RB_RunVisTests( const void *data )
     gl_genericShader->DisableVertexAnimation();
     gl_genericShader->DisableDeformVertexes();
     gl_genericShader->DisableTCGenEnvironment();
-    gl_genericShader->DisableTCGenLightmap();
+    //gl_genericShader->DisableTCGenLightmap();
 
     gl_genericShader->BindProgram();
 
@@ -8066,7 +8064,7 @@ const void     *RB_DrawBuffer( const void *data )
 //      GL_ClearColor(1, 0, 0.5, 1);
     GL_ClearColor( 0, 0, 0, 1 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    backEnd.depthRenderImageValid = qfalse;
+    //backEnd.depthRenderImageValid = qfalse;
   }
 
   glState.finishCalled = qfalse;
@@ -8221,12 +8219,12 @@ const void     *RB_SwapBuffers( const void *data )
     backEnd.pc.c_overDraw += sum;
     ri.Hunk_FreeTempMemory( stencilReadback );
   }
-
-  /*if ( !glState.finishCalled )
+#if 1
+  if ( !glState.finishCalled )
   {
     glFinish();
-  }*/
-
+  }
+#endif
   GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 
   GLimp_EndFrame();

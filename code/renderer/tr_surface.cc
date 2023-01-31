@@ -147,21 +147,23 @@ static void Tess_SurfaceVertsAndTris( const srfVert_t *verts, const srfTriangle_
     tess.lightCoords[ tess.numVertexes + i ][ 0 ] = vert->lightmap[ 0 ];
     tess.lightCoords[ tess.numVertexes + i ][ 1 ] = vert->lightmap[ 1 ];
 
-    Vector4Copy( vert->lightColor, tess.colors[ tess.numVertexes + i ] );
+    Vector4Copy( vert->lightColor, tess.lightColor[ tess.numVertexes + i ] );
 
-#if defined( COMPAT_KPQ3 ) || ( !defined( COMPAT_ET ) && !defined( COMPAT_Q3A ) )
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_ET ) && !defined( COMPAT_Q3A ) )
+   // Vector4Copy( vert->paintColor, tess.paintColors[ tess.numVertexes + i ] );
     VectorCopy( vert->lightDirection, tess.lightDirections[ tess.numVertexes + i ] );
-    //Vector4Copy( vert->paintColor, tess.paintColors[ tess.numVertexes + i ] );
 #endif
+
   }
 
   tess.numVertexes += numVerts;
   tess.attribsSet =  ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_COLOR | ATTR_NORMAL | ATTR_TANGENT | ATTR_BINORMAL;
 
-#if 0// defined( COMPAT_KPQ3 ) ||  (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
-  tess.attribsSet |= ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION;
+#if /*defined( COMPAT_KPQ3 ) ||*/  (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
+  //tess.attribsSet |= ATTR_PAINTCOLOR;
+  tess.attribsSet |= ATTR_LIGHTDIRECTION;
 #endif
-  tess.attribsSet |=  ATTR_LIGHTDIRECTION; //hypov8 add
+
 }
 
 static qboolean Tess_SurfaceVBO( VBO_t *vbo, IBO_t *ibo, int numVerts, int numIndexes, int firstIndex )
@@ -256,7 +258,7 @@ void Tess_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, const vec4_t c
 
   for ( i = 0; i < 4; i++ )
   {
-    Vector4Copy( color, tess.colors[ ndx + i ] );
+    Vector4Copy( color, tess.lightColor[ ndx + i ] );
   }
 
   tess.numVertexes += 4;
@@ -340,7 +342,7 @@ void Tess_AddQuadStampExt2( vec4_t quadVerts[ 4 ], const vec4_t color, float s1,
 
   for ( i = 0; i < 4; i++ )
   {
-    Vector4Copy( color, tess.colors[ ndx + i ] );
+    Vector4Copy( color, tess.lightColor[ ndx + i ] );
   }
 
   tess.numVertexes += 4;
@@ -372,7 +374,7 @@ void Tess_AddTetrahedron( vec4_t tetraVerts[ 4 ], const vec4_t color )
   for ( k = 0; k < 3; k++ )
   {
     Vector4Copy( tetraVerts[ k ], tess.xyz[ tess.numVertexes ] );
-    Vector4Copy( color, tess.colors[ tess.numVertexes ] );
+    Vector4Copy( color, tess.lightColor[ tess.numVertexes ] );
     tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
     tess.numVertexes++;
   }
@@ -381,17 +383,17 @@ void Tess_AddTetrahedron( vec4_t tetraVerts[ 4 ], const vec4_t color )
   for ( k = 0; k < 3; k++ )
   {
     Vector4Copy( tetraVerts[ 3 ], tess.xyz[ tess.numVertexes ] );  // offset
-    Vector4Copy( color, tess.colors[ tess.numVertexes ] );
+    Vector4Copy( color, tess.lightColor[ tess.numVertexes ] );
     tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
     tess.numVertexes++;
 
     Vector4Copy( tetraVerts[ k ], tess.xyz[ tess.numVertexes ] );
-    Vector4Copy( color, tess.colors[ tess.numVertexes ] );
+    Vector4Copy( color, tess.lightColor[ tess.numVertexes ] );
     tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
     tess.numVertexes++;
 
     Vector4Copy( tetraVerts[( k + 1 ) % 3 ], tess.xyz[ tess.numVertexes ] );
-    Vector4Copy( color, tess.colors[ tess.numVertexes ] );
+    Vector4Copy( color, tess.lightColor[ tess.numVertexes ] );
     tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
     tess.numVertexes++;
   }
@@ -516,7 +518,6 @@ void Tess_UpdateVBOs( uint32_t attribBits )
 
     assert( ( attribBits & ATTR_BITS ) != 0 );
 
-#if 1 //hypov8 add: kpq3
     if(!(attribBits & ATTR_BITS))
     {
       attribBits |= ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR;
@@ -529,17 +530,16 @@ void Tess_UpdateVBOs( uint32_t attribBits )
           attribBits |= ATTR_TANGENT | ATTR_BINORMAL;
         }
       }
+
       if(backEnd.currentEntity == &tr.worldEntity)
       {
-#if !defined(COMPAT_KPQ3) && (defined(COMPAT_Q3A) || defined(COMPAT_ET))
         attribBits |= ATTR_LIGHTCOORD;
-#else
-        attribBits |= ATTR_LIGHTCOORD /*| ATTR_PAINTCOLOR*/ | ATTR_LIGHTDIRECTION;
+#if /*defined( COMPAT_KPQ3 ) ||*/ (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
+        //attribBits |= ATTR_PAINTCOLOR;
+        attribBits |= ATTR_LIGHTDIRECTION;
 #endif
       }
     }
-#endif
-
 
     GL_VertexAttribsState( attribBits );
 
@@ -610,11 +610,11 @@ void Tess_UpdateVBOs( uint32_t attribBits )
         GLimp_LogComment( va( "glBufferSubData( ATTR_COLOR, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes ) );
       }
 
-      glBufferSubData( GL_ARRAY_BUFFER, tess.vbo->attribs[ ATTR_INDEX_COLOR ].ofs, tess.numVertexes * sizeof( vec4_t ), tess.colors );
+      glBufferSubData( GL_ARRAY_BUFFER, tess.vbo->attribs[ ATTR_INDEX_COLOR ].ofs, tess.numVertexes * sizeof( vec4_t ), tess.lightColor );
     }
 
-#if 0 //defined( COMPAT_KPQ3 ) || !defined( COMPAT_Q3A ) && !defined( COMPAT_ET )
-
+#if /*defined( COMPAT_KPQ3 ) ||*/ !defined( COMPAT_Q3A ) && !defined( COMPAT_ET )
+#if 0
     if ( attribBits & ATTR_PAINTCOLOR )
     {
       if ( r_logFile->integer )
@@ -624,9 +624,20 @@ void Tess_UpdateVBOs( uint32_t attribBits )
 
       glBufferSubData( GL_ARRAY_BUFFER, tess.vbo->attribs[ ATTR_INDEX_PAINTCOLOR ].ofs, tess.numVertexes * sizeof( vec4_t ), tess.paintColors );
     }
+#endif
+
+    if ( attribBits & ATTR_LIGHTDIRECTION )
+    {
+      if ( r_logFile->integer )
+      {
+        GLimp_LogComment( va( "glBufferSubData( ATTR_LIGHTDIRECTION, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes ) );
+      }
+
+      glBufferSubData( GL_ARRAY_BUFFER, tess.vbo->attribs[ ATTR_INDEX_LIGHTDIRECTION ].ofs, tess.numVertexes * sizeof( vec4_t ), tess.lightDirections );
+    }
 
 #endif
-    //hypov8 merge: not in unvan ?
+
     if ( attribBits & ATTR_AMBIENTLIGHT )
     {
       if ( r_logFile->integer )
@@ -647,15 +658,6 @@ void Tess_UpdateVBOs( uint32_t attribBits )
       glBufferSubData( GL_ARRAY_BUFFER, tess.vbo->attribs[ ATTR_INDEX_DIRECTEDLIGHT ].ofs, tess.numVertexes * sizeof( vec4_t ), tess.directedLights );
     }
 
-    if ( attribBits & ATTR_LIGHTDIRECTION )
-    {
-      if ( r_logFile->integer )
-      {
-        GLimp_LogComment( va( "glBufferSubData( ATTR_LIGHTDIRECTION, vbo = '%s', numVertexes = %i )\n", tess.vbo->name, tess.numVertexes ) );
-      }
-
-      glBufferSubData( GL_ARRAY_BUFFER, tess.vbo->attribs[ ATTR_INDEX_LIGHTDIRECTION ].ofs, tess.numVertexes * sizeof( vec4_t ), tess.lightDirections );
-    }
 
   }
 
@@ -689,37 +691,37 @@ void Tess_InstantQuad( vec4_t quadVerts[ 4 ] )
   Vector4Copy( quadVerts[ 0 ], tess.xyz[ tess.numVertexes ] );
   tess.texCoords[ tess.numVertexes ][ 0 ] = 0;
   tess.texCoords[ tess.numVertexes ][ 1 ] = 0;
-  tess.colors[ tess.numVertexes ][ 0 ] = 1;
-  tess.colors[ tess.numVertexes ][ 1 ] = 1;
-  tess.colors[ tess.numVertexes ][ 2 ] = 1;
-  tess.colors[ tess.numVertexes ][ 3 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 0 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 1 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 2 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 3 ] = 1;
   tess.numVertexes++;
 
   Vector4Copy( quadVerts[ 1 ], tess.xyz[ tess.numVertexes ] );
   tess.texCoords[ tess.numVertexes ][ 0 ] = 1;
   tess.texCoords[ tess.numVertexes ][ 1 ] = 0;
-  tess.colors[ tess.numVertexes ][ 0 ] = 1;
-  tess.colors[ tess.numVertexes ][ 1 ] = 1;
-  tess.colors[ tess.numVertexes ][ 2 ] = 1;
-  tess.colors[ tess.numVertexes ][ 3 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 0 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 1 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 2 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 3 ] = 1;
   tess.numVertexes++;
 
   Vector4Copy( quadVerts[ 2 ], tess.xyz[ tess.numVertexes ] );
   tess.texCoords[ tess.numVertexes ][ 0 ] = 1;
   tess.texCoords[ tess.numVertexes ][ 1 ] = 1;
-  tess.colors[ tess.numVertexes ][ 0 ] = 1;
-  tess.colors[ tess.numVertexes ][ 1 ] = 1;
-  tess.colors[ tess.numVertexes ][ 2 ] = 1;
-  tess.colors[ tess.numVertexes ][ 3 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 0 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 1 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 2 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 3 ] = 1;
   tess.numVertexes++;
 
   Vector4Copy( quadVerts[ 3 ], tess.xyz[ tess.numVertexes ] );
   tess.texCoords[ tess.numVertexes ][ 0 ] = 0;
   tess.texCoords[ tess.numVertexes ][ 1 ] = 1;
-  tess.colors[ tess.numVertexes ][ 0 ] = 1;
-  tess.colors[ tess.numVertexes ][ 1 ] = 1;
-  tess.colors[ tess.numVertexes ][ 2 ] = 1;
-  tess.colors[ tess.numVertexes ][ 3 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 0 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 1 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 2 ] = 1;
+  tess.lightColor[ tess.numVertexes ][ 3 ] = 1;
   tess.numVertexes++;
 
   tess.indexes[ tess.numIndexes++ ] = 0;
@@ -834,10 +836,10 @@ static void Tess_SurfacePolychain( srfPoly_t *p )
     tess.texCoords[ tess.numVertexes + i ][ 0 ] = p->verts[ i ].st[ 0 ];
     tess.texCoords[ tess.numVertexes + i ][ 1 ] = p->verts[ i ].st[ 1 ];
 
-    tess.colors[ tess.numVertexes + i ][ 0 ] = p->verts[ i ].modulate[ 0 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 1 ] = p->verts[ i ].modulate[ 1 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 2 ] = p->verts[ i ].modulate[ 2 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 3 ] = p->verts[ i ].modulate[ 3 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 0 ] = p->verts[ i ].modulate[ 0 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 1 ] = p->verts[ i ].modulate[ 1 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 2 ] = p->verts[ i ].modulate[ 2 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 3 ] = p->verts[ i ].modulate[ 3 ] * ( 1.0 / 255.0 );
 
     numVertexes++;
   }
@@ -949,10 +951,10 @@ void Tess_SurfacePolybuffer( srfPolyBuffer_t *surf )
     tess.texCoords[ tess.numVertexes + i ][ 0 ] = st[ 0 ];
     tess.texCoords[ tess.numVertexes + i ][ 1 ] = st[ 1 ];
 
-    tess.colors[ tess.numVertexes + i ][ 0 ] = color[ 0 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 1 ] = color[ 1 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 2 ] = color[ 2 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 3 ] = color[ 3 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 0 ] = color[ 0 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 1 ] = color[ 1 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 2 ] = color[ 2 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 3 ] = color[ 3 ] * ( 1.0 / 255.0 );
   }
 
   tess.attribsSet |= ATTR_POSITION | ATTR_COLOR | ATTR_TEXCOORD;
@@ -977,10 +979,10 @@ void Tess_SurfaceDecal( srfDecal_t *srf )
     tess.texCoords[ tess.numVertexes + i ][ 0 ] = srf->verts[ i ].st[ 0 ];
     tess.texCoords[ tess.numVertexes + i ][ 1 ] = srf->verts[ i ].st[ 1 ];
 
-    tess.colors[ tess.numVertexes + i ][ 0 ] = srf->verts[ i ].modulate[ 0 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 1 ] = srf->verts[ i ].modulate[ 1 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 2 ] = srf->verts[ i ].modulate[ 2 ] * ( 1.0 / 255.0 );
-    tess.colors[ tess.numVertexes + i ][ 3 ] = srf->verts[ i ].modulate[ 3 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 0 ] = srf->verts[ i ].modulate[ 0 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 1 ] = srf->verts[ i ].modulate[ 1 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 2 ] = srf->verts[ i ].modulate[ 2 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 3 ] = srf->verts[ i ].modulate[ 3 ] * ( 1.0 / 255.0 );
   }
 
   // generate fan indexes into the tess array
@@ -1550,7 +1552,7 @@ static void Tess_SurfaceAxis( void )
   {
     verts[ k ][ 3 ] = 1;
     Vector4Copy( verts[ k ], tess.xyz[ tess.numVertexes ] );
-    Vector4Copy( colorRed, tess.colors[ tess.numVertexes ] );
+    Vector4Copy( colorRed, tess.lightColor[ tess.numVertexes ] );
     tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
     tess.numVertexes++;
   }
@@ -1562,7 +1564,7 @@ static void Tess_SurfaceAxis( void )
   {
     verts[ k ][ 3 ] = 1;
     Vector4Copy( verts[ k ], tess.xyz[ tess.numVertexes ] );
-    Vector4Copy( colorGreen, tess.colors[ tess.numVertexes ] );
+    Vector4Copy( colorGreen, tess.lightColor[ tess.numVertexes ] );
     tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
     tess.numVertexes++;
   }
@@ -1574,7 +1576,7 @@ static void Tess_SurfaceAxis( void )
   {
     verts[ k ][ 3 ] = 1;
     Vector4Copy( verts[ k ], tess.xyz[ tess.numVertexes ] );
-    Vector4Copy( colorBlue, tess.colors[ tess.numVertexes ] );
+    Vector4Copy( colorBlue, tess.lightColor[ tess.numVertexes ] );
     tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
     tess.numVertexes++;
   }

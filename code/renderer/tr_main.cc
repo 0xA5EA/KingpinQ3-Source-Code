@@ -3056,7 +3056,7 @@ void R_RenderView( viewParms_t *parms )
   // matrix for lod calculation
   R_SetupProjection( qfalse );
 
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_ET )//hypov8 fog: //
+#if /*!defined( COMPAT_KPQ3 ) && */defined( COMPAT_ET )//hypov8 fog: //
   R_SetFrameFog();
 #endif
 

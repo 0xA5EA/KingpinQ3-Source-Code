@@ -216,6 +216,8 @@ std::string     GLShaderManager::BuildGPUShaderText( const char *mainShaderName,
     AddGLSLDefine( bufferExtra, "TEXTURE_RG", 1 );
   }
 
+  //AddGLSLDefine( bufferExtra, "r_SpecularExponent", r_SpecularExponent->value );
+  //AddGLSLDefine( bufferExtra, "r_SpecularExponent2", r_SpecularExponent2->value );
   AddGLSLDefine( bufferExtra, "r_SpecularScale", r_specularScale->value );
 
   //AddGLSLDefine( bufferExtra, "r_NormalScale", r_normalScale->value );
@@ -467,6 +469,13 @@ std::string     GLShaderManager::BuildGPUShaderText( const char *mainShaderName,
     bufferExtra += "#extension GL_ARB_draw_buffers : enable\n";
   }
   */
+	//hypov8 added
+  if (r_normalMapping->integer)
+  {
+    AddGLSLDefine( bufferExtra, "r_NormalMapping", 1);
+    if (r_parallaxMapping->integer)
+      AddGLSLDefine( bufferExtra, "r_ParallaxMapping", 1);
+  }
 
   if ( r_wrapAroundLighting->value )
   {
@@ -540,12 +549,10 @@ bool GLShaderManager::buildPermutation( GLShader *shader, size_t i )
       CompileAndLinkGPUShaderProgram(	shader, shaderProgram, compileMacros );
       SaveShaderBinary( shader, i );
     }
-
     UpdateShaderProgramUniformLocations( shader, shaderProgram );
     GL_BindProgram( shaderProgram );
     shader->SetShaderProgramUniforms( shaderProgram );
     GL_BindProgram( NULL );
-
     ValidateProgram( shaderProgram->program );
     GL_CheckErrors();
 
@@ -754,25 +761,21 @@ void GLShaderManager::CompileAndLinkGPUShaderProgram( GLShader *shader, shaderPr
   if ( glConfig2.shadingLanguageVersion != 120 )
   {
     // HACK: abuse the GLSL preprocessor to turn GLSL 1.20 shaders into 1.30 ones
-
-    vertexHeader += "#version 130\n";
-    fragmentHeader += "#version 130\n";
-
-    vertexHeader += "#define attribute in\n";
-    vertexHeader += "#define varying out\n";
-
-    fragmentHeader += "#define varying in\n";
-
-    fragmentHeader += "out vec4 out_Color;\n";
-    fragmentHeader += "#define gl_FragColor out_Color\n";
-
-    vertexHeader += "#define textureCube texture\n";
-    vertexHeader += "#define texture2D texture\n";
-    vertexHeader += "#define texture2DProj textureProj\n";
-
-    fragmentHeader += "#define textureCube texture\n";
-    fragmentHeader += "#define texture2D texture\n";
-    fragmentHeader += "#define texture2DProj textureProj\n";
+    // Vertex shader 
+    vertexHeader += "#version 130\n"
+                    "#define attribute in\n"
+                    "#define varying out\n"
+                    "#define textureCube texture\n"
+                    "#define texture2D texture\n"
+                    "#define texture2DProj textureProj\n";
+    // Fragment shader 
+    fragmentHeader += "#version 130\n"
+                      "#define varying in\n"
+                      "out vec4 out_Color;\n"
+                      "#define gl_FragColor out_Color\n"
+                      "#define textureCube texture\n"
+                      "#define texture2D texture\n"
+                      "#define texture2DProj textureProj\n";
   }
   else
   {
@@ -1187,6 +1190,7 @@ void GLShader::SetRequiredVertexPointers()
 
 GLShader_generic::GLShader_generic( GLShaderManager *manager ) :
   GLShader( "generic", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL, manager ),
+  //u_ColorMap(this), //hypov8 add
   u_ColorTextureMatrix( this ),
   u_ViewOrigin( this ),
   u_AlphaThreshold( this ),
@@ -1200,8 +1204,8 @@ GLShader_generic::GLShader_generic( GLShaderManager *manager ) :
   GLCompileMacro_USE_VERTEX_SKINNING( this ),
   GLCompileMacro_USE_VERTEX_ANIMATION( this ),
   GLCompileMacro_USE_DEFORM_VERTEXES( this ),
-  GLCompileMacro_USE_TCGEN_ENVIRONMENT( this ),
-  GLCompileMacro_USE_TCGEN_LIGHTMAP( this )
+  GLCompileMacro_USE_TCGEN_ENVIRONMENT( this )//,
+  //GLCompileMacro_USE_TCGEN_LIGHTMAP( this )
 {
 }
 
@@ -1334,7 +1338,12 @@ void GLShader_vertexLighting_DBS_entity::SetShaderProgramUniforms( shaderProgram
 GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world( GLShaderManager *manager ) :
   GLShader( "vertexLighting_DBS_world",
             ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL | ATTR_COLOR
-            | ATTR_AMBIENTLIGHT | ATTR_DIRECTEDLIGHT | ATTR_LIGHTDIRECTION, manager
+#if /*defined( COMPAT_KPQ3 )*/ !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+            //| ATTR_PAINTCOLOR
+            | ATTR_LIGHTDIRECTION 
+#endif
+            //| ATTR_AMBIENTLIGHT | ATTR_DIRECTEDLIGHT | ATTR_LIGHTDIRECTION
+          , manager
           ),
   u_DiffuseTextureMatrix( this ),
   u_NormalTextureMatrix( this ),
@@ -1454,6 +1463,7 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ( GLShaderMana
   u_DiffuseTextureMatrix( this ),
   u_NormalTextureMatrix( this ),
   u_SpecularTextureMatrix( this ),
+  u_GlowTextureMatrix( this ), //add
   u_SpecularExponent( this ),
   u_AlphaThreshold( this ),
   u_ColorModulate( this ),
@@ -1510,11 +1520,13 @@ void GLShader_forwardLighting_projXYZ::SetShaderProgramUniforms( shaderProgram_t
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_DiffuseMap" ), 0 );
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_NormalMap" ), 1 );
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_SpecularMap" ), 2 );
-  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_AttenuationMapXY" ), 3 );
-  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_AttenuationMapZ" ), 4 );
-  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_ShadowMap0" ), 5 );
-  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_RandomMap" ), 6 );
-  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_ShadowClipMap0" ), 7 );
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_GlowMap" ), 3 );
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_AttenuationMapXY" ), 4 );
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_AttenuationMapZ" ), 5 );
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_ShadowMap0" ), 6 );
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_RandomMap" ), 7 );
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_ShadowClipMap0" ), 8 );
+
 }
 
 GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun( GLShaderManager *manager ):
@@ -1631,6 +1643,8 @@ void GLShader_shadowFill::SetShaderProgramUniforms( shaderProgram_t *shaderProgr
 
 GLShader_reflection::GLShader_reflection( GLShaderManager *manager ):
   GLShader("reflection", "reflection_CB", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL, manager ),
+  //u_ColorMap(this), //hypov8
+  //u_NormalMap(this), //hypov8
   u_NormalTextureMatrix( this ),
   u_ViewOrigin( this ),
   u_ModelMatrix( this ),
@@ -1924,8 +1938,8 @@ void GLShader_lightVolume_omni::SetShaderProgramUniforms( shaderProgram_t *shade
 
 GLShader_liquid::GLShader_liquid( GLShaderManager *manager ) :
   GLShader( "liquid", ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR
-#if defined( COMPAT_KPQ3 ) || (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
-                       | ATTR_LIGHTDIRECTION
+#if 0 //defined( COMPAT_KPQ3 ) || (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
+    | ATTR_INDEX_PAINTCOLOR | ATTR_LIGHTDIRECTION
 #endif
     , manager ),
   u_NormalTextureMatrix( this ),

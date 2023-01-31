@@ -404,7 +404,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		qboolean     lightingCalculated;
 		vec3_t       lightDir; // normalized direction towards light
 		vec3_t       ambientLight; // color normalized to 0-1
-		vec3_t       directedLight;
+		vec3_t       directedLight; //hypov8 lightgrid?
 
 		cullResult_t cull;
 		vec3_t       localBounds[ 2 ];
@@ -553,13 +553,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		ATTR_INDEX_BINORMAL,
 		ATTR_INDEX_NORMAL,
 		ATTR_INDEX_COLOR,
-
-#if 0 //defined( COMPAT_KPQ3 ) || ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
-		ATTR_INDEX_PAINTCOLOR,
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
+		//ATTR_INDEX_PAINTCOLOR,
+		ATTR_INDEX_LIGHTDIRECTION,
 #endif
 		ATTR_INDEX_AMBIENTLIGHT,
 		ATTR_INDEX_DIRECTEDLIGHT,
-		ATTR_INDEX_LIGHTDIRECTION,
 
 		// GPU vertex skinning
 		ATTR_INDEX_BONE_INDEXES,
@@ -583,12 +582,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		"attr_Binormal",
 		"attr_Normal",
 		"attr_Color",
-#if 0 //defined( COMPAT_KPQ3 ) || (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET )) //hypov8 todo: was disabled
-		"attr_PaintColor",
+#if /*defined( COMPAT_KPQ3 ) ||*/ (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
+		//"attr_PaintColor",
+		"attr_LightDirection",
 #endif
 		"attr_AmbientLight",
 		"attr_DirectedLight",
-		"attr_LightDirection",
 		"attr_BoneIndexes",
 		"attr_BoneWeights",
 		"attr_Position2",
@@ -606,13 +605,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	  ATTR_BINORMAL       = Q_BIT( ATTR_INDEX_BINORMAL ),
 	  ATTR_NORMAL         = Q_BIT( ATTR_INDEX_NORMAL ),
 	  ATTR_COLOR          = Q_BIT( ATTR_INDEX_COLOR ),
-
-#if  0 //defined( COMPAT_KPQ3 ) || ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) ) //hypov8 todo: was disabled
-	  ATTR_PAINTCOLOR     = Q_BIT( ATTR_INDEX_PAINTCOLOR ),
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) ) //hypov8 todo: was disabled
+	  ///ATTR_PAINTCOLOR     = Q_BIT( ATTR_INDEX_PAINTCOLOR ),
+	  ATTR_LIGHTDIRECTION = Q_BIT( ATTR_INDEX_LIGHTDIRECTION ),
 #endif
 	  ATTR_AMBIENTLIGHT   = Q_BIT( ATTR_INDEX_AMBIENTLIGHT ),
 	  ATTR_DIRECTEDLIGHT  = Q_BIT( ATTR_INDEX_DIRECTEDLIGHT ),
-	  ATTR_LIGHTDIRECTION = Q_BIT( ATTR_INDEX_LIGHTDIRECTION ),
 
 	  ATTR_BONE_INDEXES   = Q_BIT( ATTR_INDEX_BONE_INDEXES ),
 	  ATTR_BONE_WEIGHTS   = Q_BIT( ATTR_INDEX_BONE_WEIGHTS ),
@@ -634,13 +632,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	              ATTR_TANGENT |
 	              ATTR_BINORMAL |
 	              ATTR_NORMAL |
-	              ATTR_COLOR  //|
+	              ATTR_COLOR
 
-#if 0 //defined( COMPAT_KPQ3 ) || ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
-				  | ATTR_PAINTCOLOR 
-				  | ATTR_LIGHTDIRECTION
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
+	              //| ATTR_PAINTCOLOR 
+	              | ATTR_LIGHTDIRECTION //hypov8 add
 #endif
-				  | ATTR_LIGHTDIRECTION //hypov8 add
 	              //ATTR_BONE_INDEXES |
 	              //ATTR_BONE_WEIGHTS
 	};
@@ -671,10 +668,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		vec3_t *normal;
 		int numFrames;
 
-		vec4_t *color;
+		vec4_t *lightColor;
 		vec2_t *st;
 		vec2_t *lightCoord;
 		vec3_t *ambientLight;
+
+		//vec4_t *paintColor; //hypov8 add
+
 		vec3_t *directedLight;
 		vec3_t *lightDir;
 		int    (*boneIndexes)[ 4 ];
@@ -687,9 +687,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		char     name[ MAX_QPATH ];
 
 		uint32_t vertexesVBO;
-
 		uint32_t vertexesSize; // total amount of memory data allocated for this vbo
-
 		uint32_t vertexesNum;
 		uint32_t framesNum; // number of frames for vertex animation
 
@@ -1059,7 +1057,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	  ST_HEATHAZEMAP, // heatHaze post process effect
 	  ST_LIQUIDMAP,
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
 	  ST_LIGHTMAP,
 #endif
 
@@ -1151,8 +1149,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		expression_t    alphaTestExp;
 
 		qboolean        tcGen_Environment;
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		qboolean        tcGen_Lightmap;
-
+#endif
 		byte            constantColor[ 4 ]; // for CGEN_CONST and AGEN_CONST
 
 		uint32_t        stateBits; // GLS_xxxx mask
@@ -1784,12 +1783,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		vec3_t tangent;
 		vec3_t binormal;
 		vec3_t normal;
-		vec4_t lightColor;
-
-#if defined( COMPAT_KPQ3 ) || (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
-		vec4_t paintColor;
+		vec4_t paintColor; //bsp vertex paint color 0.0-1.0
+		vec4_t lightColor; //bsp vertex lightmap color 0-255
 		vec3_t lightDirection;
-#endif
 
 #if DEBUG_OPTIMIZEVERTICES
 		unsigned int id;
@@ -2666,7 +2662,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		backEndCounters_t pc;
 		visTestQueries_t  visTestQueries[ MAX_VISTESTS ];
 		qboolean          isHyperspace;
-		qboolean          depthRenderImageValid; //hypov8 unvan apr 15
+		//qboolean          depthRenderImageValid; //hypov8 unvan apr 15
 		trRefEntity_t     *currentEntity;
 		trRefLight_t      *currentLight; // only used when lighting interactions
 		qboolean          skyRenderedThisView; // flag for drawing sun
@@ -2884,7 +2880,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		vec3_t fogColor;
 		float  fogDensity;
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_ET ) //hypov8 ok?
 		glfog_t     glfogsettings[ NUM_FOGS ];
 		glfogType_t glfogNum;
 #endif
@@ -3534,13 +3530,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		vec4_t tangents[ SHADER_MAX_VERTEXES ];
 		vec4_t binormals[ SHADER_MAX_VERTEXES ];
 		vec4_t normals[ SHADER_MAX_VERTEXES ];
-		vec4_t colors[ SHADER_MAX_VERTEXES ];
-#if  0 //defined( COMPAT_KPQ3 ) ||( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )//hypov8 todo: ok off?
-		vec4_t paintColors[ SHADER_MAX_VERTEXES ]; // for advanced terrain blending
+		vec4_t lightColor[ SHADER_MAX_VERTEXES ];
+#if /*defined( COMPAT_KPQ3 ) ||*/( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )//hypov8 todo: ok off?
+		vec4_t paintColors[ SHADER_MAX_VERTEXES ]; // for advanced terrain blending //typo? paintColors
+		vec4_t lightDirections[ SHADER_MAX_VERTEXES ];
 #endif
 		vec4_t ambientLights[ SHADER_MAX_VERTEXES ];
 		vec4_t directedLights[ SHADER_MAX_VERTEXES ];
-		vec4_t lightDirections[ SHADER_MAX_VERTEXES ];
 		vec2_t texCoords[ SHADER_MAX_VERTEXES ];
 		vec2_t lightCoords[ SHADER_MAX_VERTEXES ];
 
@@ -3710,7 +3706,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	============================================================
 	*/
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET )
+#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET ) //hypov8 ok?
 	void R_SetFrameFog( void );
 	void RB_Fog( glfog_t *curfog );
 	void RB_FogOff( void );

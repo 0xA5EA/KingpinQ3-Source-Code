@@ -1218,7 +1218,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 		ri.Printf( PRINT_ALL, "GL_MAX_VERTEX_UNIFORM_COMPONENTS %d\n", glConfig2.maxVertexUniforms );
 //	ri.Printf(PRINT_ALL, "GL_MAX_VARYING_FLOATS %d\n", glConfig2.maxVaryingFloats);
-		ri.Printf( PRINT_DEVELOPER, "GL_MAX_VERTEX_ATTRIBS %d\n", glConfig2.maxVertexAttribs );
+		ri.Printf( PRINT_DEVELOPER, "GL_MAX_VERTEX_ATTRIBS %d\n", glConfig2.maxVertexAttribs ); //hypov8 16 max?
 
 		if ( glConfig2.occlusionQueryAvailable )
 		{
@@ -1997,6 +1997,10 @@ extern "C"
 
 		re.RegisterSkin = RE_RegisterSkin;
 		re.RegisterShader = RE_RegisterShader;
+		//re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
+#if !defined(COMPAT_ET)
+		//re.RegisterShaderLightAttenuation = RE_RegisterShaderLightAttenuation;
+#endif
 
 		re.LoadWorld = RE_LoadWorldMap;
 		re.SetWorldVisData = RE_SetWorldVisData;
@@ -2011,6 +2015,7 @@ extern "C"
 #else
 		re.LerpTag = RE_LerpTagQ3A;
 #endif
+
 		re.ModelBounds = R_ModelBounds;
 
 		re.ClearScene = RE_ClearScene;
@@ -2022,42 +2027,47 @@ extern "C"
 #else
 		re.AddPolyToScene = RE_AddPolyToSceneQ3A;
 #endif
+#if !defined( COMPAT_ET )
 		re.LightForPoint = R_LightForPoint;
+#endif
 
 #if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET )
 		re.AddLightToScene = RE_AddDynamicLightToSceneET;
 		re.AddAdditiveLightToScene = RE_AddDynamicLightToSceneQ3A;
 #else
-
+		re.AddLightToScene = RE_AddDynamicLightToSceneQ3A;
 #endif
 
 		re.RenderScene = RE_RenderScene;
 
 		re.SetColor = RE_SetColor;
-		re.SetClipRegion = RE_SetClipRegion;
 		re.DrawStretchPic = RE_StretchPic;
 		re.DrawStretchRaw = RE_StretchRaw;
 		re.UploadCinematic = RE_UploadCinematic;
 
 		re.DrawRotatedPic = RE_RotatedPic;
 		re.Add2dPolys = RE_2DPolyies;
+		re.DrawStretchPicGradient = RE_StretchPicGradient;
+
+		re.RegisterFont = RE_RegisterFont;
+		re.RemapShader = R_RemapShader;
+		re.GetEntityToken = R_GetEntityToken;
+		re.inPVS = R_inPVS;
+
+		re.inPVVS = R_inPVVS;
 		re.ScissorEnable = RE_ScissorEnable;
 		re.ScissorSet = RE_ScissorSet;
-		re.DrawStretchPicGradient = RE_StretchPicGradient;
+		re.SetClipRegion = RE_SetClipRegion;
 
 		//re.Glyph = RE_Glyph;
 		//re.GlyphChar = RE_GlyphChar;
-		re.RegisterFont = RE_RegisterFont;
+
 		//re.UnregisterFont = RE_UnregisterFont;
 		//re.RegisterFontVM = RE_RegisterFontVM;
 		//re.GlyphVM = RE_GlyphVM;
 		//re.GlyphCharVM = RE_GlyphCharVM;
 		//re.UnregisterFontVM = RE_UnregisterFontVM;
 
-		re.RemapShader = R_RemapShader;
-		re.GetEntityToken = R_GetEntityToken;
-		re.inPVS = R_inPVS;
-		re.inPVVS = R_inPVVS;
 		// Q3A END
 
 		// ET BEGIN

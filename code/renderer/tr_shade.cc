@@ -339,7 +339,7 @@ static void DrawTris()
 
 	gl_genericShader->DisableDeformVertexes();
 	gl_genericShader->DisableTCGenEnvironment();
-	gl_genericShader->DisableTCGenLightmap();
+	//gl_genericShader->DisableTCGenLightmap();
 
 	gl_genericShader->BindProgram();
 
@@ -495,10 +495,10 @@ static void Render_generic( int stage )
 
 	GL_State( pStage->stateBits );
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
 		// depth buffer may change
-		backEnd.depthRenderImageValid = false;
-	}
+		//backEnd.depthRenderImageValid = false;
+	//}
 
 	// choose right shader program ----------------------------------
 	gl_genericShader->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
@@ -506,7 +506,7 @@ static void Render_generic( int stage )
 
 	gl_genericShader->SetDeformVertexes( tess.surfaceShader->numDeforms > 0);
 	gl_genericShader->SetTCGenEnvironment( pStage->tcGen_Environment > 0);
-	gl_genericShader->SetTCGenLightmap( pStage->tcGen_Lightmap > 0 );
+	//gl_genericShader->SetTCGenLightmap( pStage->tcGen_Lightmap > 0 );
 
 	/*
 		if( tess.surfaceShader->autoSpriteMode ) 
@@ -623,9 +623,10 @@ static void Render_vertexLighting_DBS_entity( int stage )
 
 	GL_State( stateBits );
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) 
+	{ //hypov8 merge: .4
 	// depth buffer may change
-	backEnd.depthRenderImageValid = qfalse;
+	//backEnd.depthRenderImageValid = qfalse;
 	}
 
 	bool normalMapping = r_normalMapping->integer && ( pStage->bundle[ TB_NORMALMAP ].image[ 0 ] != NULL );
@@ -851,8 +852,8 @@ static void Render_vertexLighting_DBS_world( int stage )
 
 	stateBits = pStage->stateBits;
 
-	bool normalMapping = r_normalMapping->integer && ( pStage->bundle[TB_NORMALMAP].image[0] != NULL ) &&
-		tess.lightmapNum >= 0; //hypov8 add: fullbright uncompiled maps
+  bool normalMapping = r_normalMapping->integer && (pStage->bundle[TB_NORMALMAP].image[0] != NULL); // 
+		//&& tess.lightmapNum >= 0; //hypov8 add: fullbright uncompiled maps
 	bool glowMapping = ( pStage->bundle[ TB_GLOWMAP ].image[ 0 ] != NULL );
 
 	// choose right shader program ----------------------------------
@@ -918,9 +919,10 @@ static void Render_vertexLighting_DBS_world( int stage )
 
 	GL_State( stateBits );
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) 
+	{ //hypov8 merge: .4
 	// depth buffer may change
-	backEnd.depthRenderImageValid = qfalse;
+	//backEnd.depthRenderImageValid = qfalse;
 	}
 
 	gl_vertexLightingShader_DBS_world->SetUniform_ColorModulate( colorGen, alphaGen );
@@ -1044,10 +1046,10 @@ static void Render_lightMapping( int stage, bool asColorMap, bool normalMapping 
 
 	GL_State( stateBits );
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
 	// depth buffer may change
-	backEnd.depthRenderImageValid = false;
-	}
+	//backEnd.depthRenderImageValid = false;
+	//}
 
 	if ( pStage->bundle[ TB_NORMALMAP ].image[ 0 ] == NULL )
 	{
@@ -1187,10 +1189,10 @@ static void Render_depthFill( int stage )
 	GL_State( pStage->stateBits );
 #endif
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
 	// depth buffer may change
-	backEnd.depthRenderImageValid = qfalse;
-	}
+	//backEnd.depthRenderImageValid = qfalse;
+	//}
 
 	gl_genericShader->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
 	gl_genericShader->SetVertexAnimation( glState.vertexAttribsInterpolation > 0 );
@@ -1288,10 +1290,10 @@ static void Render_shadowFill( int stage )
 
 	GL_State( stateBits );
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
 	// depth buffer may change
-	backEnd.depthRenderImageValid = qfalse;
-	}
+	//backEnd.depthRenderImageValid = qfalse;
+	//}
 
 	gl_shadowFillShader->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
 	gl_shadowFillShader->SetVertexAnimation( glState.vertexAttribsInterpolation > 0 );
@@ -1375,7 +1377,7 @@ static void Render_forwardLighting_DBS_omni( shaderStage_t *diffuseStage,
 
 	bool shadowCompare = ( r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0 );
 
-	backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
+	//backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_omniXYZ->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
@@ -1573,8 +1575,9 @@ static void Render_forwardLighting_DBS_proj( shaderStage_t *diffuseStage,
 	bool normalMapping = r_normalMapping->integer && ( diffuseStage->bundle[ TB_NORMALMAP ].image[ 0 ] != NULL );
 
 	bool shadowCompare = ( r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0 );
+	bool glowMapping = ( diffuseStage->bundle[ TB_GLOWMAP ].image[ 0 ] != NULL );
 
-	backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
+	//backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_projXYZ->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
@@ -1584,6 +1587,7 @@ static void Render_forwardLighting_DBS_proj( shaderStage_t *diffuseStage,
 
 	gl_forwardLightingShader_projXYZ->SetNormalMapping( normalMapping );
 	gl_forwardLightingShader_projXYZ->SetParallaxMapping( normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax );
+	gl_vertexLightingShader_DBS_world->SetGlowMapping( glowMapping ); //hypov8 glowmap
 
 //	gl_forwardLightingShader_projXYZ->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 
@@ -1732,23 +1736,29 @@ static void Render_forwardLighting_DBS_proj( shaderStage_t *diffuseStage,
 		gl_forwardLightingShader_projXYZ->SetUniform_SpecularExponent( minSpec, maxSpec );
 	}
 
+	if ( glowMapping )
+	{
+		GL_BindToTMU( 3, diffuseStage->bundle[ TB_GLOWMAP ].image[ 0 ] ); 
+		gl_forwardLightingShader_projXYZ->SetUniform_GlowTextureMatrix( tess.svars.texMatrices[ TB_GLOWMAP ] );
+	}
+
 	// bind u_AttenuationMapXY
-	GL_SelectTexture( 3 );
+	GL_SelectTexture( 4 );
 	BindAnimatedImage( &attenuationXYStage->bundle[ TB_COLORMAP ] );
 
 	// bind u_AttenuationMapZ
-	GL_SelectTexture( 4 );
+	GL_SelectTexture( 5 );
 	BindAnimatedImage( &attenuationZStage->bundle[ TB_COLORMAP ] );
 
 	// bind u_ShadowMap
 	if ( shadowCompare )
 	{
-		GL_BindToTMU( 5, tr.shadowMapFBOImage[ light->shadowLOD ] ); 
-		GL_BindToTMU( 7, tr.shadowClipMapFBOImage[ light->shadowLOD ] ); 
+		GL_BindToTMU( 6, tr.shadowMapFBOImage[ light->shadowLOD ] ); 
+		GL_BindToTMU( 8, tr.shadowClipMapFBOImage[ light->shadowLOD ] ); 
 	}
 
 	// bind u_RandomMap
-	GL_BindToTMU( 6, tr.randomNormalsImage ); 
+	GL_BindToTMU( 7, tr.randomNormalsImage ); 
 
 	gl_forwardLightingShader_projXYZ->SetRequiredVertexPointers();
 
@@ -1775,7 +1785,7 @@ static void Render_forwardLighting_DBS_directional( shaderStage_t *diffuseStage,
 
 	bool shadowCompare = ( r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0 );
 
-	backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
+	//backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_directionalSun->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
@@ -1986,10 +1996,10 @@ static void Render_reflection_CB( int stage )
 
 	GLimp_LogComment( "--- Render_reflection_CB ---\n" );
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
 	// depth buffer may change
-	backEnd.depthRenderImageValid = qfalse;
-	}
+	//backEnd.depthRenderImageValid = qfalse;
+	//}
 
 	GL_State( pStage->stateBits );
 
@@ -2142,10 +2152,10 @@ static void Render_screen( int stage )
 
 	GL_State( pStage->stateBits );
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypov8 merge: .4
 	// depth buffer may change
-		backEnd.depthRenderImageValid = qfalse;
-	}
+	//	backEnd.depthRenderImageValid = qfalse;
+	//}
 
 	gl_screenShader->BindProgram();
 
@@ -2180,10 +2190,10 @@ static void Render_portal( int stage )
 
 	GL_State( pStage->stateBits );
 
-	if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypove merge: .4
+	//if( pStage->stateBits & GLS_DEPTHMASK_TRUE ) { //hypove merge: .4
 	// depth buffer may change
-	backEnd.depthRenderImageValid = qfalse;
-	}
+	//backEnd.depthRenderImageValid = qfalse;
+	//}
 
 	// enable shader, set arrays
 	gl_portalShader->BindProgram();
@@ -2230,49 +2240,15 @@ static void Render_heatHaze( int stage )
 
 		// capture current color buffer for u_CurrentMap
 
-		/*
-		GL_SelectTexture(0);
-		GL_Bind(tr.currentRenderImage);
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth,
-		                                         tr.currentRenderImage->uploadHeight);
-
-		*/
-
 		previousFBO = glState.currentFBO;
 
-		if ( HDR_ENABLED() )
-		{
-			GL_CheckErrors();
-
-			// copy deferredRenderFBO to occlusionRenderFBO
-#if 0
-			glBindFramebufferEXT( GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer );
-			glBindFramebufferEXT( GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer );
-			glBlitFramebufferEXT( 0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
-			                      0, 0, tr.occlusionRenderFBO->width, tr.occlusionRenderFBO->height,
-			                      GL_DEPTH_BUFFER_BIT,
-			                      GL_NEAREST );
-#else
-			glBindFramebufferEXT( GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer );
-			glBindFramebufferEXT( GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer );
-			glBlitFramebufferEXT( 0, 0, glConfig.vidWidth, glConfig.vidHeight,
-			                      0, 0, glConfig.vidWidth, glConfig.vidHeight,
-			                      GL_DEPTH_BUFFER_BIT,
-			                      GL_NEAREST );
-#endif
-
-			GL_CheckErrors();
-		}
-		else
-		{
-			// copy depth of the main context to occlusionRenderFBO
-			glBindFramebufferEXT( GL_READ_FRAMEBUFFER_EXT, 0 );
-			glBindFramebufferEXT( GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer );
-			glBlitFramebufferEXT( 0, 0, glConfig.vidWidth, glConfig.vidHeight,
-			                      0, 0, glConfig.vidWidth, glConfig.vidHeight,
-			                      GL_DEPTH_BUFFER_BIT,
-			                      GL_NEAREST );
-		}
+		// copy depth of the main context to occlusionRenderFBO
+		glBindFramebufferEXT( GL_READ_FRAMEBUFFER_EXT, 0 );
+		glBindFramebufferEXT( GL_DRAW_FRAMEBUFFER_EXT, tr.occlusionRenderFBO->frameBuffer );
+		glBlitFramebufferEXT( 0, 0, glConfig.vidWidth, glConfig.vidHeight,
+			                    0, 0, glConfig.vidWidth, glConfig.vidHeight,
+			                    GL_DEPTH_BUFFER_BIT,
+			                    GL_NEAREST );
 
 		R_BindFBO( tr.occlusionRenderFBO );
 		R_AttachFBOTexture2D( GL_TEXTURE_2D, tr.occlusionRenderFBOImage->texnum, 0 );
@@ -2390,18 +2366,12 @@ static void Render_heatHaze( int stage )
 	gl_heatHazeShader->SetUniform_NormalTextureMatrix( tess.svars.texMatrices[ TB_COLORMAP ] );
 
 	// bind u_CurrentMap
-	if ( HDR_ENABLED() )
-	{
-		GL_BindToTMU( 1, tr.deferredRenderFBOImage );
-	}
-	else
-	{
-		GL_BindToTMU( 1, tr.currentRenderImage );
-		glCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight );
-	}
+	GL_BindToTMU( 1, tr.currentRenderImage );
+	glCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight );
+
 
 	// bind u_ContrastMap
-	if ( r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable /*&& glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10*/ && glConfig.driverType != GLDRV_MESA )
+	if ( r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA )
 	{
 		GL_BindToTMU( 2, tr.occlusionRenderFBOImage ); 
 	}
@@ -2512,7 +2482,7 @@ static void Render_fog()
 
 	//ri.Printf(PRINT_ALL, "--- Render_fog ---\n");
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET ) //hypov8 todo: fog?
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_ET ) //hypov8 todo: fog?
 
 	// no fog pass in snooper
 	if ( ( tr.refdef.rdflags & RDF_SNOOPERVIEW ) || tess.surfaceShader->noFog || !r_wolfFog->integer )
@@ -3062,7 +3032,7 @@ static void Tess_ComputeTexMatrices( shaderStage_t *pStage )
 		matrix = tess.svars.texMatrices[ i ];
 
 		RB_CalcTexMatrix( &pStage->bundle[ i ], matrix );
-
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		if ( pStage->tcGen_Lightmap && i == TB_COLORMAP )
 		{
 			MatrixMultiplyScale( matrix,
@@ -3070,6 +3040,7 @@ static void Tess_ComputeTexMatrices( shaderStage_t *pStage )
 			                     tr.fatLightmapStep,
 			                     tr.fatLightmapStep );
 		}
+#endif
 	}
 }
 
@@ -3079,7 +3050,7 @@ SetIteratorFog
         set the fog parameters for this pass
 ==============
 */
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET ) //hypov8 todo: use fog?
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_ET ) //hypov8 todo: use fog?
 static void SetIteratorFog()
 {
 	GLimp_LogComment( "--- SetIteratorFog() ---\n" );
@@ -3310,7 +3281,7 @@ void Tess_StageIteratorGeneric()
 					break;
 				}
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
 
 			case ST_LIGHTMAP:
 				{
@@ -3321,10 +3292,10 @@ void Tess_StageIteratorGeneric()
 #endif
 
 			case ST_DIFFUSEMAP:
-			case ST_COLLAPSE_lighting_DBSG:
-			case ST_COLLAPSE_lighting_DBG:
 			case ST_COLLAPSE_lighting_DB:
+			case ST_COLLAPSE_lighting_DBG:
 			case ST_COLLAPSE_lighting_DBS:
+			case ST_COLLAPSE_lighting_DBSG:
 				{
 					//if(tess.surfaceShader->sort <= SS_OPAQUE)
 					{
@@ -3423,7 +3394,7 @@ void Tess_StageIteratorGeneric()
 			RB_SetStencil( 0, NULL );
 		}
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
 
 		if ( r_showLightMaps->integer && pStage->type == ST_LIGHTMAP )
 		{
@@ -3511,7 +3482,7 @@ void Tess_StageIteratorDepthFill()
 					break;
 				}
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
 
 			case ST_LIGHTMAP:
 				{
@@ -3606,7 +3577,7 @@ void Tess_StageIteratorShadowFill()
 					break;
 				}
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
 
 			case ST_LIGHTMAP:
 #endif
@@ -3732,7 +3703,9 @@ void Tess_StageIteratorLighting()
 			{
 				case ST_DIFFUSEMAP:
 				case ST_COLLAPSE_lighting_DB:
+				case ST_COLLAPSE_lighting_DBG:
 				case ST_COLLAPSE_lighting_DBS:
+				case ST_COLLAPSE_lighting_DBSG:
 					if ( light->l.rlType == RL_OMNI )
 					{
 						Render_forwardLighting_DBS_omni( diffuseStage, attenuationXYStage, attenuationZStage, light );

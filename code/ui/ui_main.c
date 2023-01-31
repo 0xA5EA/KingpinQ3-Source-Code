@@ -6739,13 +6739,13 @@ void _UI_Init(qboolean inGameLoad, int randomSeed)
   uiInfo.uiDC.setColor             = &UI_SetColor;
   uiInfo.uiDC.drawHandlePic        = &UI_DrawHandlePic;
   uiInfo.uiDC.drawStretchPic       = &trap_R_DrawStretchPic;
-  uiInfo.uiDC.drawRotatedPic	   = &trap_R_DrawRotatedPic; //add hypov8
+  uiInfo.uiDC.drawRotatedPic       = &trap_R_DrawRotatedPic; //add hypov8
   uiInfo.uiDC.drawText             = &Text_Paint;
   uiInfo.uiDC.textWidth            = &Text_Width;
   uiInfo.uiDC.textHeight           = &Text_Height;
   uiInfo.uiDC.registerModel        = &trap_R_RegisterModel;
   uiInfo.uiDC.modelBounds          = &trap_R_ModelBounds;
-   uiInfo.uiDC.lerpTag				= &trap_R_LerpTag; //add hypov8
+   uiInfo.uiDC.lerpTag             = &trap_R_LerpTag; //add hypov8
   uiInfo.uiDC.fillRect             = &UI_FillRect;
   uiInfo.uiDC.drawRect             = &_UI_DrawRect;
   uiInfo.uiDC.drawSides            = &_UI_DrawSides;

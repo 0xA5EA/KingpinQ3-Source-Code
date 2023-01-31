@@ -732,7 +732,7 @@ qboolean R_LoadIQModel( model_t *mod, void *buffer, int filesize,
     vboData.binormal = (vec3_t *)IQModel->bitangents;
     vboData.normal = (vec3_t *)IQModel->normals;;
     vboData.numFrames = 0;
-    vboData.color = (vec4_t *)colorbuf;
+    vboData.lightColor = (vec4_t *)colorbuf;
     vboData.st = (vec2_t *)IQModel->texcoords;
     vboData.lightCoord = NULL;
     vboData.ambientLight = NULL;

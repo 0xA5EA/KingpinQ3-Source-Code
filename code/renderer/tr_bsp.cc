@@ -116,7 +116,7 @@ void HSVtoRGB(float h, float s, float v, float rgb[3])
 R_ColorShiftLightingBytes
 ===============
 */
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
 static void R_ColorShiftLightingBytes( byte in[ 4 ], byte out[ 4 ] )
 {
   int shift, r, g, b;
@@ -194,6 +194,12 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 {
   int             i;
   vec4_t          sample;
+
+  if (!tr.worldHDR_RGBE)
+  {
+    R_ColorShiftLightingFloats(in, out);
+    return;
+  }
 
   if ( !r_hdrRendering->integer || !r_hdrLightmap->integer || !glConfig2.framebufferObjectAvailable ||
     !glConfig2.textureFloatAvailable || !glConfig2.framebufferBlitAvailable )
@@ -289,7 +295,7 @@ R_ProcessLightmap
         returns maxIntensity
 ===============
 */
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
 float R_ProcessLightmap( byte *pic, int in_padding, int width, int height, byte *pic_out )
 {
   int   j;
@@ -905,7 +911,7 @@ static void R_LoadLightmaps( lump_t *l, const char *bspName )
     }
   }
 
-#if !defined( COMPAT_KPQ3 ) && defined(COMPAT_ET)
+#if 0 //defined(COMPAT_ET)
   else
   {
     static byte data[ LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4 ];
@@ -1374,7 +1380,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
       cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
     }
 
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_Q3A )
+#if defined( COMPAT_Q3A )
     cv->verts[ i ].lightmap[ 0 ] = FatPackU( LittleFloat( verts[ i ].lightmap[ 0 ] ), realLightmapNum );
     cv->verts[ i ].lightmap[ 1 ] = FatPackV( LittleFloat( verts[ i ].lightmap[ 1 ] ), realLightmapNum );
 
@@ -1385,32 +1391,27 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 
     R_ColorShiftLightingFloats( cv->verts[ i ].lightColor, cv->verts[ i ].lightColor );
 
-#elif !defined( COMPAT_KPQ3 ) && (defined( COMPAT_Q3A ) || defined( COMPAT_ET ))
-
+#elif /*defined( COMPAT_KPQ3 ) || */defined( COMPAT_Q3A ) || defined( COMPAT_ET )
     for ( j = 0; j < 4; j++ )
     {
-      cv->verts[ i ].lightColor[ j ] = verts[ i ].color[ j ] * ( 1.0f / 255.0f );
+      cv->verts[ i ].lightColor[ j ] = verts[ i ].lightColor[ j ] * ( 1.0f / 255.0f );
     }
 
     R_ColorShiftLightingFloats( cv->verts[ i ].lightColor, cv->verts[ i ].lightColor );
 #else
-
     for ( j = 0; j < 4; j++ )
     {
-      cv->verts[ i ].paintColor[ j ] = Maths::clampFraction( LittleFloat( verts[ i ].paintColor[ j ] ) );
+      //cv->verts[i].paintColor[j] = Maths::clampFraction(LittleFloat(verts[i].paintColor[j])); //!defined( COMPAT_KPQ3 )
       cv->verts[i].lightColor[j] = LittleFloat(verts[i].lightColor[j]);
     }
-
+    cv->verts[i].lightColor[3] /= 255; //hypov8 kmap alpha uses 0-255(for colormods)
     for (j = 0; j < 3; j++)
     {
       cv->verts[i].lightDirection[j] = LittleFloat(verts[i].lightDirection[j]);
     }
-
     //VectorNormalize(cv->verts[i].lightDirection);
-    if (!tr.worldHDR_RGBE) //hypov8 merge: in kpq3..
-      R_ColorShiftLightingFloats(cv->verts[i].lightColor, cv->verts[i].lightColor);
-    else
-      R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor, qtrue);
+
+    R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor, qtrue);
 #endif
   }
 
@@ -1505,7 +1506,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 
   // we may have a nodraw surface, because they might still need to
   // be around for movement clipping
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_ET ) //hypov8 fog: //
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined( COMPAT_ET ) //hypov8 fog: //
 
   if (s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & SURF_NODRAW )
 #else
@@ -1541,7 +1542,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
       points[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
     }
 
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_Q3A )
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined( COMPAT_Q3A )
     points[ i ].lightmap[ 0 ] = FatPackU( LittleFloat( verts[ i ].lightmap[ 0 ] ), realLightmapNum );
     points[ i ].lightmap[ 1 ] = FatPackV( LittleFloat( verts[ i ].lightmap[ 1 ] ), realLightmapNum );
 
@@ -1552,7 +1553,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 
     R_ColorShiftLightingFloats( points[ i ].lightColor, points[ i ].lightColor );
 
-#elif !defined( COMPAT_KPQ3 ) &&( defined( COMPAT_Q3A ) || defined( COMPAT_ET ) )
+#elif /*!defined( COMPAT_KPQ3 ) &&*/( defined( COMPAT_Q3A ) || defined( COMPAT_ET ) )
 
     for ( j = 0; j < 4; j++ )
     {
@@ -1564,9 +1565,10 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 
     for ( j = 0; j < 4; j++ )
     {
-      points[ i ].paintColor[ j ] = Maths::clampFraction( LittleFloat( verts[ i ].paintColor[ j ] ) );
+      //points[i].paintColor[j] = Maths::clampFraction(LittleFloat(verts[i].paintColor[j])); //!defined( COMPAT_KPQ3 )
       points[i].lightColor[j] = LittleFloat(verts[i].lightColor[j]);
     }
+    points[i].lightColor[3] /= 255; //hypov8 kmap alpha uses 0-255(for colormods)
 
     for (j = 0; j < 3; j++)
     {
@@ -1574,10 +1576,8 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
     }
 
     //VectorNormalize(points[i].lightDirection);
-    if (!tr.worldHDR_RGBE) //hypov8 merge: in kpq3..
-      R_ColorShiftLightingFloats(points[i].lightColor, points[i].lightColor); //hypov8 add
-    else
-      R_HDRTonemapLightingColors(points[i].lightColor, points[i].lightColor, qtrue);
+
+    R_HDRTonemapLightingColors(points[i].lightColor, points[i].lightColor, qtrue);
 #endif
   }
 
@@ -1652,8 +1652,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 
   // we may have a nodraw surface, because they might still need to
   // be around for movement clipping
-#if !defined( COMPAT_KPQ3 ) &&  defined( COMPAT_ET )//hypov8 nodraw:
-
+#if /*!defined( COMPAT_KPQ3 ) &&*/  defined( COMPAT_ET )//hypov8 nodraw:
   if ( s_worldData.shaders[ LittleLong( ds->shaderNum ) ].surfaceFlags & SURF_NODRAW )
 #else
   if (s_worldData.shaders[LittleLong(ds->shaderNum)].surfaceFlags & (SURF_NODRAW | SURF_COLLISION))
@@ -1694,8 +1693,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
       cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
     }
 
-#if !defined( COMPAT_KPQ3 ) && ( defined( COMPAT_Q3A ) || defined( COMPAT_ET ) )
-
+#if /*!defined( COMPAT_KPQ3 ) && */( defined( COMPAT_Q3A ) || defined( COMPAT_ET ) )
     for (j = 0; j < 4; j++)
     {
       cv->verts[ i ].lightColor[ j ] = verts[ i ].color[ j ] * ( 1.0f / 255.0f );
@@ -1706,20 +1704,17 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 
     for ( j = 0; j < 4; j++ )
     {
-      cv->verts[ i ].paintColor[ j ] = Maths::clampFraction( LittleFloat( verts[ i ].paintColor[ j ] ) ); //hypov8 rgbgen entity? but dont work? 0-1 / 0-255
-      cv->verts[i].lightColor[j] = LittleFloat(verts[i].lightColor[j]);
+      //cv->verts[i].paintColor[j] = Maths::clampFraction(LittleFloat(verts[i].paintColor[j])); //!defined( COMPAT_KPQ3 )
+      cv->verts[i].lightColor[j] = LittleFloat(verts[i].lightColor[j]); // *(1.0f / 255.0f);
     }
+    cv->verts[i].lightColor[3] /= 255; //hypov8 kmap alpha uses 0-255(for colormods)
 
     for (j = 0; j < 3; j++)
     {
       cv->verts[i].lightDirection[j] = LittleFloat(verts[i].lightDirection[j]);
     }
 
-    //VectorNormalize(cv->verts[i].lightDirection);
-    if (!tr.worldHDR_RGBE) //hypov8 merge: in kpq3..
-      R_ColorShiftLightingFloats(cv->verts[i].lightColor, cv->verts[i].lightColor);
-    else
-      R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor, qtrue);
+    R_HDRTonemapLightingColors(cv->verts[i].lightColor, cv->verts[i].lightColor, qtrue);
 #endif
   }
 
@@ -2891,7 +2886,7 @@ static void CopyVert(const srfVert_t * in, srfVert_t * out)
     out->tangent[j] = in->tangent[j];
     out->binormal[j] = in->binormal[j];
     out->normal[j] = in->normal[j];
-#if defined( COMPAT_KPQ3 ) ||  (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET )) //hypov8 merge: //hypov8 light:
+#if /*defined( COMPAT_KPQ3 ) ||  */(!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
     out->lightDirection[j] = in->lightDirection[j];
 #endif
   }
@@ -2904,9 +2899,7 @@ static void CopyVert(const srfVert_t * in, srfVert_t * out)
 
   for (j = 0; j < 4; j++)
   {
-#if defined( COMPAT_KPQ3 ) || (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
-    out->paintColor[j] = in->paintColor[j];
-#endif
+    //out->paintColor[j] = in->paintColor[j];
     out->lightColor[j] = in->lightColor[j];
   }
 
@@ -4601,10 +4594,11 @@ static void R_CreateWorldVBO( void )
   s_worldData.vbo = R_CreateStaticVBO2( va( "staticWorld_VBO %i", 0 ), numVerts, verts,
                    ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL |
                    ATTR_NORMAL | ATTR_COLOR
-#if 0// defined( COMPAT_KPQ3 ) || ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
-                                  | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
+                   //| ATTR_PAINTCOLOR
+                   | ATTR_LIGHTDIRECTION
 #endif
-                                   | ATTR_LIGHTDIRECTION); //hypov8 add
+);
 #endif
 
   s_worldData.ibo = R_CreateStaticIBO2( va( "staticWorld_IBO %i", 0 ), numTriangles, triangles );
@@ -5592,7 +5586,7 @@ static void R_LoadLightGrid(lump_t * l)
 
   for (i = 0; i < w->numLightGridPoints; i++, in++, gridPoint++)
   {
-#if !defined( COMPAT_KPQ3 ) && ( defined( COMPAT_Q3A ) || defined( COMPAT_ET ) ) //hypov8 todo: needed?
+#if /*!defined( COMPAT_KPQ3 ) &&*/ ( defined( COMPAT_Q3A ) || defined( COMPAT_ET ) ) //hypov8 todo: needed?
     byte tmpAmbient[ 4 ];
     byte tmpDirected[ 4 ];
 
@@ -5652,13 +5646,10 @@ static void R_LoadLightGrid(lump_t * l)
                i, gridPoint->ambient[ 0 ], gridPoint->ambient[ 1 ], gridPoint->ambient[ 2 ], gridPoint->directed[ 0 ], gridPoint->directed[ 1 ], gridPoint->directed[ 2 ] );
 #endif
 
-#if defined( COMPAT_KPQ3 ) || ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) ) //hypov8 merge:
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
     // deal with overbright bits
-    if ( tr.worldHDR_RGBE ) //hypov8 merge: in kpq3..
-    {
-      R_HDRTonemapLightingColors(gridPoint->ambientColor, gridPoint->ambientColor, qtrue);
-      R_HDRTonemapLightingColors(gridPoint->directedColor, gridPoint->directedColor, qtrue);
-    }
+    R_HDRTonemapLightingColors(gridPoint->ambientColor, gridPoint->ambientColor, qtrue);
+    R_HDRTonemapLightingColors(gridPoint->directedColor, gridPoint->directedColor, qtrue);
 #endif
   }
 
@@ -8870,7 +8861,7 @@ void R_BuildCubeMaps() //hypov8 todo: daemon
       {
         ri.Printf(PRINT_ALL, "*");
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_ET )
         ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 #endif
       }
@@ -9279,7 +9270,7 @@ void RE_LoadWorldMap(const char *name)
   //          now that I can see how it's been used.  (functionality can narrow since
   //          it's not used as much as it's designed for.)
 
-#if !defined( COMPAT_KPQ3 ) &&  defined( COMPAT_ET )//hypov8 fog: //
+#if /*!defined( COMPAT_KPQ3 ) &&*/  defined( COMPAT_ET )//hypov8 fog: //
   RE_SetFog( FOG_SKY, 0, 0, 0, 0, 0, 0 );
   RE_SetFog( FOG_PORTALVIEW, 0, 0, 0, 0, 0, 0 );
   RE_SetFog( FOG_HUD, 0, 0, 0, 0, 0, 0 );
@@ -9446,7 +9437,7 @@ R_LoadMarksurfaces(&header->lumps[LUMP_LEAFSURFACES]);
   // only set tr.world now that we know the entire level has loaded properly
   tr.world = &s_worldData;
 
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_ET )//hypov8 fog: //
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined( COMPAT_ET )//hypov8 fog: //
   // reset fog to world fog (if present)
   RE_SetFog( FOG_CMD_SWITCHFOG, FOG_MAP, 20, 0, 0, 0, 0 );
 #endif

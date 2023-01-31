@@ -428,7 +428,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent, vec3_t
 
 #endif
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_ET )
 
   if ( ent->e.entityNum < MAX_CLIENTS && ( refdef->rdflags & RDF_SNOOPERVIEW ) )
   {
@@ -719,17 +719,17 @@ void R_TessLight( const trRefLight_t *light, const vec4_t color )
             const float *c = color ? color : colorCyan;
 
             VectorCopy( top, tess.xyz[ tess.numVertexes ] );
-            Vector4Copy( c, tess.colors[ tess.numVertexes ] );
+            Vector4Copy( c, tess.lightColor[ tess.numVertexes ] );
             tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
             tess.numVertexes++;
 
             VectorCopy( farCorners[( j + 1 ) % 4 ], tess.xyz[ tess.numVertexes ] );
-            Vector4Copy( c, tess.colors[ tess.numVertexes ] );
+            Vector4Copy( c, tess.lightColor[ tess.numVertexes ] );
             tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
             tess.numVertexes++;
 
             VectorCopy( farCorners[ j ], tess.xyz[ tess.numVertexes ] );
-            Vector4Copy( c, tess.colors[ tess.numVertexes ] );
+            Vector4Copy( c, tess.lightColor[ tess.numVertexes ] );
             tess.indexes[ tess.numIndexes++ ] = tess.numVertexes;
             tess.numVertexes++;
           }

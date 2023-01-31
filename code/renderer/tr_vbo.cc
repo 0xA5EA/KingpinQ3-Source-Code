@@ -46,16 +46,23 @@ static uint32_t R_DeriveAttrBits( vboData_t data )
     stateBits |= ATTR_NORMAL;
   }
 
-  if ( data.color )
+  if ( data.lightColor )
   {
     stateBits |= ATTR_COLOR;
   }
 
+#if /*defined( COMPAT_KPQ3 )*/ !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+#if 0
+	if ( data.paintColor)
+  {
+    stateBits |= ATTR_PAINTCOLOR;
+  }
+#endif
   if ( data.lightDir )
   {
     stateBits |= ATTR_LIGHTDIRECTION;
   }
-
+#endif
   if ( data.directedLight )
   {
     stateBits |= ATTR_DIRECTEDLIGHT;
@@ -444,9 +451,22 @@ static void R_CopyVertexData( VBO_t *vbo, byte *outData, vboData_t inData )
 
     if ( ( vbo->attribBits & ATTR_COLOR ) )
     {
-      VERTEXCOPY( v, color, ATTR_INDEX_COLOR, float );
+      VERTEXCOPY( v, lightColor, ATTR_INDEX_COLOR, float );
     }
 
+    //hypov8 needed?
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
+#if 0
+    if ( ( vbo->attribBits & ATTR_PAINTCOLOR ) )
+    {
+      VERTEXCOPY( v, paintColor, ATTR_INDEX_PAINTCOLOR, float );
+    }
+#endif
+    if ( ( vbo->attribBits & ATTR_LIGHTDIRECTION ) )
+    {
+      VERTEXCOPY( v, lightDir, ATTR_INDEX_LIGHTDIRECTION, float );
+    }
+#endif
     if ( ( vbo->attribBits & ATTR_AMBIENTLIGHT ) )
     {
       VERTEXCOPY( v, ambientLight, ATTR_INDEX_AMBIENTLIGHT, float );
@@ -455,11 +475,6 @@ static void R_CopyVertexData( VBO_t *vbo, byte *outData, vboData_t inData )
     if ( ( vbo->attribBits & ATTR_DIRECTEDLIGHT ) )
     {
       VERTEXCOPY( v, directedLight, ATTR_INDEX_DIRECTEDLIGHT, float );
-    }
-
-    if ( ( vbo->attribBits & ATTR_LIGHTDIRECTION ) )
-    {
-      VERTEXCOPY( v, lightDir, ATTR_INDEX_LIGHTDIRECTION, float );
     }
 
     if ( ( vbo->attribBits & ATTR_BONE_INDEXES ) )
@@ -637,29 +652,25 @@ static vboData_t R_CreateVBOData( const VBO_t *vbo, const srfVert_t *verts )
 
     if ( ( vbo->attribBits & ATTR_COLOR ) )
     {
-      if ( !data.color )
+      if ( !data.lightColor )
       {
-        data.color = ( vec4_t * ) ri.Hunk_AllocateTempMemory( sizeof( *data.color ) * data.numVerts );
+        data.lightColor = ( vec4_t * ) ri.Hunk_AllocateTempMemory( sizeof( *data.lightColor ) * data.numVerts );
       }
-      Vector4Copy( vert->lightColor, data.color[ v ] );
+      Vector4Copy( vert->lightColor, data.lightColor[ v ] );
     }
-#if  defined( COMPAT_KPQ3 )
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
     // feed vertex paint colors
-    /*if ( vbo->attribBits& ATTR_PAINTCOLOR)
+#if 0
+    if ( vbo->attribBits & ATTR_PAINTCOLOR )
     {
-    vbo->ofsPaintColors = dataOfs;
-    for (int i = 0; i < numVertexes; i++)
-    {
-      for (int j = 0; j < 4; j++)
+      if ( !data.paintColor ) //hypov8 todo this is not used. terain painted colors
       {
-      tmp[j] = verts[i].paintColor[j];
+        data.paintColor = ( vec4_t * ) ri.Hunk_AllocateTempMemory( sizeof( *data.paintColor ) * data.numVerts );
       }
-
-      Com_Memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-      dataOfs += sizeof(vec4_t);
+      Vector4Copy( vert->paintColor, data.paintColor[ v ] );
     }
-    }*/
-  // feed vertex light directions
+#endif
+    // feed vertex light directions
     if ( ( vbo->attribBits & ATTR_LIGHTDIRECTION ) )
     {
       if ( !data.lightDir )
@@ -676,27 +687,22 @@ static vboData_t R_CreateVBOData( const VBO_t *vbo, const srfVert_t *verts )
 
 static void R_FreeVBOData( vboData_t data )
 {
-#if  defined( COMPAT_KPQ3 )
+#if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
+#if 0
+  if ( data.paintColor )
+  {
+    ri.Hunk_FreeTempMemory( data.paintColor );
+  }
+#endif
   if ( data.lightDir )
   {
     ri.Hunk_FreeTempMemory( data.lightDir );
   }
-
-    /*vec4_t *color;
-    vec2_t *st;
-    vec2_t *lightCoord;
-    vec3_t *ambientLight;
-    vec3_t *directedLight;
-    vec3_t *lightDir;
-    int    (*boneIndexes)[ 4 ];
-    vec4_t *boneWeights;
-    int     numVerts;*/
 #endif
 
-
-  if ( data.color )
+  if ( data.lightColor )
   {
-    ri.Hunk_FreeTempMemory( data.color );
+    ri.Hunk_FreeTempMemory( data.lightColor );
   }
 
   if ( data.lightCoord )
@@ -1052,10 +1058,11 @@ void R_InitVBOs( void )
 {
   uint32_t attribs = ATTR_POSITION | ATTR_TEXCOORD | ATTR_BINORMAL
                      | ATTR_TANGENT | ATTR_NORMAL  | ATTR_LIGHTCOORD
-#if 0 //defined( COMPAT_KPQ3 ) ||  ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
-                     | ATTR_PAINTCOLOR
+#if /*defined( COMPAT_KPQ3 ) ||*/  ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
+                     //| ATTR_PAINTCOLOR 
+                     | ATTR_LIGHTDIRECTION
 #endif
-                     | ATTR_COLOR | ATTR_AMBIENTLIGHT| ATTR_DIRECTEDLIGHT | ATTR_LIGHTDIRECTION;
+                     | ATTR_COLOR | ATTR_AMBIENTLIGHT| ATTR_DIRECTEDLIGHT;
 
   ri.Printf( PRINT_DEVELOPER, "------- R_InitVBOs -------\n" );
 
@@ -1072,6 +1079,11 @@ void R_InitVBOs( void )
   tess.vbo->attribs[ ATTR_INDEX_TANGENT2 ].frameOffset = sizeof( tess.tangents );
   tess.vbo->attribs[ ATTR_INDEX_BINORMAL2 ].frameOffset = sizeof( tess.binormals );
   tess.vbo->attribs[ ATTR_INDEX_NORMAL2 ].frameOffset = sizeof( tess.normals );
+
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+  //tess.vbo->attribs[ATTR_INDEX_PAINTCOLOR].frameOffset = sizeof(tess.paintColors);
+  tess.vbo->attribs[ATTR_INDEX_LIGHTDIRECTION].frameOffset = sizeof(tess.lightDirections);
+#endif
 
   tess.ibo = R_CreateDynamicIBO( "tessVertexArray_IBO", SHADER_MAX_INDEXES );
 

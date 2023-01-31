@@ -625,7 +625,9 @@ protected:
 	  USE_VERTEX_ANIMATION,
 	  USE_DEFORM_VERTEXES,
 	  USE_TCGEN_ENVIRONMENT,
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined(COMPAT_Q3A) || defined(COMPAT_ET)
 	  USE_TCGEN_LIGHTMAP,
+#endif
 	  USE_NORMAL_MAPPING,
 	  USE_PARALLAX_MAPPING,
 	  USE_REFLECTIVE_SPECULAR,
@@ -925,7 +927,7 @@ public:
 		}
 	}
 };
-
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined(COMPAT_Q3A) || defined(COMPAT_ET)
 class GLCompileMacro_USE_TCGEN_LIGHTMAP :
 	GLCompileMacro
 {
@@ -972,7 +974,7 @@ public:
 		}
 	}
 };
-
+#endif
 class GLCompileMacro_USE_NORMAL_MAPPING :
 	GLCompileMacro
 {
@@ -2360,8 +2362,8 @@ class GLShader_generic :
 	public GLCompileMacro_USE_VERTEX_SKINNING,
 	public GLCompileMacro_USE_VERTEX_ANIMATION,
 	public GLCompileMacro_USE_DEFORM_VERTEXES,
-	public GLCompileMacro_USE_TCGEN_ENVIRONMENT,
-	public GLCompileMacro_USE_TCGEN_LIGHTMAP
+	public GLCompileMacro_USE_TCGEN_ENVIRONMENT//,
+	//public GLCompileMacro_USE_TCGEN_LIGHTMAP
 {
 public:
 	GLShader_generic( GLShaderManager *manager );
@@ -2510,6 +2512,7 @@ class GLShader_forwardLighting_projXYZ :
 	public u_DiffuseTextureMatrix,
 	public u_NormalTextureMatrix,
 	public u_SpecularTextureMatrix,
+	public u_GlowTextureMatrix, //add
 	public u_SpecularExponent,
 	public u_AlphaThreshold,
 	public u_ColorModulate,
@@ -2615,6 +2618,8 @@ public:
 
 class GLShader_reflection :
 	public GLShader,
+	//public u_ColorMap, //hypov8
+	//public u_NormalMap, //hypov8
 	public u_NormalTextureMatrix,
 	public u_ViewOrigin,
 	public u_ModelMatrix,

@@ -935,7 +935,7 @@ typedef struct
   byte            latLong[2];
 } dgridPoint_t;
 
-#if !defined( COMPAT_KPQ3 ) && ( defined(COMPAT_Q3A) || defined(COMPAT_ET) ) //hypov8 #if OLDMAP_VERSIONS
+#if /*!defined( COMPAT_KPQ3 ) &&*/ ( defined(COMPAT_Q3A) || defined(COMPAT_ET) ) //hypov8 #if OLDMAP_VERSIONS
 typedef struct
 {
   vec3_t          xyz;
@@ -951,9 +951,9 @@ typedef struct
   float           st[2];
   float           lightmap[2];
   float           normal[3];
-  float			paintColor[4];
-  float           lightColor[4];
-  float			lightDirection[3];
+  float           paintColor[4]; //vertex paint color 0.0-1.0
+  float           lightColor[4]; //vertex light 0-255
+  float           lightDirection[3];
 } drawVert_t;
 #endif
 

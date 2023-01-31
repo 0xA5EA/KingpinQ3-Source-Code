@@ -898,7 +898,7 @@ static void ParseExpression( char **text, expression_t *exp )
 /*
 ===============
 ReturnRGBGenModes
-hypov8 clean up rgb gen model
+hypov8 clean up rgbgen mode
 ===============
 */
 static colorGen_t ReturnRGBGenModes()
@@ -908,7 +908,7 @@ static colorGen_t ReturnRGBGenModes()
     mode = CGEN_VERTEX;
   else
   {		//hypov8 testing vertex light, seems dark?
-    if ((shader.surfaceFlags & SURF_POINTLIGHT) ||(shader.surfaceFlags & SURF_NOLIGHTMAP))
+    if (shader.surfaceFlags & SURF_VERTEXLIT)
       mode = CGEN_VERTEX; //hypov8 adds 'rgbgen vertex' light  to 'pointlight' shaders
     else
       mode = CGEN_IDENTITY;
@@ -1712,7 +1712,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
   }
 
 #endif
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET ) || defined( COMPAT_Q3A )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_ET ) || defined( COMPAT_Q3A )
   else if ( !Q_stricmp( token, "$lightmap" ) )
   {
     stage->type = ST_LIGHTMAP;
@@ -2015,7 +2015,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
     // lightmap <name>
     else if ( !Q_stricmp( token, "lightmap" ) )
     {
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
 
       if ( !ParseMap( stage, text, buffer, sizeof( buffer ) ) )
       {
@@ -2421,18 +2421,26 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
       else if ( !Q_stricmp( token, "diffuseMap" ) )
       {
         stage->type = ST_DIFFUSEMAP;
+        blendSrcBits = GLS_SRCBLEND_SRC_ALPHA;
+        blendDstBits = GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
       }
       else if ( !Q_stricmp( token, "bumpMap" ) )
       {
         stage->type = ST_NORMALMAP;
+        blendSrcBits = GLS_SRCBLEND_SRC_ALPHA;
+        blendDstBits = GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
       }
       else if ( !Q_stricmp( token, "specularMap" ) )
       {
         stage->type = ST_SPECULARMAP;
+        blendSrcBits = GLS_SRCBLEND_SRC_ALPHA;
+        blendDstBits = GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
       }
       else if ( !Q_stricmp( token, "glowMap" ) )
       {
         stage->type = ST_GLOWMAP;
+        blendSrcBits = GLS_SRCBLEND_SRC_ALPHA;
+        blendDstBits = GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
       }
       else
       {
@@ -2777,7 +2785,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
       }
       else if ( !Q_stricmp( token, "lightmap" ) )
       {
-#if !defined( COMPAT_KPQ3 ) && !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+#if /*!defined( COMPAT_KPQ3 ) &&*/ !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
         ri.Printf(PRINT_WARNING, "WARNING: texGen lightmap keyword not supported in shader '%s'\n", shader.name);
 #else
         stage->tcGen_Lightmap = qtrue;
@@ -2785,7 +2793,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
       }
       else if ( !Q_stricmp( token, "texture" ) || !Q_stricmp( token, "base" ) )
       {
-#if !defined( COMPAT_KPQ3 ) && !defined( COMPAT_Q3A ) && !defined( COMPAT_ET )
+#if /*!defined( COMPAT_KPQ3 ) &&*/ !defined( COMPAT_Q3A ) && !defined( COMPAT_ET )
         ri.Printf( PRINT_WARNING, "WARNING: texGen texture keyword not supported in shader '%s'\n", shader.name );
 #endif
       }
@@ -3071,7 +3079,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
   {
     if ( blendSrcBits == 0 || blendSrcBits == GLS_SRCBLEND_ONE || blendSrcBits == GLS_SRCBLEND_SRC_ALPHA )
     {
-      if ((shader.surfaceFlags & SURF_NOLIGHTMAP) || (shader.surfaceFlags & SURF_POINTLIGHT))
+      if (shader.surfaceFlags & SURF_VERTEXLIT)
       {
         if (shader.isSky)
           stage->rgbGen = CGEN_IDENTITY_LIGHTING;
@@ -3503,7 +3511,7 @@ static const infoParm_t infoParms[] =
   { "playerclip",         1,                         0,                      CONTENTS_PLAYERCLIP                    },
   { "monsterclip",        1,                         0,                      CONTENTS_MONSTERCLIP                   },
 
-#if !defined( COMPAT_ET ) //defined( COMPAT_KPQ3 ) // hypov8 todo: on/off?
+#if !defined( COMPAT_ET )
   { "moveableclip",       1,                         0,                      0                                      }, // FIXME
   { "ikclip",             1,                         0,                      0                                      }, // FIXME
 #endif
@@ -3544,8 +3552,8 @@ static const infoParm_t infoParms[] =
 
   // drawsurf attributes
   { "nodraw",             0,                         SURF_NODRAW,            0                                      }, // don't generate a drawsurface (or a lightmap)
-  { "pointlight",         0,                         SURF_VERTEXLIT /*SURF_POINTLIGHT*/,        0                                      }, // sample lighting at vertexes  /*note hypov8 + disable lightmaps*/
-  { "nolightmap",         0,                         SURF_VERTEXLIT /*SURF_NOLIGHTMAP*/,        0                                      }, // don't generate a lightmap	/*note hypov8 + enable vertexlight*/
+  { "pointlight",         0,                         SURF_VERTEXLIT ,        0                                      }, // sample lighting at vertexes  /*note hypov8 + disable lightmaps*/
+  { "nolightmap",         0,                         SURF_VERTEXLIT,         0                                      }, // don't generate a lightmap	/*note hypov8 + enable vertexlight*/
   { "nodlight",           0,                         0,                      0                                      }, // OBSELETE: don't ever add dynamic lights
   { "dust",               0,                         SURF_DUST,              0                                      }, // leave a dust trail when walking on this surface
 
@@ -4597,7 +4605,7 @@ static qboolean ParseShader( char *_text )
         continue;
       }
 
-#if !defined( COMPAT_KPQ3 ) &&  defined( COMPAT_ET )//hypov8 fog: //
+#if /*!defined( COMPAT_KPQ3 ) &&*/ defined( COMPAT_ET )//hypov8 fog: //
       RE_SetFog( FOG_SKY, 0, 5, fogColor[ 0 ], fogColor[ 1 ], fogColor[ 2 ], atof( token ) );
 #endif
       continue;
@@ -4621,7 +4629,7 @@ static qboolean ParseShader( char *_text )
       //----(SA)  right now allow one water color per map.  I'm sure this will need
       //          to change at some point, but I'm not sure how to track fog parameters
       //          on a "per-water volume" basis yet.
-#if !defined( COMPAT_KPQ3 ) && defined( COMPAT_ET ) //hypov8 fog:
+#if /*!defined( COMPAT_KPQ3 ) && */defined( COMPAT_ET ) //hypov8 fog:
       float fogvar = atof( token );
       if ( fogvar == 0 )
       {
@@ -4677,7 +4685,7 @@ static qboolean ParseShader( char *_text )
         fogFar = 5;
       }
 
-#if !defined( COMPAT_KPQ3 )  && defined( COMPAT_ET ) //hypov8 fog:
+#if /*!defined( COMPAT_KPQ3 )  &&*/ defined( COMPAT_ET ) //hypov8 fog:
       RE_SetFog( FOG_MAP, 0, fogFar, fogColor[ 0 ], fogColor[ 1 ], fogColor[ 2 ], fogDensity );
       RE_SetFog( FOG_CMD_SWITCHFOG, FOG_MAP, 50, 0, 0, 0, 0 );
 #endif
@@ -5075,7 +5083,7 @@ static void CollapseStages( void )
   shaderStage_t tmpReflectionStage;
   shaderStage_t tmpGlowStage;
 
-#if !defined( COMPAT_KPQ3 ) && (defined( COMPAT_Q3A ) || defined( COMPAT_ET ) )
+#if /*!defined( COMPAT_KPQ3 ) &&*/ (defined( COMPAT_Q3A ) || defined( COMPAT_ET ) )
   shaderStage_t tmpColorStage;
   shaderStage_t tmpLightmapStage;
 #endif
@@ -5110,7 +5118,7 @@ static void CollapseStages( void )
     Com_Memset( &tmpSpecularStage, 0, sizeof( shaderStage_t ) );
     Com_Memset( &tmpGlowStage, 0, sizeof( shaderStage_t ) );
 
-#if !defined( COMPAT_KPQ3 ) &&( defined( COMPAT_Q3A ) || defined( COMPAT_ET ))
+#if /*!defined( COMPAT_KPQ3 ) &&*/ ( defined( COMPAT_Q3A ) || defined( COMPAT_ET ))
     Com_Memset( &tmpColorStage, 0, sizeof( shaderStage_t ) );
     Com_Memset( &tmpLightmapStage, 0, sizeof( shaderStage_t ) );
 #endif
@@ -5137,7 +5145,7 @@ static void CollapseStages( void )
       continue;
     }
 
-#if !defined( COMPAT_KPQ3 ) && ( defined(COMPAT_Q3A) || defined(COMPAT_ET) )
+#if /*!defined( COMPAT_KPQ3 ) &&*/ ( defined(COMPAT_Q3A) || defined(COMPAT_ET) )
     {
       int idxColorStage = -1;
       int idxLightmapStage = -1;
@@ -5257,8 +5265,7 @@ static void CollapseStages( void )
     if ( hasDiffuseStage         &&
          hasNormalStage          &&
          hasSpecularStage        &&
-         hasGlowStage
-       )
+         hasGlowStage       )
     {
       //ri.Printf(PRINT_ALL, "lighting_DBSG\n");
 
@@ -5281,8 +5288,7 @@ static void CollapseStages( void )
     // try to merge diffuse/normal/specular
     else if ( hasDiffuseStage         &&
               hasNormalStage          &&
-              hasSpecularStage
-       )
+              hasSpecularStage       )
     {
       //ri.Printf(PRINT_ALL, "lighting_DBS\n");
 
@@ -5304,8 +5310,7 @@ static void CollapseStages( void )
     // try to merge diffuse/normal/glow
     else if ( hasDiffuseStage         &&
               hasNormalStage          &&
-              hasGlowStage
-            )
+              hasGlowStage )
     {
       //ri.Printf(PRINT_ALL, "lighting_DBG\n");
 
@@ -5322,8 +5327,7 @@ static void CollapseStages( void )
     }
     // try to merge diffuse/normal
     else if ( hasDiffuseStage         &&
-              hasNormalStage
-            )
+              hasNormalStage )
     {
       //ri.Printf(PRINT_ALL, "lighting_DB\n");
 
@@ -5340,8 +5344,7 @@ static void CollapseStages( void )
     }
     // try to merge env/normal
     else if ( hasReflectionStage &&
-              hasNormalStage
-            )
+              hasNormalStage )
     {
       //ri.Printf(PRINT_ALL, "reflection_CB\n");
 
@@ -5362,7 +5365,7 @@ static void CollapseStages( void )
       tmpStages[ numStages ] = stages[ j ];
       numStages++;
     }
-  }
+  } //end loop through max_shaders (j)
 
   // clear unused stages
   Com_Memset( &tmpStages[ numStages ], 0, sizeof( stages[ 0 ] ) * ( MAX_SHADER_STAGES - numStages ) );
@@ -5691,7 +5694,7 @@ static shader_t *FinishShader( void )
     switch ( pStage->type )
     {
       case ST_LIQUIDMAP:
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_Q3A ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_Q3A ) || defined( COMPAT_ET )
       case ST_LIGHTMAP:
 #endif
         // skip
@@ -5792,7 +5795,7 @@ static shader_t *FinishShader( void )
     if ( ( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) &&
          ( stages[ 0 ].stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) )
     {
-#if 0 //not in unvan
+#if 1 //not in unvan
       int blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
       int blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
 
@@ -5879,7 +5882,7 @@ static shader_t *FinishShader( void )
   }
 
   ret = GeneratePermanentShader();
-#if 1 //unvan 0.5
+#if 0 //unvan 0.5
     // generate depth-only shader if necessary
   if( !shader.isSky && shader.numStages > 0        &&
       (stages[0].stateBits & GLS_DEPTHMASK_TRUE)   &&

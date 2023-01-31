@@ -38,6 +38,7 @@
 #include <cassert>
 #include <utility>
 
+
 #define NO_DEVELOPER_CMDS
 
 int demo_protocols[] = { 74, 75, 0 }; //hypov8 was 70. for demo playback. added beta and release. probly incompatable
@@ -2785,6 +2786,7 @@ static void Com_InitRand(void)
 static void Com_GenerateMediaTXT_f(void);
 static void Com_GenerateCorePK3_f(void);
 static void Com_MathTest_f(void);
+static void Com_GenerateMapData_f(void);
 #endif
 #ifdef USE_ASM_LIB
 static void Com_MathTSCTest_f(void);
@@ -2919,8 +2921,9 @@ void Com_Init(char *commandLine)
   com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
   Cvar_Get("com_errorMessage", "", CVAR_ROM | CVAR_NORESTART);
   com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
-
+	
 #ifndef NO_DEVELOPER_CMDS
+  Cmd_AddCommand("generate_map_pack", Com_GenerateMapData_f);
   Cmd_AddCommand("generateMEDIA.txt", Com_GenerateMediaTXT_f);
   Cmd_AddCommand("generatecore.pk3", Com_GenerateCorePK3_f);
   Cmd_AddCommand("mathtest", Com_MathTest_f);
@@ -3826,6 +3829,22 @@ static int QDECL MediaNameCompare(const void *a, const void *b)
 }
 #endif
 #ifndef NO_DEVELOPER_CMDS
+//vec_t **I4x4;
+const matrix_t ALIGN16(Hilbert4) =
+{
+  1.f,     1.f/2.f, 1.f/3.f, 1.f/4.f,
+  1.f/2.f, 1.f/3.f, 1.f/4.f, 1.f/5.f,
+  1.f/3.f, 1.f/4.f, 1.f/5.f, 1.f/6.f,
+  1.f/4.f, 1.f/5.f, 1.f/6.f, 1.f/7.f
+};
+const matrix_t ALIGN16(ASymetric4) =
+{
+  5.421681495984457f, 2.429831063577000f, 0.191850872377119f, 3.955013293040301f,
+  0.926318880309393f, 4.527109636465218f, 3.360293084127580f, 2.851749608619593f,
+  0.171047680971528f, 2.233699693410323f, 3.982594705078037f, 4.299861890859538f,
+  4.901325698004463f, 2.838426238603861f, 3.189206114476794f, 4.430513347547178f
+};
+
 static void Com_PrintMatrix(const matrix_t m)
 {
   Com_Printf("%.3f %.3f %.3f %.3f\n"
@@ -3834,6 +3853,58 @@ static void Com_PrintMatrix(const matrix_t m)
     "%.3f %.3f %.3f %.3f\n\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14],
       m[15]);
 }
+
+static void Com_GenerateMapData_f(void)
+{
+	int i;
+	fileHandle_t f;
+	char fileName[MAX_QPATH];
+	char *buf;
+	char *buf_p;
+	char *token;
+	char propertyName[MAX_TOKEN_CHARS];
+	char propertyValue[MAX_TOKEN_CHARS];
+	size_t len;
+	int shutupCompiler = 0;
+	char *svnCmd = "svn proplist -R -v " BASEGAME "/ > " BASEGAME "/PROPERTIES.txt";
+
+	growList_t      list;
+	copyrightEntry_t *entry;
+
+
+  const char *mapname;
+  char info[MAX_INFO_VALUE], m[2222];
+  cvar_t *map = Cvar_Get("map", "", 0);
+
+	Q_strncpyz(m, Cvar_VariableString("mapname"), sizeof(m));
+	// find the current mapname
+	//mapname = Info_ValueForKey(info, "mapname");
+	//Com_sprintf(m, sizeof(m), "maps/%s.bsp", mapname);
+
+	Com_sprintf(fileName, sizeof(fileName), "maps/%s_zip.txt", mapname);
+	
+	Com_Printf("writing '%s' ...\n", fileName);
+	f = FS_FOpenFileWrite(fileName);
+	if (!f)
+	{
+		Com_Printf("Couldn't write %s.\n", fileName);
+		return;
+	}
+
+	//for (i; i<com_ texture)
+
+	// clean up
+	for (i = 0; i < list.currentElements; i++)
+	{
+		entry = (copyrightEntry_t*)Com_GrowListElement(&list, i);
+		Com_Dealloc(entry);
+	}
+
+	Com_DestroyGrowList(&list);
+	FS_FCloseFile(f);
+	FS_FreeFile(buf);
+}
+
 
 static void Com_GenerateMediaTXT_f(void)
 {

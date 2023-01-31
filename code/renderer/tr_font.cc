@@ -525,9 +525,12 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font)
 		ri.Printf(PRINT_ERROR, "RE_RegisterFont: Too many fonts registered already.\n");
 		return;
 	}
+#if defined(COMPAT_ET)
+	Com_sprintf(fileName, sizeof(fileName), "fonts/%s_%i.dat", fontName, pointSize);
+#else
 	COM_StripExtension(fontName, strippedName, sizeof(strippedName));
 	Com_sprintf(fontFileName, sizeof(fontFileName), "%s_%i.dat", strippedName, pointSize);
-
+#endif
 	for (i = 0; i < registeredFontCount; i++)
 	{
 		if (Q_stricmp(fontFileName, registeredFont[i].name) == 0)

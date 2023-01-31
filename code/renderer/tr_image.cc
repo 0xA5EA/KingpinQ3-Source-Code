@@ -2220,19 +2220,21 @@ static void R_Print_ImageLoad(char * name)
 		int l = strlen(name);
 		//int end = Sys_Milliseconds();
 		//skip any known KingpinQ3 files
-		if (Q_strnicmp(name, "textures/decals/", 16) && 
+		if (Q_strnicmp(name, "textures/strombine", 18) && 			
+			Q_strnicmp(name, "textures/decals/", 16) && 
+			Q_strnicmp(name, "textures/method/", 16) && 
 			Q_strnicmp(name, "textures/kpq3_", 14) && 
 			Q_strnicmp(name, "textures/misc_", 14) &&
-			Q_strnicmp(name, "textures/ex/", 12) &&
+			//Q_strnicmp(name, "textures/ex/", 12) &&
 			Q_strnicmp(name, "lights/kpq3/", 12) && 
 			//Q_strnicmp(name, "cubemaps/", 9) && 
 			Q_strnicmp(name, "sprites/", 8) && 
-			Q_strnicmp(name, "gfx4/", 4) &&
+			Q_strnicmp(name, "gfx/", 4) &&
 			Q_strnicmp(name, "ui/", 3)
 			)
 		{
 			//Com_Printf("load image time=: %i msec. %s\n", end - start, buffer); //add hypo degbug
-			Com_Printf("%s %s\n", var->string, name); //add hypov8
+			Com_Printf("%s \"%s\"\n", var->string, name); //add hypov8
 			//write file or save to zip?
 		}
 	}
@@ -2551,7 +2553,7 @@ image_t        *R_FindImageFile( const char *imageName, int bits, filterType_t f
 		return NULL;
 	}
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_ET )
 	if ( bits & IF_LIGHTMAP )
 	{
 		R_ProcessLightmap( pic, 4, width, height, pic );
