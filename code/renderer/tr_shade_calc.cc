@@ -512,7 +512,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
   float  *normal = ( float * ) tess.normals;
   float  *table;
 
-#if defined( COMPAT_KPQ3 ) || defined( COMPAT_ET )
+#if /*defined( COMPAT_KPQ3 ) ||*/ defined( COMPAT_ET )
 
   if ( ds->deformationWave.frequency < 0 )
   {
@@ -890,7 +890,7 @@ static void AutospriteDeform( void )
       VectorScale( up, axisLength, up );
     }
 
-    Tess_AddQuadStamp( mid, left, up, tess.colors[ i ] );
+    Tess_AddQuadStamp( mid, left, up, tess.lightColor[ i ] );
   }
 }
 
