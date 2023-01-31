@@ -66,7 +66,7 @@ void ColorMod(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts)
 			VectorSet(mult, 1.0f, 1.0f, 1.0f);
 			mult[3] = 1.0f;
 			VectorSet(add, 0.0f, 0.0f, 0.0f);
-			mult[3] = 0.0f;
+			add[3] = 0.0f;
 
 			/* switch on type */
 			switch (cm2->type)
@@ -159,7 +159,7 @@ hypov8 add
 change vertex alpha scale from 0-255 to 0-1
 should this be done on the engine side?
 */
-
+#if 0
 void VertexAlphaFloat(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts)
 {
 	int             i, k;
@@ -204,7 +204,7 @@ void VertexAlphaFloat(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts)
 		}
 	}
 }
-
+#endif
 /*
 TCMod*()
 routines for dealing with a 3x3 texture mod matrix

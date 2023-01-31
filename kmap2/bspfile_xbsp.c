@@ -285,9 +285,9 @@ typedef struct
 	float           st[2];
 	float           lightmap[2];
 	vec3_t          normal;
-	float			paintColor[4];
+	float           paintColor[4]; //vertex lightmap color + alpha
 	float           lightColor[4];
-	float			lightDirection[3];
+	float           lightDirection[3];
 }
 xbspDrawVert_t;
 

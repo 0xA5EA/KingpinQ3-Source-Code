@@ -197,6 +197,24 @@ void ColorToFloats(const float *color, float * colorFloats, float scale)
 }
 
 /*
+ColorModVert
+hypov8: add color rgb/alpha mods after light for vertex has been calculated
+*/
+void ColorModVert(float *v, bspDrawVert_t *verts, colorMod_t *cm,  int lm)
+{
+	//vertex may have colorModBrushes applied in -bsp. dont wipe alpha(terrain gen)
+	float alpha = verts->lightColor[lm][3];
+	verts->lightColor[lm][0] = v[0]*255;
+	verts->lightColor[lm][1] = v[1]*255;
+	verts->lightColor[lm][2] = v[2]*255;
+	ColorMod(cm, 1, verts);
+	v[0] = verts->lightColor[lm][0]/255;
+	v[1] = verts->lightColor[lm][1]/255;
+	v[2] = verts->lightColor[lm][2]/255;
+	v[3] = alpha;
+}
+
+/*
 ColorToRGBE()
 Tr3B: standard conversion from float pixels to rgbe pixels
 */
@@ -2957,6 +2975,9 @@ void IlluminateVertexes(int num)
 				if(!info->si->noVertexLight)
 				{
 					ColorToFloats(vertLuxel, verts[i].lightColor[lightmapNum], info->si->vertexScale);
+
+					//hypov8 add: this was never applied to end result
+					ColorModVert(verts[i].lightColor[lightmapNum], &verts[i], info->si->colorMod, lightmapNum);
 					if(deluxemap)
 					{	
 						VectorCopy(vertDeluxel, verts[i].lightDirection[lightmapNum]);
@@ -3095,6 +3116,10 @@ void IlluminateVertexes(int num)
 			if(!info->si->noVertexLight)
 			{
 				ColorToFloats(vertLuxel, verts[i].lightColor[lightmapNum], 1.0f);
+
+				//hypov8 add: this was never applied to end result
+				ColorModVert(verts[i].lightColor[lightmapNum], &verts[i], info->si->colorMod, lightmapNum);
+
 				if(deluxemap)
 				{	
 				VectorCopy(vertDeluxel, verts[i].lightDirection[lightmapNum]);

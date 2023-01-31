@@ -87,7 +87,7 @@ dependencies
 #include <windows.h>
 #endif
 
-#include <glib.h> /* add hypov8 from q3map */
+#include <glib.h>
 
 /* general */
 //#include "version.h"          /* ttimo: might want to guard that if built outside of the GtkRadiant tree */
@@ -489,9 +489,9 @@ typedef struct
 	float           st[2];
 	float           lightmap[MAX_LIGHTMAPS][2];	/* RBSP */
 	vec3_t          normal;
-	float			paintColor[4]; /* XBSP */
+	float           paintColor[4]; /* XBSP */  //vertex paintColor (+alpha)
 	float           lightColor[MAX_LIGHTMAPS][4];	/* XBSP */
-	float			lightDirection[MAX_LIGHTMAPS][3]; /* XBSP */
+	float           lightDirection[MAX_LIGHTMAPS][3]; /* XBSP */
 }
 bspDrawVert_t;
 
@@ -1413,7 +1413,7 @@ typedef struct
 trace_t;
 
 
-
+//hypov8 not matching. 
 /* must be identical to bspDrawVert_t except for float color! */
 typedef struct
 {
@@ -1887,7 +1887,7 @@ image_t        *ImageLoad(const char *filename);
 
 /* shaders.c */
 void            ColorMod(colorMod_t * am, int numVerts, bspDrawVert_t * drawVerts);
-void			VertexAlphaFloat(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts); // hypov8 change vertex alpa mods to 0-1 scale
+//void			VertexAlphaFloat(colorMod_t * cm, int numVerts, bspDrawVert_t * drawVerts); // hypov8 change vertex alpa mods to 0-1 scale
 
 void            TCMod(tcMod_t mod, float st[2]);
 void            TCModIdentity(tcMod_t mod);
@@ -1960,13 +1960,12 @@ void            WriteXBSPFile(const char *filename);
 
 
 /* gldraw.c */
-void            Draw_Winding(winding_t * w, float r, float g, float b, float a); /* q3map2 */
+void            Draw_Winding(winding_t * w, float r, float g, float b, float a);
 
 void            Draw_AuxWinding(winding_t * w);
-void            Draw_Scene(void (*drawFunc) (void));
 void            Draw_AuxWinding(winding_t * w);
-void			Draw_AABB(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color);
-void            Draw_Scene(void (*drawFunc) (void)); /* add hypov8 q3map2 */
+void            Draw_AABB(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color);
+void            Draw_Scene(void (*drawFunc) (void));
 
 /* -------------------------------------------------------------------------------
 
@@ -2450,7 +2449,7 @@ abstracted bsp globals
 Q_EXTERN int				numEntities Q_ASSIGN( 0 );
 Q_EXTERN int				numBSPEntities Q_ASSIGN( 0 );
 Q_EXTERN entity_t			entities[ MAX_MAP_ENTITIES ];
-Q_EXTERN entity_t			convertDetailBrushesEntity; // add hypov8 q3map2.h 
+Q_EXTERN entity_t			convertDetailBrushesEntity;
 
 Q_EXTERN int				numBSPModels Q_ASSIGN( 0 );
 Q_EXTERN int				allocatedBSPModels Q_ASSIGN( 0 );

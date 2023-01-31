@@ -388,9 +388,9 @@ typedef struct
 	float           st[2];
 	float           lightmap[2];
 	float           normal[3];
-	float			paintColor[4];
-	float           lightColor[4];
-	float			lightDirection[3];
+	float           paintColor[4]; //vertex paint color 0.0-1.0
+	float           lightColor[4]; //vertex lightmap color + alpha 0-255
+	float           lightDirection[3];
 } drawVert_t;
 
 typedef enum

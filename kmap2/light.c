@@ -1775,7 +1775,7 @@ void LightWorld(void)
 	int             b, bt;
 	qboolean        minVertex, minGrid/*, ps*/;
 	const char     *value;
-	int tmpThreads; //add hypov8: set threadd to 1 to fix overlapping patches
+	int tmpThreads; //add hypov8: set thread to 1 to fix overlapping patches
 
 	/* ydnar: smooth normals */
 	if(shade)

@@ -3471,9 +3471,8 @@ void FilterDrawsurfsIntoTree(entity_t * e, tree_t * tree)
 			/* ydnar: apply brush colormod */
 			VolumeColorMods(e, ds);
 
-			/* hypov8 set alpha scale 0-1 */
-			/* vertexcolor is stil 0-255 but engine reads it 0-1? */
-			VertexAlphaFloat(ds->shaderInfo->colorMod, ds->numVerts, ds->verts); //hypov8 VertexAlphaFloat
+			/* set alpha scale 0-1 */
+			//VertexAlphaFloat(ds->shaderInfo->colorMod, ds->numVerts, ds->verts); //hypov8 VertexAlphaFloat
 
 			/* ydnar: make fur surfaces */
 			if(si->furNumLayers > 0)
