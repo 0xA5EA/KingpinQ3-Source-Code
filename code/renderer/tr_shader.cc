@@ -2472,7 +2472,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
         && (stage->type == ST_COLORMAP || stage->type == ST_DIFFUSEMAP )
         && blendSrcBits != 0
         && blendDstBits != 0
-          && !(blendSrcBits == GLS_SRCBLEND_ONE && blendDstBits == GLS_DSTBLEND_ZERO) )
+        && !(blendSrcBits == GLS_SRCBLEND_ONE && blendDstBits == GLS_DSTBLEND_ZERO) )
       {
         depthMaskBits = 0;
       }
@@ -2917,7 +2917,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
       tmi->type = TMOD_ROTATE2;
     }
     // depthwrite
-    else if ( !Q_stricmp( token, "depthwrite" ) )
+    else if ( !Q_stricmp( token, "depthwrite" ) || !Q_stricmp( token, "writeDepth" ) )
     {
       depthMaskBits = GLS_DEPTHMASK_TRUE;
       depthMaskExplicit = qtrue;
@@ -2954,7 +2954,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
       colorMaskBits |= GLS_REDMASK_FALSE | GLS_GREENMASK_FALSE | GLS_BLUEMASK_FALSE | GLS_ALPHAMASK_FALSE;
     }
     // maskDepth
-    else if ( !Q_stricmp( token, "maskDepth" ) )
+    else if ( !Q_stricmp( token, "maskDepth" ) || !Q_stricmp( token, "depthMask" ) )
     {
       depthMaskBits &= ~GLS_DEPTHMASK_TRUE;
       depthMaskExplicit = qfalse;
@@ -3423,7 +3423,7 @@ static void ParseSort( char **text )
   {
     shader.sort = SS_ENVIRONMENT_FOG;
   }
-  else if ( !Q_stricmp( token, "opaque" ) )
+  else if ( !Q_stricmp( token, "opaque" ) ||  !Q_stricmp( token, "default" ))
   {
     shader.sort = SS_OPAQUE;
   }
@@ -3657,9 +3657,6 @@ static void ParseColorMap(shaderStage_t *stage, char **text)
   }
 }
 
-
-
-
 static void ParseDiffuseMap( shaderStage_t *stage, char **text )
 {
   char buffer[ 1024 ] = "";
@@ -3734,8 +3731,7 @@ static void ParseGlowMap( shaderStage_t *stage, char **text )
 
   stage->active = qtrue;
   stage->type = ST_GLOWMAP;
-    stage->rgbGen = ReturnRGBGenModes();
-
+  stage->rgbGen = ReturnRGBGenModes();
   stage->stateBits = GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE; // blend add
 
   if ( ParseMap( stage, text, buffer, sizeof( buffer ) ) )
@@ -3804,7 +3800,7 @@ static void ParseLightFalloffImage( shaderStage_t *stage, char **text )
 
   stage->active = qtrue;
   stage->type = ST_ATTENUATIONMAP_Z;
-    stage->rgbGen = ReturnRGBGenModes();
+  stage->rgbGen = ReturnRGBGenModes();
   stage->stateBits = GLS_DEFAULT;
   stage->overrideWrapType = qtrue;
   stage->wrapType = WT_EDGE_CLAMP;
@@ -5658,7 +5654,7 @@ static shader_t *FinishShader( void )
 
       stages[ 0 ].active = qtrue;
       stages[ 0 ].type = ST_ATTENUATIONMAP_Z;
-      stages[0].rgbGen = ReturnRGBGenModes();
+      stages[ 0 ].rgbGen = ReturnRGBGenModes();
       stages[ 0 ].stateBits = GLS_DEFAULT;
       stages[ 0 ].overrideWrapType = qtrue;
       stages[ 0 ].wrapType = WT_EDGE_CLAMP;
@@ -5841,6 +5837,13 @@ static shader_t *FinishShader( void )
         }
       }
     }
+    //hypov8: sort bug check. causes hud to vanish if < alphaGen vertex > not set for pointlight shaders
+    if (/*stage == 0 &&*/ pStage->type == ST_COLORMAP && pStage->alphaGen != AGEN_VERTEX && (shader.surfaceFlags & SURF_VERTEXLIT) 
+      && !( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS )) )
+    {
+      //todo: fix this b4 it gets here
+      ri.Printf(PRINT_WARNING, "WARNING: pointlight shader needs alphaGen vertex set in\n '%s'\n", shader.name);
+    }
   }
 
   shader.numStages = stage;
@@ -5848,7 +5851,7 @@ static shader_t *FinishShader( void )
   // there are times when you will need to manually apply a sort to
   // opaque alpha tested shaders that have later blend passes
   if ( !shader.sort )
-  {													//add hypov8 make alphatest images be opaque/diffuse for correct light
+  {  //hypov8 add: set alphatest images to opaque. fixes diffuse light
     if (shader.translucent && !shader.forceOpaque && !shader.alphaTest )
     {
       shader.sort = SS_DECAL;
@@ -6439,7 +6442,7 @@ shader_t       *R_FindShader( const char *name, shaderType_t type,
 
     case SHADER_3D_STATIC:
         {
-    // explicit colors at vertexes //note hypov8... used for models without a shader specified??
+        // explicit colors at vertexes
         stages[ 0 ].type = ST_DIFFUSEMAP;
         stages[ 0 ].bundle[ 0 ].image[ 0 ] = image;
         stages[ 0 ].active = qtrue;
