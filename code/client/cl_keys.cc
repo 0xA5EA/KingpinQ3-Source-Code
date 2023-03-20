@@ -693,6 +693,32 @@ void Console_Key(int key)
       }
     }
 
+    //hypov8 dont add dup's to console history
+    for (int i = (COMMAND_HISTORY - 1); i >= 0; i--)
+    {
+      //get current index
+      int j = (historyLine - nextHistoryLine + 1 + i + COMMAND_HISTORY) % COMMAND_HISTORY;
+      //match string?
+      if (historyEditLines[j].buffer[0] && !Q_stricmp(g_consoleField.buffer, historyEditLines[j].buffer))
+      {
+        j += COMMAND_HISTORY;
+        for (int k = (COMMAND_HISTORY - 1); k > 0; k--)
+        {
+          j--;
+          //move all history up 1 index
+          Com_Memmove(&historyEditLines[(j+1)% COMMAND_HISTORY], &historyEditLines[j% COMMAND_HISTORY], sizeof(field_t));
+
+          //end of history, does it need to clear values?
+          if (j% COMMAND_HISTORY == nextHistoryLine % COMMAND_HISTORY)
+          {
+            Field_Clear(&historyEditLines[j % COMMAND_HISTORY]);
+            break;
+          }
+        }
+        break;
+      }
+    }
+
     // copy line to history buffer
     historyEditLines[nextHistoryLine % COMMAND_HISTORY] = g_consoleField;
     nextHistoryLine++;
@@ -722,8 +748,7 @@ void Console_Key(int key)
   if ((key == K_MWHEELUP && keys[K_SHIFT].down) || (key == K_UPARROW) || (key == K_KP_UPARROW) ||
       ((tolower(key) == 'p') && keys[K_CTRL].down))
   {
-    if (nextHistoryLine - historyLine < COMMAND_HISTORY
-        && historyLine > 0)
+    if (nextHistoryLine - historyLine < COMMAND_HISTORY && historyLine > 0)
     {
       historyLine--;
     }
@@ -1495,7 +1520,8 @@ Load the console history from cl_consoleHistory
 void CL_LoadConsoleHistory(void)
 {
   char *token, *text_p;
-  unsigned int i, numChars, numLines = 0;
+  int i; //unsigned causes buffer overun
+  unsigned int numChars, numLines = 0;
   fileHandle_t f;
 
   consoleSaveBufferSize = FS_FOpenFileRead(CONSOLE_HISTORY_FILE, &f, qfalse);
@@ -1510,7 +1536,7 @@ void CL_LoadConsoleHistory(void)
   {
     text_p = consoleSaveBuffer;
 
-    for (i = COMMAND_HISTORY - 1; i >= 0; i--)
+    for (i = (COMMAND_HISTORY - 1); i >= 0; i--)
     {
       if (!*(token = COM_Parse(&text_p)))
         break;

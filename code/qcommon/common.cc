@@ -4590,7 +4590,7 @@ static void Com_GenerateCorePK3_f(void)
   }
 
   Com_RealTime(&dt);
-  Q_strncpyz(pakName, va("base/core-%04d%02d%02d.pk3", 1900 + dt.tm_year, dt.tm_mon + 1, dt.tm_mday), sizeof(pakName));
+  Q_strncpyz(pakName, va("basekpq3/core-%04d%02d%02d.pk3", 1900 + dt.tm_year, dt.tm_mon + 1, dt.tm_mday), sizeof(pakName));
   Com_Printf("creating pak '%s' ...\n", pakName);
 
   // TODO add texture and map packs

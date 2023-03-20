@@ -904,11 +904,17 @@ hypov8 clean up rgbgen mode
 static colorGen_t ReturnRGBGenModes()
 {
   colorGen_t mode;
+
   if (r_vertexLighting->integer == 1) // hypov8 add vertex light to diffuse images
-    mode = CGEN_VERTEX;
+  {
+    if (shader.surfaceFlags & SURF_NOLIGHTMAP)
+      mode = CGEN_IDENTITY;
+    else
+      mode = CGEN_VERTEX;
+  }
   else
-  {		//hypov8 testing vertex light, seems dark?
-    if (shader.surfaceFlags & SURF_VERTEXLIT)
+  {
+    if (shader.surfaceFlags & SURF_POINTLIGHT) // SURF_VERTEXLIT)
       mode = CGEN_VERTEX; //hypov8 adds 'rgbgen vertex' light  to 'pointlight' shaders
     else
       mode = CGEN_IDENTITY;
@@ -1348,7 +1354,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing tcMod turb parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<base> 
     tmi->wave.base = atof( token );
     token = Com_ParseExt( text, qfalse );
 
@@ -1357,7 +1363,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<amplitude>
     tmi->wave.amplitude = atof( token );
     token = Com_ParseExt( text, qfalse );
 
@@ -1366,7 +1372,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<phase>
     tmi->wave.phase = atof( token );
     token = Com_ParseExt( text, qfalse );
 
@@ -1375,7 +1381,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing tcMod turb in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<frequency>
     tmi->wave.frequency = atof( token );
 
     tmi->type = TMOD_TURBULENT;
@@ -1390,7 +1396,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing scale parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<scale>
     tmi->scale[ 0 ] = atof( token );
 
     token = Com_ParseExt( text, qfalse );
@@ -1400,7 +1406,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing scale parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<scale>
     tmi->scale[ 1 ] = atof( token );
     tmi->type = TMOD_SCALE;
   }
@@ -1414,7 +1420,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing scale scroll parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<scroll>
     tmi->scroll[ 0 ] = atof( token );
     token = Com_ParseExt( text, qfalse );
 
@@ -1423,7 +1429,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing scale scroll parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<scroll>
     tmi->scroll[ 1 ] = atof( token );
     tmi->type = TMOD_SCROLL;
   }
@@ -1437,9 +1443,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<func>
     tmi->wave.func = NameToGenFunc( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1447,9 +1452,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<base>
     tmi->wave.base = atof( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1457,9 +1461,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<amplitude>
     tmi->wave.amplitude = atof( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1467,9 +1470,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<phase>
     tmi->wave.phase = atof( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1477,16 +1479,14 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<frequency>
     tmi->wave.frequency = atof( token );
-
     tmi->type = TMOD_STRETCH;
   }
   // transform
   else if ( !Q_stricmp( token, "transform" ) )
   {
     MatrixIdentity( tmi->matrix );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1494,9 +1494,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<matrix>
     tmi->matrix[ 0 ] = atof( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1504,9 +1503,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<matrix>
     tmi->matrix[ 1 ] = atof( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1514,9 +1512,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<matrix>
     tmi->matrix[ 4 ] = atof( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1524,9 +1521,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<matrix>
     tmi->matrix[ 5 ] = atof( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1534,9 +1530,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<matrix>
     tmi->matrix[ 12 ] = atof( token );
-
     token = Com_ParseExt( text, qfalse );
 
     if ( token[ 0 ] == 0 )
@@ -1544,9 +1539,8 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing transform parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<matrix>
     tmi->matrix[ 13 ] = atof( token );
-
     tmi->type = TMOD_TRANSFORM;
   }
   // rotate
@@ -1559,7 +1553,7 @@ static qboolean ParseTexMod( char **text, shaderStage_t *stage )
       ri.Printf( PRINT_WARNING, "WARNING: missing tcMod rotate parms in shader '%s'\n", shader.name );
       return qfalse;
     }
-
+    //<rotateSpeed>
     tmi->rotateSpeed = atof( token );
     tmi->type = TMOD_ROTATE;
   }
@@ -2332,6 +2326,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
     // or blendfunc <add|filter|blend>
     else if ( !Q_stricmp( token, "blendfunc" ) )
     {
+      //hypov8 todo: print warning, old/unused method?
       token = Com_ParseExt( text, qfalse );
 
       if ( token[ 0 ] == 0 )
@@ -2402,7 +2397,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
         blendSrcBits = GLS_SRCBLEND_DST_COLOR;
         blendDstBits = GLS_DSTBLEND_ZERO;
       }
-      else if ( !Q_stricmp( token, "modulate" ) )
+      else if ( !Q_stricmp( token, "modulate" ) ) //dupe?
       {
         blendSrcBits = GLS_SRCBLEND_DST_COLOR;
         blendDstBits = GLS_DSTBLEND_ZERO;
@@ -3083,7 +3078,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
       {
         if (shader.isSky)
           stage->rgbGen = CGEN_IDENTITY_LIGHTING;
-        else //hypov8 not sky
+        else if (shader.surfaceFlags & SURF_NOLIGHTMAP)
+          stage->rgbGen = CGEN_IDENTITY;
+        else
           stage->rgbGen = CGEN_VERTEX;
       }
       else
@@ -3546,14 +3543,14 @@ static const infoParm_t infoParms[] =
   { "nooverlays",         0,                         SURF_NOMARKS,           0                                      }, // don't make impact marks, but still explode
   { "ladder",             0,                         SURF_LADDER,            0                                      },
   { "nodamage",           0,                         SURF_NODAMAGE,          0                                      },
-    { "metalsteps", 0, SURF_METALSTEPS, 0 },
+  { "metalsteps",         0,                         SURF_METALSTEPS,        0                                      },
   { "flesh",              0,                         SURF_FLESH,             0                                      },
   { "nosteps",            0,                         SURF_NOSTEPS,           0                                      },
 
   // drawsurf attributes
   { "nodraw",             0,                         SURF_NODRAW,            0                                      }, // don't generate a drawsurface (or a lightmap)
-  { "pointlight",         0,                         SURF_VERTEXLIT ,        0                                      }, // sample lighting at vertexes  /*note hypov8 + disable lightmaps*/
-  { "nolightmap",         0,                         SURF_VERTEXLIT,         0                                      }, // don't generate a lightmap	/*note hypov8 + enable vertexlight*/
+  { "pointlight",         0,                         SURF_POINTLIGHT,        0                                      }, // sample lighting at vertexes     hypov8 note: use vertexlight
+  { "nolightmap",         0,                         SURF_NOLIGHTMAP,        0                                      }, // don't generate a lightmap       hypov8 note: set light 1.0
   { "nodlight",           0,                         0,                      0                                      }, // OBSELETE: don't ever add dynamic lights
   { "dust",               0,                         SURF_DUST,              0                                      }, // leave a dust trail when walking on this surface
 
@@ -4930,9 +4927,9 @@ static qboolean ParseShader( char *_text )
       shader.polygonOffset = qtrue;
       shader.polygonOffsetValue = 1;
       shader.sort = SS_DECAL;
-          SurfaceParm("detail");
+      SurfaceParm("detail");
       SurfaceParm( "noShadows" );
-        // todo: hypov8 interactlight
+      // todo: hypov8 interactlight
       continue;
     }
     // Prey DECAL_ALPHATEST_MACRO
@@ -4941,8 +4938,8 @@ static qboolean ParseShader( char *_text )
       // what's different?
       shader.polygonOffset = qtrue;
       shader.polygonOffsetValue = 1;
-        shader.sort = SS_OPAQUE; //makes light work correctly with alphatest'ed decals
-          SurfaceParm("detail");
+      shader.sort = SS_OPAQUE; //makes light work correctly with alphatest'ed decals
+      SurfaceParm("detail");
       SurfaceParm( "noShadows" );
       continue;
     }
@@ -5837,8 +5834,14 @@ static shader_t *FinishShader( void )
         }
       }
     }
-    //hypov8: sort bug check. causes hud to vanish if < alphaGen vertex > not set for pointlight shaders
-    if (/*stage == 0 &&*/ pStage->type == ST_COLORMAP && pStage->alphaGen != AGEN_VERTEX && (shader.surfaceFlags & SURF_VERTEXLIT) 
+
+    //bug: with shaders that have blends but set sort <= 4
+    // causing hud to vanish 
+    //
+    //bug: check if <alphaGen vertex> not set for pointlight shaders
+    if (pStage->type == ST_COLORMAP 
+      && pStage->alphaGen != AGEN_VERTEX 
+      && (shader.surfaceFlags & SURF_VERTEXLIT)
       && !( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS )) )
     {
       //todo: fix this b4 it gets here

@@ -924,18 +924,11 @@ static void Render_vertexLighting_DBS_world( int stage )
 	// depth buffer may change
 	//backEnd.depthRenderImageValid = qfalse;
 	}
-
+    // u_ColorModulate
 	gl_vertexLightingShader_DBS_world->SetUniform_ColorModulate( colorGen, alphaGen );
 
 	// u_Color
-	//if(r_showTerrainBlends->integer)
-	//{
-	//  gl_vertexLightingShader_DBS_world->SetUniform_Color(g_color_table[backEnd.pc.c_batches % 8]);
-	//}
-	//else
-	{
-		gl_vertexLightingShader_DBS_world->SetUniform_Color( tess.svars.color );
-	}
+	gl_vertexLightingShader_DBS_world->SetUniform_Color( tess.svars.color );
 
 	gl_vertexLightingShader_DBS_world->SetUniform_LightWrapAround( RB_EvalExpression( &pStage->wrapAroundLightingExp, 0 ) );
 
@@ -2774,12 +2767,19 @@ void Tess_ComputeColor( shaderStage_t *pStage )
 			}
 
 		case CGEN_VERTEX:
-		case CGEN_ONE_MINUS_VERTEX:
 			{
 				tess.svars.color[ 0 ] = 0.0;
 				tess.svars.color[ 1 ] = 0.0;
 				tess.svars.color[ 2 ] = 0.0;
 				tess.svars.color[ 3 ] = 0.0;
+				break;
+			}
+		case CGEN_ONE_MINUS_VERTEX:
+			{
+				tess.svars.color[ 0 ] = 1.0; //hypov8 was 0.0, should be 1 - color?
+				tess.svars.color[ 1 ] = 1.0;
+				tess.svars.color[ 2 ] = 1.0;
+				tess.svars.color[ 3 ] = 1.0; //hypov8 was 0.0
 				break;
 			}
 
@@ -2940,9 +2940,13 @@ void Tess_ComputeColor( shaderStage_t *pStage )
 			}
 
 		case AGEN_VERTEX:
-		case AGEN_ONE_MINUS_VERTEX:
 			{
 				tess.svars.color[ 3 ] = 0.0;
+				break;
+			}
+		case AGEN_ONE_MINUS_VERTEX:
+			{
+				tess.svars.color[ 3 ] = 1.0; //hypov8 was 0.0
 				break;
 			}
 

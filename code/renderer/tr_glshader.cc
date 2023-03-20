@@ -1190,7 +1190,6 @@ void GLShader::SetRequiredVertexPointers()
 
 GLShader_generic::GLShader_generic( GLShaderManager *manager ) :
   GLShader( "generic", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL, manager ),
-  //u_ColorMap(this), //hypov8 add
   u_ColorTextureMatrix( this ),
   u_ViewOrigin( this ),
   u_AlphaThreshold( this ),
@@ -1643,7 +1642,6 @@ void GLShader_shadowFill::SetShaderProgramUniforms( shaderProgram_t *shaderProgr
 
 GLShader_reflection::GLShader_reflection( GLShaderManager *manager ):
   GLShader("reflection", "reflection_CB", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL, manager ),
-  //u_ColorMap(this), //hypov8
   //u_NormalMap(this), //hypov8
   u_NormalTextureMatrix( this ),
   u_ViewOrigin( this ),

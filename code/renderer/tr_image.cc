@@ -2223,6 +2223,7 @@ static void R_Print_ImageLoad(char * name)
 		if (Q_strnicmp(name, "textures/strombine", 18) && 			
 			Q_strnicmp(name, "textures/decals/", 16) && 
 			Q_strnicmp(name, "textures/method/", 16) && 
+			Q_strnicmp(name, "textures/color", 14) && 
 			Q_strnicmp(name, "textures/kpq3_", 14) && 
 			Q_strnicmp(name, "textures/misc_", 14) &&
 			//Q_strnicmp(name, "textures/ex/", 12) &&
