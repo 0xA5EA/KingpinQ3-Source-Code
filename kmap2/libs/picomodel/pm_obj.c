@@ -536,7 +536,7 @@ static picoModel_t *_obj_load( PM_PARAMS_LOAD )
 	int autoGroupNumber = 0;
 	char autoGroupNameBuf[64];
 
-	printf("loading.... %s\n", fileName);  //add hypov8 display models loaded. helps detect faluty model/materal
+	//printf("loading.... %s\n", fileName);  //add hypov8 display models loaded. helps detect faluty model/materal
 
 #define AUTO_GROUPNAME(namebuf) \
 	sprintf(namebuf, "__autogroup_%d", autoGroupNumber++)

@@ -451,9 +451,9 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 				dv->lightmap[j][0] = 0.0f;
 				dv->lightmap[j][1] = 0.0f;
 
-				dv->lightColor[j][0] = 255;
-				dv->lightColor[j][1] = 255;
-				dv->lightColor[j][2] = 255;
+        dv->lightColor[j][0] = 1; // 255; hypov8 0-1
+				dv->lightColor[j][1] = 1; //255;
+				dv->lightColor[j][2] = 1; //255;
 				dv->lightColor[j][3] = 255;
 			}
 		}

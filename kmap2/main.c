@@ -1339,7 +1339,7 @@ int ConvertBSPMain(int argc, char **argv)
 	/* arg checking */
 	if(argc < 1)
 	{
-		Sys_Printf("Usage: kmap2 -scale <value> [-v] <mapname>\n");
+    Sys_Printf( "Usage: kmap2 -convert [-format <ase|map|gamename>] [-v] [-ne] [-de] <mapname>\n" );
 		return 0;
 	}
 

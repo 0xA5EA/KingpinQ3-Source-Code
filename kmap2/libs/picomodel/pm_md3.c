@@ -207,7 +207,7 @@ static picoModel_t *_md3_load( PM_PARAMS_LOAD )
 	md3 loading
 	------------------------------------------------- */
 
-	printf("loading.... %s\n", fileName);  //add hypov8 display models loaded. helps detect faluty model/materal
+	//printf("loading.... %s\n", fileName);  //add hypov8 display models loaded. helps detect faluty model/materal
 
 	/* set as md3 */
 	bb = (picoByte_t*) buffer;

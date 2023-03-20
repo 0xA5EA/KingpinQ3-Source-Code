@@ -225,6 +225,8 @@ picoModel_t	*PicoLoadModel( char *fileName, int frameNum )
 		return NULL;
 	}
 
+	printf("loading.... %s\n", fileName);  //add hypov8 display models loaded. helps detect faluty model/materal
+
 	/* get ptr to list of supported modules */
 	modules = PicoModuleList( NULL );
 	

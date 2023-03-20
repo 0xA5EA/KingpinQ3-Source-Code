@@ -537,7 +537,7 @@ static picoModel_t *_ase_load( PM_PARAMS_LOAD )
 
 	aseMaterial_t* materials = NULL;
 
-	printf("loading.... %s\n", fileName); //add hypov8 display models loaded. helps detect faluty model/materal
+	//printf("loading.... %s\n", fileName); //add hypov8 display models loaded. helps detect faluty model/materal
 #ifdef DEBUG_PM_ASE
 	clock_t start, finish;
 	double elapsed;
