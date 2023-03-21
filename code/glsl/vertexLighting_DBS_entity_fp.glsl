@@ -68,45 +68,45 @@ void	main()
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 
-#if defined(TWOSIDED)
-	if(gl_FrontFacing)
-	{
-		tangentToWorldMatrix = -tangentToWorldMatrix;
-	}
-#endif
+	#if defined(TWOSIDED)
+		if(gl_FrontFacing)
+		{
+			tangentToWorldMatrix = -tangentToWorldMatrix;
+		}
+	#endif
 
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
 
-#if defined(USE_PARALLAX_MAPPING)
+	#if defined(USE_PARALLAX_MAPPING)
 
-	// ray intersect in view direction
+		// ray intersect in view direction
 
-	// compute view direction in tangent space
-	vec3 Vts = (u_ViewOrigin - var_Position.xyz) * tangentToWorldMatrix;
-	Vts = normalize(Vts);
+		// compute view direction in tangent space
+		vec3 Vts = (u_ViewOrigin - var_Position.xyz) * tangentToWorldMatrix;
+		Vts = normalize(Vts);
 
-	// size and start position of search in texture space
-	vec2 S = Vts.xy * -u_DepthScale / Vts.z;
+		// size and start position of search in texture space
+		vec2 S = Vts.xy * -u_DepthScale / Vts.z;
 
-#if 0
-	vec2 texOffset = vec2(0.0);
-	for(int i = 0; i < 4; i++) {
-		vec4 Normal = texture2D(u_NormalMap, texNormal.st + texOffset);
-		float height = Normal.a * 0.2 - 0.0125;
-		texOffset += height * Normal.z * S;
-	}
-#else
-	float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
+		#if 0
+			vec2 texOffset = vec2(0.0);
+			for(int i = 0; i < 4; i++) {
+				vec4 Normal = texture2D(u_NormalMap, texNormal.st + texOffset);
+				float height = Normal.a * 0.2 - 0.0125;
+				texOffset += height * Normal.z * S;
+			}
+		#else
+			float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
 
-	// compute texcoords offset
-	vec2 texOffset = S * depth;
-#endif
+			// compute texcoords offset
+			vec2 texOffset = S * depth;
+		#endif
 
-	texDiffuse.st += texOffset;
-	texNormal.st += texOffset;
-	texSpecular.st += texOffset;
-#endif // USE_PARALLAX_MAPPING
+		texDiffuse.st += texOffset;
+		texNormal.st += texOffset;
+		texSpecular.st += texOffset;
+	#endif // USE_PARALLAX_MAPPING
 
 	// compute normal in world space from normalmap
 	vec3 N = normalize(tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5)));
@@ -115,46 +115,46 @@ void	main()
 	vec3 H = normalize(L + V);
 
 	// compute the specular term
-#if defined(USE_REFLECTIVE_SPECULAR)
+	#if defined(USE_REFLECTIVE_SPECULAR)
 
-	vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
+		vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
 
-	vec4 envColor0 = textureCube(u_EnvironmentMap0, reflect(-V, N)).rgba;
-	vec4 envColor1 = textureCube(u_EnvironmentMap1, reflect(-V, N)).rgba;
+		vec4 envColor0 = textureCube(u_EnvironmentMap0, reflect(-V, N)).rgba;
+		vec4 envColor1 = textureCube(u_EnvironmentMap1, reflect(-V, N)).rgba;
 
-	specBase.rgb *= mix(envColor0, envColor1, u_EnvironmentInterpolation).rgb;
+		specBase.rgb *= mix(envColor0, envColor1, u_EnvironmentInterpolation).rgb;
 
-	// Blinn-Phong
-	float NH = clamp(dot(N, H), 0, 1);
-	vec3 specMult = u_LightColor * pow(NH, u_SpecularExponent.x * specBase.a + u_SpecularExponent.y) * r_SpecularScale;
+		// Blinn-Phong
+		float NH = clamp(dot(N, H), 0, 1);
+		vec3 specMult = u_LightColor * pow(NH, u_SpecularExponent.x * specBase.a + u_SpecularExponent.y) * r_SpecularScale;
 
-#if 0
-	gl_FragColor = vec4(specular, 1.0);
-	// gl_FragColor = vec4(u_EnvironmentInterpolation, u_EnvironmentInterpolation, u_EnvironmentInterpolation, 1.0);
-	// gl_FragColor = envColor0;
-	return;
-#endif
+	#if 0
+		gl_FragColor = vec4(specular, 1.0);
+		// gl_FragColor = vec4(u_EnvironmentInterpolation, u_EnvironmentInterpolation, u_EnvironmentInterpolation, 1.0);
+		// gl_FragColor = envColor0;
+		return;
+	#endif
 
-#else
+	#else
 
-	// simple Blinn-Phong
-	float NH = clamp(dot(N, H), 0, 1);
-	vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
-	vec3 specMult = u_LightColor * pow(NH, u_SpecularExponent.x * specBase.a + u_SpecularExponent.y) * r_SpecularScale;
+		// simple Blinn-Phong
+		float NH = clamp(dot(N, H), 0, 1);
+		vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
+		vec3 specMult = u_LightColor * pow(NH, u_SpecularExponent.x * specBase.a + u_SpecularExponent.y) * r_SpecularScale;
 
-#endif // USE_REFLECTIVE_SPECULAR
+	#endif // USE_REFLECTIVE_SPECULAR
 
 
 #else // !USE_NORMAL_MAPPING
 
 	vec3 N = normalize(var_Normal);
 
-#if defined(TWOSIDED)
-	if(gl_FrontFacing)
-	{
-		N = -N;
-	}
-#endif
+	#if defined(TWOSIDED)
+		if(gl_FrontFacing)
+		{
+			N = -N;
+		}
+	#endif
 
 	vec3 specBase = vec3(0.0);
 	vec3 specMult = vec3(0.0);
@@ -195,7 +195,7 @@ void	main()
 #endif
 
 	#if 0
-	vec3 light = u_AmbientColor + u_LightColor * NL;
+		vec3 light = u_AmbientColor + u_LightColor* NL;
 		light = clamp(light, 0.1, 1.0);
 	#else //hypov8 add. clamp b4 adding normal light
 		vec3 ambb = vec3(0.5, 0.5, 0.5);
@@ -208,12 +208,12 @@ void	main()
 	vec4 color = diffuse;
 	color.rgb *= light;
 	color.rgb += specBase.rgb * specMult;
-#if defined(r_RimLighting)
-	color.rgb += 0.7 * emission;
-#endif
-#if defined(USE_GLOW_MAPPING)
-	color.rgb += texture2D(u_GlowMap, var_TexGlow).rgb;
-#endif
+	#if defined(r_RimLighting)
+		color.rgb += 0.7 * emission;
+	#endif
+	#if defined(USE_GLOW_MAPPING)
+		color.rgb += texture2D(u_GlowMap, var_TexGlow).rgb;
+	#endif
 	// convert normal to [0,1] color space
 	N = N * 0.5 + 0.5;
 
@@ -223,6 +223,7 @@ void	main()
 	gl_FragData[2] = vec4(N, 0.0);
 	gl_FragData[3] = vec4(specBase.rgb, 0.0);
 #else
+	//gl_FragColor = vec4(1.0, 0.5, 1.0, 1.0);	 //hypo test white
 	gl_FragColor = color;
 #endif
 

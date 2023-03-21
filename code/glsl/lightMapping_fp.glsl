@@ -42,16 +42,17 @@ varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
 
-varying vec4		var_Color;
+varying vec4		var_LightColor;
 
 
 void	main()
 {
-#if defined(USE_NORMAL_MAPPING)
-
 	vec2 texDiffuse = var_TexDiffuseGlow.st;
 	vec2 texNormal = var_TexNormalSpecular.st;
 	vec2 texSpecular = var_TexNormalSpecular.pq;
+	vec2 texGlow = var_TexDiffuseGlow.pq;	
+	
+#if defined(USE_NORMAL_MAPPING)
 
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
@@ -65,34 +66,34 @@ void	main()
 	// compute view direction in world space
 	vec3 I = normalize(u_ViewOrigin - var_Position);
 
-#if defined(USE_PARALLAX_MAPPING)
-	// ray intersect in view direction
+	#if defined(USE_PARALLAX_MAPPING)
+		// ray intersect in view direction
 
-	// compute view direction in tangent space
-	vec3 V = I * tangentToWorldMatrix;
-	V = normalize(V);
+		// compute view direction in tangent space
+		vec3 V = I * tangentToWorldMatrix;
+		V = normalize(V);
 
-	// size and start position of search in texture space
-	vec2 S = V.xy * -u_DepthScale / V.z;
+		// size and start position of search in texture space
+		vec2 S = V.xy * -u_DepthScale / V.z;
 
-#if 0
-	vec2 texOffset = vec2(0.0);
-	for(int i = 0; i < 4; i++) {
-		vec4 Normal = texture2D(u_NormalMap, texNormal.st + texOffset);
-		float height = Normal.a * 0.2 - 0.0125;
-		texOffset += height * Normal.z * S;
-	}
-#else
-	float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
+		#if 0
+			vec2 texOffset = vec2(0.0);
+			for(int i = 0; i < 4; i++) {
+				vec4 Normal = texture2D(u_NormalMap, texNormal.st + texOffset);
+				float height = Normal.a * 0.2 - 0.0125;
+				texOffset += height * Normal.z * S;
+			}
+		#else
+			float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
 
-	// compute texcoords offset
-	vec2 texOffset = S * depth;
-#endif
+			// compute texcoords offset
+			vec2 texOffset = S * depth;
+		#endif
 
-	texDiffuse.st += texOffset;
-	texNormal.st += texOffset;
-	texSpecular.st += texOffset;
-#endif // USE_PARALLAX_MAPPING
+		texDiffuse.st += texOffset;
+		texNormal.st += texOffset;
+		texSpecular.st += texOffset;
+	#endif // USE_PARALLAX_MAPPING
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
@@ -106,9 +107,6 @@ void	main()
 
 	// compute normal in world space from normalmap
 	vec3 N = (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
-	//N.x = -N.x;
-	//N = normalize(N);
-	//N = normalize(var_Normal.xyz);
 	N = normalize(tangentToWorldMatrix * N);
 
 	// compute light direction in world space
@@ -123,27 +121,16 @@ void	main()
 
 	// compute the specular term
 	vec4 specular = texture2D(u_SpecularMap, texSpecular).rgba;
-
 	float NdotL = clamp(dot(N, L), 0.0, 1.0);
-
 	float NdotLnobump = clamp(dot(normalize(var_Normal.xyz), L), 0.004, 1.0);
-	//vec3 lightColorNoNdotL = clamp(lightColor.rgb / NdotLnobump, 0.0, 1.0);
-
-	//float NdotLnobump = dot(normalize(var_Normal.xyz), L);
 	vec3 lightColorNoNdotL = lightColor.rgb / NdotLnobump;
+
 
 	// compute final color
 	vec4 color = diffuse;
-	// color = vec4(vec3(1.0, 1.0, 1.0), diffuse.a);
-	//color.rgb = vec3(NdotLnobump, NdotLnobump, NdotLnobump);
-	//color.rgb *= lightColor.rgb;
-	//color.rgb = lightColorNoNdotL.rgb * NdotL;
 	color.rgb *= clamp(lightColorNoNdotL.rgb * NdotL, lightColor.rgb * 0.3, lightColor.rgb);
-	//color.rgb *= diffuse.rgb;
-	//color.rgb = L * 0.5 + 0.5;
 	color.rgb += specular.rgb * lightColorNoNdotL * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent.x * specular.a + u_SpecularExponent.y) * r_SpecularScale;
-	color.a = var_Color.a;	// for terrain blending
-
+	color.a = var_LightColor.a;	// for terrain blending
 
 #else // USE_NORMAL_MAPPING
 
@@ -158,33 +145,40 @@ void	main()
 
 	vec3 N = normalize(var_Normal);
 
-#if defined(TWOSIDED)
+	#if defined(TWOSIDED)
 	if(gl_FrontFacing)
 	{
 		N = -N;
 	}
-#endif
+	#endif
 
-	vec3 specular = vec3(0.0, 0.0, 0.0);
+	vec3 specular = vec3(0.0, 0.0, 0.0); //r_DeferredShading
 
 	// compute light color from object space lightmap
 	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;
 
 	vec4 color = diffuse;
 	color.rgb *= lightColor;
-	color.a = var_Color.a;	// for terrain blending
-#endif
+	color.a = var_LightColor.a;	// for terrain blending
+	
+	//hypov8 debug missing bumpmaps (green)
+	//color.rgb	= vec3(0.5, 1.0, 0.5);
+	
+#endif //end !USE_NORMAL_MAPPING
+
+
 #if defined(USE_GLOW_MAPPING)
-	color.rgb += texture2D(u_GlowMap, var_TexDiffuseGlow.pq).rgb;
+	color.rgb += texture2D(u_GlowMap, texGlow).rgb;
 #endif
+
 	// convert normal to [0,1] color space
-	N = N * 0.5 + 0.5;
+	N = N * 0.5 + 0.5; //r_DeferredShading
 
 #if defined(r_DeferredShading)
-	gl_FragData[0] = color; 							// var_Color;
-	gl_FragData[1] = vec4(diffuse.rgb, var_Color.a);	// vec4(var_Color.rgb, 1.0 - var_Color.a);
-	gl_FragData[2] = vec4(N, var_Color.a);
-	gl_FragData[3] = vec4(specular, var_Color.a);
+	gl_FragData[0] = color; 							// var_LightColor;
+	gl_FragData[1] = vec4(diffuse.rgb, var_LightColor.a);	// vec4(var_LightColor.rgb, 1.0 - var_LightColor.a);
+	gl_FragData[2] = vec4(N, var_LightColor.a);
+	gl_FragData[3] = vec4(specular, var_LightColor.a);
 #else
 	gl_FragColor = color;
 #endif

@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
+uniform sampler2D	u_GlowMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
 
@@ -85,6 +86,7 @@ uniform vec2		u_SpecularExponent;
 varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
+varying vec2		var_TexGlow;
 #if defined(USE_NORMAL_MAPPING)
 varying vec2		var_TexSpecular;
 #endif
@@ -969,6 +971,7 @@ void	main()
 
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
+	vec2 texGlow = var_TexGlow;
 
 	// compute view direction in world space
 	vec3 V = normalize(u_ViewOrigin - var_Position.xyz);
@@ -1042,8 +1045,6 @@ void	main()
 	vec3 specular = spec.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent.x * spec.a + u_SpecularExponent.y) * r_SpecularScale;
 #endif
 
-
-
 	// compute light attenuation
 #if defined(LIGHT_PROJ)
 	vec3 attenuationXY = texture2DProj(u_AttenuationMapXY, var_TexAttenuation.xyw).rgb;
@@ -1063,6 +1064,10 @@ void	main()
 
 #if defined(USE_NORMAL_MAPPING)
 	color.rgb += specular;
+#endif
+
+#if defined(USE_GLOW_MAPPING)
+	 color.rgb + = texture2D(u_GlowMap, texGlow).rgb;
 #endif
 
 #if !defined(LIGHT_DIRECTIONAL)

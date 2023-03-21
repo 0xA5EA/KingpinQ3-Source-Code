@@ -45,18 +45,19 @@ uniform vec4		u_Color;
 uniform vec3		u_ViewOrigin;
 
 varying vec4		var_TexDiffuseGlow;
+varying vec3		var_Position; //beta1
 
 #if defined(USE_NORMAL_MAPPING)
 varying vec4		var_TexNormalSpecular;
 varying vec3		var_ViewDir;
 varying vec3		var_AmbientLight;
-varying vec3		var_DirectedLight;
-varying vec3		var_LightDirection;
-#else
+varying vec3		var_Tangent; //hypov8 add
+varying vec3		var_Binormal; //hypov8 add
+#endif
 varying vec3		var_Normal;
 varying vec4		var_LightColor;
-#endif
-
+varying vec3		var_DirectedLight;
+varying vec3		var_LightDirection;
 
 
 
@@ -86,25 +87,35 @@ void	main()
 	var_AmbientLight = attr_AmbientLight;
 	var_DirectedLight = attr_DirectedLight;
 	
-	// construct object-space-to-tangent-space 3x3 matrix
-	mat3 objectToTangentMatrix = mat3( attr_Tangent.x, attr_Binormal.x, attr_Normal.x,
-							attr_Tangent.y, attr_Binormal.y, attr_Normal.y,
-							attr_Tangent.z, attr_Binormal.z, attr_Normal.z	);
+	
+	// assign color
+	#if 1 //hypov8 add. light direction seems buggy from kmap?
+		var_LightDirection = attr_Normal.xyz; //(attr_Normal.xyx + 1.0) / 2;	
+	#else
+		var_LightDirection = attr_LightDirection.rgb;
+	#endif
 
 	
-	// assign vertex to light vector in tangent space
-	var_LightDirection = objectToTangentMatrix * attr_LightDirection;
+	var_Normal = attr_Normal.xyz;	//add hypov8
+	var_Tangent = attr_Tangent.xyz;	//add hypov8
+	var_Binormal = attr_Binormal.xyz;	//add hypov8	
+	var_Position = position.xyz; // add hypov8
 	
-	// assign vertex to view origin vector in tangent space
-	var_ViewDir = objectToTangentMatrix * normalize( u_ViewOrigin - position.xyz );
-#else
+#else //!USE_NORMAL_MAPPING
 	// assign color
-	var_LightColor = attr_Color * u_ColorModulate + u_Color;
+
 	
-	var_Normal = attr_Normal;
-#endif
+
+	#if defined(r_showDeluxeMaps)
+	var_LightDirection = attr_Normal.xyz; //(attr_Normal.xyz + 1.0) / 2; //attr_DirectedLight;
+	#endif
+	
+	var_Normal = attr_Normal.xyz;
+#endif  //end !USE_NORMAL_MAPPING
 
 #if defined(USE_GLOW_MAPPING)
 	var_TexDiffuseGlow.pq = ( u_GlowTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0) ).st;
 #endif
+
+	var_LightColor = attr_Color * u_ColorModulate + u_Color;
 }

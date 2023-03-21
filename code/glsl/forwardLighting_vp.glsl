@@ -39,7 +39,7 @@ uniform float		u_VertexInterpolation;
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
-
+uniform mat4		u_GlowTextureMatrix; //hypov8 add
 uniform vec4		u_ColorModulate;
 uniform vec4		u_Color;
 
@@ -52,6 +52,7 @@ uniform float		u_Time;
 varying vec3		var_Position;
 varying vec4		var_TexDiffuse;
 varying vec4		var_TexNormal;
+varying vec2		var_TexGlow; //hypov8 add
 #if defined(USE_NORMAL_MAPPING)
 varying vec2		var_TexSpecular;
 #endif
@@ -151,4 +152,8 @@ void	main()
 
 	var_TexDiffuse.p = color.r;
 	var_TexNormal.pq = color.gb;
+
+#if defined(USE_GLOW_MAPPING)
+	var_TexGlow = ( u_GlowTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0) ).st;
+#endif	
 }
