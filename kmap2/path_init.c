@@ -219,7 +219,10 @@ game_t         *GetGame(char *arg)
 	if(!Q_stricmp(arg, "quake1") ||
 	   !Q_stricmp(arg, "quake2") ||
 	   !Q_stricmp(arg, "unreal") ||
-	   !Q_stricmp(arg, "ut2k3") || !Q_stricmp(arg, "dn3d") || !Q_stricmp(arg, "dnf") || !Q_stricmp(arg, "hl"))
+	   !Q_stricmp(arg, "ut2k3") || 
+     !Q_stricmp(arg, "dn3d") || 
+     !Q_stricmp(arg, "dnf") || 
+     !Q_stricmp(arg, "hl"))
 	{
 		Sys_Printf("April fools, silly rabbit!\n");
 		exit(0);

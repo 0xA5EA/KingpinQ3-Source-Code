@@ -370,7 +370,7 @@ void Error(const char *error, ...)
 
 	//++timo HACK ALERT .. if we shut down too fast the xml stream won't reach the listener.
 	// a clean solution is to send a sync request node in the stream and wait for an answer before exiting
-	Sys_Sleep(1000);
+	Sys_Sleep(2000);
 
 	Broadcast_Shutdown();
 

@@ -44,7 +44,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 #endif
 #endif
 //FIXME (0xA5EA):
-# define KMAP_VERSION "2.5.17.19"
+# define KMAP_VERSION "2.5.17.20"
 
 
 typedef union {
@@ -163,6 +163,7 @@ constants
 
 #define MAX_JITTERS				256
 
+#define PREFIX_LEN 5  // len of kmap_ and xmap_
 
 /* epair parsing (note case-sensitivity directive) */
 #define CASE_INSENSITIVE_EPAIRS	1
@@ -1555,6 +1556,14 @@ void            InitPaths(int *argc, char **argv);
 int             BSPMain(int argc, char **argv);
 
 
+//hypov8 
+#if KMAP2
+/* pak_map.c */
+int PackMapAssets(int argc, char **argv);
+int PakMap_ReadShaderFile();
+#endif
+
+
 /* convert_map.c */
 int             ConvertBSPToMap(char *bspName);
 
@@ -1906,6 +1915,11 @@ shaderInfo_t   *CustomShader(shaderInfo_t * si, char *find, char *replace);
 
 void            LoadShaderInfo(void);
 shaderInfo_t   *ShaderInfoForShader(const char *shader);
+
+//hypov8 
+#if KMAP2
+qboolean GetTokenAppend(char *buffer, qboolean crossline);
+#endif
 
 
 /* bspfile_abstract.c */
