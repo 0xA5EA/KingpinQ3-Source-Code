@@ -380,12 +380,19 @@ void BeginMapShaderFile(const char *mapFile)
 	while(len > 0 && base[len] != '/' && base[len] != '\\')
 		len--;
 	strcpy(mapName, &base[len + 1]);
-	base[len] = '\0';
+
+	//remove "/map/"
+	len--;
+	while(len > 0 && base[len] != '/' && base[len] != '\\')
+		len--;
 	if(len <= 0)
 		return;
+	//set base game 
+	base[len] = '\0';
 
-	/* append ../scripts/xmap2_<mapname>.shader */
-	sprintf(mapShaderFile, "%s/../%s/kmap2_%s.mtr", base, game->shaderPath, mapName);
+
+	/* append /scripts/xmap2_<mapname>.shader */
+	sprintf(mapShaderFile, "%s/%s/kmap2_%s.mtr", base, game->shaderPath, mapName);
 	Sys_FPrintf(SYS_VRB, "Map has shader script %s\n", mapShaderFile);
 
 	/* remove it */

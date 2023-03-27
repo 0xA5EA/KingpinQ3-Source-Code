@@ -614,7 +614,7 @@ void WriteXBSPFile(const char *filename)
 
 	/* emit bsp size */
 	size = ftell(file);
-	Sys_Printf("Wrote %.1f MB (%d bytes)\n", (float)size / (1024 * 1024), size);
+	Sys_Printf("%-22s (%d bytes)\n", va("Wrote %.1f MB", (float)size / (1024 * 1024)), size);
 
 	/* write the completed header */
 	fseek(file, 0, SEEK_SET);

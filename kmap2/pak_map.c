@@ -5,13 +5,14 @@ hypov8
 pack map file into .pk3
 generate a shader file that includes non kpq3 assets
 these shaders will be renamed to prevent conflicts (eg maps using the same map models)
+shader names are textures/kmap2_<mapname>/<index>
 also .bsp internal shader names will be re-named
+
 
 todo: 
 	deal with tables?
 	fix kmap image files
 	cubemap images. 
-	rename shader eg..  "textures/<mapname>/1"  to prevent long filenames?
 	change pk3 file name/date?
 	change compresion for other file types. eg png is uncompresed in zip.
 	imagefile names are not renamed and will cause duplicates. should these be unique to?
@@ -23,34 +24,69 @@ todo:
 #include "kmap2.h"
 #include "zip.h" //compress
 
+
 typedef struct
 {
 	char newName[MAX_QPATH];
 	char oldName[MAX_QPATH];
 	char *script; //complete script
 	int unique;
-}shaderStruct;
+} shaderStruct;
 shaderStruct pakMapShaders[MAX_SHADER_INFO];
 
 
 static int isPakMap = 0; //todo: move to global?
 static int numMapTextures = 0;
 static int numShaderScripts = 0;
-static char bspFilename[1024];
+static char bspFilename[1024], bspTmpFilename[1024];
 static char textureNames[MAX_SHADER_INFO][MAX_QPATH]; //image files size ok?
 
 static qboolean ReadTexturesAdvancedModes(char *shaderText);
+
+
+/*
+==============
+PakMap_Cleanup
+
+if error is found, fix file names then print Error
+==============
+*/
+static void PakMap_Cleanup(qboolean renamedMap, qboolean printError, char *str)
+{
+	int i;
+
+	for (i = 0; i < numBSPShaders; i++)
+	{
+		if (pakMapShaders[i].unique == 1)
+			free(pakMapShaders[i].script);
+	}
+
+	//delete shader file
+	remove(mapShaderFile);
+
+	if (renamedMap)
+	{	//delete edited file
+		remove(bspFilename);
+		//rename old bsp back to original.
+		rename(bspTmpFilename, bspFilename);		
+	}
+
+	Sys_Printf("=========================\n");
+
+	if (printError)
+		Error(str);
+}
+
 
 
 static void PakMap_ReNameShader()
 {
 	int i, j;
 	char *c, newShaderName[256];
-	name;
-	source;
-	outbase;
+
+
 	if (mapName == NULL || mapName == '\0')
-		Error("mapname failed");
+		PakMap_Cleanup(qtrue, qtrue, "mapname failed");
 
 	for(i = 0; i < numBSPShaders; i++)
 	{
@@ -67,18 +103,18 @@ static void PakMap_ReNameShader()
 		j++; c++;
 		//copy shader root folder
 		Q_strncpyz(newShaderName, bspShaders[i].shader, j+1);
-		sprintf(newShaderName, "%s%s", newShaderName, mapName);
+		sprintf(newShaderName, "%skmap2_%s", newShaderName, mapName);
 
 		//find next '/'
 		while (j< 64 && c[0] != '/' && c[0] != '\\') {
 			j++; c++;
 		}	
 
-#if 1	//copy the end of shader.
-		Q_strcat(newShaderName,64 , c);
+#if 0	//copy the end of shader.
+		Q_strcat(newShaderName, 64, c);
 #else	
 		//todo: add index as name instead?
-		strcat(newShaderName,va("%i", i);
+		Q_strcat(newShaderName, 64, va("/%.3i", i));
 #endif
 		//copy new shader name to .bsp and .mtr
 		Q_strncpyz(bspShaders[i].shader, newShaderName, 64); //rename bsp shader
@@ -113,7 +149,7 @@ static qboolean PakMap_IgnoredFile()
 	//check if we have the image allready
 	for (i = 0; i < numMapTextures; i++)
 	{
-		if (!Q_stricmp(token, textureNames[i]))
+		if (textureNames[i][0] != '\0' && !Q_stricmp(token, textureNames[i]))
 			return qtrue;
 	}
 
@@ -250,9 +286,10 @@ int PakMap_ReadShaderFile()
 		shaderText[0] = '\0';
 
 		if (!GetTokenAppend(shaderText, qtrue))
-			Error("invalid");
+			PakMap_Cleanup(qtrue, qtrue, "invalid token in shader");
+
 		if (strcmp(token, "{"))
-			Error("brace { missing in shader %s", pakMapShaders[bspIndex].oldName);
+			PakMap_Cleanup(qtrue, qtrue, va("brace { missing in shader %s", pakMapShaders[bspIndex].oldName));
 
 		while (1)
 		{
@@ -288,15 +325,13 @@ int PakMap_ReadShaderFile()
 
 	return qtrue;
 }
-
-
-
+/*
+write .bsp in the original file name
+*/
 void PakMap_SaveBspFile()
 {
-	char            out[1024];
-	Sys_Printf("--- Saving bsp ---\n"); //dupe OnlyEnts();
-	sprintf(out, "%s.bsp.pakmap", source);
-	WriteBSPFile(out);
+	Sys_Printf ("%-22s (maps/%s.bsp)\n", va("Saving .bsp file."), mapName);
+	WriteBSPFile(bspFilename);
 }
 
 static void PakMap_GetTime(char * timeString)
@@ -366,11 +401,12 @@ void PakMap_AddFileToPk3(zipFile pk3File, char *texName)
 				ret = zipWriteInFileInZip(pk3File, buffer, size); //-1?
 				zipCloseFileInZip(pk3File);
 				free(buffer);
+				break;
 			}
 		}
 
 		if (i==4)
-			Sys_Printf("Warning: can't read file: %s\n", texName);
+			Sys_Printf("%-22s (%s)\n", "Warning: can't read.", texName);
 	}
 
 }
@@ -380,8 +416,8 @@ static void PakMap_SavePk3File()
 	FILE *fileAsset = NULL;
 	char pakFilename[256], curTime[256];
 	char baseDir[256], tmpPath[256];
-	int i;
-	char *ptrBase = strstr(bspFilename, game->gamePath);
+	int i, count = 0;
+	char *ptrBase = strstr(bspFilename, game->gamePath); //todo: check multiple mod names?
 	char *bspPath = &bspFilename[0];
 
 	if (ptrBase)
@@ -394,10 +430,11 @@ static void PakMap_SavePk3File()
 		sprintf(pakFilename, "%s/map-%s-%s.pk3", baseDir, mapName, curTime);
 		remove(pakFilename); //delete .pk3 if it exists
 
+		Sys_Printf ("%-22s (map-%s-%s.pk3)\n", "Saving .pk3 file.", mapName, curTime);
 		//open new .pk3 file
 		pk3File = zipOpen(pakFilename, 0);
 		if (pk3File == NULL)
-			Error("Can't create new pk3 file");
+			PakMap_Cleanup(qtrue, qtrue, va("Can't create new pk3 file: %s", pakFilename));
 
 		//loop through all map assets
 		for(i = 0; i < numMapTextures; i++)
@@ -406,15 +443,18 @@ static void PakMap_SavePk3File()
 			if (textureNames[i] == NULL || textureNames[i][0] =='\0')
 				continue;
 
-			//sprintf(fileName, "%s/%s", baseDir, textureNames[i]);
+			count++;
 			PakMap_AddFileToPk3(pk3File, textureNames[i]);
 		}
+
+		Sys_Printf("Added %i textures.\n", count);
 
 		//add default files that should exist
 		PakMap_AddFileToPk3(pk3File, va("maps/%s.bsp", mapName));
 		PakMap_AddFileToPk3(pk3File, va("maps/%s.aas", mapName));
 		PakMap_AddFileToPk3(pk3File, va("levelshots/%s.jpg", mapName));
-		//video?
+		PakMap_AddFileToPk3(pk3File, va("video/%s.ogv", mapName)); //menu play video
+		PakMap_AddFileToPk3(pk3File, va( "%s/kmap2_%s.mtr", game->shaderPath, mapName)); //add new shader file. note: mapShaderFile full path fails
 
 		i = 0;
 		while (FileExists(va("%s/maps/%s/lm_%04d.tga", baseDir, mapName, i)))
@@ -424,23 +464,46 @@ static void PakMap_SavePk3File()
 		}
 
 		if (zipClose(pk3File, "closing pk3"))
-			Error("cant close pk3 file");
+			PakMap_Cleanup(qtrue, qtrue, "cant close pk3 file"); 
 	}
 	else
 	{
 		//warn, no base
-		Error("Base game not found in path. <%s> <%s>", bspFilename, game->gamePath);
+		PakMap_Cleanup(qtrue, qtrue, va("GamePath game not found in filename. <%s> <%s>", game->gamePath, bspFilename)); 
 	}
 }
 
+/*
+========
+PakMap_ReadBspFile
+
+rename ".bsp" to ".bsp.pakmap"
+then load renamed file
+========
+*/
 void PakMap_ReadBspFile()
 {
+	//set old/new map file names
 	sprintf(bspFilename, "%s.bsp", source);
-	Sys_Printf("Reading bsp: %s\n", bspFilename); //dupe OnlyEnts();
-	LoadBSPFile(bspFilename);
+	sprintf(bspTmpFilename, "%s.bsp.pakmap", source);
+
+	//make sure map exists
+	if (source[0] == '\0' || !FileExists(bspFilename))
+		PakMap_Cleanup(qfalse, qtrue, va("Can't open bsp file: %s", bspFilename)); 
+
+	//remove any failed attemps
+	remove(bspTmpFilename);
+
+	if (rename(bspFilename, bspTmpFilename) != 0)
+		PakMap_Cleanup(qfalse, qtrue, va("Can't rename bsp file: %s", bspFilename)); 
+
+	Sys_Printf("Reading bsp: %s\n", bspFilename);
+	LoadBSPFile(bspTmpFilename);
+
+	//set mapShaderFile and delete file if it exists
+	BeginMapShaderFile(source);
 
 	//read all shaders from shaderlist.txt
-	BeginMapShaderFile(source);
 	LoadShaderInfo();
 }
 
@@ -456,10 +519,8 @@ todo: add tables if required
 */
 static void PakMap_SaveShaderFile()
 {
-
 	FILE           *file;
 	int             i;
-
 
 	/* dummy check */
 	if(mapShaderFile[0] == '\0')
@@ -514,7 +575,10 @@ static void PakMap_SaveShaderFile()
 	Sys_FPrintf(SYS_VRB, "\n");
 
 	/* print some stats */
-	Sys_Printf("%9d custom shaders emitted\n", numShaderScripts);
+	Sys_Printf ("=========================\n"
+				"%d shaders used.\n", numBSPShaders);	
+
+	Sys_Printf ("%-22s (kmap_%s.mtr)\n", va("%d shaders added.", numShaderScripts) , mapName);
 }
 
 static qboolean ParseHeightMap(char *shaderText)
@@ -650,15 +714,11 @@ int PackMapAssets(int argc, char **argv)
 	int             i;
 	char            tempSource[1024];
 
-
-	/* note it */
 	Sys_Printf("--- PACKMAP ---\n");
-
 	SetDrawSurfacesBuffer();
 	mapDrawSurfs = safe_malloc(sizeof(mapDrawSurface_t) * MAX_MAP_DRAW_SURFS);
 	memset(mapDrawSurfs, 0, sizeof(mapDrawSurface_t) * MAX_MAP_DRAW_SURFS);
 	numMapDrawSurfs = 0;
-
 	tempSource[0] = '\0';
 
 	/* set standard game flags */
@@ -691,11 +751,7 @@ int PackMapAssets(int argc, char **argv)
 	PakMap_SaveBspFile();
 	PakMap_SavePk3File();
 	
-	for (i = 0; i < numBSPShaders; i++)
-	{
-		if (pakMapShaders[i].unique == 1)
-			free(pakMapShaders[i].script);
-	}
+	PakMap_Cleanup(qtrue, qfalse, NULL);
 
 	return 0;
 }

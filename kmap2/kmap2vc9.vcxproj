@@ -20,11 +20,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -53,8 +55,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\common;.\libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;XMAP;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\common;.\libs;.\zlib;..\radiant\w32deps\gtk2\lib;..\radiant\w32deps\gtk2\include\glib-2.0\;..\code\png\;..\radiant\w32deps\win_iconv\include\;..\radiant\w32deps\libxml2\include\;..\radiant\w32deps\gtk2\include\glib-2.0\glib\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;XMAP;_CRT_SECURE_NO_WARNINGS;KMAP2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>
       </ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -70,6 +72,9 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -77,10 +82,10 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>glib-2.0.lib;wsock32.lib;xml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)kmap2d.exe</OutputFile>
+      <AdditionalDependencies>glib-vc100.lib;wsock32.lib;libxml2-vc100.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>%(OutputFile)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\radiant\w32deps\gtk2\lib;..\radiant\w32deps\libxml2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../build/debug-win32/kmap2/q3map2.pdb</ProgramDatabaseFile>
@@ -91,6 +96,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -106,7 +112,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\radiant/w32deps/gtk2/lib/glib-2.0/include;..\radiant\w32deps\gtk2\include\glib-2.0;..\code\png;..\radiant\w32deps\win_iconv\include;zlib;..\radiant\w32deps\libxml2\include;common;libs;..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\common;.\libs;.\zlib;..\radiant\w32deps\gtk2\lib;..\radiant\w32deps\gtk2\include\glib-2.0;..\code\png;..\radiant\w32deps\win_iconv\include;..\radiant\w32deps\libxml2\include;..\radiant\w32deps\gtk2\include\glib-2.0\glib\;..\radiant\w32deps\gtk2\lib\glib-2.0\include;..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;XMAP;_CRT_SECURE_NO_WARNINGS;KMAP2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -125,7 +131,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>Default</CompileAs>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
@@ -135,8 +141,8 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>glib-2.0.lib;wsock32.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)kmap2.exe</OutputFile>
+      <AdditionalDependencies>glib-vc100.lib;wsock32.lib;libxml2-vc100.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>%(OutputFile)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\radiant\w32deps\gtk2\lib;..\radiant\w32deps\libxml2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>../build/release-win32/kmap2/q3map2.pdb</ProgramDatabaseFile>
@@ -147,7 +153,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <TargetMachine>MachineX64</TargetMachine>
+      <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -159,57 +165,59 @@
     <ClCompile Include="bspfile_ibsp.c" />
     <ClCompile Include="bspfile_rbsp.c" />
     <ClCompile Include="bspfile_xbsp.c" />
+    <ClCompile Include="common\zip.c" />
     <ClCompile Include="gldraw.c" />
     <ClCompile Include="image.c" />
-    <ClCompile Include="jpeg\jaricom.c" />
-    <ClCompile Include="jpeg\jcapimin.c" />
-    <ClCompile Include="jpeg\jcapistd.c" />
-    <ClCompile Include="jpeg\jcarith.c" />
-    <ClCompile Include="jpeg\jccoefct.c" />
-    <ClCompile Include="jpeg\jccolor.c" />
-    <ClCompile Include="jpeg\jcdctmgr.c" />
-    <ClCompile Include="jpeg\jchuff.c" />
-    <ClCompile Include="jpeg\jcinit.c" />
-    <ClCompile Include="jpeg\jcmainct.c" />
-    <ClCompile Include="jpeg\jcmarker.c" />
-    <ClCompile Include="jpeg\jcmaster.c" />
-    <ClCompile Include="jpeg\jcomapi.c" />
-    <ClCompile Include="jpeg\jcparam.c" />
-    <ClCompile Include="jpeg\jcprepct.c" />
-    <ClCompile Include="jpeg\jcsample.c" />
-    <ClCompile Include="jpeg\jctrans.c" />
-    <ClCompile Include="jpeg\jdapimin.c" />
-    <ClCompile Include="jpeg\jdapistd.c" />
-    <ClCompile Include="jpeg\jdarith.c" />
-    <ClCompile Include="jpeg\jdatadst.c" />
-    <ClCompile Include="jpeg\jdatasrc.c" />
-    <ClCompile Include="jpeg\jdcoefct.c" />
-    <ClCompile Include="jpeg\jdcolor.c" />
-    <ClCompile Include="jpeg\jddctmgr.c" />
-    <ClCompile Include="jpeg\jdhuff.c" />
-    <ClCompile Include="jpeg\jdinput.c" />
-    <ClCompile Include="jpeg\jdmainct.c" />
-    <ClCompile Include="jpeg\jdmarker.c" />
-    <ClCompile Include="jpeg\jdmaster.c" />
-    <ClCompile Include="jpeg\jdmerge.c" />
-    <ClCompile Include="jpeg\jdpostct.c" />
-    <ClCompile Include="jpeg\jdsample.c" />
-    <ClCompile Include="jpeg\jdtrans.c" />
-    <ClCompile Include="jpeg\jerror.c" />
-    <ClCompile Include="jpeg\jfdctflt.c" />
-    <ClCompile Include="jpeg\jfdctfst.c" />
-    <ClCompile Include="jpeg\jfdctint.c" />
-    <ClCompile Include="jpeg\jidctflt.c" />
-    <ClCompile Include="jpeg\jidctfst.c" />
-    <ClCompile Include="jpeg\jidctint.c" />
-    <ClCompile Include="jpeg\jmemmgr.c" />
-    <ClCompile Include="jpeg\jmemnobs.c" />
-    <ClCompile Include="jpeg\jquant1.c" />
-    <ClCompile Include="jpeg\jquant2.c" />
-    <ClCompile Include="jpeg\jutils.c" />
+    <ClCompile Include="jpeg-6\jaricom.c" />
+    <ClCompile Include="jpeg-6\jcapimin.c" />
+    <ClCompile Include="jpeg-6\jcapistd.c" />
+    <ClCompile Include="jpeg-6\jcarith.c" />
+    <ClCompile Include="jpeg-6\jccoefct.c" />
+    <ClCompile Include="jpeg-6\jccolor.c" />
+    <ClCompile Include="jpeg-6\jcdctmgr.c" />
+    <ClCompile Include="jpeg-6\jchuff.c" />
+    <ClCompile Include="jpeg-6\jcinit.c" />
+    <ClCompile Include="jpeg-6\jcmainct.c" />
+    <ClCompile Include="jpeg-6\jcmarker.c" />
+    <ClCompile Include="jpeg-6\jcmaster.c" />
+    <ClCompile Include="jpeg-6\jcomapi.c" />
+    <ClCompile Include="jpeg-6\jcparam.c" />
+    <ClCompile Include="jpeg-6\jcprepct.c" />
+    <ClCompile Include="jpeg-6\jcsample.c" />
+    <ClCompile Include="jpeg-6\jctrans.c" />
+    <ClCompile Include="jpeg-6\jdapimin.c" />
+    <ClCompile Include="jpeg-6\jdapistd.c" />
+    <ClCompile Include="jpeg-6\jdarith.c" />
+    <ClCompile Include="jpeg-6\jdatadst.c" />
+    <ClCompile Include="jpeg-6\jdatasrc.c" />
+    <ClCompile Include="jpeg-6\jdcoefct.c" />
+    <ClCompile Include="jpeg-6\jdcolor.c" />
+    <ClCompile Include="jpeg-6\jddctmgr.c" />
+    <ClCompile Include="jpeg-6\jdhuff.c" />
+    <ClCompile Include="jpeg-6\jdinput.c" />
+    <ClCompile Include="jpeg-6\jdmainct.c" />
+    <ClCompile Include="jpeg-6\jdmarker.c" />
+    <ClCompile Include="jpeg-6\jdmaster.c" />
+    <ClCompile Include="jpeg-6\jdmerge.c" />
+    <ClCompile Include="jpeg-6\jdpostct.c" />
+    <ClCompile Include="jpeg-6\jdsample.c" />
+    <ClCompile Include="jpeg-6\jdtrans.c" />
+    <ClCompile Include="jpeg-6\jerror.c" />
+    <ClCompile Include="jpeg-6\jfdctflt.c" />
+    <ClCompile Include="jpeg-6\jfdctfst.c" />
+    <ClCompile Include="jpeg-6\jfdctint.c" />
+    <ClCompile Include="jpeg-6\jidctflt.c" />
+    <ClCompile Include="jpeg-6\jidctfst.c" />
+    <ClCompile Include="jpeg-6\jidctint.c" />
+    <ClCompile Include="jpeg-6\jmemmgr.c" />
+    <ClCompile Include="jpeg-6\jmemnobs.c" />
+    <ClCompile Include="jpeg-6\jquant1.c" />
+    <ClCompile Include="jpeg-6\jquant2.c" />
+    <ClCompile Include="jpeg-6\jutils.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="mesh.c" />
     <ClCompile Include="model.c" />
+    <ClCompile Include="pak_map.c" />
     <ClCompile Include="path_init.c" />
     <ClCompile Include="shaders.c" />
     <ClCompile Include="surface_extra.c" />
@@ -312,6 +320,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\cmdlib.h" />
+    <ClInclude Include="common\crypt.h" />
     <ClInclude Include="common\imagelib.h" />
     <ClInclude Include="common\inout.h" />
     <ClInclude Include="common\mathlib.h" />
@@ -321,16 +330,17 @@
     <ClInclude Include="common\threads.h" />
     <ClInclude Include="common\unzip.h" />
     <ClInclude Include="common\vfs.h" />
+    <ClInclude Include="common\zip.h" />
     <ClInclude Include="game_kingpinq3.h" />
-    <ClInclude Include="jpeg\jconfig.h" />
-    <ClInclude Include="jpeg\jdct.h" />
-    <ClInclude Include="jpeg\jerror.h" />
-    <ClInclude Include="jpeg\jinclude.h" />
-    <ClInclude Include="jpeg\jmemsys.h" />
-    <ClInclude Include="jpeg\jmorecfg.h" />
-    <ClInclude Include="jpeg\jpegint.h" />
-    <ClInclude Include="jpeg\jpeglib.h" />
-    <ClInclude Include="jpeg\jversion.h" />
+    <ClInclude Include="jpeg-6\jconfig.h" />
+    <ClInclude Include="jpeg-6\jdct.h" />
+    <ClInclude Include="jpeg-6\jerror.h" />
+    <ClInclude Include="jpeg-6\jinclude.h" />
+    <ClInclude Include="jpeg-6\jmemsys.h" />
+    <ClInclude Include="jpeg-6\jmorecfg.h" />
+    <ClInclude Include="jpeg-6\jpegint.h" />
+    <ClInclude Include="jpeg-6\jpeglib.h" />
+    <ClInclude Include="jpeg-6\jversion.h" />
     <ClInclude Include="kmap2.h" />
   </ItemGroup>
   <ItemGroup>

@@ -2203,9 +2203,11 @@ int main(int argc, char **argv)
 	/* div0: minimap */
 	else if(!strcmp(argv[1], "-minimap"))
 		r = MiniMapBSPMain(argc - 1, argv + 1);
+#if KMAP2
     /* pack map into pk3 files */
 	else if(!strcmp(argv[1], "-pakmap"))
 		r = PackMapAssets(argc - 1, argv + 1);
+#endif
 	/* ydnar: otherwise create a bsp */
 	else
 		r = BSPMain(argc, argv);
