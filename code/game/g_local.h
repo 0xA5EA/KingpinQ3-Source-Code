@@ -354,7 +354,7 @@ struct unlagged_s
 	vec3_t   origin;
 	vec3_t   mins;
 	vec3_t   maxs;
-	bool used;
+	qboolean used;
 };
 
 #define MAX_UNLAGGED_MARKERS 256
@@ -617,7 +617,7 @@ typedef struct
 		int fixed;
 		int msec;
 		int accurate;
-		bool initialized;
+		qboolean initialized;
 	} pmoveParams;
 
 } level_locals_t;

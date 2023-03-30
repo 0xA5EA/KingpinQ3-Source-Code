@@ -836,10 +836,10 @@ static void Tess_SurfacePolychain( srfPoly_t *p )
     tess.texCoords[ tess.numVertexes + i ][ 0 ] = p->verts[ i ].st[ 0 ];
     tess.texCoords[ tess.numVertexes + i ][ 1 ] = p->verts[ i ].st[ 1 ];
 
-    tess.lightColor[ tess.numVertexes + i ][ 0 ] = p->verts[ i ].modulate[ 0 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 1 ] = p->verts[ i ].modulate[ 1 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 2 ] = p->verts[ i ].modulate[ 2 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 3 ] = p->verts[ i ].modulate[ 3 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 0 ] = p->verts[ i ].modulate[ 0 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 1 ] = p->verts[ i ].modulate[ 1 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 2 ] = p->verts[ i ].modulate[ 2 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 3 ] = p->verts[ i ].modulate[ 3 ] * ( 1.0f / 255.0f );
 
     numVertexes++;
   }
@@ -951,10 +951,10 @@ void Tess_SurfacePolybuffer( srfPolyBuffer_t *surf )
     tess.texCoords[ tess.numVertexes + i ][ 0 ] = st[ 0 ];
     tess.texCoords[ tess.numVertexes + i ][ 1 ] = st[ 1 ];
 
-    tess.lightColor[ tess.numVertexes + i ][ 0 ] = color[ 0 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 1 ] = color[ 1 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 2 ] = color[ 2 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 3 ] = color[ 3 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 0 ] = color[ 0 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 1 ] = color[ 1 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 2 ] = color[ 2 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 3 ] = color[ 3 ] * ( 1.0f / 255.0f );
   }
 
   tess.attribsSet |= ATTR_POSITION | ATTR_COLOR | ATTR_TEXCOORD;
@@ -979,10 +979,10 @@ void Tess_SurfaceDecal( srfDecal_t *srf )
     tess.texCoords[ tess.numVertexes + i ][ 0 ] = srf->verts[ i ].st[ 0 ];
     tess.texCoords[ tess.numVertexes + i ][ 1 ] = srf->verts[ i ].st[ 1 ];
 
-    tess.lightColor[ tess.numVertexes + i ][ 0 ] = srf->verts[ i ].modulate[ 0 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 1 ] = srf->verts[ i ].modulate[ 1 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 2 ] = srf->verts[ i ].modulate[ 2 ] * ( 1.0 / 255.0 );
-    tess.lightColor[ tess.numVertexes + i ][ 3 ] = srf->verts[ i ].modulate[ 3 ] * ( 1.0 / 255.0 );
+    tess.lightColor[ tess.numVertexes + i ][ 0 ] = srf->verts[ i ].modulate[ 0 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 1 ] = srf->verts[ i ].modulate[ 1 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 2 ] = srf->verts[ i ].modulate[ 2 ] * ( 1.0f / 255.0f );
+    tess.lightColor[ tess.numVertexes + i ][ 3 ] = srf->verts[ i ].modulate[ 3 ] * ( 1.0f / 255.0f );
   }
 
   // generate fan indexes into the tess array

@@ -1412,7 +1412,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		r_parallaxMapping = ri.Cvar_Get( "r_parallaxMapping", "0", CVAR_ARCHIVE );
 		r_dynamicLightCastShadows = ri.Cvar_Get( "r_dynamicLightCastShadows", "0", CVAR_ARCHIVE );
 		r_precomputedLighting = ri.Cvar_Get( "r_precomputedLighting", "1", CVAR_ARCHIVE | CVAR_SHADER );	//hypov8 force this with cheat? 
-		r_vertexLighting = ri.Cvar_Get( "r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH );				//hypov8 force this with cheat? 
+		r_vertexLighting = ri.Cvar_Get( "r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_CHEAT);				//hypov8 force this with cheat? 
 		r_compressDiffuseMaps = ri.Cvar_Get( "r_compressDiffuseMaps", "1", CVAR_ARCHIVE | CVAR_LATCH );
 		r_compressSpecularMaps = ri.Cvar_Get( "r_compressSpecularMaps", "1", CVAR_ARCHIVE | CVAR_LATCH );
 		r_compressNormalMaps = ri.Cvar_Get( "r_compressNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH );

@@ -574,7 +574,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
   ClearRegisteredItems();
 
   // this has to be flipped after the first UpdateCvars
-  level.spawning = true;
+  level.spawning = qtrue;
 
   // parse the key/value pairs and spawn gentities
   G_SpawnEntitiesFromString();
@@ -659,7 +659,7 @@ void G_CheckPmoveParamChanges() {
       level.pmoveParams.msec != pmove_msec.integer ||
       level.pmoveParams.fixed != pmove_fixed.integer ||
       level.pmoveParams.accurate != pmove_accurate.integer) {
-    level.pmoveParams.initialized = true;
+    level.pmoveParams.initialized = qtrue;
     level.pmoveParams.synchronous = g_synchronousClients.integer;
     level.pmoveParams.msec = pmove_msec.integer;
     level.pmoveParams.fixed = pmove_fixed.integer;
@@ -1999,7 +1999,7 @@ void G_RunFrame(int levelTime)
   G_UpdateCvars();
 
   // now we are done spawning
-  level.spawning = false; //unvan .52
+  level.spawning = qfalse;
 
   G_CheckPmoveParamChanges();
 

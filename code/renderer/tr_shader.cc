@@ -1678,7 +1678,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
     stage->bundle[0].image[0] = tr.greenImage;
     return qtrue;
   }
-  else if (!Q_stricmp(token, "_blue") || !Q_stricmp(token, "blue")) // add hypov8
+  else if (!Q_stricmp(token, "_blue") || !Q_stricmp(token, "$blue")) // add hypov8. note: '_' might conflict in kmap?
   {
     stage->bundle[0].image[0] = tr.blueImage;
     return qtrue;
@@ -6459,13 +6459,13 @@ shader_t       *R_FindShader( const char *name, shaderType_t type,
         stages[ 0 ].type = ST_ATTENUATIONMAP_Z;
         stages[ 0 ].bundle[ 0 ].image[ 0 ] = tr.noFalloffImage; // FIXME should be attenuationZImage
         stages[ 0 ].active = qtrue;
-        stages[0].rgbGen = ReturnRGBGenModes();
+		stages[0].rgbGen = CGEN_IDENTITY; // ReturnRGBGenModes();
         stages[ 0 ].stateBits = GLS_DEFAULT;
 
         stages[ 1 ].type = ST_ATTENUATIONMAP_XY;
         stages[ 1 ].bundle[ 0 ].image[ 0 ] = image;
         stages[ 1 ].active = qtrue;
-        stages[1].rgbGen = ReturnRGBGenModes();
+		stages[1].rgbGen = CGEN_IDENTITY; // ReturnRGBGenModes();
         stages[ 1 ].stateBits = GLS_DEFAULT;
         //stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
         break;
@@ -6679,6 +6679,10 @@ void R_ShaderList_f( void )
     else if ( shader->collapseType == COLLAPSE_lighting_DBS )
     {
       ri.Printf( PRINT_ALL, "lighting_DBS   " );
+    }
+    else if ( shader->collapseType == COLLAPSE_lighting_DBSG )
+    {
+      ri.Printf( PRINT_ALL, "lighting_DBSG  " );
     }
     else if ( shader->collapseType == COLLAPSE_reflection_CB )
     {

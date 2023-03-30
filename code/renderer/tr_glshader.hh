@@ -430,7 +430,7 @@ protected:
 			return;
 		}
 
-    VectorCopy(v, *firewall);
+		VectorCopy(v, *firewall);
 #endif
 		glUniform3f( p->uniformLocations[ _locationIndex ], v[ 0 ], v[ 1 ], v[ 2 ] );
 	}
@@ -464,13 +464,11 @@ protected:
 #endif
 #if defined( USE_UNIFORM_FIREWALL )
 		vec4_t *firewall = ( vec4_t * ) &p->uniformFirewall[ _firewallIndex ];
-
-    if (VectorCompare(*firewall, v))
+		if (Vector4Compare(*firewall, v)) //hypov8 vec4: bugfix for HUD render. disapering or being solid
 		{
 			return;
 		}
-
-    VectorCopy(v, *firewall);
+		Vector4Copy(v, *firewall);
 #endif
 		glUniform4f( p->uniformLocations[ _locationIndex ], v[ 0 ], v[ 1 ], v[ 2 ], v[ 3 ] );
 	}
@@ -2157,17 +2155,17 @@ public:
 		{
 			case CGEN_VERTEX:
 				_shader->AddVertexAttribBit( ATTR_COLOR );
-				VectorSet( v, 1, 1, 1 );
+				VectorSet( v, 1.0f, 1.0f, 1.0f );
 				break;
 
 			case CGEN_ONE_MINUS_VERTEX:
 				_shader->AddVertexAttribBit( ATTR_COLOR );
-				VectorSet( v, -1, -1, -1 );
+				VectorSet( v, -1.0f, -1.0f, -1.0f );
 				break;
 
 			default:
 				_shader->DelVertexAttribBit( ATTR_COLOR );
-				VectorSet( v, 0, 0, 0 );
+				VectorSet( v, 0.0f, 0.0f, 0.0f );
 				break;
 		}
 

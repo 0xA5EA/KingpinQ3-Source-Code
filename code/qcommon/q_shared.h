@@ -239,10 +239,10 @@ typedef int	clipHandle_t;
 // paramters for command buffer stuffing
 typedef enum
 {
-  EXEC_NOW,			// don't return until completed, a VM should NEVER use this,
-            // because some commands might cause the VM to be unloaded...
-  EXEC_INSERT,		// insert at current position, but don't run yet
-  EXEC_APPEND			// add to end of the command buffer (normal case)
+  EXEC_NOW,     // don't return until completed, a VM should NEVER use this,
+                // because some commands might cause the VM to be unloaded...
+  EXEC_INSERT,  // insert at current position, but don't run yet
+  EXEC_APPEND   // add to end of the command buffer (normal case)
 } cbufExec_t;
 
 
@@ -720,7 +720,7 @@ void ByteToDir(int b, vec3_t dir);
 
 //unlagged - attack prediction #3
 // moved from g_weapon.c
-void SnapVectorTowards( vec3_t v, vec3_t to );
+  void SnapVectorTowards( vec3_t v, vec3_t to );
 //unlagged - attack prediction #3
 
 
@@ -733,20 +733,20 @@ void SnapVectorTowards( vec3_t v, vec3_t to );
   void     _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc );
 
 
-unsigned ColorBytes3 (float r, float g, float b);
-unsigned ColorBytes4 (float r, float g, float b, float a);
+  unsigned ColorBytes3 (float r, float g, float b);
+  unsigned ColorBytes4 (float r, float g, float b, float a);
 
 //FIXME (0xA5EA): brakes aas build ?
-float NormalizeColor(const vec3_t in, vec3_t out);
+  float NormalizeColor(const vec3_t in, vec3_t out);
 
-void  ClampColor(vec4_t color);
+  void  ClampColor(vec4_t color);
 
   float RadiusFromBounds(const vec3_t mins, const vec3_t maxs);
   void     ZeroBounds( vec3_t mins, vec3_t maxs );
   void ClearBounds(vec3_t mins, vec3_t maxs);
   void     AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
 
-void VectorReflect(vec3_t const v, vec3_t const normal, vec3_t out);
+  void VectorReflect(vec3_t const v, vec3_t const normal, vec3_t out);
 // RB: same as BoundsIntersectPoint but kept for compatibility
   qboolean PointInBounds( const vec3_t v, const vec3_t mins, const vec3_t maxs );
 
@@ -830,52 +830,52 @@ vec_t	K_tan(vec_t alpha);
 // FIXME: 0xA5EA, passt das mit dem QVm define ?
 
 #if 0 //def USING_SSE_MATH
-#  define VectorNormalize     VectorNormalizeSelfSSE
-#  define VectorNormalize2    VectorNormalize2SSE
-#  define VectorNormalize3    VectorNormalizeSelf2SSE
-#  define VectorNormalizeFast VectorNormalizeSelfSSE
+  #define VectorNormalize     VectorNormalizeSelfSSE
+  #define VectorNormalize2    VectorNormalize2SSE
+  #define VectorNormalize3    VectorNormalizeSelf2SSE
+  #define VectorNormalizeFast VectorNormalizeSelfSSE
 #else
-vec_t VectorNormalize( vec3_t v );       // returns vector length
-void VectorNormalizeFast( vec3_t v );     // does NOT return vector length, uses rsqrt approximation
-vec_t VectorNormalize2( const vec3_t v, vec3_t out );
-//#  define VectorNormalize     VectorNormalizeSelfstd
-//#  define VectorNormalize2    VectorNormalize2std
-#  define VectorNormalize3     VectorNormalize //VectorNormalizeSelfstd
-//#  define VectorNormalizeFast VectorNormalizeFaststd
+  vec_t VectorNormalize( vec3_t v );       // returns vector length
+  void VectorNormalizeFast( vec3_t v );     // does NOT return vector length, uses rsqrt approximation
+  vec_t VectorNormalize2( const vec3_t v, vec3_t out );
+  //#  define VectorNormalize     VectorNormalizeSelfstd
+  //#  define VectorNormalize2    VectorNormalize2std
+  #define VectorNormalize3     VectorNormalize //VectorNormalizeSelfstd
+  //#  define VectorNormalizeFast VectorNormalizeFaststd
 #endif
 
-void Vector4Scale(const vec4_t in, vec_t scale, vec4_t out);
-void VectorRotate(vec3_t in, vec3_t matrix[3], vec3_t out);
+  void Vector4Scale(const vec4_t in, vec_t scale, vec4_t out);
+  void VectorRotate(vec3_t in, vec3_t matrix[3], vec3_t out);
 
   int   NearestPowerOfTwo( int val );
-int Q_log2(int val);
-float Q_acos(float c);
-int Q_rand(int *seed);
-float	Q_random(int *seed);
-float	Q_crandom(int *seed);
+  int   Q_log2(int val);
+  float Q_acos(float c);
+  int   Q_rand(int *seed);
+  float Q_random(int *seed);
+  float Q_crandom(int *seed);
 
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
 
-void VectorToAngles(const vec3_t value1, vec3_t angles);
+  void VectorToAngles(const vec3_t value1, vec3_t angles);
   //float vectoyaw( const vec3_t vec ); //hypov8 merge: game dll
-void AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
+  void AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
 // TTimo: const vec_t ** would require explicit casts for ANSI C conformance
 // see unix/const-arg.c
   void  AxisToAngles( /*const*/ vec3_t axis[ 3 ], vec3_t angles );
-//void AxisToAngles ( const vec3_t axis[3], vec3_t angles );
+  //void AxisToAngles ( const vec3_t axis[3], vec3_t angles );
   float VectorDistance( vec3_t v1, vec3_t v2 );
   float VectorDistanceSquared( vec3_t v1, vec3_t v2 );
 
   float VectorMinComponent( vec3_t v );
   float VectorMaxComponent( vec3_t v );
 
-#if 1
+#if 0
 //0xA5EA, use macros instead of functions, clean this up some time
-///////void AxisClear(vec3_t axis[3]);
-///////void AxisCopy(vec3_t in[3], vec3_t out[3]);
+  void AxisClear(vec3_t axis[3]);
+  void AxisCopy(vec3_t in[3], vec3_t out[3]);
 #endif
-void SetPlaneSignbits(struct cplane_s *out);
+  void SetPlaneSignbits(struct cplane_s *out);
 
   float BoundsMaxExtent( const vec3_t mins, const vec3_t maxs ); //hypov8 merge: unvan .50
 
@@ -884,31 +884,31 @@ void SetPlaneSignbits(struct cplane_s *out);
   void  LerpPosition( vec3_t start, vec3_t end, float frac, vec3_t out );
   float AngleSubtract( float a1, float a2 );
   void  AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 );
-
+  
   float AngleNormalize2Pi( float angle );
-
   float AngleNormalize360(float angle);
   float AngleNormalize180(float angle);
   float AngleDelta(float angle1, float angle2);
   float AngleBetweenVectors( const vec3_t a, const vec3_t b );
   void  AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up );
 
-  vec_t PlaneNormalize( vec4_t plane );  // returns normal length
+vec_t PlaneNormalize( vec4_t plane );  // returns normal length
 
-  /* greebo: This calculates the intersection point of three planes.
-   * Returns <0,0,0> if no intersection point could be found, otherwise returns the coordinates of the intersection point
-   * (this may also be 0,0,0) */
+/* greebo: This calculates the intersection point of three planes.
+ * Returns <0,0,0> if no intersection point could be found, otherwise returns the coordinates of the intersection point
+ * (this may also be 0,0,0) 
+*/
   qboolean PlanesGetIntersectionPoint( const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out );
   void     PlaneIntersectRay( const vec3_t rayPos, const vec3_t rayDir, const vec4_t plane, vec3_t res );
 
 
-qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c);
-qboolean PlaneFromPointsOrder(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw);
-void ProjectPointOnPlane(vec3_t dst, const vec3_t point, const vec3_t normal);
-void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees);
+  qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c);
+  qboolean PlaneFromPointsOrder(vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c, qboolean cw);
+  void     ProjectPointOnPlane(vec3_t dst, const vec3_t point, const vec3_t normal);
+  void     RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, float degrees);
   void     RotatePointAroundVertex( vec3_t pnt, float rot_x, float rot_y, float rot_z, const vec3_t origin );
-void RotateAroundDirection(vec3_t axis[3], float yaw);
-void MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
+  void     RotateAroundDirection(vec3_t axis[3], float yaw);
+  void     MakeNormalVectors(const vec3_t forward, vec3_t right, vec3_t up);
 
 // perpendicular vector could be replaced by this
 
