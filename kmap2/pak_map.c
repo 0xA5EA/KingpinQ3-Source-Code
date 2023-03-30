@@ -30,7 +30,7 @@ typedef struct
 	char newName[MAX_QPATH];
 	char oldName[MAX_QPATH];
 	char *script; //complete script
-	int unique;
+	int unique; //1=needs shader, -1=match found
 } shaderStruct;
 shaderStruct pakMapShaders[MAX_SHADER_INFO];
 
@@ -134,7 +134,7 @@ static qboolean PakMap_IgnoredFile()
 		!Q_strncasecmp(token, "textures/method/", 16) ||
 		!Q_strncasecmp(token, "textures/common/", 16) || //textures not used in kpq3
 		!Q_strncasecmp(token, "textures/skies/", 15) || //todo: in kpq3
-		!Q_strncasecmp(token, "textures/color", 14) || //move to common?
+		!Q_strncasecmp(token, "textures/color/", 15) || //move to common?
 		!Q_strncasecmp(token, "textures/kpq3_", 14) ||
 		!Q_strncasecmp(token, "textures/misc_", 14) ||
 		!Q_strncasecmp(token, "lights/kpq3/", 12) ||
@@ -165,7 +165,12 @@ static int PakMap_Shader_CheckForMatchingInBsp(char *shaderName)
 	{
 		//found match?
 		if (!Q_stricmp(shaderName, bspShaders[i].shader))
+		{
+			if (pakMapShaders[i].unique == 0)
+				pakMapShaders[i].unique = -1; //mark as found
+
 			return i;
+		}
 	}
 
 	return -1;
@@ -457,6 +462,7 @@ static void PakMap_SavePk3File()
 		PakMap_AddFileToPk3(pk3File, va( "%s/kmap2_%s.mtr", game->shaderPath, mapName)); //add new shader file. note: mapShaderFile full path fails
 
 		i = 0;
+		//add lightmaps
 		while (FileExists(va("%s/maps/%s/lm_%04d.tga", baseDir, mapName, i)))
 		{
 			sprintf(tmpPath, "maps/%s/lm_%04d.tga", mapName, i++);
@@ -464,7 +470,7 @@ static void PakMap_SavePk3File()
 		}
 
 		if (zipClose(pk3File, "closing pk3"))
-			PakMap_Cleanup(qtrue, qtrue, "cant close pk3 file"); 
+			PakMap_Cleanup(qtrue, qtrue, "can't close pk3 file"); 
 	}
 	else
 	{
@@ -520,7 +526,7 @@ todo: add tables if required
 static void PakMap_SaveShaderFile()
 {
 	FILE           *file;
-	int             i;
+	int             i, custFound = qfalse;
 
 	/* dummy check */
 	if(mapShaderFile[0] == '\0')
@@ -529,13 +535,18 @@ static void PakMap_SaveShaderFile()
 	if (!numShaderScripts)
 		return;
 
+	Sys_Printf("======== pak map ========\n");
+
 	/* are there any custom shaders? */
 	for(i = 0; i < numBSPShaders; i++)
 	{
-		if(pakMapShaders[i].unique != 1)
-			break;
+		if (pakMapShaders[i].unique == 0)
+			Sys_Printf("WARNING: missing shader file for %s\n", bspShaders[i].shader);
+
+		if(pakMapShaders[i].unique == 1)
+			custFound = qtrue;
 	}
-	if(i == numBSPShaders)
+	if(!custFound) 
 		return;
 
 	/* note it */
@@ -575,8 +586,7 @@ static void PakMap_SaveShaderFile()
 	Sys_FPrintf(SYS_VRB, "\n");
 
 	/* print some stats */
-	Sys_Printf ("=========================\n"
-				"%d shaders used.\n", numBSPShaders);	
+	Sys_Printf ("%d shaders used.\n", numBSPShaders);	
 
 	Sys_Printf ("%-22s (kmap_%s.mtr)\n", va("%d shaders added.", numShaderScripts) , mapName);
 }
@@ -744,6 +754,7 @@ int PackMapAssets(int argc, char **argv)
 	//check base paths are ok?
 
 	memset(&pakMapShaders, 0, sizeof(shaderStruct) * MAX_SHADER_INFO);
+	//todo: use allocate each shader?
 
 	PakMap_ReadBspFile();
 	PakMap_ReNameShader();
