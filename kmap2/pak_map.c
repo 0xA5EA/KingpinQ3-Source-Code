@@ -36,10 +36,13 @@ shaderStruct pakMapShaders[MAX_SHADER_INFO];
 
 
 static int isPakMap = 0; //todo: move to global?
+static int isCaseSens = 0; //find linux texture issues?
 static int numMapTextures = 0;
 static int numShaderScripts = 0;
 static char bspFilename[1024], bspTmpFilename[1024];
 static char textureNames[MAX_SHADER_INFO][MAX_QPATH]; //image files size ok?
+#define fExCount 4
+static const char *fExt[fExCount] = {".png", ".tga", ".jpg", ".pcx"};
 
 static qboolean ReadTexturesAdvancedModes(char *shaderText);
 
@@ -122,26 +125,26 @@ static void PakMap_ReNameShader()
 	}
 }
 
-static qboolean PakMap_IgnoredFile()
+static qboolean PakMap_IgnoredFile(char *texName)
 {
 	int i;
 
 	//ignore internal and base images
-	if (token[0] == '*' || token[0] == '$' || token[0] == '_' ||
+	if (texName[0] == '*' || texName[0] == '$' || texName[0] == '_' ||
 		/* skip known base textures */
-		!Q_strncasecmp(token, "textures/strombine", 18) ||
-		!Q_strncasecmp(token, "textures/decals/", 16) ||
-		!Q_strncasecmp(token, "textures/method/", 16) ||
-		!Q_strncasecmp(token, "textures/common/", 16) || //textures not used in kpq3
-		!Q_strncasecmp(token, "textures/skies/", 15) || //todo: in kpq3
-		!Q_strncasecmp(token, "textures/color/", 15) || //move to common?
-		!Q_strncasecmp(token, "textures/kpq3_", 14) ||
-		!Q_strncasecmp(token, "textures/misc_", 14) ||
-		!Q_strncasecmp(token, "lights/kpq3/", 12) ||
-		//Q_strnicmp(token, "cubemaps/", 9) || //todo: move default?
-		!Q_strncasecmp(token, "sprites/", 8) ||
-		!Q_strncasecmp(token, "gfx/", 4) ||
-		!Q_strncasecmp(token, "ui/", 3))
+		!Q_strncasecmp(texName, "textures/strombine", 18) ||
+		!Q_strncasecmp(texName, "textures/decals/", 16) ||
+		!Q_strncasecmp(texName, "textures/method/", 16) ||
+		!Q_strncasecmp(texName, "textures/common/", 16) || //textures not used in kpq3
+		!Q_strncasecmp(texName, "textures/skies/", 15) || //todo: in kpq3
+		!Q_strncasecmp(texName, "textures/color/", 15) || //move to common?
+		!Q_strncasecmp(texName, "textures/kpq3_", 14) ||
+		!Q_strncasecmp(texName, "textures/misc_", 14) ||
+		!Q_strncasecmp(texName, "lights/kpq3/", 12) ||
+		//Q_strnicmp(texName, "cubemaps/", 9) || //todo: move default?
+		!Q_strncasecmp(texName, "sprites/", 8) ||
+		!Q_strncasecmp(texName, "gfx/", 4) ||
+		!Q_strncasecmp(texName, "ui/", 3))
 	{
 		return qtrue;
 	}
@@ -149,7 +152,7 @@ static qboolean PakMap_IgnoredFile()
 	//check if we have the image allready
 	for (i = 0; i < numMapTextures; i++)
 	{
-		if (textureNames[i][0] != '\0' && !Q_stricmp(token, textureNames[i]))
+		if (textureNames[i][0] != '\0' && !Q_stricmp(texName, textureNames[i]))
 			return qtrue;
 	}
 
@@ -158,37 +161,26 @@ static qboolean PakMap_IgnoredFile()
 
 static int PakMap_Shader_CheckForMatchingInBsp(char *shaderName)
 {
-	int i;
+	int i, ret;
 
 	//check if shader is used
 	for(i = 0; i < numBSPShaders; i++)
 	{
+		if (isCaseSens)
+			ret = strcmp(shaderName, bspShaders[i].shader);
+		else
+			ret = Q_stricmp(shaderName, bspShaders[i].shader);
+
 		//found match?
-		if (!Q_stricmp(shaderName, bspShaders[i].shader))
+		if (!ret)
 		{
 			if (pakMapShaders[i].unique == 0)
 				pakMapShaders[i].unique = -1; //mark as found
-
 			return i;
 		}
 	}
 
 	return -1;
-}
-
-static qboolean PakMap_Shader_CheckForMatchingShader(char *shaderName)
-{
-	int i;
-
-	//check if shader is used
-	for(i = 0; i < numShaderScripts; i++)
-	{
-		//found match?
-		if (!Q_stricmp(shaderName, pakMapShaders[i].oldName))
-			return qtrue; //skip
-	}
-
-	return qfalse;
 }
 
 static qboolean PakMap_SetTextureLists_global(char *shaderText/*, char *shaderName*/)
@@ -250,9 +242,9 @@ static qboolean PakMap_SetTextureLists_stage(char *shaderText)
 		{
 			if (TokenAvailable() && GetTokenAppend(shaderText, qfalse))
 			{
-				if (!PakMap_IgnoredFile())
+				if (!PakMap_IgnoredFile(token))
 				{
-					strcpy(textureNames[numMapTextures], token);
+					Q_strncpyz(textureNames[numMapTextures], token, MAX_QPATH);
 					numMapTextures++;
 				}
 			}
@@ -281,13 +273,13 @@ int PakMap_ReadShaderFile()
 
 	bspIndex = PakMap_Shader_CheckForMatchingInBsp(token);
 
-	if (bspIndex == -1 || PakMap_Shader_CheckForMatchingShader(token) || PakMap_IgnoredFile())
+	if (bspIndex == -1 || PakMap_IgnoredFile(token))
 	{	//skip whole shader
 		SkipBracedSection();
 	}
 	else
 	{
-		strcpy(pakMapShaders[bspIndex].oldName, token); //copy shader name
+		Q_strncpyz(pakMapShaders[bspIndex].oldName, token, MAX_QPATH); //copy shader name
 		shaderText[0] = '\0';
 
 		if (!GetTokenAppend(shaderText, qtrue))
@@ -335,7 +327,7 @@ write .bsp in the original file name
 */
 void PakMap_SaveBspFile()
 {
-	Sys_Printf ("%-22s (maps/%s.bsp)\n", va("Saving .bsp file."), mapName);
+	Sys_Printf ("%-23s (maps/%s.bsp)\n", "Write .bsp file.", mapName);
 	WriteBSPFile(bspFilename);
 }
 
@@ -360,36 +352,40 @@ int PakMap_CompType(const char *fileName)
 	ExtractFileExtension(fileName, str);
 
 	if (!Q_strncasecmp(str, ".png", 4) || !Q_strncasecmp(str, ".jpg", 4))
-		return 0;
+		return 0; //store
 	//else if (!Q_strncasecmp(str, ".tga", 4))
 	
 	//default compress
 	return Z_DEFLATED;
 }
 
+void PakMap_ZipTexture(zipFile pk3File, char *texName, byte *buffer, int size)
+{
+	const zip_fileinfo zfi = {0};
+	int ret, compType = PakMap_CompType(texName);
+
+	zipOpenNewFileInZip(pk3File, texName, &zfi, NULL, 0, NULL, 0, NULL, compType, Z_DEFAULT_COMPRESSION);
+	ret = zipWriteInFileInZip(pk3File, buffer, size); //-1?
+	zipCloseFileInZip(pk3File);
+	free(buffer);
+}
+
 void PakMap_AddFileToPk3(zipFile pk3File, char *texName)
 {
 	byte *buffer = NULL;
-	int i, ret, size, compType;
+	int i, size; // , ret, compType;
 
 	//search for file in virtual file system
 	size = vfsLoadFile((const char *)texName, (void **)&buffer, 0);
 	if (size > 0 )
 	{
-		const zip_fileinfo zfi = {0};
-		compType = PakMap_CompType(texName);
-
-		zipOpenNewFileInZip(pk3File, texName, &zfi, NULL, 0, NULL, 0, NULL, compType, Z_DEFAULT_COMPRESSION);
-		ret = zipWriteInFileInZip(pk3File, buffer, size); //-1?
-		zipCloseFileInZip(pk3File);
-		free(buffer);
+		PakMap_ZipTexture(pk3File,texName, buffer, size);
 	}
 	else
 	{
-		const char *fExt[4] = {".png", ".tga", ".jpg", ".pcx"};
 		char tmp[256];
 
-		for (i = 0; i < 4; i++)
+		for (i = 0; i < fExCount; i++)
 		{	//add new file extension
 			Q_strncpyz(tmp, texName, 256);
 			StripExtension(tmp);
@@ -397,23 +393,91 @@ void PakMap_AddFileToPk3(zipFile pk3File, char *texName)
 
 			//search for file in virtual file system
 			size = vfsLoadFile((const char *)tmp, (void **)&buffer, 0);
-			if (size > 0 ) //fileAsset != NULL)
+			if (size > 0 )
 			{
-				const zip_fileinfo zfi = {0};
-				compType = PakMap_CompType(tmp);
-
-				zipOpenNewFileInZip(pk3File, tmp, &zfi, NULL, 0, NULL, 0, NULL, compType, Z_DEFAULT_COMPRESSION);
-				ret = zipWriteInFileInZip(pk3File, buffer, size); //-1?
-				zipCloseFileInZip(pk3File);
-				free(buffer);
+				PakMap_ZipTexture(pk3File, tmp, buffer, size);
 				break;
 			}
 		}
 
 		if (i==4)
-			Sys_Printf("%-22s (%s)\n", "Warning: can't read.", texName);
+			Sys_Printf("%-23s (%s)\n", "WARNING: can't read.", texName);
 	}
+}
+/*
+===============
+PakMap_GenerateShader
 
+found texture but shader is missing. 
+this generates a new one
+note: some models have image name set. not using shader
+===============
+*/
+static void PakMap_GenerateShader(char *filePath,int bspIndex)
+{
+	char shaderText[2048];
+
+	if (PakMap_IgnoredFile(filePath))
+		return;
+
+	//add the image file it list
+	Q_strncpyz(textureNames[numMapTextures], filePath, MAX_QPATH);
+	numMapTextures++;
+
+	//generate the shader script
+	sprintf(shaderText, "\n{\ndiffusemap %s\n}\n", filePath);
+	pakMapShaders[bspIndex].script = safe_malloc(strlen(shaderText) + 1);
+	Q_strncpyz(pakMapShaders[bspIndex].script, shaderText, strlen(shaderText)+1); //copy all shader text
+	numShaderScripts++;
+	Q_strncpyz(pakMapShaders[bspIndex].oldName, bspShaders[bspIndex].shader, 64); //add materal name
+	pakMapShaders[bspIndex].unique = 1; //marked save
+	//warn user
+	//Sys_Printf("Note: Generated missing shader for \"%s\"\n", filePath);
+
+	Sys_Printf("%-23s (%s)\n", "Note: Generated shader", filePath);
+}
+
+
+static void PakMap_CheckMissingShaderIsTexture()
+{
+	byte *buffer = NULL;
+	char baseDir[256], tmp1[256];
+	int i, j;
+	char *ptrBase = strstr(bspFilename, game->gamePath); //todo: check multiple mod names?
+	char *bspPath = &bspFilename[0];
+
+	Sys_Printf("======== pak map ========\n");
+
+	if (ptrBase)
+	{
+		size_t size = ptrBase - bspPath;
+
+		Q_strncpyz(baseDir, bspFilename, size + strlen(game->gamePath) + 1);
+
+		for (i = 0; i < numBSPShaders; i++)
+		{
+			if (pakMapShaders[i].unique == 0)
+			{
+				Q_strncpyz(tmp1, bspShaders[i].shader, 256);
+				for (j = 0; j < fExCount; j++)
+				{	//add new file extension
+					StripExtension(tmp1);
+					Q_strcat(tmp1, 256, fExt[j]);
+					if (vfsLoadFile((const char *)tmp1, (void **)&buffer, 0) > 0)
+					{
+						PakMap_GenerateShader(tmp1, i); //generate new shader
+						free(buffer);
+						break;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		//warn, no base
+		PakMap_Cleanup(qtrue, qtrue, va("GamePath game not found in filename. <%s> <%s>", game->gamePath, bspFilename)); 
+	}
 }
 
 static void PakMap_SavePk3File()
@@ -421,7 +485,7 @@ static void PakMap_SavePk3File()
 	FILE *fileAsset = NULL;
 	char pakFilename[256], curTime[256];
 	char baseDir[256], tmpPath[256];
-	int i, count = 0;
+	int i;
 	char *ptrBase = strstr(bspFilename, game->gamePath); //todo: check multiple mod names?
 	char *bspPath = &bspFilename[0];
 
@@ -435,7 +499,7 @@ static void PakMap_SavePk3File()
 		sprintf(pakFilename, "%s/map-%s-%s.pk3", baseDir, mapName, curTime);
 		remove(pakFilename); //delete .pk3 if it exists
 
-		Sys_Printf ("%-22s (map-%s-%s.pk3)\n", "Saving .pk3 file.", mapName, curTime);
+		Sys_Printf ("%-23s (map-%s-%s.pk3)\n", "Saving .pk3 file.", mapName, curTime);
 		//open new .pk3 file
 		pk3File = zipOpen(pakFilename, 0);
 		if (pk3File == NULL)
@@ -444,15 +508,14 @@ static void PakMap_SavePk3File()
 		//loop through all map assets
 		for(i = 0; i < numMapTextures; i++)
 		{
-			//skip rename
+			//error?
 			if (textureNames[i] == NULL || textureNames[i][0] =='\0')
 				continue;
 
-			count++;
 			PakMap_AddFileToPk3(pk3File, textureNames[i]);
 		}
 
-		Sys_Printf("Added %i textures.\n", count);
+		Sys_Printf ("%-23s (%d)\n", "Adding shader images.", numMapTextures);
 
 		//add default files that should exist
 		PakMap_AddFileToPk3(pk3File, va("maps/%s.bsp", mapName));
@@ -460,6 +523,7 @@ static void PakMap_SavePk3File()
 		PakMap_AddFileToPk3(pk3File, va("levelshots/%s.jpg", mapName));
 		PakMap_AddFileToPk3(pk3File, va("video/%s.ogv", mapName)); //menu play video
 		PakMap_AddFileToPk3(pk3File, va( "%s/kmap2_%s.mtr", game->shaderPath, mapName)); //add new shader file. note: mapShaderFile full path fails
+		PakMap_AddFileToPk3(pk3File, va("scripts/%s.arena", mapName)); //list game types <mapname>.arena
 
 		i = 0;
 		//add lightmaps
@@ -472,11 +536,7 @@ static void PakMap_SavePk3File()
 		if (zipClose(pk3File, "closing pk3"))
 			PakMap_Cleanup(qtrue, qtrue, "can't close pk3 file"); 
 	}
-	else
-	{
-		//warn, no base
-		PakMap_Cleanup(qtrue, qtrue, va("GamePath game not found in filename. <%s> <%s>", game->gamePath, bspFilename)); 
-	}
+
 }
 
 /*
@@ -531,23 +591,13 @@ static void PakMap_SaveShaderFile()
 	/* dummy check */
 	if(mapShaderFile[0] == '\0')
 		return;
-	
-	if (!numShaderScripts)
-		return;
-
-	Sys_Printf("======== pak map ========\n");
 
 	/* are there any custom shaders? */
 	for(i = 0; i < numBSPShaders; i++)
 	{
 		if (pakMapShaders[i].unique == 0)
-			Sys_Printf("WARNING: missing shader file for %s\n", bspShaders[i].shader);
-
-		if(pakMapShaders[i].unique == 1)
-			custFound = qtrue;
+			Sys_Printf ("%-23s (%s)\n", "WARNING: Missing shader", bspShaders[i].shader);
 	}
-	if(!custFound) 
-		return;
 
 	/* note it */
 	Sys_FPrintf(SYS_VRB, "--- WriteMapShaderFile ---\n");
@@ -586,9 +636,9 @@ static void PakMap_SaveShaderFile()
 	Sys_FPrintf(SYS_VRB, "\n");
 
 	/* print some stats */
-	Sys_Printf ("%d shaders used.\n", numBSPShaders);	
-
-	Sys_Printf ("%-22s (kmap_%s.mtr)\n", va("%d shaders added.", numShaderScripts) , mapName);
+	Sys_Printf("%-23s (%d)\n", "Shaders in bsp", numBSPShaders);
+	Sys_Printf ("%-23s (%d)\n", "Shaders added to .mtr", numShaderScripts);
+	Sys_Printf ("%-23s (scripts/kmap_%s.mtr)\n", "Write shader file.", mapName);
 }
 
 static qboolean ParseHeightMap(char *shaderText)
@@ -706,9 +756,9 @@ static qboolean ReadTexturesAdvancedModes(char *shaderText)
 	//add image
 	else
 	{
-		if (!PakMap_IgnoredFile())
+		if (!PakMap_IgnoredFile(token))
 		{
-			strcpy(textureNames[numMapTextures], token);
+			Q_strncpyz(textureNames[numMapTextures], token, MAX_QPATH);
 			numMapTextures++;
 		}
 		return qtrue;
@@ -741,12 +791,17 @@ int PackMapAssets(int argc, char **argv)
 	for (i = 1; i < (argc - 1); i++)
 	{
 		//todo: do we need any arguments?
+		if(!strcmp(argv[i], "-forcecase"))
+		{
+			Sys_Printf("Force case sensitive search\n");
+			isCaseSens = qtrue;
+		}
 	}
 
 	/* copy source name */
-	strcpy(source, ExpandArg(argv[argc - 1])); //get last arg
+	Q_strncpyz(source, ExpandArg(argv[argc - 1]), 1024); //get last arg
 	StripExtension(source);
-	strcpy(name, ExpandArg(argv[argc - 1]));
+	Q_strncpyz(name, ExpandArg(argv[argc - 1]), 1024);
 //end bspMain
 
 //start -pakmap
@@ -757,6 +812,7 @@ int PackMapAssets(int argc, char **argv)
 	//todo: use allocate each shader?
 
 	PakMap_ReadBspFile();
+	PakMap_CheckMissingShaderIsTexture();	//check missing shaders for actual file
 	PakMap_ReNameShader();
 	PakMap_SaveShaderFile();
 	PakMap_SaveBspFile();
