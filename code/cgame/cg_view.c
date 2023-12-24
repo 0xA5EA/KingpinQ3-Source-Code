@@ -1151,18 +1151,21 @@ following models.
 void CG_StartShadowCaster( vec3_t origin, const vec3_t mins, const vec3_t maxs )
 {
   vec3_t ambientLight, directedLight, lightDir;
-  vec3_t lightPos;
+  vec3_t lightPos, originHead;
   trace_t tr;
   vec3_t traceMins = { -3.0f, -3.0f, -3.0f };
   vec3_t traceMaxs = { 3.0f, 3.0f, 3.0f };
   float maxLightDist = Distance(maxs, mins);
 
+  //move origin near head. stops light facing upwards when next to a wall.
+  VectorSet(originHead, origin[0], origin[1], origin[2]+40 );
+
   // find a point to place the light source by tracing in the
   // average light direction
-  trap_R_LightForPoint(origin, ambientLight, directedLight, lightDir);
-  VectorMA(origin, 3.0f * maxLightDist, lightDir, lightPos);
+  trap_R_LightForPoint(originHead, ambientLight, directedLight, lightDir);
+  VectorMA(originHead, 3.0f * maxLightDist, lightDir, lightPos);
 
-  CG_Trace(&tr, origin, traceMins, traceMaxs, lightPos, 0, MASK_OPAQUE);
+  CG_Trace(&tr, originHead, traceMins, traceMaxs, lightPos, 0, MASK_OPAQUE);
 
   if (!tr.startsolid)
   {

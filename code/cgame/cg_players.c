@@ -470,13 +470,9 @@ static qboolean CG_FileExists(const char *filename)
 /*
 ==========================
 CG_FindClientModelFile
+dragons thug default
 ==========================
 */
-
-//		dragons		thug	default
-//if (CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "body", "skin"))
-
-
 qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *teamName, const char *modelName,
   const char *skinName, const char *headModelName, const char *base, const char *ext)
 {
@@ -524,7 +520,7 @@ qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, c
       Com_sprintf(filename, length, "models/players/%s/%s_%s.%s", modelName, base, skinName, ext);
     }
     else
-    {	//                            "models/players/thug/body_leory.skin"
+    { //                            "models/players/thug/body_leory.skin"
       Com_sprintf(filename, length, "models/players/%s/%s_%s.%s", modelName, base, skinName, ext);
     }
   }
@@ -543,14 +539,14 @@ CG_RegisterClientModel          md5
 note CG_RegisterClientModelname md3
 note hypov8
 ==========================
-*/																//thug					default					area				dragon
+*/                                                           //thug                   default               area                       dragon
 qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const char *skinName, const char *headModelName, const char *teamName)
 {
   int             i;
   char            filename[MAX_QPATH * 2];
   //char        newTeamName[MAX_QPATH];
 
-/*	Com_sprintf( filename, sizeof( filename ), "models/players/%s/%s.iqm", modelName, modelName );
+/* Com_sprintf( filename, sizeof( filename ), "models/players/%s/%s.iqm", modelName, modelName );
   if ( CG_FileExists( filename ) )
   {
     ci->bodyModel = trap_R_RegisterModel( filename );
@@ -583,15 +579,6 @@ qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const 
       Com_Printf(S_COLOR_YELLOW"Failed to load idle animation file %s\n", filename);
       return qfalse;
     }
-    /*
-    // make LEGS_IDLE the default animation
-    for (i = 0; i < MAX_TOTALANIMATIONS; i++)
-    {
-      if (i == LEGS_IDLE)
-        continue;
-
-      ci->animations[i] = ci->animations[LEGS_IDLE];
-    }*/
 
 #define doLoop qtrue
 #define noLoop qfalse
@@ -603,48 +590,44 @@ qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const 
 #define noClear qfalse
 
     // FIXME add bunny hop animations??
-    //CG_RegisterPlayerAnimation(ci, *modelName, anim, *animName, (loop, reversed, clearOrigin))
-    //combined
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1,		"death1",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2,		"death2",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3,		"death3",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEAD1,		"dead1",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEAD2,		"dead2",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEAD3,		"dead3",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_LADDER,		"ladder",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_LDR_UP,		"ladder_up",	doLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, BOTH_LDR_DN,		"ladder_up",	doLoop, doRevs, qfalse, qfalse);
+    //combined animations
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1,   "death1",    noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2,   "death2",    noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3,   "death3",    noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEAD1,    "dead1",     noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEAD2,    "dead2",     noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEAD3,    "dead3",     noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_LADDER,   "ladder",    noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_LDR_UP,   "ladder_up", doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, BOTH_LDR_DN,   "ladder_up", doLoop, doRevs, qfalse, qfalse);
     //torso
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE,	"tor_gesture",	noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE2,	"tor_gesture2",	noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE3,	"tor_gesture3",	noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK,		"tor_attack",	noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2,	"tor_attack2",	noLoop, noRevs, qfalse, qfalse); //crowbar
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK3, 	"tor_attack3",	noLoop, noRevs, qfalse, qfalse); //pistol
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_DROP,		"tor_wep_drop",	noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_RAISE,		"tor_wep_raise",noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND,		"tor_idle",		doLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND2,		"tor_idle2",	doLoop, noRevs, qfalse, qfalse); //crowbar
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND3,		"tor_idle3",	doLoop, noRevs, qfalse, qfalse); //pistol
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_RUN,		"tor_run",		doLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, TORSO_WALK,		"tor_walk",		doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "tor_gesture",  noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE2,"tor_gesture2", noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE3,"tor_gesture3", noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK,  "tor_attack",   noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK2, "tor_attack2",  noLoop, noRevs, qfalse, qfalse); //crowbar
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_ATTACK3, "tor_attack3",  noLoop, noRevs, qfalse, qfalse); //pistol
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_DROP,    "tor_wep_drop", noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_RAISE,   "tor_wep_raise",noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND,   "tor_idle",     doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND2,  "tor_idle2",    doLoop, noRevs, qfalse, qfalse); //crowbar
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND3,  "tor_idle3",    doLoop, noRevs, qfalse, qfalse); //pistol
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_RUN,     "tor_run",      doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, TORSO_WALK,    "tor_walk",     doLoop, noRevs, qfalse, qfalse);
     //legs
-    //using gun idle
-    /*	CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLE,	 "leg_idle", qtrue, qfalse, qfalse)	*/
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK,		"leg_walk",		doLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK_BACK,	"leg_walk",		doLoop, doRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_CR_IDLE,		"leg_crch_idle",doLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_CR_WALK,		"leg_crch_walk",doLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_CR_BACK,		"leg_crch_walk",doLoop, doRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN,			"leg_run",		doLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN_BACK,	"leg_run",		doLoop, doRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM,		"leg_swim",		doLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP,		"leg_jump",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND,		"leg_land",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB,		"leg_jump",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB,		"leg_land",		noLoop, noRevs, qfalse, qfalse);
-    CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN,		"leg_step",		noLoop, noRevs, qfalse, qfalse);
-
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK,     "leg_walk",     doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK_BACK,"leg_walk",     doLoop, doRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_CR_IDLE,  "leg_crch_idle",doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_CR_WALK,  "leg_crch_walk",doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_CR_BACK,  "leg_crch_walk",doLoop, doRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN,      "leg_run",      doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_RUN_BACK, "leg_run",      doLoop, doRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_SWIM,     "leg_swim",     doLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMP,     "leg_jump",     noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND,     "leg_land",     noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB,    "leg_jump",     noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB,    "leg_land",     noLoop, noRevs, qfalse, qfalse);
+    CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN,     "leg_step",     noLoop, noRevs, qfalse, qfalse);
 
     // hypov8 LEGS_IDLE for any failed handle
     for (i = 0; i < MAX_TOTALANIMATIONS; i++)
@@ -3493,14 +3476,14 @@ void CG_Player(centity_t * cent)
       {
         int j;
 
-      for (j = 0; j < ci->numHandBones; j++)
-      {
-        VectorAdd(deltas[es->weapon][ci->handBones[j]].delta,
-        body.skeleton.bones[ci->handBones[j]].t.trans,
-        body.skeleton.bones[ci->handBones[j]].t.trans);
-        QuatMultiply0(body.skeleton.bones[ci->handBones[j]].t.rot,
-        deltas[es->weapon][ci->handBones[j]].rot);
-      }
+        for (j = 0; j < ci->numHandBones; j++)
+        {
+          VectorAdd(deltas[es->weapon][ci->handBones[j]].delta,
+          body.skeleton.bones[ci->handBones[j]].t.trans,
+          body.skeleton.bones[ci->handBones[j]].t.trans);
+          QuatMultiply0(body.skeleton.bones[ci->handBones[j]].t.rot,
+          deltas[es->weapon][ci->handBones[j]].rot);
+        }
       }
 
 
