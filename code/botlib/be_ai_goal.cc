@@ -627,32 +627,32 @@ void BotInitLevelItems(void)
 		li->flags = 0;
 
 		AAS_IntForBSPEpairKey(ent, "notfree", &value);
-    if (value)
-      li->flags |= IFL_NOTFREE;
+		if (value)
+			li->flags |= IFL_NOTFREE;
 
-    AAS_IntForBSPEpairKey(ent, "notteam", &value);
-    if (value)
-      li->flags |= IFL_NOTTEAM;
+		AAS_IntForBSPEpairKey(ent, "notteam", &value);
+		if (value)
+			li->flags |= IFL_NOTTEAM;
 
-    AAS_IntForBSPEpairKey(ent, "notctf", &value);
-    if (value)
-      li->flags |= IFL_NOTCTF;
+		AAS_IntForBSPEpairKey(ent, "notctf", &value);
+		if (value)
+			li->flags |= IFL_NOTCTF;
 
-    AAS_IntForBSPEpairKey(ent, "not1ctf", &value);
-    if (value)
-      li->flags |= IFL_NOT1CTF;
+		AAS_IntForBSPEpairKey(ent, "not1ctf", &value);
+		if (value)
+			li->flags |= IFL_NOT1CTF;
 
-    AAS_IntForBSPEpairKey(ent, "notbm", &value);
-    if (value)
-      li->flags |= IFL_NOTBAGMAN;
+		AAS_IntForBSPEpairKey(ent, "notbm", &value);
+		if (value)
+		  li->flags |= IFL_NOTBAGMAN;
 
 #ifdef USE_GT_SINGLEPLAYER
-    AAS_IntForBSPEpairKey(ent, "notsingle", &value);
-    if (value)
-      li->flags |= IFL_NOTSINGLE;
+		AAS_IntForBSPEpairKey(ent, "notsingle", &value);
+		if (value)
+			li->flags |= IFL_NOTSINGLE;
 #endif
 
-    AAS_IntForBSPEpairKey(ent, "notbot", &value);
+		AAS_IntForBSPEpairKey(ent, "notbot", &value);
 		if (value)
 		  li->flags |= IFL_NOTBOT;
 		if (!qstrcmp(classname, "item_botroam"))
@@ -1146,26 +1146,26 @@ void BotUpdateEntityItems(void)
 			}
 			else
 #endif
-      if (g_gametype == GT_TEAM)
-      {
-        if (li->flags & IFL_NOTTEAM)
-          continue;
-      }
-      else if (g_gametype == GT_CTF)
-      {
-        if (li->flags & IFL_NOTCTF)
-          continue;
-      }
-      else if (g_gametype == GT_1FCTF)
-      {
-        if (li->flags & IFL_NOT1CTF)
-          continue;
-      }
-      else if (g_gametype == GT_BAGMAN)
-      {
-        if (li->flags & IFL_NOTBAGMAN)
-          continue;
-      }
+			if (g_gametype == GT_TEAM)
+			{
+				if (li->flags & IFL_NOTTEAM)
+					continue;
+			}
+			else if (g_gametype == GT_CTF)
+			{
+				if (li->flags & IFL_NOTCTF)
+					continue;
+			}
+			else if (g_gametype == GT_1FCTF)
+			{
+				if (li->flags & IFL_NOT1CTF)
+					continue;
+			}
+			else if (g_gametype == GT_BAGMAN)
+			{
+				if (li->flags & IFL_NOTBAGMAN)
+					continue;
+			}
 			else
 			{
 				if (li->flags & IFL_NOTFREE)
@@ -1405,26 +1405,26 @@ int BotChooseLTGItem(int goalstate, vec3_t origin, int *inventory, int travelfla
 		}
 		else
 #endif
-    if (g_gametype == GT_TEAM)
-    {
-      if (li->flags & IFL_NOTTEAM)
-        continue;
-    }
-    else if (g_gametype == GT_CTF)
-    {
-      if (li->flags & IFL_NOTCTF)
-        continue;
-    }
-    else if (g_gametype == GT_1FCTF)
-    {
-      if (li->flags & IFL_NOT1CTF)
-        continue;
-    }
-    else if (g_gametype == GT_BAGMAN)
-    {
-      if (li->flags & IFL_NOTBAGMAN)
-        continue;
-    }
+		if (g_gametype == GT_TEAM)
+		{
+			if (li->flags & IFL_NOTTEAM)
+				continue;
+		}
+		else if (g_gametype == GT_CTF)
+		{
+			if (li->flags & IFL_NOTCTF)
+				continue;
+		}
+		else if (g_gametype == GT_1FCTF)
+		{
+			if (li->flags & IFL_NOT1CTF)
+				continue;
+		}
+		else if (g_gametype == GT_BAGMAN)
+		{
+			if (li->flags & IFL_NOTBAGMAN)
+				continue;
+		}
 		else
 		{
 			if (li->flags & IFL_NOTFREE)
