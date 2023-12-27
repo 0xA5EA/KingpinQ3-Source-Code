@@ -32,80 +32,80 @@ Determine which dynamic lights may effect this bmodel
 */
 void R_AddBrushModelInteractions( trRefEntity_t *ent, trRefLight_t *light, interactionType_t iaType )
 {
-  int               i;
-  bspSurface_t      *surf;
-  bspModel_t        *bspModel = NULL;
-  model_t           *pModel = NULL;
-  byte              cubeSideBits;
+	int               i;
+	bspSurface_t      *surf;
+	bspModel_t        *bspModel = NULL;
+	model_t           *pModel = NULL;
+	byte              cubeSideBits;
 
-  // cull the entire model if it is outside the view frustum
-  // and we don't care about proper shadowing
-  if ( ent->cull == CULL_OUT )
-  {
-    iaType = (interactionType_t) (iaType & ~IA_LIGHT);
-  }
+	// cull the entire model if it is outside the view frustum
+	// and we don't care about proper shadowing
+	if ( ent->cull == CULL_OUT )
+	{
+		iaType = (interactionType_t) (iaType & ~IA_LIGHT);
+	}
 
-  if ( !iaType )
-  {
-    return;
-  }
+	if ( !iaType )
+	{
+		return;
+	}
 
-  // avoid drawing of certain objects
+	// avoid drawing of certain objects
 #if defined( USE_REFENTITY_NOSHADOWID )
 
-  if ( light->l.inverseShadows )
-  {
-    if ( (iaType & IA_SHADOW) && ( light->l.noShadowID && ( light->l.noShadowID != ent->e.noShadowID ) ) )
-    {
-      return;
-    }
-  }
-  else
-  {
-    if ( (iaType & IA_SHADOW) && ( light->l.noShadowID && ( light->l.noShadowID == ent->e.noShadowID ) ) )
-    {
-      return;
-    }
-  }
+	if ( light->l.inverseShadows )
+	{
+		if ( (iaType & IA_SHADOW) && ( light->l.noShadowID && ( light->l.noShadowID != ent->e.noShadowID ) ) )
+		{
+			return;
+		}
+	}
+	else
+	{
+		if ( (iaType & IA_SHADOW) && ( light->l.noShadowID && ( light->l.noShadowID == ent->e.noShadowID ) ) )
+		{
+			return;
+		}
+	}
 
 #endif
 
-  pModel = R_GetModelByHandle( ent->e.hModel );
-  bspModel = pModel->bsp;
+	pModel = R_GetModelByHandle( ent->e.hModel );
+	bspModel = pModel->bsp;
 
-  // do a quick AABB cull
-  if ( !BoundsIntersect( light->worldBounds[ 0 ], light->worldBounds[ 1 ], ent->worldBounds[ 0 ], ent->worldBounds[ 1 ] ) )
-  {
-    tr.pc.c_dlightSurfacesCulled += bspModel->numSurfaces;
-    return;
-  }
+	// do a quick AABB cull
+	if ( !BoundsIntersect( light->worldBounds[ 0 ], light->worldBounds[ 1 ], ent->worldBounds[ 0 ], ent->worldBounds[ 1 ] ) )
+	{
+		tr.pc.c_dlightSurfacesCulled += bspModel->numSurfaces;
+		return;
+	}
 
-  // do a more expensive and precise light frustum cull
-  if ( !r_noLightFrustums->integer )
-  {
-    if ( R_CullLightWorldBounds( light, ent->worldBounds ) == CULL_OUT )
-    {
-      tr.pc.c_dlightSurfacesCulled += bspModel->numSurfaces;
-      return;
-    }
-  }
+	// do a more expensive and precise light frustum cull
+	if ( !r_noLightFrustums->integer )
+	{
+		if ( R_CullLightWorldBounds( light, ent->worldBounds ) == CULL_OUT )
+		{
+			tr.pc.c_dlightSurfacesCulled += bspModel->numSurfaces;
+			return;
+		}
+	}
 
-  cubeSideBits = R_CalcLightCubeSideBits( light, ent->worldBounds );
+	cubeSideBits = R_CalcLightCubeSideBits( light, ent->worldBounds );
 
-  // set the light bits in all the surfaces
-  for ( i = 0; i < (int)bspModel->numSurfaces; i++ )
-  {
-    surf = bspModel->firstSurface + i;
+	// set the light bits in all the surfaces
+	for ( i = 0; i < bspModel->numSurfaces; i++ )
+	{
+		surf = bspModel->firstSurface + i;
 
-    // skip all surfaces that don't matter for lighting only pass
-    if ( surf->shader->isSky || ( !surf->shader->interactLight && surf->shader->noShadows ) )
-    {
-      continue;
-    }
+		// skip all surfaces that don't matter for lighting only pass
+		if ( surf->shader->isSky || ( !surf->shader->interactLight && surf->shader->noShadows ) )
+		{
+			continue;
+		}
 
-    R_AddLightInteraction( light, surf->data, surf->shader, cubeSideBits, iaType );
-    tr.pc.c_dlightSurfaces++;
-  }
+		R_AddLightInteraction( light, surf->data, surf->shader, cubeSideBits, iaType );
+		tr.pc.c_dlightSurfaces++;
+	}
 }
 
 /*
@@ -123,141 +123,154 @@ R_SetupEntityLightingGrid
 */
 static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 {
-  vec3_t         lightOrigin;
-  int            pos[ 3 ];
-  int            i, j;
-  bspGridPoint_t *gridPoint;
-  bspGridPoint_t *gridPoint2;
-  float          frac[ 3 ];
-  int            gridStep[ 3 ];
-  vec3_t         direction;
-  float          totalFactor;
+	vec3_t         lightOrigin;
+	int            pos[ 3 ];
+	int            i, j;
+	bspGridPoint_t *gridPoint;
+	bspGridPoint_t *gridPoint2;
+	float          frac[ 3 ];
+	int            gridStep[ 3 ];
+	vec3_t         direction;
+	float          totalFactor;
 
-  if ( forcedOrigin )
-  {
-    VectorCopy( forcedOrigin, lightOrigin );
-  }
-  else
-  {
-    if ( ent->e.renderfx & RF_LIGHTING_ORIGIN )
-    {
-      // separate lightOrigins are needed so an object that is
-      // sinking into the ground can still be lit, and so
-      // multi-part models can be lit identically
-      VectorCopy( ent->e.lightingOrigin, lightOrigin );
-    }
-    else
-    {
-      VectorCopy( ent->e.origin, lightOrigin );
-    }
-  }
+	if ( forcedOrigin )
+	{
+		VectorCopy( forcedOrigin, lightOrigin );
+	}
+	else
+	{
+		if ( ent->e.renderfx & RF_LIGHTING_ORIGIN )
+		{
+			// separate lightOrigins are needed so an object that is
+			// sinking into the ground can still be lit, and so
+			// multi-part models can be lit identically
+			VectorCopy( ent->e.lightingOrigin, lightOrigin );
+		}
+		else
+		{
+			VectorCopy( ent->e.origin, lightOrigin );
+		}
+	}
 
-  VectorSubtract( lightOrigin, tr.world->lightGridOrigin, lightOrigin );
+	VectorSubtract( lightOrigin, tr.world->lightGridOrigin, lightOrigin );
 
-  for ( i = 0; i < 3; i++ )
-  {
-    float v;
+	for ( i = 0; i < 3; i++ )
+	{
+		float v;
 
-    v = lightOrigin[ i ] * tr.world->lightGridInverseSize[ i ];
-    pos[ i ] = floor( v );
-    frac[ i ] = v - pos[ i ];
+		v = lightOrigin[ i ] * tr.world->lightGridInverseSize[ i ];
+		pos[ i ] = floor( v );
+		frac[ i ] = v - pos[ i ];
 
-    if ( pos[ i ] < 0 )
-    {
-      pos[ i ] = 0;
-      frac[i] = 0.0f;
-    }
-    else if ( pos[ i ] >= tr.world->lightGridBounds[ i ] - 1 )
-    {
-      pos[ i ] = tr.world->lightGridBounds[ i ] - 2;
-      frac[i] = 1.0f;
-    }
-  }
+		if ( pos[ i ] < 0 )
+		{
+			pos[ i ] = 0;
+			frac[ i ] = 0.0f;
+		}
+		else if ( pos[ i ] >= tr.world->lightGridBounds[ i ] - 1 )
+		{
+			pos[ i ] = tr.world->lightGridBounds[ i ] - 2;
+			frac[ i ] = 1.0f;
+		}
+	}
 
-  VectorClear( ent->ambientLight );
-  VectorClear( ent->directedLight );
-  VectorClear( direction );
+	VectorClear( ent->ambientLight );
+	VectorClear( ent->directedLight );
+	VectorClear( direction );
 
-  // trilerp the light value
-  gridStep[ 0 ] = 1; //sizeof(bspGridPoint_t);
-  gridStep[ 1 ] = tr.world->lightGridBounds[ 0 ]; // * sizeof(bspGridPoint_t);
-  gridStep[ 2 ] = tr.world->lightGridBounds[ 0 ] * tr.world->lightGridBounds[ 1 ]; // * sizeof(bspGridPoint_t);
-  gridPoint = tr.world->lightGridData + pos[ 0 ] * gridStep[ 0 ] + pos[ 1 ] * gridStep[ 1 ] + pos[ 2 ] * gridStep[ 2 ];
+	// trilerp the light value
+	gridStep[ 0 ] = 1; //sizeof(bspGridPoint_t);
+	gridStep[ 1 ] = tr.world->lightGridBounds[ 0 ]; // * sizeof(bspGridPoint_t);
+	gridStep[ 2 ] = tr.world->lightGridBounds[ 0 ] * tr.world->lightGridBounds[ 1 ]; // * sizeof(bspGridPoint_t);
+	gridPoint = tr.world->lightGridData + pos[ 0 ] * gridStep[ 0 ] + pos[ 1 ] * gridStep[ 1 ] + pos[ 2 ] * gridStep[ 2 ];
 
-  totalFactor = 0;
+	totalFactor = 0;
 
-  for ( i = 0; i < 8; i++ )
-  {
-    float factor;
+	for ( i = 0; i < 8; i++ )
+	{
+		float factor;
 
-    factor = 1.0;
-    gridPoint2 = gridPoint;
+		factor = 1.0;
+		gridPoint2 = gridPoint;
 
-    for ( j = 0; j < 3; j++ )
-    {
-      if ( i & ( 1 << j ) )
-      {
-        factor *= frac[ j ];
-        gridPoint2 += gridStep[ j ];
-      }
-      else
-      {
-        factor *= ( 1.0f - frac[ j ] );
-      }
-    }
+		for ( j = 0; j < 3; j++ )
+		{
+			if ( i & ( 1 << j ) )
+			{
+				factor *= frac[ j ];
+				gridPoint2 += gridStep[ j ];
+			}
+			else
+			{
+				factor *= ( 1.0f - frac[ j ] );
+			}
+		}
 
-    if ( !( gridPoint2->ambientColor[ 0 ] + gridPoint2->ambientColor[ 1 ] + gridPoint2->ambientColor[ 2 ] ) )
-    {
-      continue; // ignore samples in walls
-    }
+		if ( !( gridPoint2->ambientColor[ 0 ] + gridPoint2->ambientColor[ 1 ] + gridPoint2->ambientColor[ 2 ] ) )
+		{
+			continue; // ignore samples in walls
+		}
 
-    totalFactor += factor;
+		totalFactor += factor;
 
-    ent->ambientLight[ 0 ] += factor * gridPoint2->ambientColor[ 0 ];
-    ent->ambientLight[ 1 ] += factor * gridPoint2->ambientColor[ 1 ];
-    ent->ambientLight[ 2 ] += factor * gridPoint2->ambientColor[ 2 ];
+		ent->ambientLight[ 0 ] += factor * gridPoint2->ambientColor[ 0 ];
+		ent->ambientLight[ 1 ] += factor * gridPoint2->ambientColor[ 1 ];
+		ent->ambientLight[ 2 ] += factor * gridPoint2->ambientColor[ 2 ];
 
-    ent->directedLight[ 0 ] += factor * gridPoint2->directedColor[ 0 ];
-    ent->directedLight[ 1 ] += factor * gridPoint2->directedColor[ 1 ];
-    ent->directedLight[ 2 ] += factor * gridPoint2->directedColor[ 2 ];
+		ent->directedLight[ 0 ] += factor * gridPoint2->directedColor[ 0 ];
+		ent->directedLight[ 1 ] += factor * gridPoint2->directedColor[ 1 ];
+		ent->directedLight[ 2 ] += factor * gridPoint2->directedColor[ 2 ];
 
-    VectorMA( direction, factor, gridPoint2->direction, direction );
-  }
+		VectorMA( direction, factor, gridPoint2->direction, direction );
+	}
 
 #if 1
 
-  if ( totalFactor > 0 && totalFactor < 0.99 )
-  {
-    totalFactor = 1.0f / totalFactor;
-    VectorScale( ent->ambientLight, totalFactor, ent->ambientLight );
-    VectorScale( ent->directedLight, totalFactor, ent->directedLight );
-  }
+	if ( totalFactor > 0 && totalFactor < 0.99 )
+	{
+		totalFactor = 1.0f / totalFactor;
+		VectorScale( ent->ambientLight, totalFactor, ent->ambientLight );
+		VectorScale( ent->directedLight, totalFactor, ent->directedLight );
+	}
 
 #endif
 
-  VectorNormalize2( direction, ent->lightDir );
+#if 0
+	VectorNormalize2( direction, ent->lightDir );
+#else
+	VectorNormalize2( direction,  direction);
+	// always face down
+	direction[2] = fabsf(direction[2]);
+	// hypov8 prevent light going past 60 deg
+	VectorSet(lightOrigin, 0.0f, 0.0f, 1.0f - (0.666f * direction[2]));
+	VectorAdd(direction, lightOrigin, direction);
+	//VectorScale(direction, 0.5f, direction);
+	VectorNormalize2( direction, ent->lightDir );
 
-  if ( VectorLength( ent->ambientLight ) < r_forceAmbient->value )
-  {
-    ent->ambientLight[ 0 ] = r_forceAmbient->value;
-    ent->ambientLight[ 1 ] = r_forceAmbient->value;
-    ent->ambientLight[ 2 ] = r_forceAmbient->value;
-  }
+#endif
+
+	if ( VectorLength( ent->ambientLight ) < r_forceAmbient->value )
+	{
+		ent->ambientLight[ 0 ] = r_forceAmbient->value;
+		ent->ambientLight[ 1 ] = r_forceAmbient->value;
+		ent->ambientLight[ 2 ] = r_forceAmbient->value;
+	}
 
 //----(SA)  added
-  // cheats?  check for single player?
-  if ( tr.lightGridMulDirected )
-  {
-    VectorScale( ent->directedLight, tr.lightGridMulDirected, ent->directedLight );
-  }
+	// cheats?  check for single player?
+	if ( tr.lightGridMulDirected )
+	{
+		VectorScale( ent->directedLight, tr.lightGridMulDirected, ent->directedLight );
+	}
 
-  if ( tr.lightGridMulAmbient )
-  {
-    VectorScale( ent->ambientLight, tr.lightGridMulAmbient, ent->ambientLight );
-  }
+	if ( tr.lightGridMulAmbient )
+	{
+		VectorScale( ent->ambientLight, tr.lightGridMulAmbient, ent->ambientLight );
+	}
 
 //----(SA)  end
 }
+
 
 /*
 ===============
@@ -383,7 +396,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent, vec3_t
     //% ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = tr.identityLight * 150;
     //% ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
     //% VectorCopy( tr.sunDirection, ent->lightDir );
-    ent->ambientLight[ 0 ] = tr.identityLight * ( 64.0f / 255.0f );
+    ent->ambientLight[ 0 ] = tr.identityLight * ( 64.0f / 255.0f ); //player menu
     ent->ambientLight[ 1 ] = tr.identityLight * ( 64.0f / 255.0f );
     ent->ambientLight[ 2 ] = tr.identityLight * ( 96.0f / 255.0f );
 
@@ -452,26 +465,28 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent, vec3_t
 /*
 =================
 R_LightForPoint
+
+also used for cg_playershadow. start location
 =================
 */
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir )
 {
-  trRefEntity_t ent;
+	trRefEntity_t ent;
 
-  // bk010103 - this segfaults with -nolight maps
-  if ( tr.world->lightGridData == NULL )
-  {
-    return qfalse;
-  }
+	// bk010103 - this segfaults with -nolight maps
+	if ( tr.world->lightGridData == NULL )
+	{
+		return qfalse;
+	}
 
-  Com_Memset( &ent, 0, sizeof( ent ) );
-  VectorCopy( point, ent.e.origin );
-  R_SetupEntityLightingGrid( &ent, NULL );
-  VectorCopy( ent.ambientLight, ambientLight );
-  VectorCopy( ent.directedLight, directedLight );
-  VectorCopy( ent.lightDir, lightDir );
+	Com_Memset( &ent, 0, sizeof( ent ) );
+	VectorCopy( point, ent.e.origin );
+	R_SetupEntityLightingGrid( &ent, NULL );
+	VectorCopy( ent.ambientLight, ambientLight );
+	VectorCopy( ent.directedLight, directedLight );
+	VectorCopy( ent.lightDir, lightDir );
 
-  return qtrue;
+	return qtrue;
 }
 
 /*

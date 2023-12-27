@@ -3926,7 +3926,7 @@ void QuatTransformVectorInverse(const quat_t q, const vec3_t in, vec3_t out)
 }
 
 
-#if !idx86_sse //#ifndef USING_SSE_MATH
+#if !defined( idx86_sse) //#ifndef USING_SSE_MATH
 // create an identity transform
 void TransInit(transform_t *t)
 {

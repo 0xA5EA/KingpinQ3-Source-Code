@@ -129,6 +129,9 @@ void CG_BlendLerpFrame( lerpFrame_t *lf )
 		lf->blendlerp = 0.0f;
 		return;
 	}
+	//blendlerp fix #DEN 
+	if (lf->blendlerp < 0.001f)
+		lf->blendlerp = 0.001f;
 
 	if ( ( lf->blendlerp > 0.0f ) && ( cg.time > lf->blendtime ) )
 	{

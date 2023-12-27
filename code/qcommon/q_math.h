@@ -107,6 +107,7 @@ typedef double dvec_t;
 typedef dvec_t  dvec3_t[3];
 
 #ifdef USING_SSE_MATH
+//#ifdef idx86_sse
   // A transform_t represents a product of basic
   // transformations, which are a rotation about an arbitrary
   // axis, a uniform scale or a translation. Any a product can
@@ -122,7 +123,7 @@ typedef dvec_t  dvec3_t[3];
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #endif
-typedef union transform_u
+typedef ALIGN16(union transform_u
 {
   struct
   {
@@ -135,12 +136,12 @@ typedef union transform_u
     __m128 sseRot;
     __m128 sseTransScale;
   };
-} transform_t;
+}  )transform_t;
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
-#else // idx86_sse
+#else // !idx86_sse
 typedef struct transform_s {
   quat_t rot;
   vec3_t trans;

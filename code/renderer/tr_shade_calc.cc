@@ -187,8 +187,8 @@ static float GetOpValue( const expOperation_t *op )
     case OP_PARM5:
     case OP_PARM6:
     case OP_PARM7:
-      value = 1.0;
-      break; //hypov8 set default above to 1
+      value = 1.0; //default to 1
+      break;
 
     case OP_PARM8: // hypov8 change shaders based on reflectionmapping enabled.
 
@@ -198,14 +198,14 @@ static float GetOpValue( const expOperation_t *op )
       }
       else
       {
-        value = 0.5;
+        value = 0.0;
       }
       break;
 
     case OP_PARM9:
     case OP_PARM10:
-      value = 1.0;
-      break; //hypov8 set default above to 1
+      value = 1.0; //default to 1
+      break;
 
     case OP_PARM11:
       value = 0.0;
@@ -218,8 +218,8 @@ static float GetOpValue( const expOperation_t *op )
     case OP_GLOBAL5:
     case OP_GLOBAL6:
     case OP_GLOBAL7:
-      value = 1.0;
-      break; //hypov8 set default above to 1
+      value = 1.0; //default to 1
+      break;
 
     case OP_FRAGMENTSHADERS:
       value = 1.0;

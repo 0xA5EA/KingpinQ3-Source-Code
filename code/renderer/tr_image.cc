@@ -146,7 +146,7 @@ void GL_TextureMode( const char *string )
 	{
 		image = (image_t*) Com_GrowListElement( &tr.images, i );
 
-		if ( image->filterType == FT_DEFAULT )
+		if ( image->filterType == FT_DEFAULT)
 		{
 			GL_Bind( image );
 
@@ -1101,8 +1101,17 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 	// perform optional picmip operation
 	if ( !( image->bits & IF_NOPICMIP ) )
 	{
+		int picmip = r_picmip->integer;//Deamon 5.2
+		if( picmip < 0 )
+			picmip = 0;
+
 		scaledWidth >>= r_picmip->integer;
 		scaledHeight >>= r_picmip->integer;
+
+		/*if( dataArray && numMips > picmip ) {
+			dataArray += numData * picmip;
+			numMips -= picmip;
+		}*/
 	}
 
 	// clamp to minimum size
@@ -1187,13 +1196,14 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 		}
 		else if ( image->bits & IF_TWOCOMP16F )
 		{
-			internalFormat = glConfig2.textureRGAvailable ?
-			  GL_RG16F : GL_LUMINANCE_ALPHA16F_ARB;
+			internalFormat = glConfig2.textureRGAvailable ? GL_RG16F : GL_LUMINANCE_ALPHA16F_ARB;
+#ifdef COMPAT_KPQ3
+			format = GL_RG; // GL_RG16F;
+#endif
 		}
 		else if ( image->bits & IF_TWOCOMP32F )
 		{
-			internalFormat = glConfig2.textureRGAvailable ?
-			  GL_RG32F : GL_LUMINANCE_ALPHA32F_ARB;
+			internalFormat = glConfig2.textureRGAvailable ? GL_RG32F : GL_LUMINANCE_ALPHA32F_ARB;
 		}
 		else if ( image->bits & IF_RGBA16 )
 		{
@@ -1201,20 +1211,19 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 		}
 		else if ( image->bits & IF_ONECOMP16F )
 		{
-			internalFormat = glConfig2.textureRGAvailable ?
-			  GL_R16F : GL_ALPHA16F_ARB;
+			internalFormat = glConfig2.textureRGAvailable ? GL_R16F : GL_ALPHA16F_ARB;
 		}
 		else if ( image->bits & IF_ONECOMP32F )
 		{
-			internalFormat = glConfig2.textureRGAvailable ?
-			  GL_R32F : GL_ALPHA32F_ARB;
+			internalFormat = glConfig2.textureRGAvailable ? GL_R32F : GL_ALPHA32F_ARB;
 		}
 	}
 	else if ( image->bits & IF_RGBE )
 	{
 		internalFormat = GL_RGBA8;
 	}
-	else if ( !data ) {
+	else if ( !data ) 
+	{
 		internalFormat = GL_RGBA8;
 	}
 	else
@@ -1332,7 +1341,12 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 
 			if ( !( image->bits & ( IF_NORMALMAP | IF_RGBA16F | IF_RGBA32F | IF_TWOCOMP16F | IF_TWOCOMP32F | IF_NOLIGHTSCALE ) ) )
 			{
-				R_LightScaleTexture( ( unsigned * ) scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_DEFAULT );
+#ifdef COMPAT_KPQ3
+				if (image->filterType == FT_CUBEMIP)
+					R_LightScaleTexture( ( unsigned * ) scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_CUBEMIP );
+				else
+#endif
+					R_LightScaleTexture( ( unsigned * ) scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_DEFAULT );
 			}
 		}
 
@@ -1358,15 +1372,26 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 				{
 					glTexImage2D( target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_INT_24_8_EXT, NULL );
 				}
+#ifdef COMPAT_KPQ3
+				else if (image->bits & (IF_TWOCOMP16F | IF_TWOCOMP32F))
+				{			//GL_UNSIGNED_SHORT //GL_2_BYTES //GL_FLOAT format = GL_RG
+
+					glTexImage2D( target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_SHORT, scaledBuffer );
+				}
+#endif
 				else
-				{
+				{ // 2D (GLenum target, level, internalformat, width, height,  border,  format,  type, const GLvoid *pixels);
 					glTexImage2D( target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer );
 				}
 
 				break;
 		}
 
-		if ( image->filterType == FT_DEFAULT )
+		if ( (image->filterType == FT_DEFAULT 
+#ifdef COMPAT_KPQ3
+			|| image->filterType == FT_CUBEMIP
+#endif
+			) && (image->type != GL_TEXTURE_CUBE_MAP || i == 5)) //Daemon 5.2 (note: cubemaps crashing fix)
 		{
 			if ( glConfig.driverType == GLDRV_OPENGL3 || glConfig2.framebufferObjectAvailable )
 			{
@@ -1384,7 +1409,11 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 
 		if ( glConfig.driverType != GLDRV_OPENGL3 && !glConfig2.framebufferObjectAvailable && !glConfig2.generateMipmapAvailable )
 		{
-			if ( image->filterType == FT_DEFAULT && !( image->bits & ( IF_DEPTH16 | IF_DEPTH24 | IF_DEPTH32 | IF_PACKED_DEPTH24_STENCIL8 ) ) )
+			if ( (image->filterType == FT_DEFAULT 
+#ifdef COMPAT_KPQ3
+				|| image->filterType == FT_CUBEMIP
+#endif
+				) && !( image->bits & ( IF_DEPTH16 | IF_DEPTH24 | IF_DEPTH32 | IF_PACKED_DEPTH24_STENCIL8 ) ) )
 			{
 				int mipLevel;
 				int mipWidth, mipHeight;
@@ -1447,17 +1476,21 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 	switch ( image->filterType )
 	{
 		case FT_DEFAULT:
-
 			// set texture anisotropy
 			if ( glConfig2.textureAnisotropyAvailable )
 			{
 				glTexParameterf( image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value );
 			}
-
-			glTexParameterf( image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min );
-			glTexParameterf( image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max );
+			glTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 			break;
 
+#ifdef COMPAT_KPQ3
+		case FT_CUBEMIP: //mip cubemaps used in pbr reflections
+			glTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+#endif	
 		case FT_LINEAR:
 			glTexParameterf( image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 			glTexParameterf( image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -2171,7 +2204,7 @@ static qboolean ParseMakeAlpha( char **text, byte **pic, int *width, int *height
 	R_MakeAlpha( *pic, *width, *height );
 
 //	*bits |= IF_ALPHA;
-	*bits &= IF_NORMALMAP;
+	*bits &= IF_NORMALMAP; //hypov8 note: is this is correct? (&=~). and should be alpha?
 
 	return qtrue;
 }
@@ -2226,9 +2259,8 @@ static void R_Print_ImageLoad(char * name)
 			Q_strnicmp(name, "textures/color", 14) && 
 			Q_strnicmp(name, "textures/kpq3_", 14) && 
 			Q_strnicmp(name, "textures/misc_", 14) &&
-			//Q_strnicmp(name, "textures/ex/", 12) &&
 			Q_strnicmp(name, "lights/kpq3/", 12) && 
-			//Q_strnicmp(name, "cubemaps/", 9) && 
+			//Q_strnicmp(name, "cubemaps/", 9) && //hypov8 todo: move default?
 			Q_strnicmp(name, "sprites/", 8) && 
 			Q_strnicmp(name, "gfx/", 4) &&
 			Q_strnicmp(name, "ui/", 3)
@@ -2467,6 +2499,10 @@ image_t        *R_FindImageFile( const char *imageName, int bits, filterType_t f
 	//char          ddsName[ 1024 ];
 	char          *buffer_p;
 	unsigned long diff;
+#if defined(HYPODEBUG_IMG_TIME)
+	int start;
+	start = Sys_Milliseconds();
+#endif
 
 	if ( !imageName )
 	{
@@ -2572,6 +2608,11 @@ image_t        *R_FindImageFile( const char *imageName, int bits, filterType_t f
 
 	image = R_CreateImage( ( char * ) buffer, pic, width, height, bits, filterType, wrapType );
 	ri.Free( pic );
+
+#if defined(HYPODEBUG_IMG_TIME)
+	Com_Printf("Image load time: %3i msec. (%s)\n", Sys_Milliseconds() - start, buffer);
+#endif
+
 	return image;
 }
 
@@ -2737,41 +2778,24 @@ image_t        *R_FindCubeImage( const char *imageName, int bits, filterType_t f
 
 	static char *openglSuffices[ 6 ] = { "px", "nx", "py", "ny", "pz", "nz" };
 
-	/*
-	        convert $1_forward.tga -flip -rotate 90 $1_px.png
-	        convert $1_back.tga -flip -rotate -90 $1_nx.png
-
-	        convert $1_left.tga -flip $1_py.png
-	        convert $1_right.tga -flop $1_ny.png
-
-	        convert $1_up.tga -flip -rotate 90 $1_pz.png
-	        convert $1_down.tga -flop -rotate -90 $1_nz.png
-	 */
-
 	static char     *doom3Suffices[ 6 ] = { "forward", "back", "left", "right", "up", "down" };
-	static qboolean doom3FlipX[ 6 ] = { qtrue,        qtrue,  qfalse, qtrue,  qtrue,  qfalse };
-	static qboolean doom3FlipY[ 6 ] = { qfalse,       qfalse, qtrue,  qfalse, qfalse, qtrue };
-	static int      doom3Rot[ 6 ] = { 90,           -90,    0,              0,              90,             -90 };
+	static qboolean doom3FlipX[ 6 ] = { qtrue,         qtrue,  qfalse, qtrue,  qtrue,  qfalse };
+	static qboolean doom3FlipY[ 6 ] = { qfalse,        qfalse, qtrue,  qfalse, qfalse, qtrue };
+	static int      doom3Rot[ 6 ]   = { 90,            -90,    0,      0,      90,     -90 };
 
-	/*
-	        convert $1_rt.tga -flip -rotate 90 $1_px.tga
-	        convert $1_lf.tga -flip -rotate -90 $1_nx.tga
-
-	        convert $1_bk.tga -flip $1_py.tga
-	        convert $1_ft.tga -flop $1_ny.tga
-
-	        convert $1_up.tga -flip -rotate 90 $1_pz.tga
-	        convert $1_dn.tga -flop -rotate -90 $1_nz.tga
-	 */
-	static char     *quakeSuffices[ 6 ] = { "rt", "lf", "bk", "ft", "up", "dn" };
-	static qboolean quakeFlipX[ 6 ] = { qtrue,        qtrue,  qfalse, qtrue,  qtrue,  qfalse };
-	static qboolean quakeFlipY[ 6 ] = { qfalse,       qfalse, qtrue,  qfalse, qfalse, qtrue };
-	static int      quakeRot[ 6 ] = { 90,           -90,    0,              0,              90,             -90 };
+	static char     *quakeSuffices[ 6 ] = { "rt", "lf",  "bk",    "ft",   "up",   "dn" };
+	static qboolean quakeFlipX[ 6 ] = { qtrue,    qtrue,  qfalse, qtrue,  qtrue,  qfalse };
+	static qboolean quakeFlipY[ 6 ] = { qfalse,   qfalse, qtrue,  qfalse, qfalse, qtrue };
+	static int      quakeRot[ 6 ]   = { 90,       -90,    0,      0,      90,     -90 };
 
 	int             bitsIgnore;
 	char            buffer[ 1024 ], filename[ 1024 ];
 	char            ddsName[ 1024 ];
 	char            *filename_p;
+#if defined(HYPODEBUG_IMG_TIME)
+	int start;
+	start = Sys_Milliseconds();
+#endif
 
 	if ( !imageName )
 	{
@@ -2918,6 +2942,9 @@ skipCubeImage:
 		}
 	}
 
+#if defined(HYPODEBUG_IMG_TIME)
+	Com_Printf("Cubeimage  time: %3i msec. (%s)\n", Sys_Milliseconds() - start, buffer);
+#endif
 	return image;
 }
 
@@ -3037,6 +3064,7 @@ R_CreateDefaultImage
 ==================
 */
 #define DEFAULT_SIZE 128
+#define MINIMAGE_SIZE 8
 static void R_CreateDefaultImage( void )
 {
 	int  x;
@@ -3097,11 +3125,11 @@ static void R_CreateRandomNormalsImage( void )
 
 static void R_CreateNoFalloffImage( void )
 {
-	byte data[ DEFAULT_SIZE ][ DEFAULT_SIZE ][ 4 ];
+	byte data[ MINIMAGE_SIZE ][ MINIMAGE_SIZE ][ 4 ];
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset( data, 255, sizeof( data ) );
-	tr.noFalloffImage = R_CreateImage( "_noFalloff", ( byte * ) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP );
+	tr.noFalloffImage = R_CreateImage( "_noFalloff", ( byte * ) data, MINIMAGE_SIZE, MINIMAGE_SIZE, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP );
 }
 
 #define ATTENUATION_XY_SIZE 128
@@ -3670,6 +3698,219 @@ static void R_CreateColorGradeImage( void )
 	ri.Hunk_FreeTempMemory( data );
 }
 
+#if 0 //def COMPAT_KPQ3 //generate LUT. using image instead
+#define LUT_IMAGE_SIZE 512
+/* A Program to generate high quality BRDF lookup tables for the split-sum approximation in UE4s Physically based rendering
+ * LUTs are stored in 16 bit or 32 bit floating point textures in either KTX or DDS format. 
+ * Written by: Hector Medina-Fetterman
+ */
+
+//hypov8 note: converted from https://github.com/HectorMF/BRDFGenerator
+
+const float PI = 3.14159265358979323846264338327950288;
+
+float RadicalInverse_VdC(unsigned int bits)
+{
+	bits = (bits << 16u) | (bits >> 16u);
+	bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+	bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+	bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+	bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+	return float(bits) * 2.3283064365386963e-10;
+}
+
+void Hammersley(unsigned int i, unsigned int N, vec2_t out)
+{
+	unsigned int tmp = i;
+	//vec2_t ret = {float(i) / float(N), RadicalInverse_VdC(i)};
+	out[0] = float(i) / float(N);
+	out[1] = RadicalInverse_VdC(tmp);
+}
+
+void ImportanceSampleGGX(vec2_t Xi, float roughness, vec3_t N, vec3_t out)
+{
+	float a = roughness*roughness;
+
+	float phi = 2.0 * PI * Xi[0];
+	float cosTheta = sqrt((1.0 - Xi[1]) / (1.0 + (a*a - 1.0) * Xi[1]));
+	float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+	vec3_t H, up, cTmp, tangent, bitangent;
+
+	// from spherical coordinates to cartesian coordinates
+	H[0] = cos(phi) * sinTheta;
+	H[1] = sin(phi) * sinTheta;
+	H[2] = cosTheta;
+
+	// from tangent-space vector to world-space sample vector
+	//vec3_t up = Q_fabs(N[2]) < 0.999 ? vec3_t(0.0, 0.0, 1.0) : vec3_t(1.0, 0.0, 0.0);
+	if (Q_fabs(N[2]) < 0.999)
+		VectorSet(up, 0.0f, 0.0f, 1.0f);
+	else
+		VectorSet(up, 1.0f, 0.0f, 0.0f);
+
+	//vec3_t tangent = normalize(cross(up, N));
+	CrossProduct(up, N, cTmp);
+	VectorNormalize2(cTmp, tangent);
+
+	//vec3_t bitangent = cross(N, tangent);
+	CrossProduct(N, tangent, bitangent);
+
+	//vec3_t sampleVec = tangent * H[0] + bitangent * H[1] + N * H[2];
+	VectorScale(tangent, H[0], tangent);
+	VectorScale(bitangent, H[1], bitangent);
+	VectorScale(N, H[2], cTmp);
+	VectorAdd(tangent, bitangent, tangent); 
+	VectorAdd(tangent, cTmp, tangent); 
+
+	//return  normalize(sampleVec);
+	VectorNormalize2(tangent, out);
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+	float a = roughness;
+	float k = (a * a) / 2.0;
+
+	float nom = NdotV;
+	float denom = NdotV * (1.0 - k) + k;
+
+	return nom / denom;
+}
+
+float GeometrySmith(float roughness, float NoV, float NoL)
+{
+	float ggx2 = GeometrySchlickGGX(NoV, roughness);
+	float ggx1 = GeometrySchlickGGX(NoL, roughness);
+
+	return ggx1 * ggx2;
+}
+
+void IntegrateBRDF(float NdotV, float roughness, unsigned int samples, vec2_t out)
+{
+	vec3_t V;
+	unsigned int i;
+	float A = 0.0;
+	float B = 0.0;
+	vec3_t N = {0.0, 0.0, 1.0};
+	vec2_t Xi;
+	vec3_t H, L, tmp;
+	float NoL, NoH, VoH, NoV, G, G_Vis, Fc;
+
+
+	V[0] = sqrt(1.0 - NdotV * NdotV);
+	V[1] = 0.0;
+	V[2] = NdotV;
+
+	for (i = 0u; i < samples; ++i)
+	{
+		Hammersley(i, samples, Xi);
+		ImportanceSampleGGX(Xi, roughness, N, H);
+		//L = normalize(2.0f * DotProduct(V, H) * H - V);
+		VectorScale(H, 2.0f * DotProduct(V, H), tmp);
+		VectorSubtract(tmp, V, tmp);
+		VectorNormalize2(tmp, L);
+
+		NoL = Q_max(L[2], 0.0f);
+		NoH = Q_max(H[2], 0.0f);
+		VoH = Q_max(DotProduct(V, H), 0.0f);
+		NoV = Q_max(DotProduct(N, V), 0.0f);
+
+		if (NoL > 0.0)
+		{
+			G = GeometrySmith(roughness, NoV, NoL);
+
+			G_Vis = (G * VoH) / (NoH * NoV);
+			Fc = pow(1.0 - VoH, 5.0);
+
+			A += (1.0 - Fc) * G_Vis;
+			B += Fc * G_Vis;
+		}
+	}
+
+	Xi[0] = (A / float(samples));
+	Xi[1] = (B / float(samples));
+
+	//return vec2_t(A / float(samples), B / float(samples));
+	out[0] = (A / float(samples)) * (256*256-1);
+	out[1] = (B / float(samples)) * (256*256-1);
+}
+
+void R_CreatePBR_LUT(void)
+{
+	//Here we set up the default parameters
+	int samples = 10; //was 1024.. this is sooooooooooooo slow
+	int size = LUT_IMAGE_SIZE;
+	int x, y, bits = 16;
+	float NoV, roughness; 
+	uint16_t data[ LUT_IMAGE_SIZE ][ LUT_IMAGE_SIZE ][ 2 ];
+	vec2_t out;
+
+
+	//for (y = 0; y < size; y++)
+	for (y = size-1; y >= 0; y--)
+	{
+		for (x = 0; x < size; x++)
+		{
+			NoV = (y + 0.5f) * (1.0f / size);
+			roughness = 1-((x + 0.5f) * (1.0f / size)); //invert write order
+			IntegrateBRDF(NoV, roughness, samples, out);
+			//v1 = (uint16_t)(int)__out__[0];
+			//v2 = (uint16_t)(int)__out__[1];
+			//data[x][y][0] = out[0];
+			//data[x][y][1] = out[1];
+			data[x][y][0] = (uint16_t)out[0];
+			data[x][y][1] = (uint16_t)out[1];
+		}
+	}
+
+	/*std::cout << bits << " bit, [" << size << " x " << size << "] BRDF LUT generated using " << samples << " samples.\n";
+	std::cout << "Saved LUT to " << filename << ".\n";*/
+
+	//upload texture
+	tr.pbrLutImage =
+	  R_CreateImage( "_pbrLUT", ( byte * ) data, LUT_IMAGE_SIZE, LUT_IMAGE_SIZE, 
+	  IF_NOCOMPRESSION | IF_NOPICMIP | IF_TWOCOMP16F, FT_LINEAR, WT_EDGE_CLAMP); // WT_EDGE_CLAMP );
+}
+
+
+static void R_CreatePBR_LUT1( void )
+{
+	int  x, y;
+	byte data[ LUT_IMAGE_SIZE ][ LUT_IMAGE_SIZE ][ 4 ];
+	byte *ptr = &data[0][0][0];
+	int  b;
+
+	// make a centered inverse-square falloff blob for dynamic lighting
+	for ( y = 0; y < LUT_IMAGE_SIZE; y++ )
+	{
+		for ( x = 0; x < LUT_IMAGE_SIZE; x++ )
+		{
+			float d;
+
+			d = ( LUT_IMAGE_SIZE / 2 - 0.5f - x ) * ( LUT_IMAGE_SIZE / 2 - 0.5f - x ) +
+			    ( LUT_IMAGE_SIZE / 2 - 0.5f - y ) * ( LUT_IMAGE_SIZE / 2 - 0.5f - y );
+			b = 4000 / d;
+
+			if ( b > 255 )
+			{
+				b = 255;
+			}
+			else if ( b < 75 )
+			{
+				b = 0;
+			}
+
+			ptr[ 0 ] = ptr[ 1 ] = ptr[ 2 ] = b;
+			ptr[ 3 ] = 255;
+			ptr += 4;
+		}
+	}
+
+	tr.attenuationXYImage =
+	  R_CreateImage( "_attenuationXY", ( byte * ) data, LUT_IMAGE_SIZE, LUT_IMAGE_SIZE, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP );
+}
+#endif
+
 /*
 ==================
 R_CreateBuiltinImages
@@ -3678,7 +3919,7 @@ R_CreateBuiltinImages
 void R_CreateBuiltinImages( void )
 {
 	int   x, y;
-	byte  data[ DEFAULT_SIZE ][ DEFAULT_SIZE ][ 4 ];
+	byte  data[ DEFAULT_SIZE * DEFAULT_SIZE * 4 ];
 	byte  *out;
 	float s, value;
 	byte  intensity;
@@ -3687,64 +3928,47 @@ void R_CreateBuiltinImages( void )
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset( data, 255, sizeof( data ) );
-	tr.whiteImage = R_CreateImage( "_white", ( byte * ) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
+	tr.whiteImage = R_CreateImage( "_white", ( byte * ) data, MINIMAGE_SIZE, MINIMAGE_SIZE, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
 
 	// we use a solid black image instead of disabling texturing
-#if 0
-	Com_Memset( data, 0, sizeof( data ) );
-#else
-	// issue with spec supporting alpha //add hypov8
-	for (x = DEFAULT_SIZE * DEFAULT_SIZE, out = &data[0][0][0]; x; --x, out += 4)	{
-		out[0] = 0;
-		out[1] = 0;
-		out[2] = 0;
-		out[3] = 255;
+	for (x = (MINIMAGE_SIZE * MINIMAGE_SIZE), out = &data[0]; x; --x, out += 4)	{
+		out[0] = out[1] = out[2] = 0;
 	}
-#endif
-	tr.blackImage = R_CreateImage( "_black", ( byte * ) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
-
+	tr.blackImage = R_CreateImage( "_black", ( byte * ) data, MINIMAGE_SIZE, MINIMAGE_SIZE, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
 
 	// grey //add hypov8
-	for (x = DEFAULT_SIZE * DEFAULT_SIZE, out = &data[0][0][0]; x; --x, out += 4)	{
-		out[0] = 128;
-		out[1] = 128;
-		out[2] = 128;
-		out[3] = 255;
+	for (x = (MINIMAGE_SIZE * MINIMAGE_SIZE), out = &data[0]; x; --x, out += 4)	{
+		out[0] = out[1] = out[2] = 128;
 	}
-	tr.greyImage = R_CreateImage("_grey", (byte *)data,	8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
-
+	tr.greyImage = R_CreateImage("_grey", (byte *)data,	MINIMAGE_SIZE, MINIMAGE_SIZE, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
 
 	// red
-	for ( x = DEFAULT_SIZE * DEFAULT_SIZE, out = &data[0][0][0]; x; --x, out += 4 )	{
+	for ( x = (MINIMAGE_SIZE * MINIMAGE_SIZE), out = &data[0]; x; --x, out += 4 )	{
 		out[ 1 ] = out[ 2 ] = 0;
-		out[ 0 ] = out[ 3 ] = 255;
+		out[ 0 ] = 255;
 	}
-	tr.redImage = R_CreateImage( "_red", ( byte * ) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
-
+	tr.redImage = R_CreateImage( "_red", ( byte * ) data, MINIMAGE_SIZE, MINIMAGE_SIZE, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
 
 	// green
-	for ( x = DEFAULT_SIZE * DEFAULT_SIZE, out = &data[0][0][0]; x; --x, out += 4 )	{
+	for ( x = (MINIMAGE_SIZE * MINIMAGE_SIZE), out = &data[0]; x; --x, out += 4 )	{
 		out[ 0 ] = out[ 2 ] = 0;
-		out[ 1 ] = out[ 3 ] = 255;
+		out[ 1 ] = 255;
 	}
-	tr.greenImage = R_CreateImage( "_green", ( byte * ) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
-
+	tr.greenImage = R_CreateImage( "_green", ( byte * ) data, MINIMAGE_SIZE, MINIMAGE_SIZE, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
 
 	// blue
-	for ( x = DEFAULT_SIZE * DEFAULT_SIZE, out = &data[0][0][0]; x; --x, out += 4 )	{
+	for ( x = (MINIMAGE_SIZE * MINIMAGE_SIZE), out = &data[0]; x; --x, out += 4 )	{
 		out[ 0 ] = out[ 1 ] = 0;
-		out[ 2 ] = out[ 3 ] = 255;
+		out[ 2 ] = 255;
 	}
-	tr.blueImage = R_CreateImage( "_blue", ( byte * ) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
-
+	tr.blueImage = R_CreateImage( "_blue", ( byte * ) data, MINIMAGE_SIZE, MINIMAGE_SIZE, IF_NOPICMIP, FT_LINEAR, WT_REPEAT );
 
 	// generate a default normalmap with a zero heightmap
-	for ( x = DEFAULT_SIZE * DEFAULT_SIZE, out = &data[0][0][0]; x; --x, out += 4 )	{
+	for ( x = (MINIMAGE_SIZE * MINIMAGE_SIZE), out = &data[0]; x; --x, out += 4 )	{
 		out[ 0 ] = out[ 1 ] = 128;
 		out[ 2 ] = 255;
-		out[ 3 ] = 0;
 	}
-	tr.flatImage = R_CreateImage( "_flat", ( byte * ) data, 8, 8, IF_NOPICMIP | IF_NORMALMAP, FT_LINEAR, WT_REPEAT );
+	tr.flatImage = R_CreateImage( "_flat", ( byte * ) data, MINIMAGE_SIZE, MINIMAGE_SIZE, IF_NOPICMIP | IF_NORMALMAP, FT_LINEAR, WT_REPEAT );
 
 	// _scratch
 	for ( x = 0; x < 32; x++ )	{
@@ -3753,7 +3977,7 @@ void R_CreateBuiltinImages( void )
 	}
 
 	//_quadratic
-	out = &data[ 0 ][ 0 ][ 0 ];
+	out = &data[ 0 ];
 	for ( y = 0; y < DEFAULT_SIZE; y++ )
 	{
 		for ( x = 0; x < DEFAULT_SIZE; x++, out += 4 )
@@ -3916,7 +4140,11 @@ void R_InitImages( void )
 	const char *charsetImage = "gfx/2d/charset-bezerk-plain-rc2.png";
 	const char *grainImage = "gfx/2d/camera/grain.png";
 	const char *vignetteImage = "gfx/2d/camera/vignette.png";
-
+#ifdef COMPAT_KPQ3 //pbr images
+	const char *reflectCubeImage = "gfx/pbr/miramar"; // "cubemaps/hipshot/miramar";
+	//const char *pbrLutImage = "gfx/pbr/ibl_brdf_lut.png";
+	const char *pbrLutImage = "gfx/pbr/lut1.png";
+#endif
 	ri.Printf( PRINT_DEVELOPER, "------- R_InitImages -------\n" );
 
 	Com_Memset( r_imageHashTable, 0, sizeof( r_imageHashTable ) );
@@ -3950,6 +4178,22 @@ void R_InitImages( void )
 	{
 		ri.Error( ERR_FATAL, "R_InitImages: could not load '%s'", vignetteImage );
 	}
+
+#ifdef COMPAT_KPQ3
+	//default reflection cubemap
+	tr.skyCubeMapDefault = R_FindCubeImage( reflectCubeImage, IF_NONE, FT_CUBEMIP, WT_EDGE_CLAMP, NULL ); //FT_LINEAR //PBR reflection needs mipmaps
+	if ( !tr.skyCubeMapDefault )	{
+		ri.Error( ERR_FATAL, "R_InitImages: could not load '%s'", reflectCubeImage );
+	}
+
+	//PBR LUT
+	//R_CreatePBR_LUT();
+	tr.pbrLutImage = R_FindImageFile( pbrLutImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP, NULL );
+	if ( !tr.pbrLutImage )	{
+		ri.Error( ERR_FATAL, "R_InitImages: could not load '%s'", pbrLutImage );
+	}
+
+#endif
 }
 
 /*

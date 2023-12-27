@@ -5130,8 +5130,8 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
       else
       {
         out->children[j] = s_worldData.nodes + numNodes + (-1 - p);
+      }
     }
-  }
   }
 
   // load leafs
@@ -5586,7 +5586,7 @@ static void R_LoadLightGrid(lump_t * l)
 
   for (i = 0; i < w->numLightGridPoints; i++, in++, gridPoint++)
   {
-#if /*!defined( COMPAT_KPQ3 ) &&*/ ( defined( COMPAT_Q3A ) || defined( COMPAT_ET ) ) //hypov8 todo: needed?
+#if /*!defined( COMPAT_KPQ3 ) &&*/ ( defined( COMPAT_Q3A ) || defined( COMPAT_ET ) )
     byte tmpAmbient[ 4 ];
     byte tmpDirected[ 4 ];
 
@@ -5639,6 +5639,20 @@ static void R_LoadLightGrid(lump_t * l)
     gridPoint->direction[0] = cos(lat) * sin(lng);
     gridPoint->direction[1] = sin(lat) * sin(lng);
     gridPoint->direction[2] = cos(lng);
+
+#ifdef HYPODEBUG //hypov8 force grid looking down?
+    vec3_t direction, lightDir;
+	VectorNormalize2( gridPoint->direction,  direction);
+	// always face down
+	direction[2] = fabsf(direction[2]);
+	// hypov8 prevent light going past 60 deg
+	VectorSet(lightDir, 0.0f, 0.0f, 1.0f - (0.666f * direction[2]));
+	VectorAdd(direction, lightDir, direction);
+	//VectorScale(direction, 0.5f, direction);
+	VectorNormalize2( direction, gridPoint->direction );
+
+#endif
+
 
 #if 0
     // debug print to see if the XBSP format is correct
@@ -8391,9 +8405,9 @@ unsigned int VertexCoordGenerateHash(const vec3_t xyz)
   vec3_t          xyz_epsilonspace;
 
   VectorScale(xyz, HASH_XYZ_EPSILONSPACE_MULTIPLIER, xyz_epsilonspace);
-  xyz_epsilonspace[0] = (double)floor(xyz_epsilonspace[0]);
-  xyz_epsilonspace[1] = (double)floor(xyz_epsilonspace[1]);
-  xyz_epsilonspace[2] = (double)floor(xyz_epsilonspace[2]);
+  xyz_epsilonspace[0] = (vec_t)floor(xyz_epsilonspace[0]);
+  xyz_epsilonspace[1] = (vec_t)floor(xyz_epsilonspace[1]);
+  xyz_epsilonspace[2] = (vec_t)floor(xyz_epsilonspace[2]);
 
   hash += ~(*((unsigned int *)&xyz_epsilonspace[0]) << 15);
   hash ^= (*((unsigned int *)&xyz_epsilonspace[0]) >> 10);
@@ -8478,8 +8492,8 @@ vertexHash_t *FindVertexInHashTable(vertexHash_t ** hashTable, const vec3_t xyz,
   {
 #ifndef HASH_USE_EPSILON
 
-    if ((vertexHash->vcd.xyz[0] != xyz[0] || vertexHash->vcd.xyz[1] != xyz[1] ||
-      vertexHash->vcd.xyz[2] != xyz[2]))
+    if ((vertexHash->xyz[0] != xyz[0] || vertexHash->xyz[1] != xyz[1] ||
+      vertexHash->xyz[2] != xyz[2]))
     {
       continue;
     }
@@ -8567,6 +8581,8 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
   unsigned int    hash;
   vertexHash_t	*vertexHash;
 
+  GLimp_LogComment( "--- GL_BindNearestCubeMap ---\n" );
+
   tr.autoCubeImage = tr.whiteCubeImage;
 
   if (!r_reflectionMapping->integer)
@@ -8574,28 +8590,30 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
     return;
   }
 
-  if (tr.cubeHashTable == NULL || xyz == NULL)
+#ifdef COMPAT_KPQ3
+  // hypov8 bind sky/cubemap
+  tr.autoCubeImage = tr.skyCubeMapDefault; 
+  if (tr.skyCubeMap != NULL)
+    tr.autoCubeImage = tr.skyCubeMap;
+#endif
+
+  if (tr.cubeHashTable == NULL && xyz == NULL)
   {
-    return;
-  }
+    maxDistance = 9999999.0f;
+    hash = VertexCoordGenerateHash(xyz);
 
-  maxDistance = 9999999.0f;
-
-  hash = VertexCoordGenerateHash(xyz);
-
-  for (vertexHash = tr.cubeHashTable[hash]; vertexHash; vertexHash = vertexHash->next)
-  {
-    cubeProbe = (cubemapProbe_t*)vertexHash->data;
-
-    distance = Distance(cubeProbe->origin, xyz);
-
-    if (distance < maxDistance)
+    for (vertexHash = tr.cubeHashTable[hash]; vertexHash; vertexHash = vertexHash->next)
     {
-      tr.autoCubeImage = cubeProbe->cubemap;
-      maxDistance = distance;
+      cubeProbe = (cubemapProbe_t*)vertexHash->data;
+      distance = Distance(cubeProbe->origin, xyz);
+
+      if (distance < maxDistance)
+      {
+        tr.autoCubeImage = cubeProbe->cubemap;
+        maxDistance = distance;
+      }
     }
   }
-
 #endif
 
   GL_Bind(tr.autoCubeImage);
@@ -8607,7 +8625,7 @@ void R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeN
   float			distance, maxDistance, maxDistance2;
   cubemapProbe_t *cubeProbe;
   unsigned int    hash;
-  vertexHash_t	*vertexHash;
+  //vertexHash_t	*vertexHash;
 
   GLimp_LogComment("--- R_FindTwoNearestCubeMaps ---\n");
 
@@ -8622,11 +8640,10 @@ void R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeN
   hash = VertexCoordGenerateHash(position);
   maxDistance = maxDistance2 = 9999999.0f;
 
-#if 0
-
+#if 1 //hypov8 was 0, hashtable fails
   for ( j = 0; j < tr.cubeProbes.currentElements; j++ )
   {
-    cubeProbe = Com_GrowListElement( &tr.cubeProbes, j );
+    cubeProbe = (cubemapProbe_t*)Com_GrowListElement( &tr.cubeProbes, j );
 #else
 
   for (j = 0, vertexHash = tr.cubeHashTable[hash]; vertexHash; vertexHash = vertexHash->next, j++)
@@ -8653,7 +8670,8 @@ void R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeN
   //ri.Printf(PRINT_ALL, "iterated through %i cubeprobes\n", j);
 }
 
-void R_BuildCubeMaps() //hypov8 todo: daemon
+//hypov8 todo: daemon
+void R_BuildCubeMaps() 
 {
 #if 1
   int             i, j;
@@ -8666,6 +8684,10 @@ void R_BuildCubeMaps() //hypov8 todo: daemon
   cubemapProbe_t *cubeProbe;
   byte            temp[REF_CUBEMAP_SIZE * REF_CUBEMAP_SIZE * 4];
   byte           *dest;
+
+  //level not loaded
+  if (tr.world == NULL)
+	  return;
 
 #if 0
   byte           *fileBuf;
@@ -8694,9 +8716,10 @@ void R_BuildCubeMaps() //hypov8 todo: daemon
     tr.cubeTemp[i] = (byte*)ri.Z_Malloc(REF_CUBEMAP_SIZE * REF_CUBEMAP_SIZE * 4);
   }
 
-//	fileBuf = ri.Z_Malloc(REF_CUBEMAP_STORE_SIZE * REF_CUBEMAP_STORE_SIZE * 4);
+//  fileBuf = ri.Z_Malloc(REF_CUBEMAP_STORE_SIZE * REF_CUBEMAP_STORE_SIZE * 4);
 
   // calculate origins for our probes
+
   Com_InitGrowList(&tr.cubeProbes, 4000);
   tr.cubeHashTable = NewVertexHashTable();
   if (tr.cubeHashTable == NULL)
@@ -9451,7 +9474,8 @@ R_LoadMarksurfaces(&header->lumps[LUMP_LEAFSURFACES]);
   //----(SA)  end
 
   // build cubemaps after the necessary vbo stuff is done
-  //R_BuildCubeMaps(); //hypov8 todo:
+  if (r_reflectionMapping->integer == 2)
+    R_BuildCubeMaps(); //hypov8 todo:
 
   // never move this to RE_BeginFrame because we need it to set it here for the first frame
   // but we need the information across 2 frames
@@ -9461,7 +9485,7 @@ R_LoadMarksurfaces(&header->lumps[LUMP_LEAFSURFACES]);
 
   ri.FS_FreeFile(buffer);
 #ifdef HYPODEBUG_MAP_PRINT
-	Cvar_Set("com_printmap", "");
+  Cvar_Set("com_printmap", "");
 #endif
   ri.Printf( PRINT_DEVELOPER, "----- RE_LoadWorldMap ( Complete ) -----\n" );
 }

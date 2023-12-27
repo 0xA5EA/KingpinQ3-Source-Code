@@ -112,16 +112,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\kpq3_beta2\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\build\release-win32\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\build\release-win32\client\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\kpq3_beta2\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\build\debug-win32\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\build\debug-win32\client\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">D:\kpq3_beta2\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">D:\kpq3_beta2\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">..\..\build\release-win32\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">..\..\build\release-win32\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">..\..\build\release-win32\ded\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">..\..\build\release-win32\ded\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">false</LinkIncremental>
@@ -136,10 +136,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\..\build\release-win64\</OutDir>
     <IntDir>..\..\build\release-win64\client\</IntDir>
+    <TargetName>$(ProjectName)-64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\..\build\debug-win64\</OutDir>
     <IntDir>..\..\build\debug-win64\client\</IntDir>
+    <TargetName>$(ProjectName)-64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|x64'">
     <OutDir>..\..\build\release-win64\</OutDir>
@@ -179,12 +181,12 @@
       <AdditionalIncludeDirectories>..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN32;WIN32;NDEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;BUILD_FREETYPE;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;USE_SSE;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Precise</FloatingPointModel>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>
@@ -206,7 +208,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDL.lib;OpenGL32.lib;glew.lib;alibcof32.lib;psapi.lib;libvorbisfile.lib;libvorbis.lib;libpng14.lib;libogg.lib;libtheora.lib;freetype244MT.lib;msvcrt.lib;zlib1.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>%(OutputFile)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\code\libs\win32;..\..\code\asmlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>$(IntDir)KingpinQ3.pdb</ProgramDatabaseFile>
@@ -224,10 +226,13 @@
       </GenerateDebugInformation>
       <AssemblyDebug>
       </AssemblyDebug>
+      <MinimumRequiredVersion />
     </Link>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- release-TA"</Command>
+      <Command>rem bash -c "perl ./unix/cons -- release-TA"
+xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -247,14 +252,14 @@
       <OmitFramePointers>false</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN64;__WIN64__;NDEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;BUILD_FREETYPE;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;USE_SSE;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN64;__WIN64__;NDEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;BUILD_FREETYPE;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;USE_SSE;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Precise</FloatingPointModel>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>
@@ -275,8 +280,8 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;glew.lib;alibcof64.lib;psapi.lib;libvorbisfile.lib;libvorbis.lib;libpng14.lib;libogg.lib;libtheora.lib;freetype244MT.lib;dxguid.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)KingpinQ3-64.exe</OutputFile>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;glew.lib;alibcof64.lib;psapi.lib;libvorbisfile.lib;libvorbis.lib;libpng14.lib;libogg.lib;libtheora.lib;freetype244MT.lib;msvcrt.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>%(OutputFile)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\code\libs\win64;..\..\code\asmlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>$(IntDir)KingpinQ3.pdb</ProgramDatabaseFile>
@@ -288,10 +293,12 @@
       </LinkTimeCodeGeneration>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
       <ShowProgress>NotSet</ShowProgress>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- release-TA"</Command>
+      <Command>rem bash -c "perl ./unix/cons -- release-TA"
+xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -307,7 +314,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32;WIN32;_DEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;BUILD_FREETYPE;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;GLEW_STATIC;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;HYPODEBUG;HYPODEBUG_IMG_TIME;HYPODEBUG_MAP_PRINT;COMPAT_KPQ3;OLDMAP_VERSIONS__;USE_SSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32;WIN32;_DEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;BUILD_FREETYPE;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;GLEW_STATIC;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;HYPODEBUG;HYPODEBUG_IMG_TIME__;HYPODEBUG_MAP_PRINT__;COMPAT_KPQ3;OLDMAP_VERSIONS__;USE_SSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -329,7 +336,7 @@
       </StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DisableSpecificWarnings>4706;4996;4201;4221;4204;4055;4131;4127;4244;4133;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -346,7 +353,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDL.lib;OpenGL32.lib;glew.lib;alibcof32.lib;psapi.lib;libvorbisfile.lib;libvorbis.lib;libpng14.lib;libogg.lib;libtheora.lib;freetype244MT.lib;dxguid.lib;zlib1.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>%(OutputFile)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\code\libs\win32;..\..\code\asmlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -366,7 +373,8 @@
     </Link>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug-TA"</Command>
+      <Command>rem bash -c "perl ./unix/cons -- debug-TA"
+xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -397,6 +405,7 @@
       <TreatWarningAsError>false</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -405,7 +414,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;msvcrt.lib;glew.lib;alibcof64.lib;psapi.lib;libvorbisfile.lib;libvorbis.lib;libpng14.lib;libogg.lib;libtheora.lib;freetype244MT.lib;dxguid.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)KingpinQ3.exe</OutputFile>
+      <OutputFile>%(OutputFile)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\code\libs\win64;..\..\code\asmlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -460,6 +469,9 @@
       <AdditionalLibraryDirectories>..\..\code\asmlib;..\..\code\libs\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">
     <ClCompile>
@@ -506,6 +518,9 @@
       <AssemblyDebug>true</AssemblyDebug>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|x64'">
     <ClCompile>
@@ -522,10 +537,11 @@
       <AdditionalIncludeDirectories>..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <CompileAs>CompileAsCpp</CompileAs>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;winmm.lib;psapi.lib;alibcof64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Kpq3ded-64.exe</OutputFile>
+      <OutputFile>%(OutputFile)</OutputFile>
       <ProgramDatabaseFile>$(IntDir)kpq3ded.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(IntDir)kpq3ded.map</MapFileName>
@@ -542,6 +558,9 @@
       <CLRImageType>Default</CLRImageType>
       <AdditionalLibraryDirectories>..\..\code\asmlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DED|x64'">
     <ClCompile>
@@ -561,7 +580,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;winmm.lib;psapi.lib;alibcof64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Kpq3ded-64.exe</OutputFile>
+      <OutputFile>%(OutputFile)</OutputFile>
       <ProgramDatabaseFile>$(IntDir)kpq3ded.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(IntDir)kpq3ded.map</MapFileName>
@@ -1312,16 +1331,6 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="..\..\code\qcommon\q_unicode.cc" />
-    <ClCompile Include="..\..\code\renderer\tr_animation_mdm.cc">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_DED|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\code\renderer\tr_decals.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">true</ExcludedFromBuild>

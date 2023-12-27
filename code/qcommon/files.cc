@@ -1360,7 +1360,9 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
 {
 	searchpath_t *search, *lastSearch;
 	directory_t *dir;
+#ifdef USE_LLVM
 	pack_t *pack;
+#endif
 	char dllName[MAX_OSPATH], qvmName[MAX_OSPATH];
 	char *netpath;
 	if(!fs_searchpaths)

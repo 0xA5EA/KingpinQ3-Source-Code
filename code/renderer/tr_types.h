@@ -165,17 +165,16 @@ typedef enum
   SK_ABSOLUTE
 } refSkeletonType_t;
 
-typedef ALIGN16(struct //ALIGN16
+typedef ALIGN16(struct //hypov8 note: MSV warning, nameless struct/union
 {
-	refSkeletonType_t type; // skeleton has been reset
-
-	short             numBones;
+	refSkeletonType_t type;
+	unsigned short    numBones;
 	refBone_t         bones[ MAX_BONES ];
-
 	vec3_t            bounds[ 2 ]; // bounds of all applied animations
 	vec_t             scale;
 	int               padding[ 3 ]; // pad to multiple of 16 bytes for QVM code
 } ) refSkeleton_t;
+
 
 // XreaL END
 
@@ -236,8 +235,7 @@ typedef struct
 
 // XreaL BEGIN
 
-	// extra animation information
-	refSkeleton_t skeleton;
+
 
 #if defined( USE_REFENTITY_NOSHADOWID )
 	// extra light interaction information
@@ -246,6 +244,8 @@ typedef struct
 
 	int altShaderIndex;
 
+	// extra animation information
+	refSkeleton_t skeleton;
 // XreaL END
 } refEntity_t;
 

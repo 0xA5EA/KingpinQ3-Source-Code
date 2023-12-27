@@ -814,7 +814,7 @@ static void RB_SetGL2D( void )
 
   // set time for 2D shaders
   backEnd.refdef.time = ri.Milliseconds();
-  backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
+  backEnd.refdef.floatTime = float(double(backEnd.refdef.time) * 0.001);
 }
 
 // used as bitfield
@@ -6076,7 +6076,7 @@ static void RB_RenderDebugUtils()
     GL_LoadModelViewMatrix( backEnd.viewParms.world.modelViewMatrix );
   }
 
-  if ( r_showLightGrid->integer )
+  if ( r_showLightGrid->integer && tr.world->numLightGridPoints > 0)
   {
     bspGridPoint_t *gridPoint;
     int            j, k;
@@ -6158,7 +6158,7 @@ static void RB_RenderDebugUtils()
 
       VectorCopy( offset, tetraVerts[ 3 ] );
       tetraVerts[ 3 ][ 3 ] = 1;
-      Tess_AddTetrahedron( tetraVerts, gridPoint->directedColor );
+      Tess_AddTetrahedron( tetraVerts, gridPoint->ambientColor );
     }
 
     Tess_End();
@@ -6946,7 +6946,7 @@ static void RB_RenderView( void )
   {
     backEnd.isHyperspace = qfalse;
   }
-
+  glState.faceCulling = -1;	// force face culling to set next time //beta1
   // we will only draw a sun if there was sky rendered in this view
   backEnd.skyRenderedThisView = qfalse;
 

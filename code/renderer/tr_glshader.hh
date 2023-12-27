@@ -603,15 +603,11 @@ private:
 protected:
 	GLShader *_shader;
 
-	GLCompileMacro( GLShader *shader ) :
-		_shader( shader )
-  , _bit(0)
+	GLCompileMacro(GLShader* shader):
+	  _shader(shader)
 	{
-		size_t const base = 1;
-		size_t const noof = _shader->GetNumOfCompiledMacros();
-		if (noof)
-			_bit = base << noof;
-		_shader->RegisterCompileMacro( this );
+		_bit = Q_BIT(_shader->GetNumOfCompiledMacros());
+		_shader->RegisterCompileMacro(this);
 	}
 
 // RB: This is not good oo design, but it can be a workaround and its cost is more or less only a virtual function call.
@@ -2404,6 +2400,8 @@ class GLShader_vertexLighting_DBS_entity :
 	public u_NormalTextureMatrix,
 	public u_SpecularTextureMatrix,
 	public u_GlowTextureMatrix,
+	public u_ColorTextureMatrix, //hypov8 pbr
+	//public u_Color, //hypov8 pbr
 	public u_SpecularExponent,
 	public u_AlphaThreshold,
 	public u_AmbientColor,

@@ -666,7 +666,7 @@ bool GLShaderManager::LoadShaderBinary( GLShader *shader, size_t programNum )
   // make sure this shader uses the same macros
   for ( unsigned int i = 0; i < shaderHeader.numMacros; i++ )
   {
-    if ( shader->_compileMacros[ i ]->GetType() != shaderHeader.macros[ i ] )
+    if ( shader->_compileMacros[ i ]->GetType() != (int)shaderHeader.macros[ i ] )
     {
       ri.FS_FreeFile( binary );
       return false;
@@ -994,8 +994,6 @@ bool GLCompileMacro_USE_VERTEX_SKINNING::MissesRequiredMacros( size_t permutatio
 
 bool GLCompileMacro_USE_VERTEX_ANIMATION::HasConflictingMacros( size_t permutation, const std::vector< GLCompileMacro * > &macros ) const
 {
-#if 1
-
   for ( size_t i = 0; i < macros.size(); i++ )
   {
     GLCompileMacro *macro = macros[ i ];
@@ -1007,7 +1005,6 @@ bool GLCompileMacro_USE_VERTEX_ANIMATION::HasConflictingMacros( size_t permutati
     }
   }
 
-#endif
   return false;
 }
 
@@ -1280,6 +1277,8 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity( GLShader
   u_NormalTextureMatrix( this ),
   u_SpecularTextureMatrix( this ),
   u_GlowTextureMatrix( this ),
+  u_ColorTextureMatrix( this ), //hypov8 pbr
+  //u_Color( this ), //hypov8 pbr
   u_SpecularExponent( this ),
   u_AlphaThreshold( this ),
   u_AmbientColor( this ),
@@ -1332,6 +1331,7 @@ void GLShader_vertexLighting_DBS_entity::SetShaderProgramUniforms( shaderProgram
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_EnvironmentMap0" ), 3 );
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_EnvironmentMap1" ), 4 );
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_GlowMap" ), 5 );
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_ColorMap" ), 6 ); //hypov8 pbr
 }
 
 GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world( GLShaderManager *manager ) :

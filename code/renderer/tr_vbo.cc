@@ -138,8 +138,8 @@ static void R_SetVBOAttributeComponentType( VBO_t *vbo, uint32_t i )
   }
   else if ( i == ATTR_INDEX_POSITION || i == ATTR_INDEX_POSITION2 ||
        i == ATTR_INDEX_TANGENT2 || i == ATTR_INDEX_NORMAL2 || i == ATTR_INDEX_BINORMAL2 ||
-       i == ATTR_INDEX_TANGENT || i == ATTR_INDEX_NORMAL || i == ATTR_INDEX_BINORMAL ||
-       i == ATTR_INDEX_AMBIENTLIGHT || i == ATTR_INDEX_DIRECTEDLIGHT || i == ATTR_INDEX_LIGHTDIRECTION )
+       i == ATTR_INDEX_TANGENT || i == ATTR_INDEX_NORMAL || i == ATTR_INDEX_BINORMAL )
+       //i == ATTR_INDEX_AMBIENTLIGHT || i == ATTR_INDEX_DIRECTEDLIGHT || i == ATTR_INDEX_LIGHTDIRECTION )
   {
     vbo->attribs[ i ].numComponents = 3;
   }
@@ -923,7 +923,6 @@ void R_BindVBO( VBO_t *vbo )
 {
   if ( !vbo )
   {
-    //R_BindNullVBO();
     ri.Error( ERR_DROP, "R_BindNullVBO: NULL vbo" );
   }
 
@@ -946,7 +945,6 @@ void R_BindVBO( VBO_t *vbo )
 
     backEnd.pc.c_vboVertexBuffers++;
 
-    //GL_VertexAttribPointers(ATTR_BITS);
   }
 }
 

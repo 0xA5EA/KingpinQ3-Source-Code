@@ -168,7 +168,7 @@ static qboolean ParseVector( char **text, int count, float *v )
 
   if ( strcmp( token, "(" ) )
   {
-    ri.Printf( PRINT_WARNING, "WARNING: missing parenthesis in shader '%s'\n", shader.name );
+    ri.Printf( PRINT_WARNING, "WARNING: missing ( parenthesis in shader '%s'\n", shader.name );
     return qfalse;
   }
 
@@ -189,7 +189,7 @@ static qboolean ParseVector( char **text, int count, float *v )
 
   if ( strcmp( token, ")" ) )
   {
-    ri.Printf( PRINT_WARNING, "WARNING: missing parenthesis in shader '%s'\n", shader.name );
+    ri.Printf( PRINT_WARNING, "WARNING: missing ) parenthesis in shader '%s'\n", shader.name );
     return qfalse;
   }
 
@@ -1628,9 +1628,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
   wrapType_t   wrapType;
 //	qboolean   uncompressed;
   char         *buffer_p = &buffer[ 0 ];
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  int start, end;
-#endif
+
 
   if ( !buffer || !buffer[ 0 ] )
   {
@@ -1684,7 +1682,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
     return qtrue;
   }
   /*
-  else if (!Q_stricmp(token, "_scratch")) // add hypov8
+  else if (!Q_stricmp(token, "_scratch"))
   {
     stage->bundle[0].image[0] = tr.scratchImage;
     return qtrue;
@@ -1692,13 +1690,13 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
   */
   //_quadratic
 
-  else if (!Q_stricmp(token, "_quadratic")) // add hypov8
+  else if (!Q_stricmp(token, "_quadratic"))
   {
     stage->bundle[0].image[0] = tr.quadraticImage;
     return qtrue;
   }
 
-  else if (!Q_stricmp(token, "_autocube")) // add hypov8
+  else if (!Q_stricmp(token, "_autocube"))
   {
 
     stage->bundle[0].image[0] = tr.quadraticImage;
@@ -1759,11 +1757,6 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
     wrapType = shader.wrapType;
   }
 
-
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  start = Sys_Milliseconds();
-#endif
-
   // try to load the image
   stage->bundle[ 0 ].image[ 0 ] = R_FindImageFile( buffer, imageBits, filterType, wrapType, shader.name );
 
@@ -1772,11 +1765,6 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
     ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find image '%s' in shader '%s'\n", buffer, shader.name );
     return qfalse;
   }
-
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  end = Sys_Milliseconds();
-  Com_Printf("load image time=: %i msec. %s\n", end - start, buffer); //add hypo degbug
-#endif
 
   return qtrue;
 }
@@ -1788,9 +1776,7 @@ static qboolean LoadCubeMap( shaderStage_t *stage, char *buffer )
   wrapType_t   wrapType;
 //	qboolean   uncompressed;
   char         *buffer_p = &buffer[ 0 ];
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  int start, end;
-#endif
+
 
   if ( !buffer || !buffer[ 0 ] )
   {
@@ -1840,10 +1826,6 @@ static qboolean LoadCubeMap( shaderStage_t *stage, char *buffer )
     imageBits |= IF_ALPHATEST;
   }
 
-
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  start = Sys_Milliseconds();
-#endif
   // try to load the image
   stage->bundle[0].image[0] = R_FindCubeImage(token, imageBits, FT_LINEAR, WT_EDGE_CLAMP, shader.name);
 
@@ -1854,12 +1836,6 @@ static qboolean LoadCubeMap( shaderStage_t *stage, char *buffer )
     //return qfalse;
     stage->bundle[0].image[0] = tr.quadraticImage;
   }
-
-
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  end = Sys_Milliseconds();
-  Com_Printf("load image time=: %i msec. %s\n", end - start, buffer); //add hypov8 degbug
-#endif
 
   return qtrue;
 }
@@ -1872,9 +1848,6 @@ static qboolean LoadCubeBlendedMap( shaderStage_t *stage, char *buffer )
   wrapType_t   wrapType;
   char         *buffer_p = &buffer[ 0 ];
 
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  int start, end;
-#endif
 
   if ( !buffer || !buffer[ 0 ] )
   {
@@ -1898,11 +1871,6 @@ static qboolean LoadCubeBlendedMap( shaderStage_t *stage, char *buffer )
   if ( stage->stateBits & ( GLS_ATEST_BITS ) )
     imageBits |= IF_ALPHATEST;
 
-
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  start = Sys_Milliseconds();
-#endif
-
   token = Com_ParseExt( &buffer_p, qfalse );
   stage->bundle[0].image[0] = tr.quadraticImage; //hypov8 todo: should be cubemap
   stage->bundle[0].image[1] = R_FindImageFile(token, imageBits, FT_LINEAR, WT_EDGE_CLAMP, shader.name);
@@ -1913,12 +1881,6 @@ static qboolean LoadCubeBlendedMap( shaderStage_t *stage, char *buffer )
     ri.Printf( PRINT_WARNING, "WARNING: R_FindCubeImage could not find image '%s' in shader '%s'\n", buffer, shader.name );
     return qfalse;
   }
-
-
-#if defined(HYPODEBUG_IMG_TIME) && !defined(HYPODEBUG_MAP_PRINT)
-  end = Sys_Milliseconds();
-  Com_Printf("load image time=: %i msec. %s\n", end - start, buffer); //add hypov8 degbug
-#endif
 
   return qtrue;
 }
@@ -2175,6 +2137,17 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
         ri.Printf( PRINT_WARNING, "WARNING: R_FindCubeImage could not find '%s' in shader '%s'\n", token, shader.name );
         return qfalse;
       }
+#ifdef COMPAT_KPQ3
+      else
+      { // hypov8 add: shader uses sky as a stage instead of skyparm
+        if (stage->type == ST_SKYBOXMAP && shader.isSky)
+        {
+          if (tr.skyCubeMap == NULL)
+            tr.skyCubeMap = stage->bundle[0].image[0];
+            //tr.skyCubeMap = R_FindCubeImage(token, imageBits, FT_DEFAULT, WT_EDGE_CLAMP, shader.name);
+        }
+      }
+#endif
     }
     // alphafunc <func>
     else if ( !Q_stricmp( token, "alphaFunc" ) )
@@ -3105,6 +3078,15 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
     shader.alphaTest = qtrue;
   }
 
+  /*if (blendSrcBits == GLS_SRCBLEND_SRC_ALPHA ||
+    blendSrcBits == GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA ||
+    blendSrcBits == GLS_SRCBLEND_DST_ALPHA ||
+    blendSrcBits == GLS_SRCBLEND_ONE_MINUS_DST_ALPHA ||
+    blendSrcBits == GLS_SRCBLEND_ALPHA_SATURATE)
+  {
+    image->bits & IF_RGBE
+  }*/
+
   // compute state bits
   stage->stateBits = colorMaskBits | depthMaskBits | blendSrcBits | blendDstBits | atestBits | depthFuncBits | polyModeBits;
 
@@ -3350,6 +3332,14 @@ static void ParseSkyParms( char **text )
       ri.Printf( PRINT_WARNING, "WARNING: could not find cubemap '%s' for outer skybox in shader '%s'\n", prefix, shader.name );
       shader.sky.outerbox = tr.blackCubeImage;
     }
+
+#ifdef COMPAT_KPQ3
+    else //use sky cubemap for reflections
+    {
+      tr.skyCubeMap = shader.sky.outerbox;
+      //tr.skyCubeMap = R_FindCubeImage( prefix, IF_NONE, FT_DEFAULT, WT_EDGE_CLAMP, shader.name );
+    }
+#endif
   }
 
   // cloudheight
@@ -3662,6 +3652,8 @@ static void ParseDiffuseMap( shaderStage_t *stage, char **text )
   stage->type = ST_DIFFUSEMAP;
   stage->rgbGen = ReturnRGBGenModes();
   stage->stateBits = GLS_DEFAULT;
+  if (shader.alphaTest == qtrue) //hypov8: previous stage is alphatested
+    stage->stateBits = 0;
 
   if ( !r_compressDiffuseMaps->integer )
   {
@@ -3715,7 +3707,10 @@ static void ParseSpecularMap( shaderStage_t *stage, char **text )
   {
     stage->uncompressed = qtrue;
   }
-
+#ifdef HYPODEBUG //debug pbr
+  if (!Q_stricmp(shader.name, "models/weapons/hmg/v_wep2"))
+    buffer[0] = '\0';
+#endif
   if ( ParseMap( stage, text, buffer, sizeof( buffer ) ) )
   {
     LoadMap( stage, buffer );
@@ -3765,7 +3760,7 @@ static void ParseReflectionMapBlended( shaderStage_t *stage, char **text )
   stage->active = qtrue;
   stage->type = ST_REFLECTIONMAP; //hypov8 todo: should set another varable. if _cubemap. build cubemaps
   stage->rgbGen = ReturnRGBGenModes();
-  stage->stateBits = GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE;
+  stage->stateBits = GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE; //use displacemap/alpha?
   stage->overrideWrapType = qtrue;
   stage->wrapType = WT_EDGE_CLAMP;
   if (ParseMap(stage, text, buffer, sizeof(buffer)))
@@ -4270,8 +4265,7 @@ static qboolean ParseShader( char *_text )
       continue;
     }
     // sun parms
-    else if (!Q_stricmp( token, "kmap_sun" ) || !Q_stricmp( token, "xmap_sun" ) || !Q_stricmp( token, "q3map_sun" ) ||
-        !Q_stricmp(token, "xmap_sunExt") ||	!Q_stricmp(token, "kmap_sunExt")  ||!Q_stricmp(token, "q3map_sunExt")) //add hypov8
+    else if (!Q_stricmpn(token+1, "map_sun", 7) || !Q_stricmpn(token+2, "map_sun", 7)) //kmap_sun, q3map_sun..
     {
       float a, b;
 
@@ -4943,6 +4937,13 @@ static qboolean ParseShader( char *_text )
       SurfaceParm( "noShadows" );
       continue;
     }
+	//hypov8 spec map is pbr. RGB=Metalic, alpha=Rough)
+    else if ( !Q_stricmp( token, "pbrspec" ) )
+    {
+      shader.isPBRShader = qtrue;
+      continue;
+    }
+
     // when <state> <shader name>
     else if ( !Q_stricmp( token, "when" ) )
     {
@@ -5063,11 +5064,12 @@ static void CollapseStages( void )
 {
 //	int             abits, bbits;
   int           i, j;
+  int usedShader[MAX_SHADER_STAGES]; //fix for reflectionmap getting lost
 
   qboolean      hasDiffuseStage;
   qboolean      hasNormalStage;
   qboolean      hasSpecularStage;
-  qboolean      hasReflectionStage;
+  //qboolean      hasReflectionStage;
   qboolean      hasGlowStage;
 
   shaderStage_t tmpDiffuseStage;
@@ -5097,13 +5099,14 @@ static void CollapseStages( void )
 
   Com_Memset( &tmpStages[ 0 ], 0, sizeof( stages ) );
   //Com_Memcpy(&tmpStages[0], &stages[0], sizeof(stages));
+  Com_Memset(&usedShader, 0, sizeof(usedShader)); //hypov8 add.
 
   for ( j = 0; j < MAX_SHADER_STAGES; j++ )
   {
     hasDiffuseStage = qfalse;
     hasNormalStage = qfalse;
     hasSpecularStage = qfalse;
-    hasReflectionStage = qfalse;
+    //hasReflectionStage = qfalse;
     hasGlowStage = qfalse;
 
     Com_Memset( &tmpDiffuseStage, 0, sizeof( shaderStage_t ) );
@@ -5116,12 +5119,21 @@ static void CollapseStages( void )
     Com_Memset( &tmpLightmapStage, 0, sizeof( shaderStage_t ) );
 #endif
 
-    if ( !stages[ j ].active )
-    {
+    if ( !stages[ j ].active ) 
+	{
+      continue;
+    }
+
+    //hypov8: skip previously merged stage
+    if (usedShader[j])
+	{
       continue;
     }
 
     if (
+#if /*!defined( COMPAT_KPQ3 ) &&*/ ( !defined(COMPAT_Q3A) && !defined(COMPAT_ET) )
+      stages[ j ].type == ST_COLORMAP || //no merge (stage was getting discarded)
+#endif
       stages[ j ].type == ST_REFRACTIONMAP ||
       stages[ j ].type == ST_DISPERSIONMAP ||
       stages[ j ].type == ST_SKYBOXMAP ||
@@ -5134,229 +5146,143 @@ static void CollapseStages( void )
     {
       // only merge lighting relevant stages
       tmpStages[ numStages ] = stages[ j ];
+	  usedShader[j] = 1;
       numStages++;
       continue;
     }
 
-#if /*!defined( COMPAT_KPQ3 ) &&*/ ( defined(COMPAT_Q3A) || defined(COMPAT_ET) )
-    {
-      int idxColorStage = -1;
-      int idxLightmapStage = -1;
-
-      for ( i = 0; i < 2; i++ )
-      {
-        if ( ( j + i ) >= MAX_SHADER_STAGES )
-        {
-          continue;
-        }
-
-        if ( !stages[ j + i ].active )
-        {
-          continue;
-        }
-
-        if ( stages[ j + i ].type == ST_COLORMAP && idxColorStage == -1 )
-        {
-          idxColorStage = j + i;
-          tmpColorStage = stages[ j + i ];
-        }
-        else if ( stages[ j + i ].type == ST_LIGHTMAP && idxLightmapStage == -1 )
-        {
-          idxLightmapStage = j + i;
-          tmpLightmapStage = stages[ j + i ];
-        }
-      }
-
-      // try to merge color/lightmap to diffuse
-      if ( idxColorStage != -1 &&
-           idxLightmapStage != -1 &&
-           // TODO check color stage no alphaGen
-           ( tmpLightmapStage.stateBits & ( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO ) )
-         )
-      {
-        ri.Printf( PRINT_ALL, "color/lightmap combo\n" );
-
-        tmpShader.collapseType = COLLAPSE_color_lightmap;
-
-        tmpStages[ numStages ] = tmpColorStage;
-        tmpStages[ numStages ].type = ST_DIFFUSEMAP;
-        tmpStages[ numStages ].stateBits &= ~( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
-        //tmpStages[numStages].stateBits |= GLS_DEPTHMASK_TRUE;
-
-        //tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
-
-        numStages++;
-        j += 1;
-        continue;
-      }
-    }
-
-    /*
-    else if(idxLightmapStage > idxColorStage)
-    {
-            tmpStages[numStages] = tmpColorStage;
-            numStages++;
-
-            tmpStages[numStages] = tmpLightmapStage;
-            numStages++;
-            continue;
-    }
-    else
-    {
-            tmpStages[numStages] = tmpLightmapStage;
-            numStages++;
-
-            tmpStages[numStages] = tmpColorStage;
-            numStages++;
-            continue;
-    }
-    */
-#endif
-
-    for ( i = 0; i < 4; i++ ) //hypov8 only check 4 stages ahead for combine?
-    {
-      if ( ( j + i ) >= MAX_SHADER_STAGES )
-      {
-        continue;
-      }
-
-      if ( !stages[ j + i ].active )
-      {
-        continue;
-      }
-
-      if ( stages[ j + i ].type == ST_DIFFUSEMAP && !hasDiffuseStage )
-      {
-        hasDiffuseStage = qtrue;
-        tmpDiffuseStage = stages[ j + i ];
-      }
-      else if ( stages[ j + i ].type == ST_NORMALMAP && !hasNormalStage )
-      {
-        hasNormalStage = qtrue;
-        tmpNormalStage = stages[ j + i ];
-      }
-      else if ( stages[ j + i ].type == ST_SPECULARMAP && !hasSpecularStage )
-      {
-        hasSpecularStage = qtrue;
-        tmpSpecularStage = stages[ j + i ];
-      }
-      else if ( stages[ j + i ].type == ST_REFLECTIONMAP && !hasReflectionStage )
-      {
-        hasReflectionStage = qtrue;
-        tmpReflectionStage = stages[ j + i ];
-      }
-      else if ( stages[ j + i ].type == ST_GLOWMAP && !hasGlowStage )
-      {
-        hasGlowStage = qtrue;
-        tmpGlowStage = stages[ j + i ];
-      }
-    }
-
-    // NOTE: Tr3B - merge as many stages as possible
-
-    // try to merge diffuse/normal/specular/glow
-    if ( hasDiffuseStage         &&
-         hasNormalStage          &&
-         hasSpecularStage        &&
-         hasGlowStage       )
-    {
-      //ri.Printf(PRINT_ALL, "lighting_DBSG\n");
-
-      tmpShader.collapseType = COLLAPSE_lighting_DBSG;
-
-      tmpStages[ numStages ] = tmpDiffuseStage;
-      tmpStages[ numStages ].type = ST_COLLAPSE_lighting_DBSG;
-
-      tmpStages[ numStages ].bundle[ TB_NORMALMAP ] = tmpNormalStage.bundle[ 0 ];
-
-      tmpStages[ numStages ].bundle[ TB_SPECULARMAP ] = tmpSpecularStage.bundle[ 0 ];
-      tmpStages[ numStages ].specularExponentMin = tmpSpecularStage.specularExponentMin;
-      tmpStages[ numStages ].specularExponentMax = tmpSpecularStage.specularExponentMax;
-
-      tmpStages[ numStages ].bundle[ TB_GLOWMAP ] = tmpGlowStage.bundle[ 0 ];
-      numStages++;
-      j += 3;
-      continue;
-    }
-    // try to merge diffuse/normal/specular
-    else if ( hasDiffuseStage         &&
-              hasNormalStage          &&
-              hasSpecularStage       )
-    {
-      //ri.Printf(PRINT_ALL, "lighting_DBS\n");
-
-      tmpShader.collapseType = COLLAPSE_lighting_DBS;
-
-      tmpStages[ numStages ] = tmpDiffuseStage;
-      tmpStages[ numStages ].type = ST_COLLAPSE_lighting_DBS;
-
-      tmpStages[ numStages ].bundle[ TB_NORMALMAP ] = tmpNormalStage.bundle[ 0 ];
-
-      tmpStages[ numStages ].bundle[ TB_SPECULARMAP ] = tmpSpecularStage.bundle[ 0 ];
-      tmpStages[ numStages ].specularExponentMin = tmpSpecularStage.specularExponentMin;
-      tmpStages[ numStages ].specularExponentMax = tmpSpecularStage.specularExponentMax;
-
-      numStages++;
-      j += 2;
-      continue;
-    }
-    // try to merge diffuse/normal/glow
-    else if ( hasDiffuseStage         &&
-              hasNormalStage          &&
-              hasGlowStage )
-    {
-      //ri.Printf(PRINT_ALL, "lighting_DBG\n");
-
-      tmpShader.collapseType = COLLAPSE_lighting_DBG;
-
-      tmpStages[ numStages ] = tmpDiffuseStage;
-      tmpStages[ numStages ].type = ST_COLLAPSE_lighting_DBG;
-
-      tmpStages[ numStages ].bundle[ TB_NORMALMAP ] = tmpNormalStage.bundle[ 0 ];
-      tmpStages[ numStages ].bundle[ TB_GLOWMAP ] = tmpGlowStage.bundle[ 0 ];
-      numStages++;
-      j += 2;
-      continue;
-    }
-    // try to merge diffuse/normal
-    else if ( hasDiffuseStage         &&
-              hasNormalStage )
-    {
-      //ri.Printf(PRINT_ALL, "lighting_DB\n");
-
-      tmpShader.collapseType = COLLAPSE_lighting_DB;
-
-      tmpStages[ numStages ] = tmpDiffuseStage;
-      tmpStages[ numStages ].type = ST_COLLAPSE_lighting_DB;
-
-      tmpStages[ numStages ].bundle[ TB_NORMALMAP ] = tmpNormalStage.bundle[ 0 ];
-
-      numStages++;
-      j += 1;
-      continue;
-    }
-    // try to merge env/normal
-    else if ( hasReflectionStage &&
-              hasNormalStage )
-    {
-      //ri.Printf(PRINT_ALL, "reflection_CB\n");
-
-      tmpShader.collapseType = COLLAPSE_reflection_CB;
-
-      tmpStages[ numStages ] = tmpReflectionStage;
-      tmpStages[ numStages ].type = ST_COLLAPSE_reflection_CB;
-
-      tmpStages[ numStages ].bundle[ TB_NORMALMAP ] = tmpNormalStage.bundle[ 0 ];
-
-      numStages++;
-      j += 1;
-      continue;
-    }
-    // if there was no merge option just copy stage
-    else
+    // hypov8 note: moved up. stage was getting discard
+    // try to merge env/normal.
+    if (stages[j].type == ST_REFLECTIONMAP)
     {
       tmpStages[ numStages ] = stages[ j ];
+      usedShader[j] = 1;
+
+      //loop through all stages. looking for bump ahead of stage first, then check prev stages
+      for (i = 1; i < MAX_SHADER_STAGES; i++)
+      {
+        int idx = (j + i) % MAX_SHADER_STAGES;
+        if (!stages[idx].active)
+        {
+          continue;
+        }
+        if (stages[idx].type == ST_NORMALMAP)
+        {
+          tmpShader.collapseType = COLLAPSE_reflection_CB;
+          tmpStages[numStages].type = ST_COLLAPSE_reflection_CB;
+          tmpStages[numStages].bundle[TB_NORMALMAP] = stages[idx].bundle[0];
+          break;
+        }
+      }
       numStages++;
+      continue;
+    }
+
+    // forcing this keep stage order (incase bumpmaps/spec/glow where added first)
+    //
+    // ST_DIFFUSEMAP
+    if (stages[j].type == ST_DIFFUSEMAP)
+    {
+      //loop through all stages. looking ahead of stage first, then check prev stages
+      for (i = 0; i < MAX_SHADER_STAGES; i++)
+      {
+        int idx = (j + i) % MAX_SHADER_STAGES;
+        if (usedShader[idx])
+        {
+          continue;
+        }
+
+        if (!stages[idx].active)
+        {
+          continue;
+        }
+
+        if (stages[idx].type == ST_DIFFUSEMAP && !hasDiffuseStage)
+        {
+          hasDiffuseStage = qtrue;
+          tmpDiffuseStage = stages[idx];
+          usedShader[idx] = 1;
+        }
+        else if (stages[idx].type == ST_NORMALMAP && !hasNormalStage)
+        {
+          hasNormalStage = qtrue;
+          tmpNormalStage = stages[idx];
+          usedShader[idx] = 1;
+        }
+        else if (stages[idx].type == ST_SPECULARMAP && !hasSpecularStage)
+        {
+          hasSpecularStage = qtrue;
+          tmpSpecularStage = stages[idx];
+          usedShader[idx] = 1;
+        }
+        else if (stages[idx].type == ST_GLOWMAP && !hasGlowStage)
+        {
+          hasGlowStage = qtrue;
+          tmpGlowStage = stages[idx];
+          usedShader[idx] = 1;
+        }
+      }
+
+      // NOTE: Tr3B - merge as many stages as possible
+
+      // try to merge diffuse/normal/specular/glow
+      if (hasDiffuseStage && hasNormalStage && hasSpecularStage && hasGlowStage)
+      {
+        tmpShader.collapseType = COLLAPSE_lighting_DBSG;
+        tmpStages[numStages] = tmpDiffuseStage;
+        tmpStages[numStages].type = ST_COLLAPSE_lighting_DBSG;
+        tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+        tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
+        tmpStages[numStages].specularExponentMin = tmpSpecularStage.specularExponentMin;
+        tmpStages[numStages].specularExponentMax = tmpSpecularStage.specularExponentMax;
+        tmpStages[numStages].bundle[TB_GLOWMAP] = tmpGlowStage.bundle[0];
+        numStages++;
+        continue;
+      }
+      // try to merge diffuse/normal/specular
+      else if (hasDiffuseStage && hasNormalStage && hasSpecularStage)
+      {
+        tmpShader.collapseType = COLLAPSE_lighting_DBS;
+        tmpStages[numStages] = tmpDiffuseStage;
+        tmpStages[numStages].type = ST_COLLAPSE_lighting_DBS;
+        tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+        tmpStages[numStages].bundle[TB_SPECULARMAP] = tmpSpecularStage.bundle[0];
+        tmpStages[numStages].specularExponentMin = tmpSpecularStage.specularExponentMin;
+        tmpStages[numStages].specularExponentMax = tmpSpecularStage.specularExponentMax;
+        numStages++;
+        continue;
+      }
+      // try to merge diffuse/normal/glow
+      else if (hasDiffuseStage && hasNormalStage && hasGlowStage)
+      {
+        tmpShader.collapseType = COLLAPSE_lighting_DBG;
+        tmpStages[numStages] = tmpDiffuseStage;
+        tmpStages[numStages].type = ST_COLLAPSE_lighting_DBG;
+        tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+        tmpStages[numStages].bundle[TB_GLOWMAP] = tmpGlowStage.bundle[0];
+        numStages++;
+        continue;
+      }
+      // try to merge diffuse/normal
+      else if (hasDiffuseStage && hasNormalStage)
+      {
+        tmpShader.collapseType = COLLAPSE_lighting_DB;
+        tmpStages[numStages] = tmpDiffuseStage;
+        tmpStages[numStages].type = ST_COLLAPSE_lighting_DB;
+        tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+        numStages++;
+        continue;
+      }
+      else if (hasDiffuseStage)
+      {
+        tmpStages[ numStages ] = stages[ j ];
+        numStages++;
+      }
+    }
+    else if (stages[j].type == ST_GLOWMAP)
+    {
+        tmpStages[ numStages ] = stages[ j ];
+        numStages++;
     }
   } //end loop through max_shaders (j)
 

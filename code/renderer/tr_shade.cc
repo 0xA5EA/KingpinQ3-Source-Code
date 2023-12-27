@@ -631,26 +631,21 @@ static void Render_vertexLighting_DBS_entity( int stage )
 
 	bool normalMapping = r_normalMapping->integer && ( pStage->bundle[ TB_NORMALMAP ].image[ 0 ] != NULL );
 	bool glowMapping = ( pStage->bundle[ TB_GLOWMAP ].image[ 0 ] != NULL );
+	bool reflectMapping = normalMapping &&( r_reflectionMapping->integer); // tr.cubeHashTable != NULL ||
 
 	// choose right shader program ----------------------------------
 	gl_vertexLightingShader_DBS_entity->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
 	gl_vertexLightingShader_DBS_entity->SetVertexAnimation( glState.vertexAttribsInterpolation > 0 );
-
 	gl_vertexLightingShader_DBS_entity->SetDeformVertexes( tess.surfaceShader->numDeforms > 0 );
-
 	gl_vertexLightingShader_DBS_entity->SetNormalMapping( normalMapping );
 	gl_vertexLightingShader_DBS_entity->SetParallaxMapping( normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax );
-
-	gl_vertexLightingShader_DBS_entity->SetReflectiveSpecular( normalMapping && tr.cubeHashTable != NULL );
-
+	gl_vertexLightingShader_DBS_entity->SetReflectiveSpecular( reflectMapping );
 	gl_vertexLightingShader_DBS_entity->SetGlowMapping( glowMapping );
-
 	gl_vertexLightingShader_DBS_entity->BindProgram();
-
 	// end choose right shader program ------------------------------
 
 	// now we are ready to set the shader program uniforms
-
+	//u_Bones
 	if ( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning )
 	{
 		gl_vertexLightingShader_DBS_entity->SetUniform_Bones( tess.numBones, tess.bones );
@@ -659,14 +654,14 @@ static void Render_vertexLighting_DBS_entity( int stage )
 	// set uniforms
 	VectorCopy( backEnd.viewParms.orientation.origin, viewOrigin );  // in world space
 	VectorCopy( backEnd.currentEntity->ambientLight, ambientColor );
-	VectorCopy( backEnd.currentEntity->directedLight, lightColor );
+	Vector4Copy( backEnd.currentEntity->directedLight, lightColor );
 
 	// lightDir = L vector which means surface to light
 	VectorCopy( backEnd.currentEntity->lightDir, lightDir );
 
 	// u_AlphaTest
 	gl_vertexLightingShader_DBS_entity->SetUniform_AlphaTest( pStage->stateBits );
-
+	//u_ViewOrigin
 	gl_vertexLightingShader_DBS_entity->SetUniform_ViewOrigin( viewOrigin );
 
 
@@ -676,9 +671,15 @@ static void Render_vertexLighting_DBS_entity( int stage )
 
 	if (tr.world) 
 	{
-		gl_vertexLightingShader_DBS_entity->SetUniform_AmbientColor(ambientColor);
-		gl_vertexLightingShader_DBS_entity->SetUniform_LightDir(lightDir);
-		gl_vertexLightingShader_DBS_entity->SetUniform_LightColor(lightColor);
+		gl_vertexLightingShader_DBS_entity->SetUniform_AmbientColor(ambientColor);	//u_AmbientColor
+		gl_vertexLightingShader_DBS_entity->SetUniform_LightDir(lightDir);			//u_LightDir
+		gl_vertexLightingShader_DBS_entity->SetUniform_LightColor(lightColor);		//u_LightColor
+	}
+	else //menu?
+	{
+		gl_vertexLightingShader_DBS_entity->SetUniform_AmbientColor(colorWhite);	//u_AmbientColor
+		gl_vertexLightingShader_DBS_entity->SetUniform_LightDir(vec3_origin);		//u_LightDir
+		gl_vertexLightingShader_DBS_entity->SetUniform_LightColor(colorWhite);		//u_LightColor
 	}
 
 
@@ -735,10 +736,10 @@ static void Render_vertexLighting_DBS_entity( int stage )
 
 		float minSpec = RB_EvalExpression( &pStage->specularExponentMin, r_specularExponentMin->value );
 		float maxSpec = RB_EvalExpression( &pStage->specularExponentMax, r_specularExponentMax->value );
-
 		gl_vertexLightingShader_DBS_entity->SetUniform_SpecularExponent( minSpec, maxSpec );
-		
-		if ( tr.cubeHashTable != NULL )
+
+		// R_BuildCubeMaps
+		if (tr.cubeHashTable != NULL) //r_reflectionMapping->integer == 2
 		{
 			cubemapProbe_t *cubeProbeNearest;
 			cubemapProbe_t *cubeProbeSecondNearest;
@@ -804,7 +805,10 @@ static void Render_vertexLighting_DBS_entity( int stage )
 				}
 
 				float interpolate = cubeProbeNearestDistance / ( cubeProbeNearestDistance + cubeProbeSecondNearestDistance );
-
+#ifdef COMPAT_KPQ3
+				if (interpolate >= 1.0f)
+					interpolate = 0.99f; //1.0 is pbr
+#endif
 				if ( r_logFile->integer )
 				{
 					GLimp_LogComment( va( "cubeProbeNearestDistance = %f, cubeProbeSecondNearestDistance = %f, interpolation = %f\n",
@@ -820,10 +824,47 @@ static void Render_vertexLighting_DBS_entity( int stage )
 				// u_EnvironmentInterpolation
 				gl_vertexLightingShader_DBS_entity->SetUniform_EnvironmentInterpolation( interpolate );
 			}
+			gl_vertexLightingShader_DBS_entity->EnableReflectiveSpecular(); // SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 		}
+#ifdef COMPAT_KPQ3
+		else if (r_reflectionMapping->integer)
+		{
+			image_t * skyImg = NULL;
+			float cubeRez = 1.0f;
 
-		gl_vertexLightingShader_DBS_entity->EnableReflectiveSpecular(); // SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+			//user sky found in shader
+			if (tr.skyCubeMap)
+			{
+				skyImg = tr.skyCubeMap;
+			}
+			else
+			{
+				skyImg = tr.skyCubeMapDefault;
+			}
+			// bind u_EnvironmentMap0
+			GL_BindToTMU(3, skyImg);
+			// bind u_EnvironmentMap1
+			GL_BindToTMU(4, skyImg); //todo env light
 
+			if (tess.surfaceShader->isPBRShader)
+			{
+				int cubeBit = Q_min(skyImg->uploadHeight, skyImg->uploadWidth);
+				while (cubeBit > 32)
+				{
+					cubeRez += 1.0f; //mip level. min 32pix?
+					cubeBit >>= 1;
+				}
+				GL_BindToTMU(6, tr.pbrLutImage); //set lut in colormap 
+				gl_vertexLightingShader_DBS_entity->SetUniform_ColorTextureMatrix(tess.svars.texMatrices[TB_COLORMAP]);
+			}
+			else
+				cubeRez = 0.0f;
+
+			// u_EnvironmentInterpolation
+			gl_vertexLightingShader_DBS_entity->SetUniform_EnvironmentInterpolation( cubeRez );
+			gl_vertexLightingShader_DBS_entity->EnableReflectiveSpecular();
+		}
+#endif
 	}
 
 	if ( glowMapping )
@@ -831,7 +872,6 @@ static void Render_vertexLighting_DBS_entity( int stage )
 		GL_BindToTMU( 5, pStage->bundle[ TB_GLOWMAP ].image[ 0 ] ); 
 		gl_vertexLightingShader_DBS_entity->SetUniform_GlowTextureMatrix( tess.svars.texMatrices[ TB_GLOWMAP ] );
 	}
-
 
 	gl_vertexLightingShader_DBS_entity->SetRequiredVertexPointers();
 
@@ -1434,7 +1474,7 @@ static void Render_forwardLighting_DBS_omni( shaderStage_t *diffuseStage,
 	// set uniforms
 	VectorCopy( backEnd.viewParms.orientation.origin, viewOrigin );
 	VectorCopy( light->origin, lightOrigin );
-	VectorCopy( tess.svars.color, lightColor );
+	Vector4Copy( tess.svars.color, lightColor );
 
 	if ( shadowCompare )
 	{
@@ -1635,7 +1675,7 @@ static void Render_forwardLighting_DBS_proj( shaderStage_t *diffuseStage,
 	// set uniforms
 	VectorCopy( backEnd.viewParms.orientation.origin, viewOrigin );
 	VectorCopy( light->origin, lightOrigin );
-	VectorCopy( tess.svars.color, lightColor );
+	Vector4Copy( tess.svars.color, lightColor );
 
 	if ( shadowCompare )
 	{
@@ -1848,7 +1888,7 @@ static void Render_forwardLighting_DBS_directional( shaderStage_t *diffuseStage,
 	VectorCopy( light->direction, lightDirection );
 #endif
 
-	VectorCopy( tess.svars.color, lightColor );
+	Vector4Copy( tess.svars.color, lightColor );
 
 	if ( shadowCompare )
 	{
@@ -2001,19 +2041,13 @@ static void Render_reflection_CB( int stage )
 	// choose right shader program ----------------------------------
 	gl_reflectionShader->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
 	gl_reflectionShader->SetVertexAnimation( glState.vertexAttribsInterpolation > 0 );
-
 	gl_reflectionShader->SetDeformVertexes( tess.surfaceShader->numDeforms > 0 );
-
 	gl_reflectionShader->SetNormalMapping( normalMapping );
-
 //	gl_reflectionShader->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-
 	gl_reflectionShader->BindProgram();
-
 	// end choose right shader program ------------------------------
 
 	gl_reflectionShader->SetUniform_ViewOrigin( backEnd.viewParms.orientation.origin );  // in world space
-
 	gl_reflectionShader->SetUniform_ModelMatrix( backEnd.orientation.transformMatrix );
 	gl_reflectionShader->SetUniform_ModelViewProjectionMatrix( glState.modelViewProjectionMatrix[ glState.stackIndex ] );
 
@@ -2032,19 +2066,24 @@ static void Render_reflection_CB( int stage )
 	// bind u_ColorMap
 	GL_SelectTexture( 0 );
 #if 1
-
-	if ( backEnd.currentEntity && ( backEnd.currentEntity != &tr.worldEntity ) )
+	if (pStage->bundle[TB_COLORMAP].image[0] && pStage->bundle[TB_COLORMAP].image[0] != tr.quadraticImage)
 	{
-		if (pStage->bundle[TB_COLORMAP].image[0] && qstrcmp(pStage->bundle[TB_COLORMAP].image[0]->name, "_autocube"))
-			GL_Bind( pStage->bundle[ TB_COLORMAP ].image[ 0 ] );
-		else
-			GL_BindNearestCubeMap( backEnd.currentEntity->e.origin );
+		GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
 	}
 	else
 	{
-		GL_BindNearestCubeMap( backEnd.viewParms.orientation.origin );
+		if (backEnd.currentEntity && (backEnd.currentEntity != &tr.worldEntity))
+		{
+			/*if (pStage->bundle[TB_COLORMAP].image[0] && qstrcmp(pStage->bundle[TB_COLORMAP].image[0]->name, "_autocube"))
+			  GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+			  else*/
+			GL_BindNearestCubeMap(backEnd.currentEntity->e.origin);
+		}
+		else
+		{
+			GL_BindNearestCubeMap(backEnd.viewParms.orientation.origin);
+		}
 	}
-
 #else
 	GL_Bind( pStage->bundle[ TB_COLORMAP ].image[ 0 ] );
 #endif
@@ -2224,7 +2263,7 @@ static void Render_heatHaze( int stage )
 	shaderStage_t *pStage = tess.surfaceStages[ stage ];
 
 	GLimp_LogComment( "--- Render_heatHaze ---\n" );
-
+#if 0
 	if ( r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable /*&& glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10*/ && glConfig.driverType != GLDRV_MESA )
 	{
 		FBO_t    *previousFBO;
@@ -2308,7 +2347,7 @@ static void Render_heatHaze( int stage )
 
 		GLimp_LogComment( "--- HEATHAZE FIX END ---\n" );
 	}
-
+#endif
 	// remove alpha test
 	stateBits = pStage->stateBits;
 	stateBits &= ~GLS_ATEST_BITS;
@@ -2361,13 +2400,13 @@ static void Render_heatHaze( int stage )
 	// bind u_CurrentMap
 	GL_BindToTMU( 1, tr.currentRenderImage );
 	glCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight );
-
-
+#if 0
 	// bind u_ContrastMap
 	if ( r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA )
 	{
 		GL_BindToTMU( 2, tr.occlusionRenderFBOImage ); 
 	}
+#endif
 
 	gl_heatHazeShader->SetRequiredVertexPointers();
 

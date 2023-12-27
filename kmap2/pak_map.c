@@ -9,6 +9,19 @@ shader names are textures/kmap2_<mapname>/<index>
 also .bsp internal shader names will be re-named
 
 
+usage: 
+	kmap2.exe -pakmap -game kingpinq3 -fs_game basekpq3 -fs_basepath D:/kpq3_beta2/ D:/kpq3_beta2/basekpq3/maps/fortknox.map
+
+	output: 
+		basekpq3/map-<mapname>-<date>.pk3
+			maps/<mapname>.bsp              (updated shaders)
+			materials/kmap2_<mapname>.mtr   (generated)
+			maps/<mapname>.aas              (must exist)
+			levelshots/<mapname>.jpg        (must exist)
+			video/<mapname>.ogv             (must exist)
+			scripts/<mapname>.arena         (must exist)
+			<map assets>
+
 todo: 
 	deal with tables?
 	fix kmap image files
@@ -18,6 +31,7 @@ todo:
 	imagefile names are not renamed and will cause duplicates. should these be unique to?
 	handle mod folder/s. this is also not loading global paths properly(local to vfs.c)
 	check for missing -fs_path switches.
+	optional include <filename>.map
 */
 
 #ifdef KMAP2

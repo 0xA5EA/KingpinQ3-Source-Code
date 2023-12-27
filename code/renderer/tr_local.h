@@ -468,6 +468,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	  FT_DEFAULT,
 	  FT_LINEAR,
 	  FT_NEAREST
+#ifdef COMPAT_KPQ3
+	  ,FT_CUBEMIP //force mipmap for reflections (required for glsl)
+#endif
 	} filterType_t;
 
 	typedef enum
@@ -636,7 +639,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if /*defined( COMPAT_KPQ3 ) ||*/ ( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )
 	              //| ATTR_PAINTCOLOR 
-	              | ATTR_LIGHTDIRECTION //hypov8 add
+	              /////////| ATTR_LIGHTDIRECTION //hypov8 add
 #endif
 	              //ATTR_BONE_INDEXES |
 	              //ATTR_BONE_WEIGHTS
@@ -1280,6 +1283,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		qboolean       forceOpaque;
 		qboolean       isSky;
 		skyParms_t     sky;
+		qboolean       isPBRShader; //hypov8
 
 		float          portalRange; // distance to fog out at
 		qboolean       isPortal;
@@ -2761,7 +2765,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		image_t    *quadraticImage;
 		image_t    *whiteImage; // full of 0xff
 		image_t    *blackImage; // full of 0x0
-		image_t		*greyImage;		//add hypov8
+		image_t    *greyImage;  //add hypov8
 		image_t    *redImage;
 		image_t    *greenImage;
 		image_t    *blueImage;
@@ -2830,7 +2834,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		shader_t   *flareShader;
 		shader_t   *sunShader;
 		char       *sunShaderName;
-
+#ifdef COMPAT_KPQ3
+		// reflection cubemap. used in weapon relections. dynamic cubemaps are buggy
+		image_t    *skyCubeMapDefault; //
+		image_t    *skyCubeMap;
+		image_t    *pbrLutImage; //pbr lut image
+#endif
 		growList_t lightmaps;
 		growList_t deluxemaps;
 
@@ -3532,7 +3541,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		vec4_t normals[ SHADER_MAX_VERTEXES ];
 		vec4_t lightColor[ SHADER_MAX_VERTEXES ];
 #if /*defined( COMPAT_KPQ3 ) ||*/( !defined( COMPAT_Q3A ) && !defined( COMPAT_ET ) )//hypov8 todo: ok off?
-		vec4_t paintColors[ SHADER_MAX_VERTEXES ]; // for advanced terrain blending //typo? paintColors
+		//vec4_t paintColors[ SHADER_MAX_VERTEXES ]; // for advanced terrain blending //typo? paintColors
 		vec4_t lightDirections[ SHADER_MAX_VERTEXES ];
 #endif
 		vec4_t ambientLights[ SHADER_MAX_VERTEXES ];

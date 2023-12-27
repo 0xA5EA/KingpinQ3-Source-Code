@@ -2035,7 +2035,7 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int lightmapNum, i
 
   tr.refdef.numDrawSurfs++;
 
-#if 1 //unvan 0.5
+#if 0 //unvan 0.5
   if ( shader->depthShader != nullptr )
     R_AddDrawSurf( surface, shader->depthShader, 0, 0 );
 #endif
@@ -2901,7 +2901,7 @@ void R_DebugPolygon( int color, int numPoints, float *points )
   int i;
 
   GL_BindProgram( 0 );
-  GL_VertexAttribsState( ATTR_DEFAULT );
+  GL_VertexAttribsState(ATTR_BITS); // ATTR_DEFAULT );
   GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
 
   // draw solid shade

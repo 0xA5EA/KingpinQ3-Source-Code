@@ -525,8 +525,6 @@ even if the client is pure, so take "unpure" as argument.
 */
 vm_t *VM_Restart(vm_t *vm, qboolean unpure)
 {
-	vmHeader_t	*header;
-
 	// DLL's can't be restarted in place
 	if ( vm->dllHandle ) {
 		char	name[MAX_QPATH];
@@ -543,7 +541,7 @@ vm_t *VM_Restart(vm_t *vm, qboolean unpure)
 #ifndef USE_LLVM
   return NULL;
 #else
-
+	vmHeader_t	*header;
 	// load the image
 	Com_Printf( "VM_Restart()\n" );
 

@@ -517,30 +517,7 @@ void Tess_UpdateVBOs( uint32_t attribBits )
     GL_CheckErrors();
 
     assert( ( attribBits & ATTR_BITS ) != 0 );
-
-    if(!(attribBits & ATTR_BITS))
-    {
-      attribBits |= ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR;
-      if(backEnd.currentEntity != &backEnd.entity2D)
-      {
-        attribBits |= ATTR_NORMAL;
-
-        if(r_normalMapping->integer)
-        {
-          attribBits |= ATTR_TANGENT | ATTR_BINORMAL;
-        }
-      }
-
-      if(backEnd.currentEntity == &tr.worldEntity)
-      {
-        attribBits |= ATTR_LIGHTCOORD;
-#if /*defined( COMPAT_KPQ3 ) ||*/ (!defined( COMPAT_Q3A ) && !defined( COMPAT_ET ))
-        //attribBits |= ATTR_PAINTCOLOR;
-        attribBits |= ATTR_LIGHTDIRECTION;
-#endif
-      }
-    }
-
+    //removed
     GL_VertexAttribsState( attribBits );
 
     if ( attribBits & ATTR_POSITION )
@@ -626,7 +603,7 @@ void Tess_UpdateVBOs( uint32_t attribBits )
     }
 #endif
 
-    if ( attribBits & ATTR_LIGHTDIRECTION )
+    if ( attribBits & ATTR_LIGHTDIRECTION ) //map vertex deluxmap
     {
       if ( r_logFile->integer )
       {
@@ -657,8 +634,6 @@ void Tess_UpdateVBOs( uint32_t attribBits )
 
       glBufferSubData( GL_ARRAY_BUFFER, tess.vbo->attribs[ ATTR_INDEX_DIRECTEDLIGHT ].ofs, tess.numVertexes * sizeof( vec4_t ), tess.directedLights );
     }
-
-
   }
 
   GL_CheckErrors();
@@ -1721,9 +1696,6 @@ void Tess_SurfaceVBOMDVMesh( srfVBOMDVMesh_t *surface )
 
   glState.vertexAttribsOldFrame = refEnt->oldframe;
   glState.vertexAttribsNewFrame = refEnt->frame;
-
-  //glState.vertexAttribPointersSet = 0;
-  //GL_VertexAttribPointers(ATTR_BITS | ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2);
 
   Tess_End();
 }
