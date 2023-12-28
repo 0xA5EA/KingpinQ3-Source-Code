@@ -453,7 +453,7 @@ int BotOnMover(vec3_t origin, int entnum, aas_reachability_t *reach)
 	//
 	if (!AAS_OriginOfMoverWithModelNum(modelnum, modelorigin))
 	{
-		botimport.Print(PRT_MESSAGE, "no entity with model %d\n", modelnum);
+		botimport.Print(PRT_MESSAGE, "no entity with model %d (BotOnMover)\n", modelnum);
 		return qfalse;
 	} //end if
 	//
@@ -497,7 +497,7 @@ int MoverDown(aas_reachability_t *reach)
 	//
 	if (!AAS_OriginOfMoverWithModelNum(modelnum, origin))
 	{
-		botimport.Print(PRT_MESSAGE, "no entity with model %d\n", modelnum);
+		botimport.Print(PRT_MESSAGE, "no entity with model %d (MoverDown)\n", modelnum);
 		return qfalse;
 	} //end if
 	//if the top of the plat is below the reachability start point
@@ -994,7 +994,7 @@ void MoverBottomCenter(aas_reachability_t *reach, vec3_t bottomcenter)
 	//
 	if (!AAS_OriginOfMoverWithModelNum(modelnum, origin))
 	{
-		botimport.Print(PRT_MESSAGE, "no entity with model %d\n", modelnum);
+		botimport.Print(PRT_MESSAGE, "no entity with model %d (MoverBottomCenter)\n", modelnum);
 	} //end if
 	//get a point just above the plat in the bottom position
 	VectorAdd(mins, maxs, mids);
@@ -2244,7 +2244,7 @@ void BotFuncBobStartEnd(aas_reachability_t *reach, vec3_t start, vec3_t end, vec
 	modelnum = reach->facenum & 0x0000FFFF;
 	if (!AAS_OriginOfMoverWithModelNum(modelnum, origin))
 	{
-		botimport.Print(PRT_MESSAGE, "BotFuncBobStartEnd: no entity with model %d\n", modelnum);
+		botimport.Print(PRT_MESSAGE, "BotFuncBobStartEnd: no entity with model %d (BotFuncBobStartEnd)\n", modelnum);
 		VectorSet(start, 0, 0, 0);
 		VectorSet(end, 0, 0, 0);
 		return;

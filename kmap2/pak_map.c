@@ -38,6 +38,10 @@ todo:
 #include "kmap2.h"
 #include "zip.h" //compress
 
+// dupe "../code/qcommon/md4.c"
+//copied to kmap
+unsigned Com_BlockChecksum(const void *buffer, int length);
+
 
 typedef struct
 {
@@ -54,12 +58,14 @@ static int isCaseSens = 0; //find linux texture issues?
 static int numMapTextures = 0;
 static int numShaderScripts = 0;
 static char bspFilename[1024], bspTmpFilename[1024];
+static char aasFilename[1024], aasTmpFilename[1024];
 static char textureNames[MAX_SHADER_INFO][MAX_QPATH]; //image files size ok?
 #define fExCount 4
 static const char *fExt[fExCount] = {".png", ".tga", ".jpg", ".pcx"};
 
 static qboolean ReadTexturesAdvancedModes(char *shaderText);
 
+static int bspChecksum = 0;
 
 /*
 ==============
@@ -68,7 +74,7 @@ PakMap_Cleanup
 if error is found, fix file names then print Error
 ==============
 */
-static void PakMap_Cleanup(qboolean renamedMap, qboolean printError, char *str)
+static void PakMap_Cleanup(qboolean restoreOrigMap, qboolean printError, char *str)
 {
 	int i;
 
@@ -81,11 +87,19 @@ static void PakMap_Cleanup(qboolean renamedMap, qboolean printError, char *str)
 	//delete shader file
 	remove(mapShaderFile);
 
-	if (renamedMap)
-	{	//delete edited file
-		remove(bspFilename);
-		//rename old bsp back to original.
-		rename(bspTmpFilename, bspFilename);		
+	//delete edited files. restore originals
+	if (restoreOrigMap)
+	{
+		if (FileExists(bspTmpFilename))
+		{
+			remove(bspFilename);
+			rename(bspTmpFilename, bspFilename);
+		}
+		if (FileExists(aasTmpFilename))
+		{
+			remove(aasFilename);
+			rename(aasTmpFilename, aasFilename);
+		}
 	}
 
 	Sys_Printf("=========================\n");
@@ -345,6 +359,95 @@ void PakMap_SaveBspFile()
 	WriteBSPFile(bspFilename);
 }
 
+//read file. get checksum
+static int  PakMap_GetFileChecksum(char * fileName)
+{
+	//FILE *f;
+	unsigned int len;
+	int retChecksum;
+	byte *buffer;
+
+	len = LoadFile(fileName, (void **)&buffer);
+
+	retChecksum = LittleLong(Com_BlockChecksum(buffer, len));
+	free(buffer);
+
+	return retChecksum;
+}
+
+//be_aas_file
+void PakMap_AAS_DDATA(unsigned char *data, int size)
+{
+  int i;
+
+  for (i = 0; i < size; i++)
+  {
+    data[i] ^= (unsigned char) i * 119;
+  }
+}
+
+
+/*
+update aas file checksum 
+*/
+void PakMap_UpdateAASChecksum()
+{
+	byte *buffer;
+	long len;
+	int newBspChecksum, cSum;
+	int *hdr;
+
+	//make sure original aas and modded bsp exists
+	if (!FileExists(aasFilename) || !FileExists(bspFilename))
+	{
+		Sys_Printf ("%-23s (%s)\n", "WARNING: File missing", aasFilename);
+		return;
+	}
+
+	//remove any failed attemps
+	remove(aasTmpFilename);
+
+	//rename original aas to tmp
+	if (rename(aasFilename, aasTmpFilename) != 0)
+	{
+		Sys_Printf ("%-23s (%s)\n", "WARNING: Cant rename", aasFilename);
+		return;
+	}
+
+	//new bsp checksum
+	newBspChecksum = PakMap_GetFileChecksum(bspFilename);
+	if (newBspChecksum == 0 || bspChecksum == 0)
+	{
+		Sys_Printf ("%-23s (%s)\n", "WARNING: bsp/aas", "checksum failed");
+		return;
+	}
+
+	//read .aas file to buffer
+	len = LoadFile(aasTmpFilename, (void **)&buffer);
+
+	//get header value
+
+	PakMap_AAS_DDATA(buffer + 8, 4);
+	hdr = (int*)buffer;
+	cSum = LittleLong(hdr[2]);
+	if (cSum != bspChecksum)
+	{
+		rename(aasTmpFilename, aasFilename);
+		free(buffer);
+		Sys_Printf ("%-23s (%s)\n", "WARNING: Checksum missmatch", "aasFilename");
+		return;
+	}
+	//set header value
+	hdr[2] = LittleLong(newBspChecksum);
+	PakMap_AAS_DDATA(buffer + 8, 4);
+
+	//save buffer to new file
+	SaveFile(aasFilename, buffer, len);
+
+	free(buffer);
+}
+
+
 static void PakMap_GetTime(char * timeString)
 {
 	time_t t = time(NULL);
@@ -561,11 +664,14 @@ rename ".bsp" to ".bsp.pakmap"
 then load renamed file
 ========
 */
+
 void PakMap_ReadBspFile()
 {
 	//set old/new map file names
 	sprintf(bspFilename, "%s.bsp", source);
 	sprintf(bspTmpFilename, "%s.bsp.pakmap", source);
+	sprintf(aasFilename, "%s.aas", source);
+	sprintf(aasTmpFilename, "%s.aas.pakmap", source);
 
 	//make sure map exists
 	if (source[0] == '\0' || !FileExists(bspFilename))
@@ -579,6 +685,9 @@ void PakMap_ReadBspFile()
 
 	Sys_Printf("Reading bsp: %s\n", bspFilename);
 	LoadBSPFile(bspTmpFilename);
+
+	//get bsp checksum for aas comparison
+	bspChecksum = PakMap_GetFileChecksum(bspTmpFilename);
 
 	//set mapShaderFile and delete file if it exists
 	BeginMapShaderFile(source);
@@ -650,7 +759,7 @@ static void PakMap_SaveShaderFile()
 	Sys_FPrintf(SYS_VRB, "\n");
 
 	/* print some stats */
-	Sys_Printf("%-23s (%d)\n", "Shaders in bsp", numBSPShaders);
+	Sys_Printf ("%-23s (%d)\n", "Shaders in bsp", numBSPShaders);
 	Sys_Printf ("%-23s (%d)\n", "Shaders added to .mtr", numShaderScripts);
 	Sys_Printf ("%-23s (scripts/kmap_%s.mtr)\n", "Write shader file.", mapName);
 }
@@ -830,6 +939,7 @@ int PackMapAssets(int argc, char **argv)
 	PakMap_ReNameShader();
 	PakMap_SaveShaderFile();
 	PakMap_SaveBspFile();
+	PakMap_UpdateAASChecksum(); //aas relies on bsp checksum to load
 	PakMap_SavePk3File();
 	
 	PakMap_Cleanup(qtrue, qfalse, NULL);

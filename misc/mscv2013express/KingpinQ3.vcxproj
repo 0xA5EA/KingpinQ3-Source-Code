@@ -389,7 +389,7 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\code\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN64;__WIN64__;_DEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;BUILD_FREETYPE;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;GLEW_STATIC;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN64;__WIN64__;_DEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;BUILD_FREETYPE;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;GLEW_STATIC;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;COMPAT_KPQ3;USE_SSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -1352,12 +1352,14 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\code\renderer\tr_model_iqm.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\code\renderer\tr_model_mdc.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">true</ExcludedFromBuild>
