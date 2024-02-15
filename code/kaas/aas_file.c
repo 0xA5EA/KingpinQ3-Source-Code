@@ -25,8 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "aas_file.h"
 #include "aas_store.h"
 #include "aas_create.h"
+#include "../botlib/be_aas_main.h"
+void QDECL AAS_Error(char *fmt, ...);
 
-#define AAS_Error			Error
+//#define AAS_Error			Error
 
 //===========================================================================
 //
@@ -198,7 +200,7 @@ char *AAS_LoadAASLump(FILE *fp, int offset, int length, void *buf)
 	if (!length)
 	{
 		printf("lump size 0\n");
-		return buf;
+		return (char*)buf;
 	} //end if
 	//seek to the data
 	if (fseek(fp, offset, SEEK_SET))
@@ -211,7 +213,7 @@ char *AAS_LoadAASLump(FILE *fp, int offset, int length, void *buf)
 	//allocate memory
 	if (!buf) buf = (void *) GetClearedMemory(length);
 	//read the data
-	if (fread((char *) buf, 1, length, fp) != length)
+	if (fread((char *) buf, 1, length, fp) != (size_t)length)
 	{
 		AAS_Error("can't read lump\n");
 		FreeMemory(buf);
@@ -219,7 +221,7 @@ char *AAS_LoadAASLump(FILE *fp, int offset, int length, void *buf)
 		fclose(fp);
 		return NULL;
 	} //end if
-	return buf;
+	return (char*)buf;
 } //end of the function AAS_LoadAASLump
 //===========================================================================
 //

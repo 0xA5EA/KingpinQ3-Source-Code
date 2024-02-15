@@ -33,6 +33,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "l_memory.h"
 #include "l_libvar.h"
+#ifdef BSPC
+  #include "../kaas/l_mem.h"
+#endif
 
 //list with library variables
 libvar_t *libvarlist = NULL;

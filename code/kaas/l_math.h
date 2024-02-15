@@ -28,24 +28,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define USE_Q_SHARED
 #ifdef USE_Q_SHARED
-#include "../qcommon/q_shared.h"
+//#include "../qcommon/q_platform.h"
+//#include "../qcommon/q_shared.h"
 
 #define BSPC_SIDE_FRONT   0
 #define BSPC_SIDE_ON      2
 #define BSPC_SIDE_BACK    1
 #define BSPC_SIDE_CROSS   3 //-2
 
+#define PITCH       0
+#define YAW         1
+#define ROLL        2
+
 #ifndef Q_PI
 #define Q_PI  3.14159265358979323846
 #endif
-static inline vec_t Q_rint (vec_t in)
+STATIC_INLINE vec_t Q_rint (vec_t in) //static inline
 {
   return floor(in + 0.5);
 }
 
 
 #define LEQUAL_EPSILON 0.001
-static inline qboolean lVectorCompare (vec3_t v1, vec3_t v2)
+STATIC_INLINE qboolean lVectorCompare (vec3_t v1, vec3_t v2) //static inline
 {
   int   i;
 
@@ -56,6 +61,9 @@ static inline qboolean lVectorCompare (vec3_t v1, vec3_t v2)
   return qtrue;
 }
 
+void RotatePoint(vec3_t point, float matrix[3][3]); //hypov8
+//void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3]);
+//void CreateRotationMatrix(vec3_t angles, float matrix[3][3]); //hypov8
 #else
 
 #if 0

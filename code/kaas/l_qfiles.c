@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "qbsp.h"
-
+#include "../kaas/unzip.h"
 
 //file extensions with their type
 typedef struct qfile_exttype_s
@@ -267,7 +267,7 @@ quakefile_t *FindQuakeFilesInZip(char *zipfile, char *filter)
 		ConvertPath(filename_inzip);
 		if (FileFilter(filter, filename_inzip, qfalse))
 		{
-			qf = malloc(sizeof(quakefile_t));
+			qf = (quakefile_t*)malloc(sizeof(quakefile_t));
 			if (!qf) Error("out of memory");
 			memset(qf, 0, sizeof(quakefile_t));
 			strcpy(qf->pakfile, zipfile);
@@ -428,7 +428,7 @@ quakefile_t *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 	if (pakfilter && strlen(pakfilter))
 	{
 #if defined(WIN32)|defined(_WIN32)
-		handle = FindFirstFile(pakfilter, &filedata);
+		handle = (HWND)FindFirstFile(pakfilter, &filedata);
 		done = (handle == INVALID_HANDLE_VALUE);
 		while(!done)
 		{
@@ -495,7 +495,7 @@ quakefile_t *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 	else
 	{
 #if defined(WIN32)|defined(_WIN32)
-		handle = FindFirstFile(filter, &filedata);
+		handle = (HWND)FindFirstFile(filter, &filedata);
 		done = (handle == INVALID_HANDLE_VALUE);
 		while(!done)
 		{
@@ -510,7 +510,7 @@ quakefile_t *FindQuakeFilesWithPakFilter(char *pakfilter, char *filter)
 			strcpy(filename, globbuf.gl_pathv[j]);
 #endif
 			//
-			qf = malloc(sizeof(quakefile_t));
+			qf = (quakefile_t*)malloc(sizeof(quakefile_t));
 			if (!qf) Error("out of memory");
 			memset(qf, 0, sizeof(quakefile_t));
 			strcpy(qf->pakfile, "");

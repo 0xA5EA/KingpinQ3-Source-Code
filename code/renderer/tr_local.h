@@ -2836,9 +2836,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		char       *sunShaderName;
 #ifdef COMPAT_KPQ3
 		// reflection cubemap. used in weapon relections. dynamic cubemaps are buggy
-		image_t    *skyCubeMapDefault; //
+		image_t    *skyCubeMapDefault;
 		image_t    *skyCubeMap;
+
 		image_t    *pbrLutImage; //pbr lut image
+		image_t    *pbrSpecHdriImage_default; //pbr specular IBL
+		image_t    *pbrSpecHdriImage; //pbr specular IBL (custom)
 #endif
 		growList_t lightmaps;
 		growList_t deluxemaps;

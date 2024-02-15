@@ -1,7 +1,10 @@
 
+
 #include "l_cmd.h"
 #include "l_mem.h"
 #include "../qcommon/qfiles.h"
+#include "../botlib/l_script.h"
+#include "l_bsp_ent.h"
 
 int				kpq3_nummodels;
 dmodel_t		*kpq3_dmodels;//[MAX_MAP_MODELS];
@@ -54,7 +57,7 @@ dsurface_t	*kpq3_drawSurfaces;//[Q3_MAX_MAP_DRAW_SURFS];
 int				kpq3_numFogs;
 dfog_t		*kpq3_dfogs;//[Q3_MAX_MAP_FOGS];
 
-char			kpq3_dbrushsidetextured[Q3_MAX_MAP_BRUSHSIDES];
+char			kpq3_dbrushsidetextured[MAX_MAP_BRUSHSIDES];
 
 extern qboolean forcesidesvisible;
 
@@ -143,7 +146,7 @@ static void CopyLightGridLumps(dheader_t * header)
 #endif
 void KPQ3_LoadBSPFile(struct quakefile_s *qf)
 {
-	xbspHeader_t   *header;
+	dheader_t   *header;//xbspHeader_t
 
 	/* load the file header */
 	//LoadFile(filename, (void **)&header);
@@ -153,29 +156,29 @@ void KPQ3_LoadBSPFile(struct quakefile_s *qf)
 	Q3_SwapBlock((int *)((byte *) header + sizeof(int)), sizeof(*header) - sizeof(int));
 
 	/* make sure it matches the format we're trying to load */
-	if ( header->ident != BSP_IDENT ) {
+	if ( header->ident != BSP_IDENT_KPQ3 ) {
 		Error( "%s is not a IBSP file", qf->filename );
 	}
-	if ( header->version != BSP_VERSION ) {
-		Error( "%s is version %i, not %i", qf->filename, header->version, Q3_BSP_VERSION );
+	if ( header->version != BSP_VERSION_KPQ3 ) {
+		Error( "%s is version %i, not %i", qf->filename, header->version, BSP_VERSION_KPQ3 );
 	}
 
 	/* load/convert lumps */
-	numBSPShaders = KPQ3_CopyLump((bspHeader_t *) header, LUMP_SHADERS,  (void *) &q3_dshaders, sizeof(dShader_t));
+	kpq3_numShaders = KPQ3_CopyLump((dheader_t *) header, LUMP_SHADERS,  (void **) &kpq3_dshaders, sizeof(dshader_t));
 
-	numBSPModels = KPQ3_CopyLump((bspHeader_t *) header, LUMP_MODELS, bspModels, sizeof(bspModel_t));
+	kpq3_nummodels = KPQ3_CopyLump((dheader_t *) header, LUMP_MODELS, (void **) &kpq3_dmodels, sizeof(dmodel_t));
 
-	numBSPPlanes = KPQ3_CopyLump((bspHeader_t *) header, LUMP_PLANES, bspPlanes, sizeof(bspPlane_t));
+	kpq3_numplanes = KPQ3_CopyLump((dheader_t *) header, LUMP_PLANES, (void **) &kpq3_dplanes, sizeof(dplane_t));
 
-	numBSPLeafs = KPQ3_CopyLump((bspHeader_t *) header, LUMP_LEAFS, bspLeafs, sizeof(bspLeaf_t));
+	kpq3_numleafs = KPQ3_CopyLump((dheader_t *) header, LUMP_LEAFS, (void **) &kpq3_dleafs, sizeof(dleaf_t));
 
-	numBSPNodes = KPQ3_CopyLump((bspHeader_t *) header, LUMP_NODES, bspNodes, sizeof(bspNode_t));
+	kpq3_numnodes = KPQ3_CopyLump((dheader_t *) header, LUMP_NODES, (void **) &kpq3_dnodes, sizeof(dnode_t));
 
-	numBSPLeafSurfaces = KPQ3_CopyLump((bspHeader_t *) header, LUMP_LEAFSURFACES, bspLeafSurfaces, sizeof(bspLeafSurfaces[0]));
+	kpq3_numleafsurfaces = KPQ3_CopyLump((dheader_t *) header, LUMP_LEAFSURFACES, (void **) &kpq3_dleafsurfaces, sizeof(kpq3_dleafsurfaces[0]));
 
-	numBSPLeafBrushes = KPQ3_CopyLump((bspHeader_t *) header, LUMP_LEAFBRUSHES, bspLeafBrushes, sizeof(bspLeafBrushes[0]));
+	kpq3_numleafbrushes = KPQ3_CopyLump((dheader_t *) header, LUMP_LEAFBRUSHES, (void **) &kpq3_dleafbrushes, sizeof(kpq3_dleafbrushes[0]));
 
-	numBSPBrushes = KPQ3_CopyLump((bspHeader_t *) header, LUMP_BRUSHES, bspBrushes, sizeof(bspBrush_t));
+	kpq3_numbrushes = KPQ3_CopyLump((dheader_t *) header, LUMP_BRUSHES, (void **) &kpq3_dbrushes, sizeof(dbrush_t));
 
 //	CopyBrushSidesLump(header);
 
@@ -183,17 +186,17 @@ void KPQ3_LoadBSPFile(struct quakefile_s *qf)
 
 //	CopyDrawSurfacesLump(header);
 
-	numBSPFogs = KPQ3_CopyLump((bspHeader_t *) header, LUMP_FOGS, bspFogs, sizeof(bspFog_t));
+	kpq3_numFogs = KPQ3_CopyLump((dheader_t *) header, LUMP_FOGS, (void **) &kpq3_dfogs, sizeof(dfog_t));
 
-	numBSPDrawIndexes = KPQ3_CopyLump((bspHeader_t *) header, LUMP_DRAWINDEXES, bspDrawIndexes, sizeof(bspDrawIndexes[0]));
+	kpq3_numDrawIndexes = KPQ3_CopyLump((dheader_t *) header, LUMP_DRAWINDEXES, (void **) &kpq3_drawIndexes, sizeof(kpq3_drawIndexes[0]));
 
-	numBSPVisBytes = KPQ3_CopyLump((bspHeader_t *) header, LUMP_VISIBILITY, bspVisBytes, 1);
+	kpq3_numVisBytes = KPQ3_CopyLump((dheader_t *) header, LUMP_VISIBILITY, (void **) &kpq3_visBytes, 1);
 
-	numBSPLightBytes = GetLumpElements((bspHeader_t *) header, LUMP_LIGHTMAPS, 1);
-	bspLightBytes = safe_malloc(numBSPLightBytes);
-	KPQ3_CopyLump((bspHeader_t *) header, LUMP_LIGHTMAPS, bspLightBytes, 1);
+	kpq3_numLightBytes = GetLumpElements((dheader_t *) header, LUMP_LIGHTMAPS, 1);
+	kpq3_lightBytes = safe_malloc(kpq3_numLightBytes);
+	KPQ3_CopyLump((dheader_t *) header, LUMP_LIGHTMAPS, (void **) &kpq3_lightBytes, 1);
 
-	bspEntDataSize = KPQ3_CopyLump((bspHeader_t *) header, LUMP_ENTITIES, bspEntData, 1);
+	kpq3_entdatasize = KPQ3_CopyLump((dheader_t *) header, LUMP_ENTITIES, (void **) &kpq3_dentdata, 1);
 
 //	CopyLightGridLumps(header);
 

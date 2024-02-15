@@ -2137,7 +2137,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
         ri.Printf( PRINT_WARNING, "WARNING: R_FindCubeImage could not find '%s' in shader '%s'\n", token, shader.name );
         return qfalse;
       }
-#ifdef COMPAT_KPQ3
+#if 0//def COMPAT_KPQ3
       else
       { // hypov8 add: shader uses sky as a stage instead of skyparm
         if (stage->type == ST_SKYBOXMAP && shader.isSky)
@@ -3332,7 +3332,6 @@ static void ParseSkyParms( char **text )
       ri.Printf( PRINT_WARNING, "WARNING: could not find cubemap '%s' for outer skybox in shader '%s'\n", prefix, shader.name );
       shader.sky.outerbox = tr.blackCubeImage;
     }
-
 #ifdef COMPAT_KPQ3
     else //use sky cubemap for reflections
     {
@@ -3341,7 +3340,6 @@ static void ParseSkyParms( char **text )
     }
 #endif
   }
-
   // cloudheight
   token = Com_ParseExt( text, qfalse );
 
@@ -3381,6 +3379,22 @@ static void ParseSkyParms( char **text )
       shader.sky.innerbox = tr.blackCubeImage;
     }
   }
+
+
+#ifdef COMPAT_KPQ3
+  //pbr. per map, 2d env for spec reflections
+  token = Com_ParseExt(text, qfalse);
+  if (token[0] != 0)
+  {
+    Q_strncpyz( prefix, token, sizeof( prefix ) );
+    tr.pbrSpecHdriImage = R_FindImageFile(prefix, IF_NOCOMPRESSION | IF_NOPICMIP, FT_CUBEMIP, WT_CLAMP, NULL);
+    if ( !tr.pbrSpecHdriImage )
+    {
+      ri.Printf( PRINT_WARNING, "WARNING: could not find 2D HDRI '%s' for 4th parm in shader '%s'\n", prefix, shader.name );
+    }
+    //todo check size?
+  }
+#endif
 
   shader.isSky = qtrue;
 }

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "aas_store.h"
 #include "aas_cfg.h"
 
+#include <stddef.h>
 #include <assert.h>
 
 /*
@@ -405,7 +406,7 @@ bspnode_t *AllocNode (void)
 {
 	bspnode_t	*node;
 
-	node = GetMemory(sizeof(*node));
+	node = (bspnode_t*)GetMemory(sizeof(*node));
 	memset (node, 0, sizeof(*node));
 	if (numthreads == 1)
 	{
@@ -425,7 +426,7 @@ bspbrush_t *AllocBrush (int numsides)
 	size_t			c;
 
 	c = (size_t)&(((bspbrush_t *)0)->sides[numsides]);
-	bb = GetMemory(c);
+	bb = (bspbrush_t*)GetMemory(c);
 	memset (bb, 0, c);
 	if (numthreads == 1)
 	{
@@ -530,8 +531,8 @@ bspnode_t *PointInLeaf (bspnode_t *node, vec3_t point)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-#if 0
-int BoxOnPlaneSide (vec3_t mins, vec3_t maxs, plane_t *plane)
+#if 1 //hypov8 was 0
+int BoxOnPlaneSide_Local (vec3_t mins, vec3_t maxs, plane_t *plane)
 {
 	int		side;
 	int		i;
@@ -576,7 +577,7 @@ int BoxOnPlaneSide (vec3_t mins, vec3_t maxs, plane_t *plane)
 	return side;
 }
 #else
-#if 1// 0xA5EA, removed, clash with bspc
+#ifndef BSPC // 0xA5EA, removed, clash with bspc
 int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, plane_t *p)
 {
 	float	dist1, dist2;
@@ -684,7 +685,7 @@ int QuickTestBrushToPlanenum (bspbrush_t *brush, int planenum, int *numsplits)
 	}
 
 	// box on plane side
-	s = BoxOnPlaneSide (brush->mins, brush->maxs, plane);
+	s = BoxOnPlaneSide_Local (brush->mins, brush->maxs, plane);
 
 	// if both sides, count the visible faces split
 	if (s == PSIDE_BOTH)
@@ -753,7 +754,7 @@ int TestBrushToPlanenum (bspbrush_t *brush, int planenum,
 		} //end for
 
 		// box on plane side
-		s = BoxOnPlaneSide (brush->mins, brush->maxs, plane);
+		s = BoxOnPlaneSide_Local (brush->mins, brush->maxs, plane);
 
 		if (s != PSIDE_BOTH) return s;
 	} //end if
@@ -932,7 +933,8 @@ void CheckPlaneAgainstParents (int pnum, bspnode_t *node)
 
 	for (p = node->parent; p; p = p->parent)
 	{
-		if (p->planenum == pnum) Error("Tried parent");
+		if (p->planenum == pnum) 
+			Error("Tried parent");
 	} //end for
 } //end of the function CheckPlaneAgainstParants
 //===========================================================================

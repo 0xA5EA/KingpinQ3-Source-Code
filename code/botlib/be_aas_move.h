@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *****************************************************************************/
 
-#ifdef AASINTERN
+#ifdef AASINTERN //hypov8
 extern aas_settings_t aassettings;
 #endif //AASINTERN
 

@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cm_local.h"
 #include "cm_patch.h"
+#ifdef BSPC
+  #include "../kaas/be_aas_bspc.h"
+  #include "../kaas/l_mem.h"
+#endif
 
 /*
 

@@ -302,7 +302,7 @@ int BotReachabilityArea(vec3_t origin, int client)
 {
 	int modelnum, modeltype, reachnum, areanum;
 	aas_reachability_t reach;
-	vec3_t org, end, mins, maxs, up = {0, 0, 1};
+	vec3_t org, end, mins, maxs; static vec3_t up = {0.0f, 0.0f, 1.0f};
 	bsp_trace_t bsptrace;
 	aas_trace_t trace;
 
@@ -3555,7 +3555,7 @@ int BotSetupMoveAI(void)
 {
 	BotSetBrushModelTypes();
 	sv_maxstep = LibVar("sv_step", "18");
-	sv_maxbarrier = LibVar("sv_maxbarrier", "32");
+	sv_maxbarrier = LibVar("sv_maxbarrier", "48"); //hypov8 was 32
 	sv_gravity = LibVar("sv_gravity", "800");
 	weapindex_rocketlauncher = LibVar("weapindex_rocketlauncher", "5");
 	weapindex_bfg10k = LibVar("weapindex_bfg10k", "9");

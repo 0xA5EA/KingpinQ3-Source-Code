@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // this is only used for visualization tools in cm_ debug functions
 
 #include "cm_local.h"
+#ifdef BSPC
+#include "../kaas/l_mem.h"
+#endif
 
 // because they are an awful coherence problem
 int c_active_windings;
@@ -44,7 +47,7 @@ void pw(winding_t *w)
 AllocWinding
 =============
 */
-winding_t *AllocWinding(int points)
+winding_t *AllocWinding(int points) //hypov8 differs in l_poly.c
 {
 	winding_t *w;
 	int s;
@@ -103,7 +106,7 @@ void RemoveColinearPoints(winding_t *w)
 
 	if(nump == w->numpoints)
 		return;
-
+	//hypov8 differs in l_poly.c
 	c_removed   += w->numpoints - nump;
 	w->numpoints = nump;
 	Com_Memcpy(w->p, p, nump * sizeof(p[0]));
@@ -114,7 +117,7 @@ void RemoveColinearPoints(winding_t *w)
 WindingPlane
 ============
 */
-void WindingPlane(winding_t *w, vec3_t normal, vec_t *dist)
+void WindingPlane(winding_t *w, vec3_t normal, vec_t *dist) //hypov8 differs in l_poly.c
 {
 	vec3_t v1, v2;
 

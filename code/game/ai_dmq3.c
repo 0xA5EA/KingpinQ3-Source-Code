@@ -5513,7 +5513,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
     return 0;
 
   // get the targetname so we can find an entity with a matching target
-  if (!trap_AAS_ValueForBSPEpairKey(ent, "targetname", targetname[0], sizeof(targetname[0])))
+  if (!trap_AAS_ValueForBSPEpairKey(ent, "name", targetname[0], sizeof(targetname[0]))) //hypov8 was "targetname"
   {
     if (bot_developer.integer)
     {
@@ -5611,7 +5611,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
     // the actual button or trigger might be linked through a target_relay or target_delay
     else if (!qstrcmp(classname, "target_relay") || !qstrcmp(classname, "target_delay"))
     {
-      if (trap_AAS_ValueForBSPEpairKey(ent, "targetname", targetname[i + 1], sizeof(targetname[0])))
+      if (trap_AAS_ValueForBSPEpairKey(ent, "name", targetname[i + 1], sizeof(targetname[0]))) //hypov8 was "targetname"
       {
         i++;
         cur_entities[i] = trap_AAS_NextBSPEntity(0);

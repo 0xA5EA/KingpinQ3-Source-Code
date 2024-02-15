@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qfiles.h"
 
 // the maximum size of game reletive pathnames
-#define	MAX_QPATH		64
+#define	MAX_QPATH_KASS		64
 
 
 /*
@@ -108,7 +108,7 @@ typedef struct md3Frame_s {
 } md3Frame_t;
 
 typedef struct md3Tag_s {
-	char		name[MAX_QPATH];	// tag name
+	char		name[MAX_QPATH_KASS];	// tag name
 	vec3_t		origin;
 	vec3_t		axis[3];
 } md3Tag_t;
@@ -127,7 +127,7 @@ typedef struct md3Tag_s {
 typedef struct {
 	int		ident;				// 
 
-	char	name[MAX_QPATH];	// polyset name
+	char	name[MAX_QPATH_KASS];	// polyset name
 
 	int		flags;
 	int		numFrames;			// all surfaces in a model should have the same
@@ -146,7 +146,7 @@ typedef struct {
 } md3Surface_t;
 
 typedef struct {
-	char			name[MAX_QPATH];
+	char			name[MAX_QPATH_KASS];
 	int				shaderIndex;	// for in-game use
 } md3Shader_t;
 
@@ -167,7 +167,7 @@ typedef struct {
 	int			ident;
 	int			version;
 
-	char		name[MAX_QPATH];	// model name
+	char		name[MAX_QPATH_KASS];	// model name
 
 	int			flags;
 
@@ -280,7 +280,7 @@ typedef struct {
 } q3_dmodel_t;
 
 typedef struct {
-	char		shader[MAX_QPATH];
+	char		shader[MAX_QPATH_KASS];
 	int			surfaceFlags;
 	int			contentFlags;
 } q3_dshader_t;
@@ -325,11 +325,11 @@ typedef struct {
 } q3_dbrush_t;
 
 typedef struct {
-	char		shader[MAX_QPATH];
+	char		shader[MAX_QPATH_KASS];
 	int			brushNum;
 	int			visibleSide;	// the brush side that ray tests need to clip against (-1 == none)
 } q3_dfog_t;
-#if 0
+#ifndef COMPAT_KPQ3
 typedef struct {
 	vec3_t		xyz;
 	float		st[2];
@@ -344,9 +344,9 @@ typedef struct
 	float           st[2];
 	float           lightmap[2];
 	float           normal[3];
-	float			paintColor[4];
+	float           paintColor[4];
 	float           lightColor[4];
-	float			lightDirection[3];
+	float           lightDirection[3];
 } q3_drawVert_t;
 #endif
 #if 0

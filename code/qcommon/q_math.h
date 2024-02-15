@@ -1,7 +1,7 @@
 #ifndef _Q_MATH_H_
 #define _Q_MATH_H_
 
-#ifndef BSPC
+#if 1 //ndef BSPC //hypov8 kass force platform file?
 # include "q_platform.h"
 #else
 #  ifdef _MSC_VER
@@ -12,6 +12,9 @@
 #  if !defined(QDECL)
 #    define QDECL
 #  endif
+
+//#define STATIC_INLINE static INLINE //add hypov8. Q3_VM?
+
 #define LittleLong
 #define LittleShort
 #define LittleFloat

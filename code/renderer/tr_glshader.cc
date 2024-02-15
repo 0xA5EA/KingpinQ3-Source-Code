@@ -54,6 +54,7 @@ GLShader_screenSpaceAmbientOcclusion     *gl_screenSpaceAmbientOcclusionShader =
 GLShader_depthOfField                    *gl_depthOfFieldShader = NULL;
 GLShader_motionblur                      *gl_motionblurShader = NULL;
 GLShader_fxaa                            *gl_fxaaShader = NULL;
+
 GLShaderManager                           gl_shaderManager;
 
 GLShaderManager::~GLShaderManager( )
@@ -1331,7 +1332,8 @@ void GLShader_vertexLighting_DBS_entity::SetShaderProgramUniforms( shaderProgram
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_EnvironmentMap0" ), 3 );
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_EnvironmentMap1" ), 4 );
   glUniform1i( glGetUniformLocation( shaderProgram->program, "u_GlowMap" ), 5 );
-  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_ColorMap" ), 6 ); //hypov8 pbr
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_ColorMap" ), 6 ); //hypov8 pbr BRDF
+  glUniform1i( glGetUniformLocation( shaderProgram->program, "u_SpecHDRI" ), 7 ); //hypov8 pbr spec reflections from 2d env image (reuse env?)
 }
 
 GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world( GLShaderManager *manager ) :
@@ -2032,3 +2034,4 @@ void GLShader_fxaa::BuildShaderFragmentLibNames( std::string& fragmentInlines )
 {
   fragmentInlines += "fxaa3_11";
 }
+

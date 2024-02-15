@@ -7,9 +7,11 @@
  *
  *****************************************************************************/
 
+#include "../qcommon/q_platform.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
-#include "unzip.h"
+#include "../kaas/unzip.h"
+#include "../kaas/l_mem.h"
 
 /* unzip.h -- IO for uncompress .zip files using zlib
    Version 0.15 beta, Mar 19th, 1998,
@@ -2515,7 +2517,13 @@ struct inflate_blocks_state
 #define LOAD {LOADIN LOADOUT}
 
 /* masks for lower bits (size given to avoid silly warnings with Visual C++) */
-static uInt inflate_mask[17];
+//static uInt inflate_mask[17];
+/* And'ing with mask[n] masks the lower n bits */
+static uInt inflate_mask[17] = {
+	0x0000,
+	0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
+	0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff
+};
 
 /* copy as much as possible from the sliding window to the output area */
 static int inflate_flush OF((
@@ -2602,19 +2610,19 @@ inflate_blocks_statef *inflate_blocks_new(z_streamp z, check_func c, uInt w)
 	        (inflate_huft *)ZALLOC(z, sizeof(inflate_huft), MANY)) == Z_NULL)
 	{
 		ZFREE(z, s);
-		return Z_NULL;
+		return (inflate_blocks_statef*)Z_NULL;
 	}
 	if((s->window = (Byte *)ZALLOC(z, 1, w)) == Z_NULL)
 	{
 		ZFREE(z, s->hufts);
 		ZFREE(z, s);
-		return Z_NULL;
+		return (inflate_blocks_statef*)Z_NULL;
 	}
 	s->end     = s->window + w;
 	s->checkfn = c;
 	s->mode    = TYPE;
 	Tracev(("inflate:   blocks allocated\n"));
-	inflate_blocks_reset(s, z, Z_NULL);
+	inflate_blocks_reset(s, z, (uLong*)Z_NULL);
 	return s;
 }
 
@@ -2803,7 +2811,7 @@ int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
 						s->sub.trees.index = i;
 					}
 				}
-				s->sub.trees.tb = Z_NULL;
+				s->sub.trees.tb = (inflate_huft*)Z_NULL;
 				{
 					uInt bl, bd;
 					inflate_huft *tl, *td;
@@ -2870,7 +2878,7 @@ int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
 
 int inflate_blocks_free(inflate_blocks_statef *s, z_streamp z)
 {
-	inflate_blocks_reset(s, z, Z_NULL);
+	inflate_blocks_reset(s, z, (uLong*)Z_NULL);
 	ZFREE(z, s->window);
 	ZFREE(z, s->hufts);
 	ZFREE(z, s);
@@ -2897,11 +2905,11 @@ int inflate_blocks_sync_point(inflate_blocks_statef *s)
 
 
 /* And'ing with mask[n] masks the lower n bits */
-static uInt inflate_mask[17] = {
+/*static uInt inflate_mask[17] = {
 	0x0000,
 	0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
 	0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff
-};
+};*/
 
 
 /* copy as much as possible from the sliding window to the output area */
@@ -4079,9 +4087,9 @@ int inflateReset(z_streamp z)
 		return Z_STREAM_ERROR;
 
 	z->total_in    = z->total_out = 0;
-	z->msg         = Z_NULL;
+	z->msg         = (char*)Z_NULL;
 	z->state->mode = z->state->nowrap ? imBLOCKS : imMETHOD;
-	inflate_blocks_reset(z->state->blocks, z, Z_NULL);
+	inflate_blocks_reset(z->state->blocks, z, (uLong*)Z_NULL);
 	Tracev(("inflate: reset\n"));
 	return Z_OK;
 }
@@ -4095,7 +4103,7 @@ int inflateEnd(z_streamp z)
 	if(z->state->blocks != Z_NULL)
 		inflate_blocks_free(z->state->blocks, z);
 	ZFREE(z, z->state);
-	z->state = Z_NULL;
+	z->state = (struct internal_state*)Z_NULL; //add struct
 	Tracev(("inflate: end\n"));
 	return Z_OK;
 }
@@ -4112,7 +4120,7 @@ int inflateInit2_(z_streamp z, int w, const char *version, int stream_size)
 	if(z == Z_NULL)
 		return Z_STREAM_ERROR;
 
-	z->msg = Z_NULL;
+	z->msg = (char*)Z_NULL;
 	if(z->zalloc == Z_NULL)
 	{
 		z->zalloc = (void *(*)(void *, unsigned, unsigned))zcalloc;
@@ -4123,7 +4131,7 @@ int inflateInit2_(z_streamp z, int w, const char *version, int stream_size)
 	               ZALLOC(z, 1, sizeof(struct internal_state))) == Z_NULL)
 		return Z_MEM_ERROR;
 
-	z->state->blocks = Z_NULL;
+	z->state->blocks = (inflate_blocks_statef*) Z_NULL;
 
 	/* handle undocumented nowrap option (no zlib header or check) */
 	z->state->nowrap = 0;

@@ -1116,11 +1116,11 @@ void CG_VoiceChatLocal(int mode, qboolean voiceOnly, int clientNum, int color, c
       vchat.voiceOnly = voiceOnly;
       Q_strncpyz(vchat.cmd, cmd, sizeof(vchat.cmd));
       if (mode == SAY_TELL)
-        Com_sprintf(vchat.message, sizeof(vchat.message), "[%s]: %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
+        Com_sprintf(vchat.message, sizeof(vchat.message), "%s[%s%s]: %c%c%s", S_COLOR_WHITE, ci->name, S_COLOR_WHITE, Q_COLOR_ESCAPE, color, chat);
       else if (mode == SAY_TEAM)
-        Com_sprintf(vchat.message, sizeof(vchat.message), "(%s): %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
+        Com_sprintf(vchat.message, sizeof(vchat.message), "%s(%s%s): %c%c%s", S_COLOR_WHITE, ci->name, S_COLOR_WHITE, Q_COLOR_ESCAPE, color, chat);
       else
-        Com_sprintf(vchat.message, sizeof(vchat.message),   "%s: %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
+        Com_sprintf(vchat.message, sizeof(vchat.message),   "%s: %c%c%s", S_COLOR_WHITE, ci->name, S_COLOR_WHITE, Q_COLOR_ESCAPE, color, chat);
 
       CG_AddBufferedVoiceChat(&vchat);
     }

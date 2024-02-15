@@ -457,7 +457,8 @@ int IntersectionContents (int c1, int c2)
 
 	out = c1 | c2;
 
-	if (out & CONTENTS_SOLID) out = CONTENTS_SOLID;
+	if (out & CONTENTS_SOLID) 
+		out = CONTENTS_SOLID;
 
 	return out;
 } //end of the function IntersectionContents

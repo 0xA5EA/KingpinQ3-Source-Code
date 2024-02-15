@@ -60,7 +60,7 @@ typedef enum {qfalse, qtrue}	qboolean;
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
-#include "l_log.h"
+#include "../botlib/l_log.h"
 #endif //BOTLIB
 
 #ifdef MEQCC
@@ -70,7 +70,7 @@ typedef enum {qfalse, qtrue}	qboolean;
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
-#include "l_log.h"
+#include "../botlib/l_log.h"
 
 #define qtrue	true
 #define qfalse	false
@@ -81,9 +81,12 @@ typedef enum {qfalse, qtrue}	qboolean;
 #include "../kaas/qbsp.h"
 #include "../kaas/l_log.h"
 #include "../kaas/l_mem.h"
-#include "../kaas/be_aas_bspc.h"
-#include "l_precomp.h"
+/////////////#include "../kaas/be_aas_bspc.h"
+#include "../botlib/l_precomp.h"
+//#include "../botlib/l_utils.h" //hypov8 add
 //#include "../qcommon/q_shared.h"
+
+#include "../botlib/be_aas_main.h"
 
 //typedef enum {qfalse, qtrue}	qboolean;
 //#define qtrue	true
@@ -93,7 +96,7 @@ typedef enum {qfalse, qtrue}	qboolean;
 #endif //BSPC
 
 #if defined(QUAKE) && !defined(BSPC)
-#include "l_utils.h"
+#include "../botlib/l_utils.h"
 #endif //QUAKE
 
 //#define DEBUG_EVAL
@@ -274,6 +277,7 @@ token_t *PC_CopyToken(token_t *token)
   if (!t)
   {
 #ifdef BSPC
+	  //AAS_Error()
     Error("out of token space\n");
 #else
     Com_Error(ERR_FATAL, "out of token space\n");

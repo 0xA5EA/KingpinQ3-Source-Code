@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _QCOMMON_H_
 
 //#include "../code/qcommon/cm_public.h"
+//#include "q_shared.h" //hypov8 add
 #include "cm_public.h"
 
 //Ignore __attribute__ on non-gcc platforms
@@ -756,9 +757,11 @@ void Info_Print(const char *s);
 
 void Com_BeginRedirect(char *buffer, int buffersize, void (*flush)(char *));
 void Com_EndRedirect(void);
+#ifndef BSPC
 void QDECL Com_Printf(const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
 void QDECL Com_DPrintf(const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
 void QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
+#endif
 void Com_Quit_f( void ) __attribute__ ((noreturn));
 void Com_GameRestart(int checksumFeed, qboolean disconnect);
 
@@ -861,14 +864,18 @@ temp file loading
 
 #ifdef ZONE_DEBUG
 #define Z_TagMalloc(size, tag) Z_TagMallocDebug(size, tag, # size, __FILE__, __LINE__)
+#ifndef BSPC
 #define Z_Malloc(size) Z_MallocDebug(size, # size, __FILE__, __LINE__)
+#endif
 #define S_Malloc(size) S_MallocDebug(size, # size, __FILE__, __LINE__)
 void *Z_TagMallocDebug(int size, int tag, char *label, char *file, int line); // NOT 0 filled memory
 void *Z_MallocDebug(int size, char *label, char *file, int line);             // returns 0 filled memory
 void *S_MallocDebug(int size, char *label, char *file, int line);             // returns 0 filled memory
 #else
 void *Z_TagMalloc(size_t size, int tag);                                         // NOT 0 filled memory
+#ifndef BSPC
 void *Z_Malloc(size_t size);                                                     // returns 0 filled memory
+#endif
 void *S_Malloc(size_t size);                                                     // NOT 0 filled memory only for small allocations
 #endif
 void Z_Free(void *ptr);

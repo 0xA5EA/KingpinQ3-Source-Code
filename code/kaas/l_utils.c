@@ -28,10 +28,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qfiles.h"
 #include "botlib.h"
-#include "l_log.h"
+#include "../kaas/l_log.h"
 #include "l_libvar.h"
 #include "l_memory.h"
-//#include "l_utils.h"
+//#include "../kaas/l_utils.h"
 #include "be_interface.h"
 #else //BOTLIB
 #include "qbsp.h"

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cmdlib.c
 #include "../qcommon/q_shared.h"
 #include "l_cmd.h"
-#include "l_log.h"
+#include "../kaas/l_log.h"
 #include "l_mem.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -229,7 +229,8 @@ void qprintf(char *format, ...)
 	va_end(argptr);
 } //end of the function qprintf
 
-void Com_Error(int level, char *error, ...)
+//hypov8
+void KAAS_Com_Error(int level, char *error, ...)
 {
 	va_list argptr;
 	char text[1024];
@@ -240,7 +241,7 @@ void Com_Error(int level, char *error, ...)
 	Error(text);
 } //end of the funcion Com_Error
 
-void Com_Printf( const char *fmt, ... )
+void KAAS_Com_Printf( const char *fmt, ... )
 {
 	va_list argptr;
 	char text[1024];
@@ -347,7 +348,7 @@ char *ExpandPathAndArchive (char *path)
 char *copystring(char *s)
 {
 	char	*b;
-	b = GetMemory(strlen(s)+1);
+	b = (char*)GetMemory(strlen(s)+1);
 	strcpy (b, s);
 	return b;
 }
@@ -386,12 +387,11 @@ double I_FloatTime (void)
 
 void Q_getwd (char *out)
 {
-  char* result;
 #if defined(WIN32) || defined(_WIN32)
    _getcwd (out, 256);
    strcat (out, "\\");
 #else
-   result = getcwd(out, 256);
+   char* result = getcwd(out, 256);
    //shutup compiler
    strcat(out, "/");
 #endif
@@ -551,7 +551,7 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 	strncpy( dest, src, destsize-1 );
     dest[destsize-1] = 0;
 }
-#endif
+
 char *strupr (char *start)
 {
 	char	*in;
@@ -575,7 +575,7 @@ char *strlower (char *start)
 	}
 	return start;
 }
-
+#endif
 
 /*
 =============================================================================

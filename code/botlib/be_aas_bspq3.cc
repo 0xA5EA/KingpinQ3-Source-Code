@@ -31,6 +31,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
+#include "../kaas/l_math.h"
+
+#include "../botlib/l_utils.h" //hypov8 add
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
@@ -40,6 +43,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
+#ifdef BSPC
+///////#include <math.h>
+#include "../kaas/l_mem.h"
+#endif
 
 extern botlib_import_t botimport;
 
@@ -223,6 +230,7 @@ void AAS_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t mins, vec3_t
 //===========================================================================
 void AAS_UnlinkFromBSPLeaves(bsp_link_t *leaves)
 {
+	return;
 } //end of the function AAS_UnlinkFromBSPLeaves
 //===========================================================================
 //
@@ -253,7 +261,8 @@ int AAS_BoxEntities(vec3_t absmins, vec3_t absmaxs, int *list, int maxcount)
 int AAS_NextBSPEntity(int ent)
 {
 	ent++;
-	if (ent >= 1 && ent < bspworld.numentities) return ent;
+	if (ent >= 1 && ent < bspworld.numentities) 
+		return ent;
 	return 0;
 } //end of the function AAS_NextBSPEntity
 //===========================================================================

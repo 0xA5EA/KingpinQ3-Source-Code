@@ -40,7 +40,7 @@ portal_t *AllocPortal (void)
 {
 	portal_t	*p;
 
-	p = GetMemory(sizeof(portal_t));
+	p = (portal_t*)GetMemory(sizeof(portal_t));
 	memset (p, 0, sizeof(portal_t));
 
 	if (numthreads == 1)
@@ -816,7 +816,7 @@ qboolean PlaceOccupant (bspnode_t *headnode, vec3_t origin, entity_t *occupant)
 
 	//find the leaf to start in
 	node = headnode;
-	Log_Print("node->planenum %d\n", node->planenum);
+	Log_Print("  planenum: %d\n", node->planenum);//node->planenum
 
 	while(node->planenum != PLANENUM_LEAF)
 	{
@@ -839,15 +839,18 @@ qboolean PlaceOccupant (bspnode_t *headnode, vec3_t origin, entity_t *occupant)
 			Error("PlaceOccupant: invalid child %d\n", d < 0);
 		} //end if
 	} //end while
+
+	Log_Print("   cluster: %d\n", node->cluster);
+
 	//don't start in solid
 //	if (node->contents == CONTENTS_SOLID)
 	//ME: replaced because in LeafNode in brushbsp.c
 	//    some nodes have contents solid with other contents
-	Log_Print("node->contents & CONTENTS_SOLID %d\n", node->contents & CONTENTS_SOLID);
+	Log_Print("  contents: %s\n", (node->contents & CONTENTS_SOLID)? "CONTENTS_SOLID" : "SOLID_NOT"); //node->contents
 	if (node->contents & CONTENTS_SOLID)
 		return qfalse;
 	//if the node is already occupied
-	Log_Print("node->occupied %d\n",node->occupied );
+	Log_Print("  occupied: %d\n",node->occupied ); //node->occupied
 	if (node->occupied)
 		return qfalse;
 
@@ -894,10 +897,9 @@ qboolean FloodEntities (tree_t *tree)
 		cl = ValueForKey(&entities[i], "classname");
 		origin[2] += 1;	//so objects on floor are ok
 
-		Log_Print("origin %f, %f, %f: \n", origin[0], origin[1], origin[2]);
-		Log_Print("flooding from entity %d: %s\n", i, cl);
+		Log_Print("%-4d class: %s\n", i, cl);
+		Log_Print("    origin: %0.2f, %0.2f, %0.2f\n", origin[0], origin[1], origin[2]);
 
-		Log_Print("cl %s\n", cl);
 		//nudge playerstart around if needed so clipping hulls allways
 		//have a valid point
 		if (!strcmp(cl, "info_player_start"))
@@ -926,7 +928,8 @@ qboolean FloodEntities (tree_t *tree)
 				inside = qtrue;
 			} //end if
 		} //end else
-		Log_Print("tree->outside_node.occupied %d\n", tree->outside_node.occupied);
+		Log_Print("--------------\n");
+		//Log_Print(" tree->outside_node.occupied %d\n", tree->outside_node.occupied);
 	} //end for
 
 	if (!inside)

@@ -288,12 +288,14 @@ int Export_BotLibLoadMap(const char *mapname)
 #endif
 	int errnum;
 
-	if (!BotLibSetup("BotLoadMap")) return BLERR_LIBRARYNOTSETUP;
+	if (!BotLibSetup("BotLoadMap")) 
+		return BLERR_LIBRARYNOTSETUP;
 	//
 	botimport.Print(PRT_MESSAGE, "------------ Map Loading ------------\n");
 	//startup AAS for the current map, model and sound index
 	errnum = AAS_LoadMap(mapname);
-	if (errnum != BLERR_NOERROR) return errnum;
+	if (errnum != BLERR_NOERROR) 
+		return errnum;
 	//initialize the items in the level
 	BotInitLevelItems();		//be_ai_goal.h
 	BotSetBrushModelTypes();	//be_ai_move.h

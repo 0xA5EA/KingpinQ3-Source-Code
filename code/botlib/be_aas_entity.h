@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *****************************************************************************/
 
-#ifdef AASINTERN
+#ifdef AASINTERN //hypov8
 //invalidates all entity infos
 void AAS_InvalidateEntities(void);
 //unlink not updated entities
@@ -38,9 +38,11 @@ void AAS_UnlinkInvalidEntities(void);
 //resets the entity AAS and BSP links (sets areas and leaves pointers to NULL)
 void AAS_ResetEntityLinks(void);
 //updates an entity
+#ifndef BSPC
 int AAS_UpdateEntity(int ent, bot_entitystate_t *state);
 //gives the entity data used for collision detection
 void AAS_EntityBSPData(int entnum, bsp_entdata_t *entdata);
+#endif
 #endif //AASINTERN
 
 //returns the size of the entity bounding box in mins and maxs
@@ -61,4 +63,3 @@ void AAS_EntityOrigin(int entnum, vec3_t origin);
 int AAS_EntityType(int entnum);
 //returns the model index of the entity
 int AAS_EntityModelindex(int entnum);
-

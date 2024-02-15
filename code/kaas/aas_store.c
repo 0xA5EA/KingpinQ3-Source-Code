@@ -19,7 +19,7 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "../qcommon/q_shared.h"
+
 #include "qbsp.h"
 #include "../botlib/aasfile.h"
 #include "aas_file.h"
@@ -303,7 +303,7 @@ void AAS_FreeMaxAAS(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-unsigned AAS_HashVec(vec3_t vec)
+int AAS_HashVec(vec3_t vec)
 {
 	int x, y;
 

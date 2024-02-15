@@ -26,7 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cm_local.h"
 
 #ifdef BSPC
-#include "../kaas/l_qfiles.h"
+  #include "../kaas/be_aas_bspc.h"
+  #include "../kaas/l_qfiles.h"
+  #include "../kaas/l_mem.h" //hypov8 add
 #endif
 
 // to allow boxes to be treated as brush models, we allocate
@@ -155,7 +157,7 @@ void CMod_LoadSubmodels(lump_t * l)
 		{
 			indexes[j] = LittleLong(in->firstBrush) + j;
 		}
-
+		//hypov8 check this
 		out->leaf.numLeafSurfaces = LittleLong(in->numSurfaces);
 		indexes = (int*)Hunk_Alloc(out->leaf.numLeafSurfaces * 4, h_high);
 		out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;

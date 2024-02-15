@@ -21,10 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <malloc.h>
+#include "../qcommon/q_shared.h" //hypov8 add
 #include "l_cmd.h"
 #include "l_math.h"
 #include "l_poly.h"
-#include "l_log.h"
+#include "../kaas/l_log.h"
 #include "l_mem.h"
 
 #define	BOGUS_RANGE		65535
@@ -33,12 +34,15 @@ extern int numthreads;
 
 // counters are only bumped when running single threaded,
 // because they are an awefull coherence problem
+#if 0 //
 int c_active_windings;
 int c_peak_windings;
 int c_winding_allocs;
 int c_winding_points;
-int c_windingmemory;
+
 int c_peak_windingmemory;
+#endif
+int c_windingmemory;
 
 char windingerror[1024];
 #if 0 //
@@ -66,7 +70,7 @@ void ResetWindings(void)
 AllocWinding
 =============
 */
-winding_t *AllocWinding (int points)
+winding_t *AllocWinding (int points) //hypov8 differs in cm_polylib
 {
 	winding_t	*w;
 	int			s;
@@ -154,7 +158,7 @@ void RemoveColinearPoints (winding_t *w)
 	if (nump == w->numpoints)
 		return;
 
-	if (numthreads == 1)
+	if (numthreads == 1)  //hypov8 differs in cm_polylib
 		c_removed += w->numpoints - nump;
 	w->numpoints = nump;
 	memcpy (w->p, p, nump*sizeof(p[0]));
@@ -165,7 +169,7 @@ void RemoveColinearPoints (winding_t *w)
 WindingPlane
 ============
 */
-void WindingPlane (winding_t *w, vec3_t normal, vec_t *dist)
+void WindingPlane (winding_t *w, vec3_t normal, vec_t *dist) //hypov8 differs in cm_polylib
 {
 	vec3_t v1, v2;
 	int i;

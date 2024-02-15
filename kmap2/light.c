@@ -222,13 +222,15 @@ void CreateEntityLights(void)
 	light_t        *light, *light2;
 	entity_t       *e, *e2;
 	const char     *name;
-	const char     *target;
+	const char     *target, *keepLights;
 	vec3_t          dest;
 	const char     *_color;
 	float           intensity, scale, deviance, filterRadius;
 	int             spawnflags, flags, numSamples;
 	qboolean        junior;
 
+	/* hypov8 add: stop duplicate lights */
+	keepLights = ValueForKey(&entities[0], "_keepLights");
 
 	/* go throught entity list and find lights */
 	for(i = 0; i < numEntities; i++)
@@ -246,11 +248,20 @@ void CreateEntityLights(void)
 			continue;
 
 		/* allow realtime only lights to be skipped */
-		if(IntForKey(e, "noradiosity"))
+		if(IntForKey(e, "noradiosity") || IntForKey(e, "realtime")) //new name
 			continue;
 
+		/* remove lights from bsp if .map was loaded */
+		if (keepLights[0] != '1' &&  i < numBSPEntities)
+		{
+			/* remove without a target set */
+			target = ValueForKey(e, "targetname");
+			if (target[0] == '\0')
+				continue;
+		}
+
 		/* lights with target names (and therefore styles) are only parsed from BSP */
-		target = ValueForKey(e, "targetname");
+		target = ValueForKey(e, "targetname"); //no longer used
 		if(target[0] != '\0' && i >= numBSPEntities)
 			continue;
 
@@ -271,15 +282,19 @@ void CreateEntityLights(void)
 			flags = LIGHT_Q3A_DEFAULT;
 
 			/* linear attenuation? */
-			if(spawnflags & 1)
+			if(spawnflags & 1 
+			|| IntForKey(e, "_linear")) /* hypov8 add: darkradiant limitation */
 			{
 				flags |= LIGHT_ATTEN_LINEAR;
 				flags &= ~LIGHT_ATTEN_ANGLE;
 			}
 
 			/* no angle attenuate? */
-			if(spawnflags & 2)
+			if (spawnflags & 2
+			||IntForKey(e, "_attangle")) /* hypov8 add: darkradiant limitation */
+			{
 				flags &= ~LIGHT_ATTEN_ANGLE;
+			}
 		}
 
 		/* ydnar: wolf light behavior */
@@ -307,8 +322,11 @@ void CreateEntityLights(void)
 			flags |= LIGHT_DARK;
 
 		/* nogrid? */
-		if(spawnflags & 16)
+		if(spawnflags & 16
+		|| IntForKey(e, "_nogridlight")) /* hypov8 add: darkradiant limitation */
+		{
 			flags &= ~LIGHT_GRID;
+		}
 
 		/* junior? */
 		if(junior)
@@ -883,7 +901,7 @@ int LightContributionToSample(trace_t * trace)
 		/* get direction and distance */
 		VectorCopy(light->origin, trace->end);
 		dist = SetupTrace(trace);
-		if(dist >= light->envelope)
+		if(dist >= light->envelope) //hypov8 todo: check distances
 			return 0;
 
 		/* clamp the distance to prevent super hot spots */
@@ -1980,7 +1998,6 @@ void LightWorld(void)
 }
 
 
-
 /*
 LightMain()
 main routine for light processing
@@ -2696,10 +2713,16 @@ int LightMain(int argc, char **argv)
 
 	/* inject command line parameters */
 	InjectCommandLine(argv, 0, argc - 1);
-	/* load map file */
-	value = ValueForKey(&entities[0], "_keepLights");
-	if(value[0] != '1')
+
+	/* load .map file */
+	value = ValueForKey(&entities[0], "_keepLights"); 
+	if (value[0] != '1')
+	{	
+		/* remove lights from .bsp and use the .map lighs */
+		//RemoveLightEnts();
+
 		LoadMapFile(mapSource, qtrue);
+	}
 
 	/* Tr3B: tell the .bsp wether we have deluxe mapping support or not */
 	if(deluxemap)

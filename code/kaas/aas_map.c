@@ -23,9 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qbsp.h"
 #include "l_mem.h"
 #include "../botlib/aasfile.h"		//aas_bbox_t
+#include "../kaas/l_math.h"
 #include "aas_store.h"				//AAS_MAX_BBOXES
 #include "aas_cfg.h"
 #include "../qcommon/surfaceflags.h"
+
+void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3]);
+//void CreateRotationMatrix(vec3_t angles, float matrix[3][3]); //qcommon\cm_trace.cc
 
 #define SPAWNFLAG_NOT_EASY			0x00000100
 #define SPAWNFLAG_NOT_MEDIUM		0x00000200
@@ -474,7 +478,8 @@ int AAS_AlwaysTriggered_r(char *targetname)
 					return qfalse;
 				}
 				mark_entities[i] = qtrue;
-				if ( AAS_AlwaysTriggered_r(ValueForKey(&entities[i], "targetname")) ) {
+				if ( AAS_AlwaysTriggered_r(ValueForKey(&entities[i], "name")) )  //hypov8 was "targetname"
+				{
 					return qtrue;
 				}
 			}
@@ -520,7 +525,7 @@ int AAS_ValidEntity(entity_t *mapent)
 		if (!(atoi(ValueForKey(mapent, "spawnflags")) & SPAWNFLAG_NOT_DEATHMATCH))
 		{
 			//if the func_door_rotating is always activated in deathmatch
-			if (AAS_AlwaysTriggered(ValueForKey(mapent, "targetname")))
+			if (AAS_AlwaysTriggered(ValueForKey(mapent, "name"))) //hypov8 was "targetname"
 			{
 				//Log_Print("found func_door_rotating in deathmatch\ntargetname %s\n", ValueForKey(mapent, "targetname"));
 				return qtrue;
@@ -543,7 +548,7 @@ int AAS_ValidEntity(entity_t *mapent)
 		for (i = 0; i < num_entities; i++)
 		{
 			//if the entity will activate the given targetname
-			if (!strcmp(target, ValueForKey(&entities[i], "targetname")))
+			if (!strcmp(target, ValueForKey(&entities[i], "name"))) //hypov8 was "targetname"
 			{
 				if (!strcmp("target_teleporter", ValueForKey(&entities[i], "classname")))
 				{

@@ -31,8 +31,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
-#include "botlib.h"
-#include "l_log.h"
+#include "botlib.h" 
+#ifdef BSPC
+  #include "../kaas/l_log.h"
+#else
+  #include "../botlib/l_log.h"
+#endif
 #include "be_interface.h"
 
 //#define MEMDEBUG
@@ -450,6 +454,7 @@ int AvailableMemory(void)
 //===========================================================================
 void PrintUsedMemorySize(void)
 {
+	return;
 } //end of the function PrintUsedMemorySize
 //===========================================================================
 //
@@ -459,6 +464,7 @@ void PrintUsedMemorySize(void)
 //===========================================================================
 void PrintMemoryLabels(void)
 {
+	return;
 } //end of the function PrintMemoryLabels
 
 #endif

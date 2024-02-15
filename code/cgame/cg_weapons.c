@@ -1873,9 +1873,9 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent)
     }
   } //end 1st person
 
-    noGunModel = ( ( !ps || cg.renderingThirdPerson ) && 0 /*weapon->disableIn3rdPerson*/  )|| !gun.hModel;
+  noGunModel = ( ( !ps || cg.renderingThirdPerson ) && 0 /*weapon->disableIn3rdPerson*/  )|| !gun.hModel;
 
- // if (!gun.hModel)
+  //if (!gun.hModel)
   //  return;
 
   if (!ps) //third person
@@ -1951,7 +1951,7 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent)
     //add extra models
     if (ps)	//first person
     {
-      //add ammo model //hypov8 todo: remove. combine with gun model
+      //add ammo model //hypov8 todo: remove. combine with gun model?
       ammo.hModel = weapon->ammoClipModel;
       if (ammo.hModel)
       {
@@ -2050,7 +2050,7 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent)
       trap_R_AddAdditiveLightToScene(flash.origin, 300 + (rand() & 31),
       weapon->flashDlightColor[0], weapon->flashDlightColor[1], weapon->flashDlightColor[2]);
     }
-    }
+  }
 }
 
 #if 0

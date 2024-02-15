@@ -20,13 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "../qcommon/q_shared.h"
 #include "l_cmd.h"
 #include "l_math.h"
 #include "l_mem.h"
-#include "../qcommon/q_shared.h"
-#include "l_log.h"
+#include "../kaas/l_log.h" //dupe botlib
 #include "l_poly.h"
-#include "../qcommon/cm_polylib.h"
+//#include "../qcommon/cm_polylib.h"
 #include "../botlib/l_script.h"
 #include "l_qfiles.h"
 #include "l_bsp_q3.h"
@@ -623,7 +623,7 @@ void Q3_LoadBSPFile(struct quakefile_s *qf)
 
 	// swap the header
 	Q3_SwapBlock( (int *)header, sizeof(*header) );
-#if 0
+#ifndef COMPAT_KPQ3
 	if ( header->ident != Q3_BSP_IDENT ) {
 		Error( "%s is not a IBSP file", qf->filename );
 	}
@@ -631,60 +631,60 @@ void Q3_LoadBSPFile(struct quakefile_s *qf)
 		Error( "%s is version %i, not %i", qf->filename, header->version, Q3_BSP_VERSION );
 	}
 #else
-	if ( header->ident != BSP_IDENT ) {
+	if ( header->ident != BSP_IDENT_KPQ3 ) {
 		Error( "%s is not a IBSP file", qf->filename );
 	}
-	if ( header->version != BSP_VERSION ) {
+	if ( header->version != BSP_VERSION_KPQ3 ) {
 		Error( "%s is version %i, not %i", qf->filename, header->version, Q3_BSP_VERSION );
 	}
 #endif
-
-	q3_numShaders = Q3_CopyLump( header, LUMP_SHADERS, (void *) &q3_dshaders, sizeof(dshader_t) );
+	//#ifndef COMPAT_KPQ3
+	q3_numShaders = Q3_CopyLump( header, LUMP_SHADERS, (void **) &q3_dshaders, sizeof(dshader_t) );
 	Log_Print( "%6d q3_numShaders\n", q3_numShaders );
-	q3_nummodels = Q3_CopyLump( header, LUMP_MODELS, (void *) &q3_dmodels, sizeof(dmodel_t) );
+	q3_nummodels = Q3_CopyLump( header, LUMP_MODELS, (void **) &q3_dmodels, sizeof(dmodel_t) );
 	Log_Print( "%6d q3_nummodels\n", q3_nummodels );
 
-	q3_numplanes = Q3_CopyLump( header, LUMP_PLANES, (void *) &q3_dplanes, sizeof(dplane_t) );
+	q3_numplanes = Q3_CopyLump( header, LUMP_PLANES, (void **) &q3_dplanes, sizeof(dplane_t) );
 	Log_Print( "%6d q3_numplanes\n", q3_numplanes );
 
-	q3_numleafs = Q3_CopyLump( header, LUMP_LEAFS, (void *) &q3_dleafs, sizeof(dleaf_t) );
+	q3_numleafs = Q3_CopyLump( header, LUMP_LEAFS, (void **) &q3_dleafs, sizeof(dleaf_t) );
 	Log_Print( "%6d q3_numleafs\n", q3_numleafs );
 
-	q3_numnodes = Q3_CopyLump( header, LUMP_NODES, (void *) &q3_dnodes, sizeof(dnode_t) );
+	q3_numnodes = Q3_CopyLump( header, LUMP_NODES, (void **) &q3_dnodes, sizeof(dnode_t) );
 	Log_Print( "%6d q3_numnodes\n", q3_numnodes );
 
-	q3_numleafsurfaces = Q3_CopyLump( header, LUMP_LEAFSURFACES, (void *) &q3_dleafsurfaces, sizeof(q3_dleafsurfaces[0]) );
+	q3_numleafsurfaces = Q3_CopyLump( header, LUMP_LEAFSURFACES, (void **) &q3_dleafsurfaces, sizeof(q3_dleafsurfaces[0]) );
 	Log_Print( "%6d q3_numleafsurfaces\n", q3_numleafsurfaces );
 
-	q3_numleafbrushes = Q3_CopyLump( header, LUMP_LEAFBRUSHES, (void *) &q3_dleafbrushes, sizeof(q3_dleafbrushes[0]) );
+	q3_numleafbrushes = Q3_CopyLump( header, LUMP_LEAFBRUSHES, (void **) &q3_dleafbrushes, sizeof(q3_dleafbrushes[0]) );
 	Log_Print( "%6d q3_numleafbrushes\n", q3_numleafbrushes );
 
-	q3_numbrushes = Q3_CopyLump( header, LUMP_BRUSHES, (void *) &q3_dbrushes, sizeof(dbrush_t) );
+	q3_numbrushes = Q3_CopyLump( header, LUMP_BRUSHES, (void **) &q3_dbrushes, sizeof(dbrush_t) );
 	Log_Print( "%6d q3_numbrushes\n", q3_numbrushes );
 
-	q3_numbrushsides = Q3_CopyLump( header, LUMP_BRUSHSIDES, (void *) &q3_dbrushsides, sizeof(dbrushside_t) );
+	q3_numbrushsides = Q3_CopyLump( header, LUMP_BRUSHSIDES, (void **) &q3_dbrushsides, sizeof(dbrushside_t) );
 	Log_Print( "%6d q3_numbrushsides\n", q3_numbrushsides );
 
-	q3_numDrawVerts = Q3_CopyLump( header, LUMP_DRAWVERTS, (void *) &q3_drawVerts, sizeof(drawVert_t) );
+	q3_numDrawVerts = Q3_CopyLump( header, LUMP_DRAWVERTS, (void **) &q3_drawVerts, sizeof(drawVert_t) );
 	Log_Print( "%6d q3_numDrawVerts\n", q3_numDrawVerts );
 
-	q3_numDrawSurfaces = Q3_CopyLump( header, LUMP_SURFACES, (void *) &q3_drawSurfaces, sizeof(dsurface_t) );
+	q3_numDrawSurfaces = Q3_CopyLump( header, LUMP_SURFACES, (void **) &q3_drawSurfaces, sizeof(dsurface_t) );
 	Log_Print( "%6d q3_numDrawSurfaces\n", q3_numDrawSurfaces );
 
-	q3_numFogs = Q3_CopyLump( header, LUMP_FOGS, (void *) &q3_dfogs, sizeof(dfog_t) );
+	q3_numFogs = Q3_CopyLump( header, LUMP_FOGS, (void **) &q3_dfogs, sizeof(dfog_t) );
 	Log_Print( "%6d q3_numFogs\n", q3_numFogs );
 
-	q3_numDrawIndexes = Q3_CopyLump( header, LUMP_DRAWINDEXES, (void *) &q3_drawIndexes, sizeof(q3_drawIndexes[0]) );
+	q3_numDrawIndexes = Q3_CopyLump( header, LUMP_DRAWINDEXES, (void **) &q3_drawIndexes, sizeof(q3_drawIndexes[0]) );
 	Log_Print( "%6d q3_numDrawIndexes\n", q3_numDrawIndexes );
 
-	q3_numVisBytes = Q3_CopyLump( header, LUMP_VISIBILITY, (void *) &q3_visBytes, 1 );
+	q3_numVisBytes = Q3_CopyLump( header, LUMP_VISIBILITY, (void **) &q3_visBytes, 1 );
 	Log_Print( "%6d q3_numVisBytes\n", q3_numVisBytes );
-	q3_numLightBytes = Q3_CopyLump( header, LUMP_LIGHTMAPS, (void *) &q3_lightBytes, 1 );
+	q3_numLightBytes = Q3_CopyLump( header, LUMP_LIGHTMAPS, (void **) &q3_lightBytes, 1 );
 	Log_Print( "%6d q3_numLightBytes\n", q3_numLightBytes );
-	q3_entdatasize = Q3_CopyLump( header, LUMP_ENTITIES, (void *) &q3_dentdata, 1);
+	q3_entdatasize = Q3_CopyLump( header, LUMP_ENTITIES, (void **) &q3_dentdata, 1);
 	Log_Print( "%6d q3_entdatasize\n", q3_entdatasize );
 //	q3_numGridPoints = Q3_CopyLump( header, Q3_LUMP_LIGHTGRID, (void *) &q3_gridData, 8 );
-	q3_numGridPoints = Q3_CopyLump( header, LUMP_LIGHTGRID, (void *) &q3_gridData, sizeof(dgridPoint_t) );
+	q3_numGridPoints = Q3_CopyLump( header, LUMP_LIGHTGRID, (void **) &q3_gridData, sizeof(dgridPoint_t) );
 	Log_Print( "%6d q3_numGridPoints\n", q3_numGridPoints );
 	//if(l->filelen != numGridPoints * (int)sizeof(dgridPoint_t))
 	CountTriangles();
@@ -740,7 +740,7 @@ void Q3_WriteBSPFile( char *filename )
 
 	bspfile = SafeOpenWrite( filename );
 	SafeWrite( bspfile, header, sizeof(q3_dheader_t) );	// overwritten later
-#if 0
+#ifndef COMPAT_KPQ3
 	Q3_AddLump( bspfile, header, Q3_LUMP_SHADERS, q3_dshaders, q3_numShaders*sizeof(q3_dshader_t) );
 	Q3_AddLump( bspfile, header, Q3_LUMP_PLANES, q3_dplanes, q3_numplanes*sizeof(q3_dplane_t) );
 	Q3_AddLump( bspfile, header, Q3_LUMP_LEAFS, q3_dleafs, q3_numleafs*sizeof(q3_dleaf_t) );
@@ -799,7 +799,7 @@ void Q3_PrintBSPFileSizes( void )
 	{
 		Q3_ParseEntities();
 	}
-
+#ifndef COMPAT_KPQ3
 	Log_Print ("%6i models       %7i\n" ,q3_nummodels, (int)(q3_nummodels*sizeof(q3_dmodel_t)));
 	Log_Print ("%6i shaders      %7i\n" ,q3_numShaders, (int)(q3_numShaders*sizeof(q3_dshader_t)));
 	Log_Print ("%6i brushes      %7i\n" ,q3_numbrushes, (int)(q3_numbrushes*sizeof(q3_dbrush_t)));
@@ -807,19 +807,31 @@ void Q3_PrintBSPFileSizes( void )
 	Log_Print ("%6i fogs         %7i\n" ,q3_numFogs, (int)(q3_numFogs*sizeof(q3_dfog_t)));
 	Log_Print ("%6i planes       %7i\n" ,q3_numplanes, (int)(q3_numplanes*sizeof(q3_dplane_t)));
 	Log_Print ("%6i entdata      %7i\n", num_entities, q3_entdatasize);
-
 	Log_Print ("\n");
-
 	Log_Print ("%6i nodes        %7i\n" ,q3_numnodes, (int)(q3_numnodes*sizeof(q3_dnode_t)));
 	Log_Print ("%6i leafs        %7i\n" ,q3_numleafs, (int)(q3_numleafs*sizeof(q3_dleaf_t)));
+	Log_Print ("%6i leafsurfaces %7i\n" ,q3_numleafsurfaces, (int)(q3_numleafsurfaces*sizeof(q3_dleafsurfaces[0])));
+#else
+	Log_Print ("%6i models       %7i\n" ,q3_nummodels, (int)(q3_nummodels*sizeof(dmodel_t)));
+	Log_Print ("%6i shaders      %7i\n" ,q3_numShaders, (int)(q3_numShaders*sizeof(dshader_t)));
+	Log_Print ("%6i brushes      %7i\n" ,q3_numbrushes, (int)(q3_numbrushes*sizeof(dbrush_t)));
+	Log_Print ("%6i brushsides   %7i\n" ,q3_numbrushsides, (int)(q3_numbrushsides*sizeof(dbrushside_t)));
+	Log_Print ("%6i fogs         %7i\n" ,q3_numFogs, (int)(q3_numFogs*sizeof(dfog_t)));
+	Log_Print ("%6i planes       %7i\n" ,q3_numplanes, (int)(q3_numplanes*sizeof(dplane_t)));
+	Log_Print ("%6i entdata      %7i\n", num_entities, q3_entdatasize);
+	Log_Print ("\n");
+	Log_Print ("%6i nodes        %7i\n" ,q3_numnodes, (int)(q3_numnodes*sizeof(dnode_t)));
+	Log_Print ("%6i leafs        %7i\n" ,q3_numleafs, (int)(q3_numleafs*sizeof(dleaf_t)));
+#endif
+
 	Log_Print ("%6i leafsurfaces %7i\n" ,q3_numleafsurfaces, (int)(q3_numleafsurfaces*sizeof(q3_dleafsurfaces[0])));
 	Log_Print ("%6i leafbrushes  %7i\n"	,q3_numleafbrushes, (int)(q3_numleafbrushes*sizeof(q3_dleafbrushes[0])));
 	Log_Print ("%6i drawverts    %7i\n"	,q3_numDrawVerts, (int)(q3_numDrawVerts*sizeof(q3_drawVerts[0])));
 	Log_Print ("%6i drawindexes  %7i\n"	,q3_numDrawIndexes, (int)(q3_numDrawIndexes*sizeof(q3_drawIndexes[0])));
 	Log_Print ("%6i drawsurfaces %7i\n"	,q3_numDrawSurfaces, (int)(q3_numDrawSurfaces*sizeof(q3_drawSurfaces[0])));
-
 	Log_Print ("%6i lightmaps    %7i\n"	,q3_numLightBytes / (LIGHTMAP_WIDTH*LIGHTMAP_HEIGHT*3), q3_numLightBytes );
 	Log_Print ("       visibility   %7i\n", q3_numVisBytes );
+
 }
 
 /*

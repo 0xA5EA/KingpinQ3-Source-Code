@@ -654,7 +654,7 @@ static void Render_vertexLighting_DBS_entity( int stage )
 	// set uniforms
 	VectorCopy( backEnd.viewParms.orientation.origin, viewOrigin );  // in world space
 	VectorCopy( backEnd.currentEntity->ambientLight, ambientColor );
-	Vector4Copy( backEnd.currentEntity->directedLight, lightColor );
+	Vector4Copy( backEnd.currentEntity->directedLight, lightColor ); //hypov8 todo
 
 	// lightDir = L vector which means surface to light
 	VectorCopy( backEnd.currentEntity->lightDir, lightDir );
@@ -829,33 +829,29 @@ static void Render_vertexLighting_DBS_entity( int stage )
 #ifdef COMPAT_KPQ3
 		else if (r_reflectionMapping->integer)
 		{
-			image_t * skyImg = NULL;
+			image_t * skyImg = tr.pbrSpecHdriImage_default;
 			float cubeRez = 1.0f;
 
-			//user sky found in shader
-			if (tr.skyCubeMap)
+			//user sky found in shader for loded level
+			if (tr.pbrSpecHdriImage )
 			{
-				skyImg = tr.skyCubeMap;
+				skyImg = tr.pbrSpecHdriImage;
 			}
-			else
-			{
-				skyImg = tr.skyCubeMapDefault;
-			}
-			// bind u_EnvironmentMap0
-			GL_BindToTMU(3, skyImg);
-			// bind u_EnvironmentMap1
-			GL_BindToTMU(4, skyImg); //todo env light
 
+			//set max LOD and set lut image in colorlmap
 			if (tess.surfaceShader->isPBRShader)
 			{
 				int cubeBit = Q_min(skyImg->uploadHeight, skyImg->uploadWidth);
-				while (cubeBit > 32)
+				while (cubeBit > 8)
 				{
-					cubeRez += 1.0f; //mip level. min 32pix?
+					cubeRez += 1.0f; //mip level. min 16pix
 					cubeBit >>= 1;
 				}
+				//u_ColorMap
 				GL_BindToTMU(6, tr.pbrLutImage); //set lut in colormap 
-				gl_vertexLightingShader_DBS_entity->SetUniform_ColorTextureMatrix(tess.svars.texMatrices[TB_COLORMAP]);
+
+				//u_SpecHDRI
+				GL_BindToTMU( 7, skyImg); 
 			}
 			else
 				cubeRez = 0.0f;

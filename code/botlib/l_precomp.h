@@ -56,10 +56,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef BSPC
 #ifndef USE_ASM_LIB_
 #ifdef WIN32
-#define Q_stricmp	_stricmp
+//#define Q_stricmp	_stricmp
 #else
 //#define Q_stricmp	strcasecmp
-#define stricmp Q_stricmp
+#define Q_stricmp stricmp //hy
 #endif
 #else
 //FIXME:

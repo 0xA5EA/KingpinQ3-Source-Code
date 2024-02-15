@@ -76,22 +76,22 @@
 		<Unit filename="be_aas_bspc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/be_aas_bspq3.c">
+		<Unit filename="../botlib/be_aas_bspq3.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/be_aas_cluster.c">
+		<Unit filename="../botlib/be_aas_cluster.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/be_aas_move.c">
+		<Unit filename="../botlib/be_aas_move.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/be_aas_optimize.c">
+		<Unit filename="../botlib/be_aas_optimize.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/be_aas_reach.c">
+		<Unit filename="../botlib/be_aas_reach.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/be_aas_sample.c">
+		<Unit filename="../botlib/be_aas_sample.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="brushbsp.c">
@@ -100,22 +100,22 @@
 		<Unit filename="bspc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/cm_load.c">
+		<Unit filename="../qcommon/cm_load.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/cm_patch.c">
+		<Unit filename="../qcommon/cm_patch.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/cm_polylib.c">
+		<Unit filename="../qcommon/cm_polylib.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/cm_test.c">
+		<Unit filename="../qcommon/cm_test.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/cm_trace.c">
+		<Unit filename="../qcommon/cm_trace.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/cm_trisoup.c">
+		<Unit filename="../qcommon/cm_trisoup.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="csg.c">
@@ -137,7 +137,7 @@
 		<Unit filename="l_cmd.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/l_libvar.c">
+		<Unit filename="../botlib/l_libvar.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="l_log.c">
@@ -152,16 +152,16 @@
 		<Unit filename="l_poly.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/l_precomp.c">
+		<Unit filename="../botlib/l_precomp.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="l_qfiles.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/l_script.c">
+		<Unit filename="../botlib/l_script.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/l_struct.c">
+		<Unit filename="../botlib/l_struct.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="l_threads.c">
@@ -179,7 +179,7 @@
 		<Unit filename="map_q3.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/md4.c">
+		<Unit filename="../qcommon/md4.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="nodraw.c">
@@ -188,10 +188,10 @@
 		<Unit filename="portals.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/q_math.c">
+		<Unit filename="../qcommon/q_math.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../qcommon/q_shared.c">
+		<Unit filename="../qcommon/q_shared.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="textures.c">

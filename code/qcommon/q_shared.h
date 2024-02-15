@@ -25,7 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
+//#ifndef BSPC //hypov8 add. below not in wolf
 #include "q_mathsse.h"
+//#endif
 #define __STDC_FORMAT_MACROS
 #ifndef Q_BIT
 #define Q_BIT(x) (1 << (x))
@@ -41,7 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // this enables weapon flamegun
 // Now enabled -KRYPTYK
-#define USE_FLAMEGUN //hypov8 todo: remove this def
+#define USE_FLAMEGUN //todo: repace with COMPAT_KPQ3
 
 #define NO_SPEEDUP_MACROS
 
@@ -78,7 +80,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define HOMEPATH_NAME_WIN       PRODUCT_NAME
 
-#define KPQ3_BUILD_NUM "0.9.7.3" //hypov8 was PRODUCT_VERSION, conflict other libs
+#define KPQ3_BUILD_NUM "0.9.7.4" //hypov8 was PRODUCT_VERSION, conflict other libs
 #define KPQ3_VERSION PRODUCT_NAME " " KPQ3_BUILD_NUM
 //#define KPQ3_VERSION      "Wolf 1.41b-MP"
 
@@ -149,6 +151,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //typedef int intptr_t;
 #else
 # include <assert.h>
+# include <math.h>
 # include <stdio.h>
 # include <stdarg.h>
 # include <string.h>
@@ -156,6 +159,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 # include <time.h>
 # include <ctype.h>
 # include <limits.h>
+
 # ifdef  _MSC_VER
 #   include <io.h>
 #   ifndef _SDL_config_win32_h
@@ -183,6 +187,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #else
 #define Q_snprintf  snprintf
 #endif
+
+#include "q_platform.h" //hypov8 linked elsewhere
 
 
 //=============================================================
@@ -310,7 +316,7 @@ typedef enum {
 #  define Hunk_Alloc(size, preference)				Hunk_AllocDebug(size, preference, #size, __FILE__, __LINE__)
    void *Hunk_AllocDebug(int size, ha_pref preference, char const *label, char const *file, int line);
 #else
-#  ifndef BSPC
+#  ifndef BSPC //hypov8 
    void *Hunk_Alloc(int size, ha_pref preference);
 #  endif
 #endif
@@ -333,11 +339,13 @@ typedef enum {
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
 
-#ifndef BSPC
+#ifndef BSPC //_MSC_VER //BSPC //hypov8 
 void  QDECL Com_Error(int level, const char *error, ...) __attribute__ ((format (printf, 2, 3)));
+void  QDECL Com_Printf(const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+#else
+   //todo
 #endif
 
-void  QDECL Com_Printf(const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
 /*
 ==============================================================
 MATHLIB
@@ -541,7 +549,7 @@ extern "C" {
     (*temp)[2] = round((*temp)[2]);\
   } while(0)
 #endif
-#if defined (__cplusplus)
+#if defined (__cplusplus) && !defined(BSPC) //hypov8 :: error
   template <typename T> static ID_INLINE T Q_max(T a, T b) { return ((a) > (b) ? (a) : (b)) ; }
   template <typename T> static ID_INLINE T Q_min(T a, T b) { return ((a) < (b) ? (a) : (b)) ; }
  // template <typename T> static ID_INLINE T Q_bound(T a, T b, T c) { return (Q_max(a, Q_min(b, c))); }
@@ -718,6 +726,11 @@ void ByteToDir(int b, vec3_t dir);
                                     (out)[2] = (A)[2]*(B)[0] + (A)[3]*(B)[2], \
                                     (out)[3] = (A)[2]*(B)[1] + (A)[3]*(B)[3]  )
 
+#define VectorInverse(v) ( (v)[0] = -(v)[0], \
+                           (v)[1] = -(v)[1], \
+                           (v)[2] = -(v)[2] )
+
+
 //unlagged - attack prediction #3
 // moved from g_weapon.c
   void SnapVectorTowards( vec3_t v, vec3_t to );
@@ -735,6 +748,39 @@ void ByteToDir(int b, vec3_t dir);
 
   unsigned ColorBytes3 (float r, float g, float b);
   unsigned ColorBytes4 (float r, float g, float b, float a);
+
+#ifdef BSPC //hypov8 add
+//
+//double Vector_Length(vec3_t v);
+//cm_trace.cc
+void RotatePoint(vec3_t point, float matrix[3][3]);
+//void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3]);
+//void CreateRotationMatrix(vec3_t angles, float matrix[3][3]);
+
+void KAAS_Com_Error(int level, char *error, ...);
+void KAAS_Com_Printf(const char *fmt, ...);
+void KAAS_Com_DPrintf(char *fmt, ...);
+#define Com_Error KAAS_Com_Error
+#define Com_Printf KAAS_Com_Printf
+#define Com_DPrintf KAAS_Com_DPrintf
+//int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *p);
+
+//hypov8 todo rename these for kaas
+#define Vec3_DotProduct DotProduct
+#define Vec3_Copy VectorCopy
+#define Vec3_Inverse VectorInverse //hypov8 now macro
+#define Vec3_Add VectorAdd
+#define Vec3_Scale VectorScale
+#define Vec3_Clear VectorClear
+#define Vec3_MA VectorMA
+#define Vec3_Negate VectorNegate
+#define Vec3_Subtract VectorSubtract
+#define Vec4_Copy Vector4Copy
+
+#define Vector_Length VectorLength
+
+extern vec3_t vec3_origin;
+#endif
 
 //FIXME (0xA5EA): brakes aas build ?
   float NormalizeColor(const vec3_t in, vec3_t out);
@@ -820,7 +866,7 @@ void CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cross);
 vec_t VectorNormalizeSelfstd(vec3_t v);		// returns vector length
 void VectorNormalizeFaststd(vec3_t v);
 vec_t VectorNormalize2std(const vec3_t v, vec3_t out);
-void VectorInverse(vec3_t v);
+///////////////void VectorInverse(vec3_t v); //hypo
 
 vec_t	K_tan(vec_t alpha);
 
@@ -1319,7 +1365,14 @@ extern force_inline char* Q_strrchr(const char* string, int c)
 //extern force_inline const char * Q_stristr(const char * haystack, const char * needle)
 //{ return A_strstr((char*)haystack, needle); }
 #else
-int		Q_stricmp(const char *s1, const char *s2);
+
+#if defined( WIN32) || defined( _WIN64) //hypov8 BSPC
+#define Q_stricmp	_stricmp
+#define access _access
+#else
+//#define Q_stricmp stricmp //hy
+int Q_stricmp(const char *s1, const char *s2);
+#endif
 char *Q_strlwr(char *s1);
 char *Q_strupr(char *s1);
 char *Q_strrchr(const char* string, int c);
@@ -1666,7 +1719,7 @@ typedef enum {
   CHAN_ANNOUNCER		// announcer voices, etc
 } soundChannel_t;
 
-#ifndef BSPC
+#if 2 //ndef BSPC //hypov8 
 #ifndef Q3_VM
 extern force_inline int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, struct cplane_s * p)
 {

@@ -128,10 +128,10 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 	int            i, j;
 	bspGridPoint_t *gridPoint;
 	bspGridPoint_t *gridPoint2;
-	float          frac[ 3 ];
+	float          frac[ 3 ], factor;
 	int            gridStep[ 3 ];
 	vec3_t         direction;
-	float          totalFactor;
+	float          totalFactorAmbiant, totalFactorDirected;
 
 	if ( forcedOrigin )
 	{
@@ -184,13 +184,13 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 	gridStep[ 2 ] = tr.world->lightGridBounds[ 0 ] * tr.world->lightGridBounds[ 1 ]; // * sizeof(bspGridPoint_t);
 	gridPoint = tr.world->lightGridData + pos[ 0 ] * gridStep[ 0 ] + pos[ 1 ] * gridStep[ 1 ] + pos[ 2 ] * gridStep[ 2 ];
 
-	totalFactor = 0;
+	totalFactorAmbiant = 0;
+	totalFactorDirected = 0;
 
 	for ( i = 0; i < 8; i++ )
 	{
-		float factor;
-
 		factor = 1.0;
+
 		gridPoint2 = gridPoint;
 
 		for ( j = 0; j < 3; j++ )
@@ -206,43 +206,49 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 			}
 		}
 
-		if ( !( gridPoint2->ambientColor[ 0 ] + gridPoint2->ambientColor[ 1 ] + gridPoint2->ambientColor[ 2 ] ) )
+		if (VectorCompare(gridPoint2->ambientColor, vec3_origin) == 0)
 		{
-			continue; // ignore samples in walls
+			totalFactorAmbiant += factor;
+			ent->ambientLight[ 0 ] += factor * gridPoint2->ambientColor[ 0 ];
+			ent->ambientLight[ 1 ] += factor * gridPoint2->ambientColor[ 1 ];
+			ent->ambientLight[ 2 ] += factor * gridPoint2->ambientColor[ 2 ];
+			VectorMA( direction, factor, gridPoint2->direction, direction );
 		}
 
-		totalFactor += factor;
-
-		ent->ambientLight[ 0 ] += factor * gridPoint2->ambientColor[ 0 ];
-		ent->ambientLight[ 1 ] += factor * gridPoint2->ambientColor[ 1 ];
-		ent->ambientLight[ 2 ] += factor * gridPoint2->ambientColor[ 2 ];
-
-		ent->directedLight[ 0 ] += factor * gridPoint2->directedColor[ 0 ];
-		ent->directedLight[ 1 ] += factor * gridPoint2->directedColor[ 1 ];
-		ent->directedLight[ 2 ] += factor * gridPoint2->directedColor[ 2 ];
-
-		VectorMA( direction, factor, gridPoint2->direction, direction );
+		//hypov8 add. seperate value. ambientColor can be black
+		if ( VectorCompare(gridPoint2->directedColor, vec3_origin) == 0 )
+		{
+			totalFactorDirected += factor;
+			ent->directedLight[ 0 ] += factor * gridPoint2->directedColor[ 0 ];
+			ent->directedLight[ 1 ] += factor * gridPoint2->directedColor[ 1 ];
+			ent->directedLight[ 2 ] += factor * gridPoint2->directedColor[ 2 ];
+			VectorMA( direction, factor, gridPoint2->direction, direction );
+		}
 	}
 
 #if 1
-
-	if ( totalFactor > 0 && totalFactor < 0.99 )
+	if ( totalFactorAmbiant > 0 && totalFactorAmbiant < 0.99 )
 	{
-		totalFactor = 1.0f / totalFactor;
-		VectorScale( ent->ambientLight, totalFactor, ent->ambientLight );
-		VectorScale( ent->directedLight, totalFactor, ent->directedLight );
+		totalFactorAmbiant = 1.0f / totalFactorAmbiant;
+		VectorScale( ent->ambientLight, totalFactorAmbiant, ent->ambientLight );
 	}
 
+	//hypov8 add: seperate value. ambientColor can be black
+	if ( totalFactorDirected > 0 && totalFactorDirected < 0.99 )
+	{
+		totalFactorDirected = 1.0f / totalFactorDirected;
+		VectorScale( ent->directedLight, totalFactorDirected, ent->directedLight );
+	}
 #endif
 
-#if 0
+#if 1
 	VectorNormalize2( direction, ent->lightDir );
-#else
+#else //moved to lightgrid lump loading
 	VectorNormalize2( direction,  direction);
 	// always face down
 	direction[2] = fabsf(direction[2]);
 	// hypov8 prevent light going past 60 deg
-	VectorSet(lightOrigin, 0.0f, 0.0f, 1.0f - (0.666f * direction[2]));
+	VectorSet(lightOrigin, 0.0f, 0.0f, 1.0f - (0.666f * direction[2])); //
 	VectorAdd(direction, lightOrigin, direction);
 	//VectorScale(direction, 0.5f, direction);
 	VectorNormalize2( direction, ent->lightDir );
@@ -255,6 +261,15 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 		ent->ambientLight[ 1 ] = r_forceAmbient->value;
 		ent->ambientLight[ 2 ] = r_forceAmbient->value;
 	}
+
+#if 1 //hypov8 check both light values
+	if ( VectorLength( ent->directedLight ) < r_forceAmbient->value )
+	{
+		ent->directedLight[ 0 ] = r_forceAmbient->value;
+		ent->directedLight[ 1 ] = r_forceAmbient->value;
+		ent->directedLight[ 2 ] = r_forceAmbient->value;
+	}
+#endif
 
 //----(SA)  added
 	// cheats?  check for single player?

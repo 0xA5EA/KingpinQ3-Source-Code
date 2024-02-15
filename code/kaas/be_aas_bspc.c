@@ -21,17 +21,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <string.h>
 #include "../qcommon/q_shared.h"
-#include "../kaas/l_log.h"
-#include "../kaas/l_qfiles.h"
+#include "../kaas/l_math.h"
+#include "../kaas/l_mem.h"
+
+#include "../kaas/l_log.h" //dupe botlib
+#include "l_qfiles.h"
 #include "../botlib/l_memory.h"
 #include "../botlib/l_script.h"
 #include "../botlib/l_precomp.h"
 #include "../botlib/l_struct.h"
 #include "../botlib/aasfile.h"
 #include "../botlib/botlib.h"
+
 #include "../botlib/be_aas.h"
 #include "../botlib/be_aas_def.h"
 #include "../qcommon/cm_public.h"
+#include "be_aas_bspc.h" //hypov8 add
+
+#include "../kaas/l_cmd.h"
 
 //#define BSPC
 
@@ -108,7 +115,7 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
 {
 	trace_t result;
 
-	CM_BoxTrace(&result, start, end, mins, maxs, worldmodel, contentmask, capsule_collision);
+	CM_BoxTrace(&result, start, end, mins, maxs, worldmodel, contentmask, (traceType_t)capsule_collision);
 
 	bsptrace->allsolid = result.allsolid;
 	bsptrace->contents = result.contents;
@@ -187,9 +194,12 @@ void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmin
 			maxs[i] = (mins[i] + maxs[i]) * 0.5 + max;
 		} //end for
 	} //end if
-	if (outmins) Vec3_Copy(mins, outmins);
-	if (outmaxs) Vec3_Copy(maxs, outmaxs);
-	if (origin) Vec3_Clear(origin);
+	if (outmins) 
+		Vec3_Copy(mins, outmins);
+	if (outmaxs) 
+		Vec3_Copy(maxs, outmaxs);
+	if (origin) 
+		Vec3_Clear(origin);
 } //end of the function BotImport_BSPModelMinsMaxsOrigin
 //===========================================================================
 //
@@ -197,7 +207,7 @@ void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmin
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void Com_DPrintf(char *fmt, ...)
+void KAAS_Com_DPrintf(char *fmt, ...)
 {
 	va_list argptr;
 	char buf[1024];

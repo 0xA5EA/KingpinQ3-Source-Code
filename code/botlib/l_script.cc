@@ -55,7 +55,7 @@ typedef enum {qfalse, qtrue}	qboolean;
 #include "be_interface.h"
 #include "l_script.h"
 #include "l_memory.h"
-#include "l_log.h"
+#include "../botlib/l_log.h"
 #include "l_libvar.h"
 #endif //BOTLIB
 
@@ -64,7 +64,7 @@ typedef enum {qfalse, qtrue}	qboolean;
 #include "qcc.h"
 #include "l_script.h"
 #include "l_memory.h"
-#include "l_log.h"
+#include "../botlib/l_log.h"
 
 #define qtrue	true
 #define qfalse	false
@@ -72,10 +72,11 @@ typedef enum {qfalse, qtrue}	qboolean;
 
 #ifdef BSPC
 //include files for usage in the BSP Converter
+//#include "../qcommon/q_shared.h"
 #include "../kaas/qbsp.h"
 #include "../kaas/l_log.h"
 #include "../kaas/l_mem.h"
-#include "../qcommon/q_shared.h"
+#include "../kaas/l_cmd.h"
 
 //#define qtrue	true
 //#define qfalse	false

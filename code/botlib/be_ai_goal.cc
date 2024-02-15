@@ -489,8 +489,8 @@ void BotInitInfoEntities(void)
 	numcampspots = 0;
 	for (ent = AAS_NextBSPEntity(0); ent; ent = AAS_NextBSPEntity(ent))
 	{
-		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) continue;
-
+		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) 
+			continue;
 		//map locations
 		if (!qstrcmp(classname, "target_location"))
 		{

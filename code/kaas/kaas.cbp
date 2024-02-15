@@ -12,13 +12,14 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-g" />
+					<Add option="-W" />
+					<Add option="-O0" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DBSPC" />
-					<Add option="-W" />
-					<Add option="-g" />
-					<Add option="-O0" />
+					<Add option="-DCOMPAT_KPQ3" />
 				</Compiler>
 			</Target>
 			<Target title="Release Win32">
@@ -27,6 +28,8 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-O2" />
+					<Add option="-W" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_CONSOLE" />
@@ -35,8 +38,7 @@
 					<Add option="-DRNDER_EXTENDED" />
 					<Add option="-D_CRT_SECURE_NO_DEPRECATE" />
 					<Add option="-DUSE_LOCAL_HEADERS" />
-					<Add option="-W" />
-					<Add option="-O2" />
+					<Add option="-DCOMPAT_KPQ3" />
 				</Compiler>
 			</Target>
 			<Target title="linux64">
@@ -52,6 +54,7 @@
 					<Add option="-D_CONSOLE" />
 					<Add option="-DBSPC" />
 					<Add option="-DUSE_LOCAL_HEADERS" />
+					<Add option="-DCOMPAT_KPQ3" />
 				</Compiler>
 				<Linker>
 					<Add library="../../code/asmlib/alibelf64.a" />
@@ -69,6 +72,7 @@
 					<Add option="-D_CONSOLE" />
 					<Add option="-DBSPC" />
 					<Add option="-DUSE_LOCAL_HEADERS" />
+					<Add option="-DCOMPAT_KPQ3" />
 				</Compiler>
 				<Linker>
 					<Add library="../../code/asmlib/alibelf32.a" />
@@ -78,10 +82,10 @@
 		<Unit filename="../asmlib/asmlib.h" />
 		<Unit filename="../botlib/aasfile.h" />
 		<Unit filename="../botlib/be_aas_bsp.h" />
-		<Unit filename="../botlib/be_aas_bspq3.c">
+		<Unit filename="../botlib/be_aas_bspq3.cc">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../botlib/be_aas_cluster.c">
+		<Unit filename="../botlib/be_aas_cluster.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/be_aas_cluster.h" />
@@ -91,40 +95,39 @@
 		<Unit filename="../botlib/be_aas_file.h" />
 		<Unit filename="../botlib/be_aas_funcs.h" />
 		<Unit filename="../botlib/be_aas_main.h" />
-		<Unit filename="../botlib/be_aas_move.c">
+		<Unit filename="../botlib/be_aas_move.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/be_aas_move.h" />
-		<Unit filename="../botlib/be_aas_optimize.c">
+		<Unit filename="../botlib/be_aas_optimize.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/be_aas_optimize.h" />
-		<Unit filename="../botlib/be_aas_reach.c">
+		<Unit filename="../botlib/be_aas_reach.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/be_aas_reach.h" />
 		<Unit filename="../botlib/be_aas_route.h" />
 		<Unit filename="../botlib/be_aas_routealt.h" />
-		<Unit filename="../botlib/be_aas_sample.c">
+		<Unit filename="../botlib/be_aas_sample.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/be_aas_sample.h" />
 		<Unit filename="../botlib/be_interface.h" />
-		<Unit filename="../botlib/l_libvar.c">
+		<Unit filename="../botlib/l_libvar.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/l_libvar.h" />
-		<Unit filename="../botlib/l_log.h" />
 		<Unit filename="../botlib/l_memory.h" />
-		<Unit filename="../botlib/l_precomp.c">
+		<Unit filename="../botlib/l_precomp.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/l_precomp.h" />
-		<Unit filename="../botlib/l_script.c">
+		<Unit filename="../botlib/l_script.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/l_script.h" />
-		<Unit filename="../botlib/l_struct.c">
+		<Unit filename="../botlib/l_struct.cc">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../botlib/l_struct.h" />
@@ -134,8 +137,53 @@
 		<Unit filename="../client/keys.h" />
 		<Unit filename="../client/snd_public.h" />
 		<Unit filename="../game/bg_public.h" />
-		<Unit filename="../game/q_shared.h" />
 		<Unit filename="../game/surfaceflags.h" />
+		<Unit filename="../qcommon/cm_load.cc">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_local.h" />
+		<Unit filename="../qcommon/cm_patch.cc">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_patch.h" />
+		<Unit filename="../qcommon/cm_polylib.cc">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_polylib.h" />
+		<Unit filename="../qcommon/cm_public.h" />
+		<Unit filename="../qcommon/cm_test.cc">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_trace.cc">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/cm_trisoup.cc">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/common.cc" />
+		<Unit filename="../qcommon/ioapi.cc" />
+		<Unit filename="../qcommon/ioapi.h" />
+		<Unit filename="../qcommon/md4.cc">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../qcommon/q_math.cc">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../qcommon/q_shared.cc">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../qcommon/q_shared.h" />
+		<Unit filename="../qcommon/qcommon.h" />
+		<Unit filename="../qcommon/qfiles.h" />
+		<Unit filename="../qcommon/unzip.cc" />
+		<Unit filename="../qcommon/unzip.h" />
+		<Unit filename="../renderer/tr_public.h" />
+		<Unit filename="../ui/keycodes.h" />
+		<Unit filename="../ui/ui_public.h" />
 		<Unit filename="_files.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -266,45 +314,10 @@
 		</Unit>
 		<Unit filename="unzip.c">
 			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
 		</Unit>
 		<Unit filename="unzip.h" />
-		<Unit filename="../qcommon/cm_load.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/cm_local.h" />
-		<Unit filename="../qcommon/cm_patch.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/cm_patch.h" />
-		<Unit filename="../qcommon/cm_polylib.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/cm_polylib.h" />
-		<Unit filename="../qcommon/cm_public.h" />
-		<Unit filename="../qcommon/cm_test.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/cm_trace.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/cm_trisoup.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/md4.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/q_math.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/q_shared.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../qcommon/qcommon.h" />
-		<Unit filename="../qcommon/qfiles.h" />
-		<Unit filename="../qcommon/unzip.h" />
-		<Unit filename="../renderer/tr_public.h" />
-		<Unit filename="../ui/keycodes.h" />
-		<Unit filename="../ui/ui_public.h" />
 		<Extensions>
 			<envvars />
 			<code_completion />

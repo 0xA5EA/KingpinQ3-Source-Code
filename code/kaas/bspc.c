@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#define AASINTERN /* make more botlib function prototypes visible */
+
 #if defined(WIN32) || defined(_WIN32)
 #include <direct.h>
 #include <windows.h>
@@ -390,7 +392,7 @@ void CreateAASFilesForAllBSPFiles(char *quakepath)
 	strcat(filter, "*");
 
 #if defined(WIN32)|defined(_WIN32)
-	handle = FindFirstFile(filter, &filedata);
+	handle = (HWND)FindFirstFile(filter, &filedata);
 	done = (handle == INVALID_HANDLE_VALUE);
 	while(!done)
 	{

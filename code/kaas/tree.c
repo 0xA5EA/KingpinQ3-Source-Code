@@ -176,7 +176,7 @@ tree_t *Tree_Alloc(void)
 {
 	tree_t	*tree;
 
-	tree = GetMemory(sizeof(*tree));
+	tree = (tree_t*)GetMemory(sizeof(*tree));
 	memset (tree, 0, sizeof(*tree));
 	ClearBounds (tree->mins, tree->maxs);
 
@@ -227,7 +227,8 @@ void Tree_PruneNodes_r (bspnode_t *node)
 {
 	bspbrush_t *b, *next;
 
-	if (node->planenum == PLANENUM_LEAF) return;
+	if (node->planenum == PLANENUM_LEAF) 
+		return;
 
 	Tree_PruneNodes_r (node->children[0]);
 	Tree_PruneNodes_r (node->children[1]);
@@ -235,7 +236,8 @@ void Tree_PruneNodes_r (bspnode_t *node)
 	if (create_aas)
 	{
 		if ((node->children[0]->contents & CONTENTS_LADDER) ||
-				(node->children[1]->contents & CONTENTS_LADDER)) return;
+				(node->children[1]->contents & CONTENTS_LADDER)) 
+				return;
 	}
 
 	if ((node->children[0]->contents & CONTENTS_SOLID)

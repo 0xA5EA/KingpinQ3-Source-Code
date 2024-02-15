@@ -30,7 +30,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *****************************************************************************/
 
-#ifdef AASINTERN
+//#include "botlib.h" //hypov8 add
+
+#ifdef AASINTERN //hypov8
 //loads the given BSP file
 int AAS_LoadBSPFile(void);
 //dump the loaded BSP data
@@ -87,4 +89,3 @@ int AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v);
 int AAS_FloatForBSPEpairKey(int ent, char *key, float *value);
 //get an integer for the BSP epair key
 int AAS_IntForBSPEpairKey(int ent, char *key, int *value);
-

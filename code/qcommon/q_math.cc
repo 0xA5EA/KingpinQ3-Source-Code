@@ -1028,7 +1028,7 @@ void SetPlaneSignbits( cplane_t *out )
  * Returns 1, 2, or 1 + 2
  * ==================
  */
-#ifndef BSPC
+#ifndef BSPC //hypov8 defined in q_shared.h
 #if defined(Q3_VM)
 int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, struct cplane_s *p)
 {
@@ -1349,14 +1349,14 @@ vec_t  Distance(vec3_t const p1, vec3_t const p2)
   VectorSubtract (p2, p1, v);
   return v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 }
-
+#if 0 //macro
 void VectorInverse( vec3_t v )
 {
   v[ 0 ] = -v[ 0 ];
   v[ 1 ] = -v[ 1 ];
   v[ 2 ] = -v[ 2 ];
 }
-
+#endif
 void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out )
 {
   out[ 0 ] = in[ 0 ] * scale;

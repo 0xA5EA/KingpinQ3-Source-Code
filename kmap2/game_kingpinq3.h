@@ -105,41 +105,41 @@ game_t struct
 ------------------------------------------------------------------------------- */
 
 {
-	"kingpinq3",		    /* -game x */
-	"basekpq3",			    /* default base game data dir */
-	".KingpinQ3",		    /* unix home sub-dir */
-	"kingpinq3",		    /* magic path word */
-	"materials",	      /* shader directory */
-	1024,			         	/* max lightmapped surface verts */
-	1024,			          /* max surface verts */
-	6144,				        /* max surface indexes */
-	qfalse,			        /* flares */
-	"flareshader",	    /* default flare shader */
-	qfalse,				      /* wolf lighting model? */
-	1024,			          /* lightmap width/height */
-	1.0f,			          /* lightmap gamma */
-	1.0f,				        /* lightmap exposure */
-	1.0f,				        /* lightmap compensate */
-	1.0f,				        /* lightgrid scale */
-	1.0f,				        /* lightgrid ambient scale */
-	qfalse,				      /* light angle attenuation uses half-lambert curve */
-	qtrue,				      /* disable shader lightstyles hack */
-	qtrue,				      /* keep light entities on bsp */
-	8,					        /* default patchMeta subdivisions tolerance */
-	qtrue,				      /* patch casting enabled */
-	qtrue,				      /* compile deluxemaps */
-	0,					        /* deluxemaps default mode */
+	"kingpinq3",        /* -game x */
+	"basekpq3",         /* default base game data dir */
+	".KingpinQ3",       /* unix home sub-dir */
+	"kingpinq3",        /* magic path word */
+	"materials",        /* shader directory */
+	1024,               /* max lightmapped surface verts */
+	1024,               /* max surface verts */
+	6144,               /* max surface indexes */
+	qfalse,             /* flares */
+	"flareshader",      /* default flare shader */
+	qfalse,             /* wolf lighting model? */
+	1024,               /* lightmap width/height */
+	1.0f,               /* lightmap gamma */
+	1.0f,               /* lightmap exposure */
+	1.0f,               /* lightmap compensate */
+	1.0f,               /* lightgrid scale */
+	1.0f,               /* lightgrid ambient scale */
+	qfalse,             /* light angle attenuation uses half-lambert curve */
+	qtrue,              /* disable shader lightstyles hack */
+	qfalse,              /* keep light entities on bsp */ /* hypov8 lights will be loaded from .map*/
+	8,                  /* default patchMeta subdivisions tolerance */
+	qtrue,              /* patch casting enabled */
+	qtrue,              /* compile deluxemaps */
+	0,                  /* deluxemaps default mode */
 	512,                /* minimap size */
 	1.0f,               /* minimap sharpener */
 	0.0f,               /* minimap border */
 	qtrue,              /* minimap keep aspect */
 	MINIMAP_MODE_BLACK, /* minimap mode */
 	"%s.png",           /* minimap name format */
-	"XBSP",				      /* bsp file prefix */
-	48,					        /* bsp file version */
-	qfalse,				      /* cod-style lump len/ofs order */
-	LoadXBSPFile,		    /* bsp load function */
-	WriteXBSPFile,		  /* bsp write function */
+	"XBSP",             /* bsp file prefix */
+	48,                 /* bsp file version */
+	qfalse,             /* cod-style lump len/ofs order */
+	LoadXBSPFile,       /* bsp load function */
+	WriteXBSPFile,      /* bsp write function */
 
 	{
 		/* name				contentFlags				contentFlagsClear			surfaceFlags				surfaceFlagsClear			compileFlags				compileFlagsClear */

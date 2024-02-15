@@ -6154,11 +6154,11 @@ static void RB_RenderDebugUtils()
 
       VectorCopy( gridPoint->origin, tetraVerts[ 3 ] );
       tetraVerts[ 3 ][ 3 ] = 1;
-      Tess_AddTetrahedron( tetraVerts, gridPoint->directedColor );
+      Tess_AddTetrahedron( tetraVerts, gridPoint->ambientColor ); //top 1/2 ambient
 
       VectorCopy( offset, tetraVerts[ 3 ] );
       tetraVerts[ 3 ][ 3 ] = 1;
-      Tess_AddTetrahedron( tetraVerts, gridPoint->ambientColor );
+      Tess_AddTetrahedron( tetraVerts, gridPoint->directedColor ); //lower 1/2 directed
     }
 
     Tess_End();

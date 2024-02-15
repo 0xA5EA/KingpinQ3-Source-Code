@@ -29,12 +29,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef MEMDEBUG
 
+#ifndef BSPC
 void *GetClearedMemory(int size);
 void *GetMemory(unsigned long size);
 void *Hunk_Alloc(int size);
+#else
+void *KAAS_GetClearedMemory(int size);
+void *KAAS_GetMemory(unsigned long size);
+void *KAAS_Hunk_Alloc(int size);
+void *KAAS_Z_Malloc(int size);
+void KAAS_Z_Free(void *ptr);
+void KAAS_FreeMemory(void *ptr);
+
+#define Hunk_Alloc(size, p) (KAAS_Hunk_Alloc(size))
+#define GetMemory KAAS_GetMemory
+#define GetClearedMemory KAAS_GetClearedMemory
+#define GetClearedHunkMemory KAAS_GetClearedMemory// GetClearedMemory
+#define Z_Malloc KAAS_Z_Malloc
+#define Z_Free KAAS_Z_Free
+#define FreeMemory KAAS_FreeMemory
+#endif
 
 #else
-
+//todo bspc
 #define GetMemory(size)				GetMemoryDebug(size, #size, __FILE__, __LINE__);
 #define GetClearedMemory(size)	GetClearedMemoryDebug(size, #size, __FILE__, __LINE__);
 //allocate a memory block of the given size

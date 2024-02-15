@@ -24,22 +24,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #endif
+
+#include <stdlib.h> //hypov8 bspc
 #include <malloc.h>
+/////#include "../qcommon/q_platform.h"
+//#include "../qcommon/q_platform.h"
+//#include "../qcommon/qfiles.h"
+#include "../qcommon/q_shared.h"
+
+//#include "../qcommon/surfaceflags.h"
+//#include "../qcommon/cm_polylib.h"
+
 #include "l_cmd.h"
-#include "l_math.h"
+#include "../kaas/l_math.h"
 #include "l_poly.h"
 #include "l_threads.h"
 #include "../botlib/l_script.h"
+#include "../botlib/botlib.h" //hypov8 add: ->bsp_trace_t
 #include "l_bsp_ent.h"
 //#include "q2files.h"
-#include "../qcommon/qfiles.h"
-//#include "../qcommon/q_shared.h"
 #include "l_mem.h"
-#include "l_utils.h"
-#include "l_log.h"
+#include "../kaas/l_utils.h"
+#include "../kaas/l_log.h"
 #include "l_qfiles.h"
-#include "../qcommon/surfaceflags.h"
-#include "../qcommon/cm_polylib.h"
+
 #if 0
 #define USE_ASM_LIB_
 #ifdef USE_ASM_LIB_
@@ -50,7 +58,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 //FIXME (0xA5EA):
 
-#define KAAS_VERSION  "2.2"
+#define KAAS_VERSION  "2.2.1"
 #if defined (USE_ASM_LIB) && !defined (USE_SSE)
 #  define BSPC_VERSION  KAAS_VERSION" with asmlib"
 #elif !defined (USE_ASM_LIB) && defined (USE_SSE)

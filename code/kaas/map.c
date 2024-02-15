@@ -19,7 +19,9 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "../qcommon/q_shared.h"
+//#include "../qcommon/q_platform.h"
+//#include "../qcommon/q_shared.h"
+#include "../qcommon/q_math.h" //hypov8 add
 #include "qbsp.h"
 //#include "l_bsp_hl.h"
 //#include "l_bsp_q1.h"
@@ -220,7 +222,7 @@ int CreateNewFloatPlane (vec3_t normal, vec_t dist)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void SnapVector(vec3_t normal)
+void SnapVectorKAAS(vec3_t normal)
 {
 	int		i;
 
@@ -239,7 +241,7 @@ void SnapVector(vec3_t normal)
 			break;
 		}
 	}
-} //end of the function SnapVector
+} //end of the function SnapVectorKAAS
 //===========================================================================
 //
 // Parameter:				-
@@ -248,7 +250,7 @@ void SnapVector(vec3_t normal)
 //===========================================================================
 void SnapPlane(vec3_t normal, vec_t *dist)
 {
-	SnapVector(normal);
+	SnapVectorKAAS(normal);
 
 	if (fabs(*dist-Q_rint(*dist)) < DIST_EPSILON)
 		*dist = Q_rint(*dist);
@@ -428,7 +430,7 @@ void AddBrushBevels (mapbrush_t *b)
 			Vec3_Subtract (w->p[j], w->p[k], vec);
 			if (VectorNormalize3(vec) < 0.5)
 				continue;
-			SnapVector (vec);
+			SnapVectorKAAS (vec);
 			for (k=0 ; k<3 ; k++)
 				if ( vec[k] == -1 || vec[k] == 1)
 					break;	// axial
@@ -1236,7 +1238,7 @@ int LoadMapFromBSP(struct quakefile_s *qf)
 	//Quake3 BSP file
 
 //	if (idheader.ident == Q3_BSP_IDENT && idheader.version == Q3_BSP_VERSION)
-	if (idheader.ident == BSP_IDENT && idheader.version == BSP_VERSION)
+	if (idheader.ident == BSP_IDENT_KPQ3 && idheader.version == BSP_VERSION_KPQ3)
 	{
 		ResetMapLoading();
 #if 1

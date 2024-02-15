@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *****************************************************************************/
 
-#ifndef BSPCINCLUDE
+#if 1 //ndef BSPCINCLUDE
 
 #include "be_aas_main.h"
 #include "be_aas_entity.h"

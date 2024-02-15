@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
+#include "../botlib/l_utils.h" //hypov8 add
 #include "l_libvar.h"
 #include "l_memory.h"
 #include "l_script.h"
@@ -42,6 +43,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_aas_def.h"
+
+#ifdef BSPC
+  #include "../kaas/l_mem.h"
+#endif
 
 typedef struct optimized_s
 {

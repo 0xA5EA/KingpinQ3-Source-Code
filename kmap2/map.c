@@ -1734,15 +1734,6 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 
 
 
-
-
-
-
-
-
-
-
-
 	/* ydnar: determine if this is a func_group */
 	if(!Q_stricmp("func_group", classname))
 		funcGroup = qtrue;
@@ -1760,7 +1751,8 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 
 #if 1
 //////////////////////////////////////////////////////////////////////////
-		/* hypov8 add kpq3 convert form kp1 maps, renames items */
+// hypov8 add kpq3 convert form kp1 maps, renames items 
+// note: should this have a warning about an old entity?
 //////////////////////////////////////////////////////////////////////////
 
 		/*
@@ -1778,41 +1770,35 @@ misc_teleporter				->	trigger_teleport
 misc_teleporter_dest	-> target_teleporter
 trigger_relay			-> target_relay
  */
-	if(!Q_stricmp("trigger_hurt_fire", classname))
-	{
-		SetKeyValue(mapEnt, "classname", "trigger_hurt");	
-		SetKeyValue(mapEnt, "sounds", "1"); //add sounds fire
+		if(!Q_stricmp("trigger_hurt_fire", classname))
+		{
+			SetKeyValue(mapEnt, "classname", "trigger_hurt");	
+			SetKeyValue(mapEnt, "sounds", "1"); //add sounds fire
+		}
+		else if(!Q_stricmp("trigger_hurt_electric", classname))
+			SetKeyValue(mapEnt, "classname", "trigger_hurt");		//add sounds electric
+		else if(!Q_stricmp("func_wall", classname))
+				SetKeyValue(mapEnt, "classname", "func_static");
+		else if(!Q_stricmp("hmg_mod_cooling", classname))
+				SetKeyValue(mapEnt, "classname", "item_hmg_mod_cooling");
+		else if(!Q_stricmp("pistol_mod_damage", classname))
+				SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
+		else if(!Q_stricmp("weapon_spistol", classname))
+				SetKeyValue(mapEnt, "classname", "item_silencer_mod");
+		else if(!Q_stricmp("pistol_mod_rof", classname))
+				SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
+		else if(!Q_stricmp("pistol_mod_reload", classname))
+				SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
+		else if(!Q_stricmp("target_speaker", classname))
+				SetKeyValue(mapEnt, "classname", "speaker");
+				//item_pistol_fire_mod
+		//if(!Q_stricmp("misc_teleporter", classname))
+		//		SetKeyValue(mapEnt, "classname", "trigger_teleport"); //note hypov8 entity->bmodel not working
+		else if(!Q_stricmp("misc_teleporter_dest", classname))
+				SetKeyValue(mapEnt, "classname", "target_teleporter");
+		else if(!Q_stricmp("trigger_relay", classname))
+				SetKeyValue(mapEnt, "classname", "target_relay");
 
-	}
-	if(!Q_stricmp("trigger_hurt_electric", classname))
-			{
-				SetKeyValue(mapEnt, "classname", "trigger_hurt");		//add sounds electric
-
-			}
-	if(!Q_stricmp("func_wall", classname))
-			SetKeyValue(mapEnt, "classname", "func_static");
-	if(!Q_stricmp("hmg_mod_cooling", classname))
-			SetKeyValue(mapEnt, "classname", "item_hmg_mod_cooling");
-	if(!Q_stricmp("pistol_mod_damage", classname))
-			SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
-	if(!Q_stricmp("weapon_spistol", classname))
-			SetKeyValue(mapEnt, "classname", "item_silencer_mod");
-	if(!Q_stricmp("pistol_mod_rof", classname))
-			SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
-	if(!Q_stricmp("pistol_mod_reload", classname))
-			SetKeyValue(mapEnt, "classname", "item_pistol_damage_mod");
-	if(!Q_stricmp("target_speaker", classname))
-			SetKeyValue(mapEnt, "classname", "speaker");
-			//item_pistol_fire_mod
-	//if(!Q_stricmp("misc_teleporter", classname))
-	//		SetKeyValue(mapEnt, "classname", "trigger_teleport"); //note hypov8 entity->bmodel not working
-	if(!Q_stricmp("misc_teleporter_dest", classname))
-			SetKeyValue(mapEnt, "classname", "target_teleporter");
-	if(!Q_stricmp("trigger_relay", classname))
-			SetKeyValue(mapEnt, "classname", "target_relay");
-	/*
-
-*/
 /*
 
 
@@ -1839,7 +1825,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "spawnflags");
 		}
 
-		if(!Q_stricmp("light_chandelier", classname))
+		else if(!Q_stricmp("light_chandelier", classname))
 		{						
 			SetKeyValue(mapEnt, "classname", "misc_model");
 			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_chandelier.ase");
@@ -1849,7 +1835,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "movedir");
 			RemoveKey(mapEnt, "spawnflags");
 		}
-		if(!Q_stricmp("light_deco_sconce", classname))
+		else if(!Q_stricmp("light_deco_sconce", classname))
 		{						
 			SetKeyValue(mapEnt, "classname", "misc_model");
 			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_deco_sconce.ase");
@@ -1859,7 +1845,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "movedir");
 			RemoveKey(mapEnt, "spawnflags");
 		}
-		if(!Q_stricmp("light_pendant", classname))
+		else if(!Q_stricmp("light_pendant", classname))
 		{						
 			SetKeyValue(mapEnt, "classname", "misc_model");
 			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_pendant.ase");
@@ -1869,7 +1855,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "movedir");
 			RemoveKey(mapEnt, "spawnflags");
 		}
-		if(!Q_stricmp("light_sconce", classname))
+		else if(!Q_stricmp("light_sconce", classname))
 		{						
 			SetKeyValue(mapEnt, "classname", "misc_model");
 			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/light_sconce.ase");
@@ -1879,9 +1865,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "movedir");
 			RemoveKey(mapEnt, "spawnflags");
 		}
-
-
-		if(!Q_stricmp("light_fire_esm", classname))
+		else if(!Q_stricmp("light_fire_esm", classname))
 		{						
 			SetKeyValue(mapEnt, "classname", "misc_model");
 			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/fire_xsmall.ase");
@@ -1891,7 +1875,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "movedir");
 			RemoveKey(mapEnt, "alphalevel");
 		}
-		if(!Q_stricmp("light_fire_sm", classname))
+		else if(!Q_stricmp("light_fire_sm", classname))
 		{						
 			SetKeyValue(mapEnt, "classname", "misc_model");
 			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/fire_small.ase");
@@ -1901,7 +1885,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "movedir");
 			RemoveKey(mapEnt, "alphalevel");
 		}	
-		if(!Q_stricmp("light_fire_med", classname))
+		else if(!Q_stricmp("light_fire_med", classname))
 		{						
 			SetKeyValue(mapEnt, "classname", "misc_model");
 			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/fire_med.ase");
@@ -1911,7 +1895,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "movedir");
 			RemoveKey(mapEnt, "alphalevel");
 		}
-		if(!Q_stricmp("light_fire_lg", classname))
+		else if(!Q_stricmp("light_fire_lg", classname))
 		{						
 			SetKeyValue(mapEnt, "classname", "misc_model");
 			SetKeyValue(mapEnt, "model", "models/mapobjects/kpq3/fire_large.ase");
@@ -1938,95 +1922,90 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 
 		if(!Q_stricmp("worldspawn", classname))
 		{
+
+			if (KeyExists(mapEnt, "fogval"))
+			{
 				value = ValueForKey(mapEnt, "fogval");
-			if (KeyExists(mapEnt, "fogval"))	
-				{
-					SetKeyValue(mapEnt, "fogColor", value);
-					RemoveKey(mapEnt, "fogval");	
-				}
+				SetKeyValue(mapEnt, "fogColor", value);
+				RemoveKey(mapEnt, "fogval");
+			}
 
-			value = ValueForKey(mapEnt, "light");
-			if (KeyExists(mapEnt, "light"))	
-				{
-					SetKeyValue(mapEnt, "ambient", value);
-					SetKeyValue(mapEnt, "_mingridlight", "30");
-					SetKeyValue(mapEnt, "_minvertexlight", "30");
-					RemoveKey(mapEnt, "light");	
-				}
-
-			else if  (KeyExists(mapEnt, "_ambient"))
-				{
+			if (KeyExists(mapEnt, "light"))
+			{
+				value = ValueForKey(mapEnt, "light");
+				SetKeyValue(mapEnt, "ambient", value);
+				SetKeyValue(mapEnt, "_mingridlight", "30");
+				SetKeyValue(mapEnt, "_minvertexlight", "30");
+			}
+			else if (KeyExists(mapEnt, "_ambient"))
+			{
 				value = ValueForKey(mapEnt, "_ambient");
-					SetKeyValue(mapEnt, "ambient", value);
-					SetKeyValue(mapEnt, "_mingridlight", "30");
-					SetKeyValue(mapEnt, "_minvertexlight", "30");
-					RemoveKey(mapEnt, "_ambient");
-				}
+				SetKeyValue(mapEnt, "ambient", value);
+				SetKeyValue(mapEnt, "_mingridlight", "30");
+				SetKeyValue(mapEnt, "_minvertexlight", "30");
+			}
 			else
-				{
-					SetKeyValue(mapEnt, "ambient", "20");
-					SetKeyValue(mapEnt, "_mingridlight", "30");
-					SetKeyValue(mapEnt, "_minvertexlight", "30");
-				}
-
+			{
+				SetKeyValue(mapEnt, "ambient", "20");
+				SetKeyValue(mapEnt, "_mingridlight", "30");
+				SetKeyValue(mapEnt, "_minvertexlight", "30");
+			}
+			RemoveKey(mapEnt, "light");
+			RemoveKey(mapEnt, "_ambient");
 		}
 
 		if(!Q_stricmp("light", classname))
-		{		
-			value = ValueForKey(mapEnt, "_fade");
+		{			
 			if (KeyExists(mapEnt, "_fade"))	
-				{
-					SetKeyValue(mapEnt, "fade", value);
-					RemoveKey(mapEnt, "_fade");	
-				}
+			{
+				value = ValueForKey(mapEnt, "_fade");
+				SetKeyValue(mapEnt, "fade", value);
+				RemoveKey(mapEnt, "_fade");	
+			}
+	
+			if (KeyExists(mapEnt, "light")) 
+			{
+				char out_rad[30]= "";
+				value = ValueForKey(mapEnt, "light");
+				sprintf(out_rad,"%s %s %s", value, value, value);
+				SetKeyValue(mapEnt, "light_radius", out_rad);
+				RemoveKey(mapEnt, "light");
+			}
+			else
+			{ 
+				SetKeyValue(mapEnt, "light_radius", "308 308 308");
+			}	
 
-			value = ValueForKey(mapEnt, "light");
-				if (KeyExists(mapEnt, "light")) 
-					{
-						char out_rad[20]= "";
-
-
-						sprintf(out_rad,"%s %s %s", value, value, value);
-						SetKeyValue(mapEnt, "light_radius", out_rad);
-
-						RemoveKey(mapEnt, "light");
-					}
-				else
-					{ 
-						SetKeyValue(mapEnt, "light_radius", "308 308 308"); 
-						RemoveKey(mapEnt, "light");
-					}
-
-			valueInt = IntForKey(mapEnt, "style");
 			if (KeyExists(mapEnt, "style")) 
-				{	//convertStyleToReal();	
-						 if(valueInt == 1)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_01");}
-					else if(valueInt == 2)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_02");}
-					else if(valueInt == 3)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_03");}
-					else if(valueInt == 4)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_04");}
-					else if(valueInt == 5)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_05");}
-					else if(valueInt == 6)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_06");}
-					else if(valueInt == 7)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_07");}
-					else if(valueInt == 8)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_08");}
-					else if(valueInt == 9)  {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_09");}
-					else if(valueInt == 10) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_10");}
-					else if(valueInt == 11) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_11");}
-					else if(valueInt == 12) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_12");}
-					else if(valueInt == 13) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_13");}
-					else if(valueInt == 14) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_14");}
-					else if(valueInt == 15) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_15");}
-					else if(valueInt == 16) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_16");}
-					else if(valueInt == 17) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_17");}
-					else if(valueInt == 18) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_18");}
-					else if(valueInt == 19) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_19");}
-					else if(valueInt == 20) {	SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_20");}
-					SetKeyValue(mapEnt, "noradiosity", "1");
-
-					if(valueInt >= 20 ||valueInt == 0 ) 
-					{
-						RemoveKey(mapEnt, "noradiosity");	
-					} 
-				}
+			{	//convertStyleToReal();	
+				valueInt = IntForKey(mapEnt, "style");
+				SetKeyValue(mapEnt, "noradiosity", "1");
+				switch (valueInt)
+				{
+					case 1:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_01"); break;
+					case 2:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_02"); break;
+					case 3:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_03"); break;
+					case 4:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_04"); break;
+					case 5:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_05"); break;
+					case 6:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_06"); break;
+					case 7:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_07"); break;
+					case 8:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_08"); break;
+					case 9:  SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_09"); break;
+					case 10: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_10"); break;
+					case 11: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_11"); break;
+					case 12: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_12"); break;
+					case 13: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_13"); break;
+					case 14: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_14"); break;
+					case 15: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_15"); break;
+					case 16: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_16"); break;
+					case 17: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_17"); break;
+					case 18: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_18"); break;
+					case 19: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_19"); break;
+					case 20: SetKeyValue(mapEnt, "texture", "lights/kpq3_style/kp_20"); break;
+					default:
+						RemoveKey(mapEnt, "noradiosity");
+				} 
+			}
 			SetKeyValue(mapEnt, "spawnflags", "1");		//use linear lights
 			SetKeyValue(mapEnt, "_filterradius", "1"); //add soft shadows to light edges
 			RemoveKey(mapEnt, "style"); //includes removing invalid kp styles
@@ -2035,7 +2014,7 @@ light_fire_lg 		-> models/mapobjects/kpq3/fire_large.ase
 			RemoveKey(mapEnt, "movedir");				//flare color in kingpin1, can use _flare if it works
 		}
 
-	
+
 
 /*
 info_player_deathmatch style 1=dragons	-> team_dragonsspawn
@@ -2053,80 +2032,84 @@ dm_safebag: style 2=nikki				-> team_bm_nikkissafe
 			valueInt = IntForKey(mapEnt, "style");
 			//value = ValueForKey(mapEnt, "style");
 			if (KeyExists(mapEnt, "style"))
-				if(valueInt == 1)
-					{
-						SetKeyValue(mapEnt, "classname", "team_dragonsspawn");
-						RemoveKey(mapEnt, "style");
-					}
-				else 
-					{
-						SetKeyValue(mapEnt, "classname", "team_nikkisspawn");
-						RemoveKey(mapEnt, "style");
-					}
+			{
+				if (valueInt == 1)
+				{
+					SetKeyValue(mapEnt, "classname", "team_dragonsspawn");
+					RemoveKey(mapEnt, "style");
+				}
+				else
+				{
+					SetKeyValue(mapEnt, "classname", "team_nikkisspawn");
+					RemoveKey(mapEnt, "style");
+				}
+			}
 		}
 
-		if(!Q_stricmp("dm_props_banner", classname))
+		else if(!Q_stricmp("dm_props_banner", classname))
 		{	
 			valueInt = IntForKey(mapEnt, "style");
 			//value = ValueForKey(mapEnt, "style");
 			if (KeyExists(mapEnt, "style"))
-				if(valueInt == 1)
-					{
-						SetKeyValue(mapEnt, "classname", "misc_model");
-						SetKeyValue(mapEnt, "model", "models/flags/flag_drag_angle.ase");
-						RemoveKey(mapEnt, "style");
-					}
-				else //value=2 niki
-					{
-						SetKeyValue(mapEnt, "classname", "misc_model");
-						SetKeyValue(mapEnt, "model", "models/flags/flag_nikki_angle.ase");
-						RemoveKey(mapEnt, "style");
-					}
-			else //default if no style
+			{
+				if (valueInt == 1)
 				{
 					SetKeyValue(mapEnt, "classname", "misc_model");
 					SetKeyValue(mapEnt, "model", "models/flags/flag_drag_angle.ase");
+					RemoveKey(mapEnt, "style");
 				}
+				else //value=2 niki
+				{
+					SetKeyValue(mapEnt, "classname", "misc_model");
+					SetKeyValue(mapEnt, "model", "models/flags/flag_nikki_angle.ase");
+					RemoveKey(mapEnt, "style");
+				}
+			}
+			else //default if no style
+			{
+				SetKeyValue(mapEnt, "classname", "misc_model");
+				SetKeyValue(mapEnt, "model", "models/flags/flag_drag_angle.ase");
+			}
 		}
 
-		if(!Q_stricmp("dm_cashspawn", classname))
+		else if(!Q_stricmp("dm_cashspawn", classname))
 			SetKeyValue(mapEnt, "classname", "team_bm_cashspawn");
 
-		if(!Q_stricmp("dm_safebag", classname))
+		else if(!Q_stricmp("dm_safebag", classname))
 		{	
-			valueInt = IntForKey(mapEnt, "style");
-			//value = ValueForKey(mapEnt, "style");
 			if (KeyExists(mapEnt, "style"))
-				if(valueInt == 1)
-					{
-						SetKeyValue(mapEnt, "classname", "team_bm_dragonssafe");
-						RemoveKey(mapEnt, "style");
-					}
-				else 
-					{
-						SetKeyValue(mapEnt, "classname", "team_bm_nikkissafe");
-						RemoveKey(mapEnt, "style");
-					}
-			else //default if no style
+			{
+				valueInt = IntForKey(mapEnt, "style");
+				if (valueInt == 1)
 				{
 					SetKeyValue(mapEnt, "classname", "team_bm_dragonssafe");
 					RemoveKey(mapEnt, "style");
 				}
+				else
+				{
+					SetKeyValue(mapEnt, "classname", "team_bm_nikkissafe");
+					RemoveKey(mapEnt, "style");
+				}
+			}
+			else //default if no style
+			{
+				SetKeyValue(mapEnt, "classname", "team_bm_dragonssafe");
+			}
+			RemoveKey(mapEnt, "style");
 		}
 
 
 //////////////////////////////////////////////////////////////////////////
-#endif //hypo finish convert kingpin1 entities
+#endif //hypov8 finish convert kingpin1 entities
 //////////////////////////////////////////////////////////////////////////
 
 
-		/* Tr3B: rename targetname to name if necessary */
 		targetname = ValueForKey(mapEnt, "targetname");
 		if(targetname[0])
 		{
-			SetKeyValue(mapEnt, "name", targetname); /* hypov8 keeping 'name' for xreal-doom3 compatability */
+			SetKeyValue(mapEnt, "name", targetname);
 			name = ValueForKey(mapEnt, "name");
-			// RemoveKey(mapEnt, "targetname"); /* hypov8 commented out, kmap and kpq3 use target->targetname */ 
+			 RemoveKey(mapEnt, "targetname"); /* hypov8 updated engine */ 
 		}
 		/* Tr3B: check for empty name */
 		if(!name[0] && numEntities != 1)
@@ -2334,7 +2317,10 @@ dm_safebag: style 2=nikki				-> team_bm_nikkissafe
 				structuralBrushes = g_slist_remove(structuralBrushes, structuralBrushes->data);
 			}
 		}
-	} //note hypov8 end conversion
+	} //note hypov8 end map conversion
+	///////////////////////////////////
+
+
 	if(model[0] && !Q_stricmp("func_group", classname) && !mapEnt->brushes && !mapEnt->patches)
 	{
 		RemoveKey(mapEnt, "model");
@@ -2523,16 +2509,16 @@ dm_safebag: style 2=nikki				-> team_bm_nikkissafe
 		if(mapEnt->brushes || mapEnt->patches)
 		{
 			if(convertType != CONVERT_QUAKE3 && (name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))
-		{
-			AdjustBrushesForOrigin(mapEnt, vec3_origin);
-			AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
+			{
+				AdjustBrushesForOrigin(mapEnt, vec3_origin);
+				AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
+			}
+			else
+			{
+				AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
+				AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
+			}
 		}
-		else
-		{
-			AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
-			AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
-		}
-	}
 	}
 
 	/* ydnar: gs mods: set entity bounds */

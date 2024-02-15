@@ -32,12 +32,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "../qcommon/q_shared.h"
-
+#include "../botlib/l_utils.h" //hypov8 add
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
 #include "l_struct.h"
-#include "l_log.h"
+#ifdef BSPC
+  #include "../kaas/l_log.h"
+  #include "../kaas/l_mem.h"
+#else
+  #include "../botlib/l_log.h"
+#endif
 #include "l_memory.h"
 #include "l_libvar.h"
 #include "aasfile.h"
@@ -1248,7 +1253,7 @@ void AAS_AddTeleporterPortals(void)
 				classname = AAS_ValueForBSPEpairKey(dest, "classname");
 				if (classname && !strcmp(classname, "misc_teleporter_dest"))
 				{
-					targetname = AAS_ValueForBSPEpairKey(dest, "targetname");
+					targetname = AAS_ValueForBSPEpairKey(dest, "name"); //hypov8 was "targetname"
 					if (targetname && !strcmp(targetname, target))
 					{
 						break;

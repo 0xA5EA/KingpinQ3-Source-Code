@@ -30,7 +30,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "../qcommon/q_shared.h"
-#include "l_log.h"
+#include "../botlib/l_utils.h" //hypov8 add
+#ifdef BSPC
+  #include "../kaas/l_log.h"
+#else
+  #include "../botlib/l_log.h"
+#endif
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_libvar.h"
@@ -42,15 +47,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 #ifdef BSPC
-#include "../kaas/l_math.h"
+  #include "../kaas/l_mem.h"
+  //#include "../kaas/l_math.h"
 #endif
+
 
 extern int Sys_MilliSeconds(void);
 
 
 extern botlib_import_t botimport;
-
-//#define REACH_DEBUG
+#ifdef _DEBUG //hypov8
+	#define REACH_DEBUG
+#endif
 
 //NOTE: all travel times are in hundreth of a second
 //maximum number of reachability links
@@ -257,8 +265,10 @@ int AAS_GetJumpPadInfo(int ent, vec3_t areastart, vec3_t absmins, vec3_t absmaxs
 	AAS_ValueForBSPEpairKey(ent, "target", target, MAX_EPAIRKEY);
 	for (ent2 = AAS_NextBSPEntity(0); ent2; ent2 = AAS_NextBSPEntity(ent2))
 	{
-		if (!AAS_ValueForBSPEpairKey(ent2, "targetname", targetname, MAX_EPAIRKEY)) continue;
-		if (!qstrcmp(targetname, target)) break;
+		if (!AAS_ValueForBSPEpairKey(ent2, "name", targetname, MAX_EPAIRKEY))  //hypov8 was "targetname"
+			continue;
+		if (!qstrcmp(targetname, target)) 
+			break;
 	} //end for
 	if (!ent2)
 	{
@@ -2764,7 +2774,8 @@ void AAS_Reachability_Teleport(void)
 
 	for (ent = AAS_NextBSPEntity(0); ent; ent = AAS_NextBSPEntity(ent))
 	{
-		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) continue;
+		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) 
+			continue;
 		if (!qstrcmp(classname, "trigger_multiple"))
 		{
 			AAS_ValueForBSPEpairKey(ent, "model", model, MAX_EPAIRKEY);
@@ -2782,10 +2793,12 @@ void AAS_Reachability_Teleport(void)
 			} //end if
 			for (dest = AAS_NextBSPEntity(0); dest; dest = AAS_NextBSPEntity(dest))
 			{
-				if (!AAS_ValueForBSPEpairKey(dest, "classname", classname, MAX_EPAIRKEY)) continue;
+				if (!AAS_ValueForBSPEpairKey(dest, "classname", classname, MAX_EPAIRKEY)) 
+					continue;
 				if (!qstrcmp(classname, "target_teleporter"))
 				{
-					if (!AAS_ValueForBSPEpairKey(dest, "targetname", targetname, MAX_EPAIRKEY)) continue;
+					if (!AAS_ValueForBSPEpairKey(dest, "name", targetname, MAX_EPAIRKEY))  //hypov8 was "targetname"
+						continue;
 					if (!qstrcmp(targetname, target))
 					{
 						break;
@@ -2828,7 +2841,7 @@ void AAS_Reachability_Teleport(void)
 			//classname should be misc_teleporter_dest
 			//but I've also seen target_position and actually any
 			//entity could be used... burp
-			if (AAS_ValueForBSPEpairKey(dest, "targetname", targetname, MAX_EPAIRKEY))
+			if (AAS_ValueForBSPEpairKey(dest, "name", targetname, MAX_EPAIRKEY)) //hypov8 was "targetname"
 			{
 				if (!qstrcmp(targetname, target))
 				{
@@ -2960,7 +2973,8 @@ void AAS_Reachability_Elevator(void)
 #endif //REACH_DEBUG
 	for (ent = AAS_NextBSPEntity(0); ent; ent = AAS_NextBSPEntity(ent))
 	{
-		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) continue;
+		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) 
+			continue;
 		if (!qstrcmp(classname, "func_plat"))
 		{
 #ifdef REACH_DEBUG
@@ -2989,13 +3003,20 @@ void AAS_Reachability_Elevator(void)
 			VectorCopy(origin, pos2);
 			//get the lip of the plat
 			AAS_FloatForBSPEpairKey(ent, "lip", &lip);
-			if (!lip) lip = 8;
+			if (!lip) 
+				lip = 8;
 			//get the movement height of the plat
 			AAS_FloatForBSPEpairKey(ent, "height", &height);
-			if (!height) height = (maxs[2] - mins[2]) - lip;
+			if (!height) 
+				height = (maxs[2] - mins[2]) - lip;
 			//get the speed of the plat
 			AAS_FloatForBSPEpairKey(ent, "speed", &speed);
-			if (!speed) speed = 200;
+			if (!speed) 
+				speed = 200;	
+#if 0 
+// hypov8 this dont add up properly for some reason.. kmap2?
+// note: using local bbox, not world cords
+
 			//get bottom position below pos1
 			pos2[2] -= height;
 			//
@@ -3007,6 +3028,22 @@ void AAS_Reachability_Elevator(void)
 			VectorAdd(mins, maxs, mids);
 			VectorMA(pos2, 0.5, mids, plattop);
 			plattop[2] = maxs[2] + 2;
+#else
+			//get bottom position below pos1
+			pos2[2] += maxs[2]; //top
+			pos1[2] = pos2[2] - height; //lower
+			//
+			//get a point just above the plat in the bottom position
+			VectorAdd(mins, maxs, mids);
+			VectorMA(pos2, 0.5, mids, platbottom);
+			platbottom[2] = pos1[2] + 2;
+			//get a point just above the plat in the top position
+			VectorAdd(mins, maxs, mids);
+			VectorMA(pos2, 0.5, mids, plattop);
+			plattop[2] = pos2[2] + 2;
+#endif
+
+
 			//
 			/*if (!area1num)
 			{
@@ -3060,7 +3097,8 @@ void AAS_Reachability_Elevator(void)
 					VectorCopy(plattop, bottomorg);
 					bottomorg[2] += 24;
 					area1num = AAS_PointAreaNum(bottomorg);
-					if (!area1num) continue;
+					if (!area1num) 
+						continue;
 					VectorCopy(platbottom, bottomorg);
 					bottomorg[2] += 24;
 				} //end else
@@ -3097,20 +3135,25 @@ void AAS_Reachability_Elevator(void)
 									VectorCopy(toporg, end);
 									end[2] += 1;
 									trace = AAS_TraceClientBBox(start, end, PRESENCE_CROUCH, -1);
-									if (trace.fraction >= 1) break;
+									if (trace.fraction >= 1) 
+										break;
 								} //end if
 							} //end if
 							toporg[2] += 4;
 							area2num = AAS_PointAreaNum(toporg);
 						} //end if
 						//if in solid
-						if (l >= 16) continue;
+						if (l >= 16) 
+							continue;
 						//never create a reachability in the same area
-						if (area2num == area1num) continue;
+						if (area2num == area1num) 
+							continue;
 						//if the area isn't grounded
-						if (!AAS_AreaGrounded(area2num)) continue;
+						if (!AAS_AreaGrounded(area2num)) 
+							continue;
 						//if there already exists reachability between the areas
-						if (AAS_ReachabilityExists(area1num, area2num)) continue;
+						if (AAS_ReachabilityExists(area1num, area2num)) 
+							continue;
 						//if the reachability start is within the elevator bounding box
 						VectorSubtract(bottomorg, platbottom, dir);
 						VectorNormalize(dir);
@@ -3120,10 +3163,12 @@ void AAS_Reachability_Elevator(void)
 						//
 						for (p = 0; p < 3; p++)
 							if (dir[p] < origin[p] + mins[p] || dir[p] > origin[p] + maxs[p]) break;
-						if (p >= 3) continue;
+						if (p >= 3) 
+							continue;
 						//create a new reachability link
 						lreach = AAS_AllocReachability();
-						if (!lreach) continue;
+						if (!lreach) 
+							continue;
 						lreach->areanum = area2num;
 						//the facenum is the model number
 						lreach->facenum = modelnum;
@@ -3297,7 +3342,8 @@ void AAS_Reachability_FuncBobbing(void)
 	for (ent = AAS_NextBSPEntity(0); ent; ent = AAS_NextBSPEntity(ent))
 	{
 		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) continue;
-		if (qstrcmp(classname, "func_bobbing")) continue;
+		if (qstrcmp(classname, "func_bobbing")) 
+			continue;
 		AAS_FloatForBSPEpairKey(ent, "height", &height);
 		if (!height) height = 32;
 		//
@@ -3519,10 +3565,13 @@ void AAS_Reachability_JumpPad(void)
 #endif
 	for (ent = AAS_NextBSPEntity(0); ent; ent = AAS_NextBSPEntity(ent))
 	{
-		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) continue;
-		if (qstrcmp(classname, "trigger_push")) continue;
+		if (!AAS_ValueForBSPEpairKey(ent, "classname", classname, MAX_EPAIRKEY)) 
+			continue;
+		if (qstrcmp(classname, "trigger_push")) 
+			continue;
 		//
-		if (!AAS_GetJumpPadInfo(ent, areastart, absmins, absmaxs, velocity)) continue;
+		if (!AAS_GetJumpPadInfo(ent, areastart, absmins, absmaxs, velocity)) 
+			continue;
 		/*
 		//
 		AAS_FloatForBSPEpairKey(ent, "speed", &speed);
@@ -3566,7 +3615,8 @@ void AAS_Reachability_JumpPad(void)
 		AAS_ValueForBSPEpairKey(ent, "target", target, MAX_EPAIRKEY);
 		for (ent2 = AAS_NextBSPEntity(0); ent2; ent2 = AAS_NextBSPEntity(ent2))
 		{
-			if (!AAS_ValueForBSPEpairKey(ent2, "targetname", targetname, MAX_EPAIRKEY)) continue;
+			if (!AAS_ValueForBSPEpairKey(ent2, "name", targetname, MAX_EPAIRKEY))  //hypov8 was "targetname"
+			continue;
 			if (!qstrcmp(targetname, target)) break;
 		} //end for
 		if (!ent2)
@@ -4319,7 +4369,7 @@ void AAS_StoreReachability(void)
 	aasworld.reachabilitysize = 1;
 	for (i = 0; i < aasworld.numareas; i++)
 	{
-		areasettings = &aasworld.areasettings[i];
+		areasettings = &aasworld.areasettings[i]; //hy areasettings
 		areasettings->firstreachablearea = aasworld.reachabilitysize;
 		areasettings->numreachableareas = 0;
 		for (lreach = areareachability[i]; lreach; lreach = lreach->next)

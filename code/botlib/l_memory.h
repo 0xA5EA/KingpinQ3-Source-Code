@@ -32,6 +32,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#define MEMDEBUG
 
+//#ifndef __L_MEMORY_H
+//#define __L_MEMORY_H
+
+
 #ifdef MEMDEBUG
 #define GetMemory(size)				GetMemoryDebug(size, #size, __FILE__, __LINE__);
 #define GetClearedMemory(size)		GetClearedMemoryDebug(size, #size, __FILE__, __LINE__);
@@ -47,24 +51,26 @@ void *GetHunkMemoryDebug(unsigned long size, char *label, char *file, int line);
 //allocate a memory block of the given size and clear it
 void *GetClearedHunkMemoryDebug(unsigned long size, char *label, char *file, int line);
 #else
+
+//
+#ifdef BSPC
+#define GetHunkMemory GetMemory
+//#define GetClearedHunkMemory GetClearedMemory
+#else
 //allocate a memory block of the given size
 void *GetMemory(unsigned long size);
 //allocate a memory block of the given size and clear it
 void *GetClearedMemory(unsigned long size);
-//
-#ifdef BSPC
-#define GetHunkMemory GetMemory
-#define GetClearedHunkMemory GetClearedMemory
-#else
 //allocate a memory block of the given size
 void *GetHunkMemory(unsigned long size);
 //allocate a memory block of the given size and clear it
 void *GetClearedHunkMemory(unsigned long size);
+//free the given memory block
+void FreeMemory(void *ptr);
 #endif
 #endif
 
-//free the given memory block
-void FreeMemory(void *ptr);
+
 //returns the amount available memory
 int AvailableMemory(void);
 //prints the total used memory size
@@ -75,3 +81,4 @@ void PrintMemoryLabels(void);
 int MemoryByteSize(void *ptr);
 //free all allocated memory
 void DumpMemory(void);
+

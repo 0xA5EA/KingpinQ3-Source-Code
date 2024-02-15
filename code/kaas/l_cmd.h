@@ -55,9 +55,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // set these before calling CheckParm
 extern int myargc;
 extern char **myargv;
-
+#if 0
 char *strupr (char *in);
 char *strlower (char *in);
+#endif
 #if 1
 int Q_strncasecmp (char *s1, char *s2, int n);
 int Q_strcasecmp (char *s1, char *s2);

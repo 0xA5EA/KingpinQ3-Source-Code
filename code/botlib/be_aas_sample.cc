@@ -32,12 +32,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "l_memory.h"
 #include "l_script.h"
-#include "l_precomp.h"
+#include "../botlib/l_precomp.h"
 #include "l_struct.h"
 #ifndef BSPC
-#include "l_libvar.h"
+  #include "l_libvar.h"
 #else
-#include "../kaas/l_math.h"
+  #include "../kaas/l_mem.h"
+//#include "../kaas/l_math.h"
 #endif
 #include "aasfile.h"
 #include "botlib.h"
@@ -45,6 +46,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "be_interface.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
+
+#include "../kaas/l_cmd.h" //hy
 
 // extern botlib_import_t botimport;  // in rev 1471 removed 0xA5EA
 
@@ -76,8 +79,8 @@ void AAS_PresenceTypeBoundingBox(int presencetype, vec3_t mins, vec3_t maxs)
 {
 	int index;
 	//bounding box size for each presence type
-	vec3_t boxmins[3] = {{0, 0, 0}, {-15, -15, -24}, {-15, -15, -24}};
-	vec3_t boxmaxs[3] = {{0, 0, 0}, { 15,  15,  48}, { 15,  15,  24}}; //edit hypov8 was = {{0, 0, 0}, { 15,  15,  32}, { 15,  15,   8}};
+	static vec3_t boxmins[3] = {{0, 0, 0}, {-15, -15, -24}, {-15, -15, -24}};
+	static vec3_t boxmaxs[3] = {{0, 0, 0}, { 15,  15,  48}, { 15,  15,  24}}; //edit hypov8 was = {{0, 0, 0}, { 15,  15,  32}, { 15,  15,   8}};
 
 	if (presencetype == PRESENCE_NORMAL) index = 1;
 	else if (presencetype == PRESENCE_CROUCH) index = 2;

@@ -35,13 +35,17 @@ woven in by Terry Thorsen 1/2003.
  */
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#ifdef BSPC
+#include "../kaas/l_mem.h"
+#endif
+
 #ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
 
 
 
-#include "unzip.h"
+#include "../qcommon/unzip.h"
 
 
 

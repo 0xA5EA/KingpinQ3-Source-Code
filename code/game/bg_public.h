@@ -496,6 +496,7 @@ typedef enum
   HI_NUM_HOLDABLE
 } holdable_t;
 
+//hypov8 todo: this should be 2x in multiplayer
 
 //WEAPON_FIRING                         (kp wep frame count) *100ms
 #define WP_TIME_FIRE_PISTOL             (5*100)
@@ -976,12 +977,12 @@ typedef enum
 // 0xA5EA	ordering for the wordmodels, must be same order in bg_misc !!!
 enum
 {
-  WORLD_GUNMODEL_POS = 0,			//1st person weapon model
-  WORLD_HANDMODEL_POS,			//1st person hand model			//hypov8 todo: combine models
-  WORLD_FLASHMODEL_POS,			//1st/3rd person flash model
-  WORLD_CLIPMODEL_POS,			//1st person ammo clip			// ^^ md3 suports multi materal & 10k vert ^^
-  WORLD_PLAYERWEAPONMODEL_POS,	//3rd person player
-  WORLD_WEAPONMODEL_POS,			//map weapon model
+  WORLD_GUNMODEL_POS = 0,       //1st person weapon model
+  WORLD_HANDMODEL_POS,          //1st person hand model        //hypov8 todo: combine hand/wep models
+  WORLD_FLASHMODEL_POS,         //1st/3rd person flash model
+  WORLD_CLIPMODEL_POS,          //1st person ammo clip         // ^^ md3 suports multi materal & 10k vert ^^
+  WORLD_PLAYERWEAPONMODEL_POS,  //3rd person player
+  WORLD_WEAPONMODEL_POS,        //map weapon model
   MAX_ITEM_MODELS
 };
 
@@ -1050,8 +1051,11 @@ typedef enum
   ET_PLAYER,
   ET_ITEM,
   ET_MISSILE,
+  ET_MOVER, //used in bot defines. must match be_aas_entity.cc
+  //
+  // DO NOT ADD ANYTHING ABOVE
+  //
   ET_FLAMETHROWER_CHUNK,    // Added -KRYPTYK
-  ET_MOVER, //used in bot defines. done edit below
   ET_BEAM,
   ET_PORTAL,
   ET_SPEAKER,

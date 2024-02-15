@@ -1665,13 +1665,13 @@ static void SpawnPlatTrigger(gentity_t *ent)
   trigger->r.contents = CONTENTS_TRIGGER | SURF_NODRAW; // hypov8 func_plat
   trigger->parent     = ent;
 
-  tmin[0] = ent->pos1[0] + ent->r.mins[0] + 33;
-  tmin[1] = ent->pos1[1] + ent->r.mins[1] + 33;
+  tmin[0] = ent->pos1[0] + ent->r.mins[0] + 17; //hypov8 should be 50% of player width?
+  tmin[1] = ent->pos1[1] + ent->r.mins[1] + 17;
   tmin[2] = ent->pos1[2] + ent->r.mins[2];
 
-  tmax[0] = ent->pos1[0] + ent->r.maxs[0] - 33;
-  tmax[1] = ent->pos1[1] + ent->r.maxs[1] - 33;
-  tmax[2] = ent->pos1[2] + ent->r.maxs[2] + 8;
+  tmax[0] = ent->pos1[0] + ent->r.maxs[0] - 17;
+  tmax[1] = ent->pos1[1] + ent->r.maxs[1] - 17;
+  tmax[2] = ent->pos1[2] + ent->r.maxs[2] + 8; //hypov8 todo: spawnflags. trigger low/full
 
   if (tmax[0] <= tmin[0])
   {

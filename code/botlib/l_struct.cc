@@ -36,16 +36,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "l_script.h"
 #include "l_precomp.h"
 #include "l_struct.h"
-#include "l_utils.h"
+#include "../botlib/l_utils.h"
 #include "be_interface.h"
 #endif //BOTLIB
 
 #ifdef BSPC
 //include files for usage in the BSP Converter
+#include "../qcommon/q_shared.h" //hy add
 #include "../kaas/qbsp.h"
 #include "../kaas/l_log.h"
 #include "../kaas/l_mem.h"
-#include "l_precomp.h"
+#include "../botlib/l_precomp.h"
 #include "l_struct.h"
 
 //#define qtrue	true

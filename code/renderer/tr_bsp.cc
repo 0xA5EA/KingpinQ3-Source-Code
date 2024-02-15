@@ -5640,16 +5640,18 @@ static void R_LoadLightGrid(lump_t * l)
     gridPoint->direction[1] = sin(lat) * sin(lng);
     gridPoint->direction[2] = cos(lng);
 
-#ifdef HYPODEBUG //hypov8 force grid looking down?
+#if 1 //def HYPODEBUG //hypov8 force grid looking down? todo: move to shadow caster only?
+    {
     vec3_t direction, lightDir;
-	VectorNormalize2( gridPoint->direction,  direction);
-	// always face down
-	direction[2] = fabsf(direction[2]);
-	// hypov8 prevent light going past 60 deg
-	VectorSet(lightDir, 0.0f, 0.0f, 1.0f - (0.666f * direction[2]));
-	VectorAdd(direction, lightDir, direction);
-	//VectorScale(direction, 0.5f, direction);
-	VectorNormalize2( direction, gridPoint->direction );
+    VectorNormalize2( gridPoint->direction,  direction);
+    // always face down
+    direction[2] = fabsf(direction[2]);
+    // hypov8 prevent light going past 60 deg
+    VectorSet(lightDir, 0.0f, 0.0f, 1.0f - (0.666f * direction[2]));
+    VectorAdd(direction, lightDir, direction);
+    //VectorScale(direction, 0.5f, direction);
+    VectorNormalize2( direction, gridPoint->direction );
+    }
 
 #endif
 
@@ -8585,18 +8587,11 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 
   tr.autoCubeImage = tr.whiteCubeImage;
 
-  if (!r_reflectionMapping->integer)
+  if (r_reflectionMapping->integer != 2)
   {
     return;
   }
-
-#ifdef COMPAT_KPQ3
-  // hypov8 bind sky/cubemap
-  tr.autoCubeImage = tr.skyCubeMapDefault; 
-  if (tr.skyCubeMap != NULL)
-    tr.autoCubeImage = tr.skyCubeMap;
-#endif
-
+  
   if (tr.cubeHashTable == NULL && xyz == NULL)
   {
     maxDistance = 9999999.0f;
@@ -8616,16 +8611,28 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
   }
 #endif
 
+#ifdef COMPAT_KPQ3
+  //failed cube probe, use sky instead
+  if (tr.autoCubeImage == tr.whiteCubeImage)
+  {
+    // set map skybox if autoCube fails
+    if (tr.skyCubeMap != NULL)
+      tr.autoCubeImage = tr.skyCubeMap;
+    else
+      tr.autoCubeImage = tr.skyCubeMapDefault;
+  }
+#endif
+
   GL_Bind(tr.autoCubeImage);
 }
 
 void R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeNearest, cubemapProbe_t **cubeProbeSecondNearest)
 {
-  int             j;
-  float			distance, maxDistance, maxDistance2;
+  int            j;
+  float          distance, maxDistance, maxDistance2;
   cubemapProbe_t *cubeProbe;
-  unsigned int    hash;
-  //vertexHash_t	*vertexHash;
+  unsigned int   hash;
+  //vertexHash_t *vertexHash;
 
   GLimp_LogComment("--- R_FindTwoNearestCubeMaps ---\n");
 

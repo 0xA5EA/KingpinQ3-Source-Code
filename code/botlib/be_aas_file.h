@@ -30,9 +30,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *****************************************************************************/
 
-#ifdef AASINTERN
+#ifdef AASINTERN //hypov8
 //loads the AAS file with the given name
+#ifndef BSPC
 int AAS_LoadAASFile(char *filename);
+#else
+qboolean AAS_LoadAASFile(char *filename, int fpoffset, int fplength);
+#endif
 //writes an AAS file with the given name
 qboolean AAS_WriteAASFile(char *filename);
 //dumps the loaded AAS data
@@ -40,4 +44,3 @@ void AAS_DumpAASData(void);
 //print AAS file information
 void AAS_FileInfo(void);
 #endif //AASINTERN
-

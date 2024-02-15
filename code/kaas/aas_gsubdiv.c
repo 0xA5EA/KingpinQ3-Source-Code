@@ -327,7 +327,7 @@ void AAS_SplitArea(tmp_area_t *tmparea, int planenum, tmp_area_t **frontarea, tm
 int AAS_FindBestAreaSplitPlane(tmp_area_t *tmparea, vec3_t normal, float *dist)
 {
 	int side1, side2;
-	int foundsplitter, facesplits, groundsplits, epsilonfaces, bestepsilonfaces;
+	int foundsplitter, facesplits, groundsplits, epsilonfaces=0, bestepsilonfaces;
 	float bestvalue, value;
 	tmp_face_t *face1, *face2;
 	vec3_t tmpnormal, invgravity;

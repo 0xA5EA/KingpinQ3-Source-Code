@@ -44,7 +44,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 #endif
 #endif
 //FIXME (0xA5EA):
-# define KMAP_VERSION "2.5.17.20"
+# define KMAP_VERSION "2.5.17.21"
 
 
 typedef union {
@@ -461,7 +461,7 @@ typedef struct
 {
 	int             planeNum;	/* positive plane side faces out of the leaf */
 	int             shaderNum;
-	int             surfaceNum;	/* RBSP */
+	int             surfaceNum;	/* RBSP */ //discarded in XBSP
 }
 bspBrushSide_t;
 
@@ -488,11 +488,11 @@ typedef struct
 {
 	vec3_t          xyz;
 	float           st[2];
-	float           lightmap[MAX_LIGHTMAPS][2];	/* RBSP */
+	float           lightmap[MAX_LIGHTMAPS][2];	/* RBSP */  //[LM] discarded in XBSP
 	vec3_t          normal;
 	float           paintColor[4]; /* XBSP */  //vertex paintColor (+alpha)
-	float           lightColor[MAX_LIGHTMAPS][4];	/* XBSP */
-	float           lightDirection[MAX_LIGHTMAPS][3]; /* XBSP */
+	float           lightColor[MAX_LIGHTMAPS][4];	/* RBSP/XBSP */    //[LM] discarded in XBSP
+	float           lightDirection[MAX_LIGHTMAPS][3]; /* RBSP/XBSP */  //[LM] discarded in XBSP
 }
 bspDrawVert_t;
 
@@ -511,9 +511,9 @@ bspSurfaceType_t;
 
 typedef struct bspGridPoint_s
 {
-	vec3_t          ambient[MAX_LIGHTMAPS];
-	vec3_t          directed[MAX_LIGHTMAPS];
-	byte            styles[MAX_LIGHTMAPS];
+	vec3_t          ambient[MAX_LIGHTMAPS]; //light color?
+	vec3_t          directed[MAX_LIGHTMAPS]; //light angle?
+	byte            styles[MAX_LIGHTMAPS]; //not used in kpq3
 	byte            latLong[2];
 }
 bspGridPoint_t;
@@ -1509,7 +1509,7 @@ rawLightmap_t;
 
 typedef struct rawGridPoint_s
 {
-	vec3_t          ambient[MAX_LIGHTMAPS];
+	vec3_t          ambient[MAX_LIGHTMAPS];//
 	vec3_t          directed[MAX_LIGHTMAPS];
 	vec3_t          dir;
 	byte            styles[MAX_LIGHTMAPS];
@@ -1944,6 +1944,7 @@ void            PrintBSPFileSizes(void);
 
 epair_t        *ParseEPair(void);
 void            ParseEntities(void);
+void            RemoveLightEnts(void); //hypov8
 void            UnparseEntities(void);
 void            PrintEntity(const entity_t * ent);
 const char     *UniqueEntityName(const entity_t * ent, const char *suggestion);

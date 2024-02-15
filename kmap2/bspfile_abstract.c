@@ -554,7 +554,42 @@ qboolean ParseEntity(void)
 	return qtrue;
 }
 
+void RemoveLightEnts(void)
+{
+	int i,j;
+	const char *className;
+	epair_t        *ep, *next;
+	entity_t *e;
 
+	for (i = numEntities-1; i > 0; i--)
+	{
+		e = &entities[i];
+		className = ValueForKey(e, "classname");
+		if(!Q_strncasecmp(className, "light", 5))
+		{
+			ep = e->epairs;
+			while(ep != NULL)
+			{
+				next = ep->next;
+				free(ep->key);
+				free(ep->value);
+				free(ep);
+				ep = next;
+			}
+			e->epairs = NULL;
+			memset(e, 0, sizeof(entity_t));
+
+			/* shift up */
+			for (j = i; j < numEntities; j++)
+			{
+				memcpy(e++, (e + 1), sizeof(entity_t));
+				memset(e, 0, sizeof(entity_t));
+			}
+			numEntities--; //hypov8 clear light
+		}
+	}
+	numBSPEntities = numEntities;
+}
 
 /*
 ParseEntities()
@@ -940,9 +975,11 @@ entity_t       *FindTargetEntity(const char *target)
 	/* walk entity list */
 	for(i = 0; i < numEntities; i++)
 	{
+#ifndef KMAP2 //hypov8: use q3 names instead
 		n = ValueForKey(&entities[i], "name");
 		if(!strcmp(n, target))
 			return &entities[i];
+#endif
 		n = ValueForKey(&entities[i], "targetname");
 		if(!strcmp(n, target))
 			return &entities[i];

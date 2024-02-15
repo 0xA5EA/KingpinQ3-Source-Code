@@ -21,9 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // mathlib.c -- math primitives
 
+#include "../qcommon/q_shared.h"
 #include "l_cmd.h"
 #include "l_math.h"
-#if 0
+
+#if 0 //q_math
 vec3_t vec3_origin = {0,0,0};
 
 void AngleVectors (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
@@ -81,6 +83,7 @@ float RadiusFromBounds( const vec3_t mins, const vec3_t maxs ) {
 	return Vector_Length (corner);
 }
 #endif
+
 /*
 ================
 R_ConcatRotations
@@ -120,10 +123,11 @@ void AxisClear( vec3_t axis[3] ) {
 	axis[2][2] = 1;
 }
 #endif
+/* //hypov8 dupe
 float VectorLengthSquared(vec3_t v) {
 	return DotProduct(v, v);
-}
-
+}*/ 
+#if 0 //q_math VectorLength
 double Vector_Length(vec3_t v)
 {
 	int		i;
@@ -136,7 +140,8 @@ double Vector_Length(vec3_t v)
 
 	return length;
 }
-
+#endif
+/* //hypov8 dupe
 qboolean lVectorCompare (vec3_t v1, vec3_t v2)
 {
 	int		i;
@@ -158,8 +163,8 @@ void CrossProduct (const vec3_t v1, const vec3_t v2, vec3_t cross)
 	cross[0] = v1[1]*v2[2] - v1[2]*v2[1];
 	cross[1] = v1[2]*v2[0] - v1[0]*v2[2];
 	cross[2] = v1[0]*v2[1] - v1[1]*v2[0];
-}
-#if 0
+}*/
+#if 0 //hypov8 q_math
 void _VectorMA (vec3_t va, double scale, vec3_t vb, vec3_t vc)
 {
 	vc[0] = va[0] + scale*vb[0];
@@ -259,14 +264,15 @@ vec_t ColorNormalize (vec3_t in, vec3_t out)
 }
 
 
-
+#if 0 //hypov8 macro in q_shared
 void VectorInverse (vec3_t v)
 {
 	v[0] = -v[0];
 	v[1] = -v[1];
 	v[2] = -v[2];
 }
-#if 1
+#endif
+#if 0 //q_math
 void ClearBounds(vec3_t mins, vec3_t maxs)
 {
 	mins[0] = mins[1] = mins[2] = 99999;

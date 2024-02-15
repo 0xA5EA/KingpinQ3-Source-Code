@@ -616,6 +616,121 @@ void R_LightScaleTexture( unsigned *in, int inwidth, int inheight, qboolean only
 	}
 }
 
+#ifdef COMPAT_KPQ3
+// Compute Van der Corput radical inverse
+// See: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+float radicalInverse_VdC(uint32_t bits)
+{
+	bits = (bits << 16u) | (bits >> 16u);
+	bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+	bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+	bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+	bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+	return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+
+// Sample i-th point from Hammersley point set of NumSamples points total.
+void sampleHammersley(uint32_t i, int numSamples, float out[2])
+{	
+	//calculate rand position 
+	//hypov8 set Y as incremental
+	out[0] = radicalInverse_VdC(i); //0-1
+	out[1] = ((float)i*(1.0f / numSamples)); //0-1
+
+}
+
+void sampleWithRoughness(vec2_t randXY, int x, int y, float rough, int inWidth, int inHeight, uint32_t out[2])
+{	
+	float offsX, offsY;
+
+	//centre sample
+	float scaleX = (randXY[0] - 0.5)*0.5; //-0.5 to 0.5
+	float scaleY = (randXY[1] - 0.5)*0.5; //-0.5 to 0.5
+
+	scaleX *= rough*rough;
+	scaleY *= rough*rough;
+
+	offsX = (float)x + scaleX*inWidth;
+	offsY = (float)y + scaleY*inHeight;
+
+	//cap incriental Y value to boarder
+	if (offsY < 0)
+		offsY = 0;
+	else if (offsY >= inHeight)
+		offsY = inHeight;
+
+	//calc spread from centre of pixel position
+	out[0] = ((uint32_t)floor(offsX)) % inWidth; //wrap
+	out[1] = ((uint32_t)floor(offsY)) /*% inHeight*/; //caped
+}
+
+void sampleWeight(float randXY[2], float *outWeight)
+{
+	//centre sample
+	float scaleX = (randXY[0] - 0.5); //-0.5 to 0.5
+	float scaleY = (randXY[1] - 0.5); //-0.5 to 0.5
+	float t = 1.0f - (Q_fabs(scaleX) * Q_fabs(scaleY));
+	*outWeight = (t*t);
+}
+
+/*
+================
+R_MipMapPBRSpec
+
+================
+*/
+static void R_MipMapPBRSpec(const byte *data, byte *out, 
+	int inWidth, int inHeight, int outWidth, int outHeight, int mipNum )
+{
+	int        x, y, s, midX, midY, offsX, offsY;
+	double     curPixColor[3], weight;
+	int        numSamples = 64; // 5 * (mipNum*mipNum);
+	const byte *curSampleIn;
+	byte       *curSampleOut;
+	float      randPosXY[2];
+	uint32_t   sampleXY[2];
+	int        factor = 1 << mipNum;
+	float      tmpWeight;
+	float rough = (float)mipNum / 5.0f; //0.2, 0.4, 0.6, 0.8, 1.0	//generate 5 mipmaps
+
+	//memset(out, 0xff, outWidth*outHeight * 4);
+
+	for (y = 0; y < outHeight; y++)
+	{
+		offsX = y * outWidth * 4;
+		for (x = 0; x < outWidth; x++)
+		{
+			offsY = x * 4;
+			curSampleOut = &out[offsX+offsY];
+			weight = 0;
+			VectorSet(curPixColor, 0, 0, 0);
+			midX = x*factor;
+			midY = y*factor;
+			for (s = 0; s < numSamples; s++)
+			{
+				sampleHammersley(s, numSamples, randPosXY); //rand sample
+				sampleWithRoughness(randPosXY, midX, midY, rough, inWidth, inHeight, sampleXY ); //get x/y pos
+				curSampleIn = &data[(sampleXY[1]*inWidth*4)+(sampleXY[0]*4)]; //move to pixel in orig image
+				sampleWeight(randPosXY, &tmpWeight);
+				weight += tmpWeight; //todo linear
+				curPixColor[0] += (double)curSampleIn[0]* tmpWeight;
+				curPixColor[1] += (double)curSampleIn[1]* tmpWeight;
+				curPixColor[2] += (double)curSampleIn[2]* tmpWeight;
+			}
+			curPixColor[0] /= weight;
+			curPixColor[1] /= weight;
+			curPixColor[2] /= weight;
+			curSampleOut[0] = (byte)curPixColor[0];
+			curSampleOut[1] = (byte)curPixColor[1];
+			curSampleOut[2] = (byte)curPixColor[2];
+			curSampleOut[3] = 255;
+		}
+	}
+}
+
+
+#endif
+
 /*
 ================
 R_MipMap2
@@ -1104,6 +1219,8 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 		int picmip = r_picmip->integer;//Deamon 5.2
 		if( picmip < 0 )
 			picmip = 0;
+		else if (picmip > 2) //hypov8 fix cheat?
+			picmip = 2;
 
 		scaledWidth >>= r_picmip->integer;
 		scaledHeight >>= r_picmip->integer;
@@ -1341,7 +1458,7 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 
 			if ( !( image->bits & ( IF_NORMALMAP | IF_RGBA16F | IF_RGBA32F | IF_TWOCOMP16F | IF_TWOCOMP32F | IF_NOLIGHTSCALE ) ) )
 			{
-#ifdef COMPAT_KPQ3
+#if 0 //def COMPAT_KPQ3
 				if (image->filterType == FT_CUBEMIP)
 					R_LightScaleTexture( ( unsigned * ) scaledBuffer, scaledWidth, scaledHeight, image->filterType == FT_CUBEMIP );
 				else
@@ -1387,7 +1504,7 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 				break;
 		}
 
-		if ( (image->filterType == FT_DEFAULT 
+		if ( (image->filterType == FT_DEFAULT  
 #ifdef COMPAT_KPQ3
 			|| image->filterType == FT_CUBEMIP
 #endif
@@ -1395,6 +1512,10 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 		{
 			if ( glConfig.driverType == GLDRV_OPENGL3 || glConfig2.framebufferObjectAvailable )
 			{
+#ifdef COMPAT_KPQ3
+				if (image->filterType == FT_CUBEMIP && image->type == GL_TEXTURE_CUBE_MAP )
+					glTexParameteri(image->type, GL_TEXTURE_CUBE_MAP_SEAMLESS, GL_TRUE); //GL version is 3.2 or greater
+#endif
 				glGenerateMipmapEXT( image->type );
 				glTexParameteri( image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );  // default to trilinear
 			}
@@ -1404,9 +1525,10 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 				//glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);  // make sure it's nice
 				glTexParameteri( image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
 				glTexParameteri( image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );  // default to trilinear
-			}
+ 			}
 		}
 
+		// generate mipmap
 		if ( glConfig.driverType != GLDRV_OPENGL3 && !glConfig2.framebufferObjectAvailable && !glConfig2.generateMipmapAvailable )
 		{
 			if ( (image->filterType == FT_DEFAULT 
@@ -1472,6 +1594,40 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 
 	GL_CheckErrors();
 
+	
+#ifdef COMPAT_KPQ3
+	//pbr compute spec LOD (using mipmaps)
+	if (image->filterType == FT_CUBEMIP)
+	{
+		int mipLevel;
+		int mipWidth, mipHeight;
+
+		mipLevel = 0;
+		mipWidth = scaledWidth;
+		mipHeight = scaledHeight;
+
+		while (mipWidth > 2 || mipHeight > 2 || mipLevel <= 5)
+		{
+			mipWidth >>= 1;
+			mipHeight >>= 1;
+			mipLevel++;
+
+			if (!(image->bits & (IF_DEPTH16 | IF_DEPTH24 | IF_DEPTH32 | IF_PACKED_DEPTH24_STENCIL8)))
+			{
+				R_MipMapPBRSpec(data, scaledBuffer, scaledWidth, scaledHeight, mipWidth, mipHeight, mipLevel);
+			}
+			//else //16 bit?
+			
+			if ( image->type == GL_TEXTURE_CUBE_MAP)
+				glTexImage2D( target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer );
+			else
+				glTexImage2D( target, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer );
+		}
+	}
+	GL_CheckErrors();
+#endif	
+
+
 	// set filter type
 	switch ( image->filterType )
 	{
@@ -1511,115 +1667,117 @@ void R_UploadImage( const byte **dataArray, int numData, image_t *image )
 	GL_CheckErrors();
 
 	// set wrap type
-	if ( image->wrapType.s == image->wrapType.t )
-        {
-                switch ( image->wrapType.s )
-                {
-                        case WT_REPEAT:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_REPEAT );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_REPEAT );
-                                break;
+	if (image->wrapType.s == image->wrapType.t)
+	{
+		switch (image->wrapType.s)
+		{
+			case WT_REPEAT:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				break;
 
-                        case WT_CLAMP:
-                        case WT_EDGE_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-                                break;
-                        case WT_ONE_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, oneClampBorder );
-                                break;
-                        case WT_ZERO_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder );
-                                break;
+			case WT_CLAMP:
+			case WT_EDGE_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				break;
+			case WT_ONE_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, oneClampBorder);
+				break;
+			case WT_ZERO_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
+				break;
 
-                        case WT_ALPHA_ZERO_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder );
-                                break;
+			case WT_ALPHA_ZERO_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
+				break;
 
-                        default:
-                                ri.Printf( PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", image->name );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_REPEAT );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_REPEAT );
-                                break;
-                }
-        } else {
-        	// warn about mismatched clamp types if both require a border colour to be set
-                if ( ( image->wrapType.s == WT_ZERO_CLAMP || image->wrapType.s == WT_ONE_CLAMP || image->wrapType.s == WT_ALPHA_ZERO_CLAMP ) &&
-	             ( image->wrapType.t == WT_ZERO_CLAMP || image->wrapType.t == WT_ONE_CLAMP || image->wrapType.t == WT_ALPHA_ZERO_CLAMP ) )
-        	{
-	                ri.Printf( PRINT_WARNING, "WARNING: mismatched wrap types for image '%s'\n", image->name );
-                }
+			default:
+				ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", image->name);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				break;
+		}
+	}
+	else 
+	{
+		// warn about mismatched clamp types if both require a border colour to be set
+		if ((image->wrapType.s == WT_ZERO_CLAMP || image->wrapType.s == WT_ONE_CLAMP || image->wrapType.s == WT_ALPHA_ZERO_CLAMP) &&
+			(image->wrapType.t == WT_ZERO_CLAMP || image->wrapType.t == WT_ONE_CLAMP || image->wrapType.t == WT_ALPHA_ZERO_CLAMP))
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: mismatched wrap types for image '%s'\n", image->name);
+		}
 
-                switch ( image->wrapType.s )
-                {
-                        case WT_REPEAT:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_REPEAT );
-                                break;
+		switch (image->wrapType.s)
+		{
+			case WT_REPEAT:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				break;
 
-                        case WT_CLAMP:
-                        case WT_EDGE_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-                                break;
+			case WT_CLAMP:
+			case WT_EDGE_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				break;
 
-                        case WT_ONE_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, oneClampBorder );
-                                break;
+			case WT_ONE_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, oneClampBorder);
+				break;
 
-                        case WT_ZERO_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder );
-                                break;
+			case WT_ZERO_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
+				break;
 
-                        case WT_ALPHA_ZERO_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder );
-                                break;
+			case WT_ALPHA_ZERO_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
+				break;
 
-                        default:
-                                ri.Printf( PRINT_WARNING, "WARNING: unknown wrap type for image '%s' axis S\n", image->name );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_S, GL_REPEAT );
-                                break;
-                }
+			default:
+				ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s' axis S\n", image->name);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				break;
+		}
 
-                switch ( image->wrapType.t )
-                {
-                        case WT_REPEAT:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_REPEAT );
-                                break;
+		switch (image->wrapType.t)
+		{
+			case WT_REPEAT:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				break;
 
-                        case WT_CLAMP:
-                        case WT_EDGE_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-                                break;
+			case WT_CLAMP:
+			case WT_EDGE_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				break;
 
-                        case WT_ONE_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, oneClampBorder );
-                                break;
+			case WT_ONE_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, oneClampBorder);
+				break;
 
-                        case WT_ZERO_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder );
-                                break;
+			case WT_ZERO_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
+				break;
 
-                        case WT_ALPHA_ZERO_CLAMP:
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
-                                glTexParameterfv( image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder );
-                                break;
+			case WT_ALPHA_ZERO_CLAMP:
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
+				break;
 
-                        default:
-                                ri.Printf( PRINT_WARNING, "WARNING: unknown wrap type for image '%s' axis T\n", image->name );
-                                glTexParameterf( image->type, GL_TEXTURE_WRAP_T, GL_REPEAT );
-                                break;
-                }
-        }
+			default:
+				ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s' axis T\n", image->name);
+				glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				break;
+		}
+	}
 
 	GL_CheckErrors();
 
@@ -2286,7 +2444,7 @@ static void R_LoadImage( char **buffer, byte **pic, int *width, int *height, int
 {
 	char *token;
 
-	*pic = NULL;
+	*pic = NULL; //hypov8 note: posible mem leak when cubemap fails
 	*width = 0;
 	*height = 0;
 
@@ -2760,6 +2918,26 @@ void R_SubImageCpy( byte *dest, size_t destx, size_t desty, size_t destw, size_t
 
 /*
 ===============
+R_FindCubeImage_Free
+
+fix for posible mem leak
+clear on failed images
+===============
+*/
+void R_FindCubeImage_Free(byte **pic)
+{
+	int i;
+	for ( i = 0; i < 6; i++ )
+	{
+		if ( pic[ i ] )
+		{
+			ri.Free( pic[ i ] ); //(void*)
+		}
+	}
+}
+
+/*
+===============
 R_FindCubeImage
 
 Finds or loads the given image.
@@ -2865,6 +3043,7 @@ image_t        *R_FindCubeImage( const char *imageName, int bits, filterType_t f
 		if ( !pic[ i ] || width != height )
 		{
 			image = NULL;
+			R_FindCubeImage_Free(pic);
 			goto tryDoom3Suffices;
 		}
 	}
@@ -2883,6 +3062,7 @@ tryDoom3Suffices:
 		if ( !pic[ i ] || width != height )
 		{
 			image = NULL;
+			R_FindCubeImage_Free(pic);
 			goto tryQuakeSuffices;
 		}
 
@@ -2913,6 +3093,7 @@ tryQuakeSuffices:
 		if ( !pic[ i ] || width != height )
 		{
 			image = NULL;
+			R_FindCubeImage_Free(pic);
 			goto skipCubeImage;
 		}
 
@@ -2934,13 +3115,7 @@ createCubeImage:
 
 skipCubeImage:
 
-	for ( i = 0; i < 6; i++ )
-	{
-		if ( pic[ i ] )
-		{
-			ri.Free( pic[ i ] );
-		}
-	}
+	R_FindCubeImage_Free(pic);
 
 #if defined(HYPODEBUG_IMG_TIME)
 	Com_Printf("Cubeimage  time: %3i msec. (%s)\n", Sys_Milliseconds() - start, buffer);
@@ -4140,10 +4315,12 @@ void R_InitImages( void )
 	const char *charsetImage = "gfx/2d/charset-bezerk-plain-rc2.png";
 	const char *grainImage = "gfx/2d/camera/grain.png";
 	const char *vignetteImage = "gfx/2d/camera/vignette.png";
+
 #ifdef COMPAT_KPQ3 //pbr images
-	const char *reflectCubeImage = "gfx/pbr/miramar"; // "cubemaps/hipshot/miramar";
+	const char *pbrSpecCubeImage = "gfx/pbr/hipshot/miramar"; // for standard reflections when cube probe fails
 	//const char *pbrLutImage = "gfx/pbr/ibl_brdf_lut.png";
-	const char *pbrLutImage = "gfx/pbr/lut1.png";
+	const char *pbrLutImage = "gfx/pbr/lut3.png";
+	const char *pbrEnvImage = "gfx/pbr/miramar_hdri5.png";
 #endif
 	ri.Printf( PRINT_DEVELOPER, "------- R_InitImages -------\n" );
 
@@ -4179,11 +4356,18 @@ void R_InitImages( void )
 		ri.Error( ERR_FATAL, "R_InitImages: could not load '%s'", vignetteImage );
 	}
 
-#ifdef COMPAT_KPQ3
+#ifdef COMPAT_KPQ3 //note: these are constantly reloaded :/
+
 	//default reflection cubemap
-	tr.skyCubeMapDefault = R_FindCubeImage( reflectCubeImage, IF_NONE, FT_CUBEMIP, WT_EDGE_CLAMP, NULL ); //FT_LINEAR //PBR reflection needs mipmaps
+	tr.skyCubeMapDefault = R_FindCubeImage(pbrSpecCubeImage, IF_NONE, FT_LINEAR, WT_EDGE_CLAMP, NULL );
 	if ( !tr.skyCubeMapDefault )	{
-		ri.Error( ERR_FATAL, "R_InitImages: could not load '%s'", reflectCubeImage );
+		ri.Error( ERR_FATAL, "R_InitImages: could not load '%s'", pbrSpecCubeImage);
+	}
+
+	//PBR specuar BRDF
+	tr.pbrSpecHdriImage_default = R_FindImageFile( pbrEnvImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_CUBEMIP, WT_CLAMP, NULL );
+	if ( !tr.pbrSpecHdriImage_default )	{
+		ri.Error( ERR_FATAL, "R_InitImages: could not load '%s'", pbrEnvImage );
 	}
 
 	//PBR LUT
