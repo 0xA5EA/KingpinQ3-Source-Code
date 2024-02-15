@@ -219,6 +219,7 @@
       <MapFileName>$(IntDir)uix86.map</MapFileName>
       <BaseAddress>0x40000000</BaseAddress>
       <ImportLibrary>$(IntDir)uix86.lib</ImportLibrary>
+      <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\basekpq3\"</Command>
