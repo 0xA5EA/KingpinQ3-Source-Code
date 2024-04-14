@@ -971,7 +971,7 @@ qboolean AAS_InsideFace(aas_face_t *face, vec3_t pnormal, vec3_t point, float ep
 		//this is done by checking the sign of the dot product of the
 		//vector orthogonal vector from above and the vector from the
 		//origin (first vertex of edge) to the point 
-		//if the Vec3_DotProduct is smaller than zero the point is outside the face
+		//if the DotProduct is smaller than zero the point is outside the face
 		if (DotProduct(pointvec, sepnormal) < -epsilon) return qfalse;
 	} //end for
 	return qtrue;
@@ -1395,7 +1395,8 @@ int AAS_AreaInfo( int areanum, aas_areainfo_t *info )
 //===========================================================================
 aas_plane_t *AAS_PlaneFromNum(int planenum)
 {
-	if (!aasworld.loaded) return NULL;
+	if (!aasworld.loaded) 
+    return NULL;
 
 	return &aasworld.planes[planenum];
 } //end of the function AAS_PlaneFromNum

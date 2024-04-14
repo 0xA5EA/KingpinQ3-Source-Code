@@ -1416,8 +1416,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		r_compressDiffuseMaps = ri.Cvar_Get( "r_compressDiffuseMaps", "1", CVAR_ARCHIVE | CVAR_LATCH );
 		r_compressSpecularMaps = ri.Cvar_Get( "r_compressSpecularMaps", "1", CVAR_ARCHIVE | CVAR_LATCH );
 		r_compressNormalMaps = ri.Cvar_Get( "r_compressNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH );
-		r_heatHaze = ri.Cvar_Get( "r_heatHaze", "0", CVAR_ARCHIVE );
-		r_heatHazeFix = ri.Cvar_Get( "r_heatHazeFix", "0", CVAR_CHEAT | CVAR_SHADER );
+		r_heatHaze = ri.Cvar_Get( "r_heatHaze", "0", CVAR_ROM | CVAR_ARCHIVE ); //hypov8 disable for beta. crashing
+		r_heatHazeFix = ri.Cvar_Get( "r_heatHazeFix", "0", CVAR_ROM | CVAR_SHADER ); //CVAR_CHEAT
 		r_noMarksOnTrisurfs = ri.Cvar_Get( "r_noMarksOnTrisurfs", "1", CVAR_CHEAT );
 		r_recompileShaders = ri.Cvar_Get( "r_recompileShaders", "0", CVAR_ARCHIVE );
 		r_lazyShaders = ri.Cvar_Get( "r_lazyShaders", "0", CVAR_ARCHIVE );

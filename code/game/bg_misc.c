@@ -135,10 +135,10 @@ gitem_t bg_itemlist[] =
     "",                 // precache
     ""                  // sounds
   },
-
+//hypov8: not loading? also add reload mod?
   /*QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16) suspended    5  */
   {
-    "item_health_mega",
+    "item_health_mega", 
     "sound/world/pickups/health.ogg",            /* 0xA5EA */
     {
       "models/pu_icon/adrenaline/tris.md3",

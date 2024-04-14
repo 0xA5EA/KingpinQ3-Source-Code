@@ -27,13 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <stdlib.h> //hypov8 bspc
 #include <malloc.h>
-/////#include "../qcommon/q_platform.h"
-//#include "../qcommon/q_platform.h"
-//#include "../qcommon/qfiles.h"
-#include "../qcommon/q_shared.h"
-
-//#include "../qcommon/surfaceflags.h"
-//#include "../qcommon/cm_polylib.h"
 
 #include "l_cmd.h"
 #include "../kaas/l_math.h"

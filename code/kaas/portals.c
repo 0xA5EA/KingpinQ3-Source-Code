@@ -385,7 +385,7 @@ winding_t *BaseWindingForNode (bspnode_t *node)
 		}
 		else
 		{	// take back
-			Vec3_Subtract (vec3_origin, plane->normal, normal);
+			VectorSubtract (vec3_origin, plane->normal, normal);
 			dist = -plane->dist;
 			ChopWindingInPlace (&w, normal, dist, BASE_WINDING_EPSILON);
 		}
@@ -422,13 +422,13 @@ void MakeNodePortal (bspnode_t *node)
 		if (p->nodes[0] == node)
 		{
 			side = 0;
-			Vec3_Copy (p->plane.normal, normal);
+			VectorCopy (p->plane.normal, normal);
 			dist = p->plane.dist;
 		} //end if
 		else if (p->nodes[1] == node)
 		{
 			side = 1;
-			Vec3_Subtract (vec3_origin, p->plane.normal, normal);
+			VectorSubtract (vec3_origin, p->plane.normal, normal);
 			dist = -p->plane.dist;
 		} //end else if
 		else
@@ -825,7 +825,7 @@ qboolean PlaceOccupant (bspnode_t *headnode, vec3_t origin, entity_t *occupant)
 			Error("PlaceOccupant: invalid node->planenum\n");
 		} //end if
 		plane = &mapplanes[node->planenum];
-		d = Vec3_DotProduct(origin, plane->normal) - plane->dist;
+		d = DotProduct(origin, plane->normal) - plane->dist;
 		if (d >= 0)
 		{
 			node = node->children[0];
@@ -1256,7 +1256,7 @@ void FindPortalSide (portal_t *p)
 				} //end if
 				// see how close the match is
 				p2 = &mapplanes[side->planenum&~1];
-				dot = Vec3_DotProduct (p1->normal, p2->normal);
+				dot = DotProduct (p1->normal, p2->normal);
 				if (dot > bestdot)
 				{
 					bestdot = dot;

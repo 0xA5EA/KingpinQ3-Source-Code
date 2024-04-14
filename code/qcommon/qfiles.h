@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 // surface geometry should not exceed these limits
-#define	SHADER_MAX_VERTEXES	10000
+#define	SHADER_MAX_VERTEXES	10000 // match kmap2, was 100000. hypov8 todo check this
 #define	SHADER_MAX_INDEXES	(SHADER_MAX_VERTEXES * 6)
 #define SHADER_MAX_TRIANGLES (SHADER_MAX_INDEXES / 3)
 
@@ -186,7 +186,7 @@ typedef struct
   int             ident;
   int             version;
 
-  char		      name[64];	// model name
+  char            name[64]; // model name
 
   int             flags;
 
@@ -872,7 +872,7 @@ typedef struct
 } dmodel_t;
 
 typedef struct {
-  char		shader[64];
+  char            shader[64]; // MAX_QPATH
   int             surfaceFlags;
   int             contentFlags;
 } dshader_t;
@@ -910,7 +910,7 @@ typedef struct
 
 typedef struct
 {
-  int             planeNum;	// positive plane side faces out of the leaf
+  int             planeNum; // positive plane side faces out of the leaf
   int             shaderNum;
 } dbrushside_t;
 
@@ -922,7 +922,7 @@ typedef struct
 } dbrush_t;
 
 typedef struct {
-  char		shader[64];
+  char            shader[64]; //MAX_QPATH
   int             brushNum;
   int             visibleSide;	// the brush side that ray tests need to clip against (-1 == none)
 } dfog_t;
@@ -930,8 +930,8 @@ typedef struct {
 // light grid
 typedef struct
 {
-  float            ambient[3]; //hypov8 kpq3 float, was byte
-  float            directed[3]; //hypov8 kpq3 float, was byte
+  float           ambient[3]; //hypov8 kpq3 float(was byte). kmap2 = xbspGridPoint_t
+  float           directed[3]; //hypov8 kpq3 float, was byte
   byte            latLong[2];
 } dgridPoint_t;
 

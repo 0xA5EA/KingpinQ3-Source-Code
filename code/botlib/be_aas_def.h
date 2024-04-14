@@ -204,8 +204,8 @@ typedef struct aas_s
 	float time;
 	int numframes;
 	//name of the aas file
-	char filename[MAX_PATH];
-	char mapname[MAX_PATH];
+	char *filename; // [MAX_PATH];
+	char *mapname; // [MAX_PATH];
 	//bounding boxes
 	int numbboxes;
 	aas_bbox_t *bboxes;

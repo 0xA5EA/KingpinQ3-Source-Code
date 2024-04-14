@@ -81,12 +81,7 @@ typedef enum {qfalse, qtrue}	qboolean;
 #include "../kaas/qbsp.h"
 #include "../kaas/l_log.h"
 #include "../kaas/l_mem.h"
-/////////////#include "../kaas/be_aas_bspc.h"
 #include "../botlib/l_precomp.h"
-//#include "../botlib/l_utils.h" //hypov8 add
-//#include "../qcommon/q_shared.h"
-
-#include "../botlib/be_aas_main.h"
 
 //typedef enum {qfalse, qtrue}	qboolean;
 //#define qtrue	true
@@ -1040,7 +1035,7 @@ int PC_Directive_include(source_t *source)
 {
   script_t *script;
   token_t token;
-  char path[MAX_PATH] = "";
+  char path[2*MAX_PATH] = "";
 #ifdef QUAKE
   foundfile_t file;
 #endif //QUAKE

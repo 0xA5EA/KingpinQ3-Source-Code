@@ -695,7 +695,7 @@ static int CG_WeaponFireTimeOffset(int weaponIndex)
   case WP_ROCKET_LAUNCHER:
     return WP_TIME_FIRE_ROCKET_LAUNCHER;
   case WP_HMG:
-    return WP_TIME_FIRE_HMG_LAST;
+    return WP_TIME_FIRE_HMG_FULL;
 #ifdef USE_FLAMEGUN
   case WP_FLAMER:
     return WP_TIME_FIRE_FLAMEGUN;
@@ -704,6 +704,18 @@ static int CG_WeaponFireTimeOffset(int weaponIndex)
     return WP_TIME_FIRE_GRAPPLING_HOOK;
   }
 }
+//
+/*static int CG_WeaponFireTimeOffset_mod(int weaponIndex)
+{
+  switch (weaponIndex)
+  {
+  case WP_HMG:
+    return WP_TIME_FIRE_HMG_LAST;
+
+  default:
+    return WP_TIME_RELOAD_PISTOL;
+  }
+}*/
 
 /*
 ================
@@ -757,12 +769,12 @@ static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *a
   float fps;
   char text[1024];
   fileHandle_t f;
-  int maxWepStates = WEAPON_RELOAD_MOD;
+  int maxWepStates = MAX_WEAPON_STATES;
 
-  if ( weaponNum == WP_SHOTGUN || weaponNum == WP_CROWBAR )
-  maxWepStates = MAX_WEAPON_STATES; //hypov8 todo: add WEAPON_MOD to all animation.cfg
+  //if ( weaponNum == WP_SHOTGUN || weaponNum == WP_CROWBAR )
+  //  maxWepStates = MAX_WEAPON_STATES; //hypov8 todo: add WEAPON_MOD to all animation.cfg
 
-  Com_Memset(animations, 0, sizeof(animation_t) * MAX_WEAPON_STATES);
+  Com_Memset(animations, 0, sizeof(animation_t) * maxWepStates);
 
   if (cg_debugWeaponAnim.integer)
     Com_Printf("loading animation file: %s\n", filename);
@@ -827,42 +839,41 @@ static qboolean CG_ParseWeaponAnimationFile(const char *filename, animation_t *a
       fps = 15;
     }
 
-  //add hypov8 sync animation using a #defined total animation time in engine, not animation.cfg
-  //this allows the complete animation sequence to run in the set timeframe
-  if (ws == WEAPON_RELOADING && animations[ws].numFrames > 0)
-  {
-    animations[ws].frameLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
-    animations[ws].initialLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
-  }
-  else if (ws == WEAPON_RELOAD_MOD && animations[ws].numFrames > 0)
-  {
-    animations[ws].frameLerp = floor(CG_WeaponModTimeOffset(weaponNum) / animations[ws].numFrames);
-    animations[ws].initialLerp = floor(CG_WeaponModTimeOffset(weaponNum) / animations[ws].numFrames);
-  }
-  else if (ws == WEAPON_FIRING && animations[ws].numFrames > 0)
-  {
-    if (animations[ws].loopFrames == 0)
+    //add hypov8 sync animation using a #defined total animation time in engine, not animation.cfg
+    //this allows the complete animation sequence to run in the set timeframe
+    if (ws == WEAPON_RELOADING && animations[ws].numFrames > 0)
     {
-      animations[ws].frameLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
-      animations[ws].initialLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
+      animations[ws].frameLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
+      animations[ws].initialLerp = floor(CG_WeaponReloadTimeOffset(weaponNum) / animations[ws].numFrames);
     }
-    else //hypov8 allow looping. use fps. adds variance to fast fire weapons (tommy/flamer)
+    else if (ws == WEAPON_RELOAD_MOD && animations[ws].numFrames > 0)
     {
-      animations[ws].frameLerp = 1000 / fps;
+      animations[ws].frameLerp = floor(CG_WeaponModTimeOffset(weaponNum) / animations[ws].numFrames);
+      animations[ws].initialLerp = floor(CG_WeaponModTimeOffset(weaponNum) / animations[ws].numFrames);
+    }
+    else if (ws == WEAPON_FIRING && animations[ws].numFrames > 0)
+    {
+      if (animations[ws].loopFrames == 0)
+      {
+        animations[ws].frameLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
+        animations[ws].initialLerp = floor(CG_WeaponFireTimeOffset(weaponNum) / animations[ws].numFrames);
+      }
+      else //hypov8 allow looping. use fps. adds variance to fast fire weapons (tommy/flamer)
+      {
+        animations[ws].frameLerp = 1000 / fps;
+        animations[ws].initialLerp = 1000 / fps;
+      }
+    }
+    else if ((ws == WEAPON_DROPPING || ws == WEAPON_RAISING) && animations[ws].numFrames > 0)
+    {
+      animations[ws].frameLerp = floor(CG_WeaponChangeTimeOffset(weaponNum) / animations[ws].numFrames);
+      animations[ws].initialLerp = floor(CG_WeaponChangeTimeOffset(weaponNum) / animations[ws].numFrames);
+    }
+    else //WEAPON_READY
+    {
+      animations[ws].frameLerp  = 1000 / fps;
       animations[ws].initialLerp = 1000 / fps;
     }
-  }
-  else if ((ws == WEAPON_DROPPING || ws == WEAPON_RAISING) && animations[ws].numFrames > 0)
-  {
-    animations[ws].frameLerp = floor(CG_WeaponChangeTimeOffset(weaponNum) / animations[ws].numFrames);
-    animations[ws].initialLerp = floor(CG_WeaponChangeTimeOffset(weaponNum) / animations[ws].numFrames);
-  }
-  else //WEAPON_READY
-  {
-    animations[ws].frameLerp  = 1000 / fps;
-    animations[ws].initialLerp = 1000 / fps;
-  }
-
 
     if (cg_debugWeaponAnim.integer)
        Com_Printf(S_COLOR_WHITE"Mode %d: %d %d %d %f\n", ws, animations[ws].firstFrame, animations[ws].numFrames, animations[ws].loopFrames , fps );
@@ -1383,7 +1394,7 @@ static int CG_MapTorsoToWeaponFrame(clientInfo_t *ci, int frame, int anim, int w
     }
     else if (anim == TORSO_RAISE && frame < 9)
     {
-      return frame + weapon->animations[WEAPON_RAISING].firstFrame;;
+      return frame + weapon->animations[WEAPON_RAISING].firstFrame;
     }
     else if ((anim == TORSO_ATTACK || anim == TORSO_ATTACK2 || anim == TORSO_ATTACK3))	// stand attack
     {

@@ -230,7 +230,7 @@ void qprintf(char *format, ...)
 } //end of the function qprintf
 
 //hypov8
-void KAAS_Com_Error(int level, char *error, ...)
+void Com_Error(int level, const char *error, ...)
 {
 	va_list argptr;
 	char text[1024];
@@ -241,7 +241,7 @@ void KAAS_Com_Error(int level, char *error, ...)
 	Error(text);
 } //end of the funcion Com_Error
 
-void KAAS_Com_Printf( const char *fmt, ... )
+void Com_Printf( const char *fmt, ... )
 {
 	va_list argptr;
 	char text[1024];

@@ -119,12 +119,12 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
 
 	bsptrace->allsolid = result.allsolid;
 	bsptrace->contents = result.contents;
-	Vec3_Copy(result.endpos, bsptrace->endpos);
+	VectorCopy(result.endpos, bsptrace->endpos);
 	bsptrace->ent = result.entityNum;
 	bsptrace->fraction = result.fraction;
 	bsptrace->exp_dist = 0;
 	bsptrace->plane.dist = result.plane.dist;
-	Vec3_Copy(result.plane.normal, bsptrace->plane.normal);
+	VectorCopy(result.plane.normal, bsptrace->plane.normal);
 	bsptrace->plane.signbits = result.plane.signbits;
 	bsptrace->plane.type = result.plane.type;
 	bsptrace->sidenum = 0;
@@ -195,11 +195,11 @@ void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmin
 		} //end for
 	} //end if
 	if (outmins) 
-		Vec3_Copy(mins, outmins);
+		VectorCopy(mins, outmins);
 	if (outmaxs) 
-		Vec3_Copy(maxs, outmaxs);
+		VectorCopy(maxs, outmaxs);
 	if (origin) 
-		Vec3_Clear(origin);
+		VectorClear(origin);
 } //end of the function BotImport_BSPModelMinsMaxsOrigin
 //===========================================================================
 //
@@ -207,7 +207,7 @@ void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmin
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void KAAS_Com_DPrintf(char *fmt, ...)
+void Com_DPrintf(const char *fmt, ...)
 {
 	va_list argptr;
 	char buf[1024];

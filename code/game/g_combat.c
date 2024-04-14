@@ -726,7 +726,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	}
 
 	// Add team bonuses
-	if (attacker)// add hypov8
+	if (attacker && g_gametype.integer > 0)// add hypov8
 	{
 	  if (self->s.number != attacker->s.number)
 		Team_FragBonuses(self, inflictor, attacker);

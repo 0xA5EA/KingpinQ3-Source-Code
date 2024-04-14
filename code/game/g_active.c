@@ -691,9 +691,12 @@ void ClientEvents(gentity_t *ent, int oldEventSequence)
     case EV_FIRE_WEAPON:
     case EV_FIRE_SHOTGUN: //
     case EV_FIRE_SPISTOL: //hypov8
-    case EV_FIRE_HMG_SHOT:
+    //case EV_FIRE_HMG_SHOT:
       FireWeapon(ent);
       break;
+    /*case EV_FIRE_COOLDOWN:
+      //todo
+      break;*/
 
     case EV_USE_ITEM1: // teleporter
       // drop flags in CTF

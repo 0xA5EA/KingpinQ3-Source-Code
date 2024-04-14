@@ -209,10 +209,10 @@ int AAS_GapFace(tmp_face_t *tmpface, int side)
 	//if the face is a solid or ground face it can't be a gap
 	if (tmpface->faceflags & (FACE_GROUND | FACE_SOLID)) return 0;
 
-	Vec3_Copy(cfg.phys_gravitydirection, invgravity);
-	Vec3_Inverse(invgravity);
+	VectorCopy(cfg.phys_gravitydirection, invgravity);
+	VectorInverse(invgravity);
 
-	return (Vec3_DotProduct(invgravity, mapplanes[tmpface->planenum ^ side].normal) > cfg.phys_maxsteepness);
+	return (DotProduct(invgravity, mapplanes[tmpface->planenum ^ side].normal) > cfg.phys_maxsteepness);
 } //end of the function AAS_GapFace
 //===========================================================================
 // returns true if the face is a ground face
@@ -228,10 +228,10 @@ int AAS_GroundFace(tmp_face_t *tmpface)
 	//must be a solid face
 	if (!(tmpface->faceflags & FACE_SOLID)) return 0;
 
-	Vec3_Copy(cfg.phys_gravitydirection, invgravity);
-	Vec3_Inverse(invgravity);
+	VectorCopy(cfg.phys_gravitydirection, invgravity);
+	VectorInverse(invgravity);
 
-	return (Vec3_DotProduct(invgravity, mapplanes[tmpface->planenum].normal) > cfg.phys_maxsteepness);
+	return (DotProduct(invgravity, mapplanes[tmpface->planenum].normal) > cfg.phys_maxsteepness);
 } //end of the function AAS_GroundFace
 //===========================================================================
 // adds the side of a face to an area
@@ -326,11 +326,11 @@ void AAS_CheckArea(tmp_area_t *tmparea)
 		//side of the face the area is on
 		side = face->frontarea != tmparea;
 		WindingCenter(face->winding, wcenter);
-		Vec3_Add(acenter, wcenter, acenter);
+		VectorAdd(acenter, wcenter, acenter);
 		n++;
 	} //end for
 	n = 1 / n;
-	Vec3_Scale(acenter, n, acenter);
+	VectorScale(acenter, n, acenter);
 	for (face = tmparea->tmpfaces; face; face = face->next[side])
 	{
 		//side of the face the area is on
@@ -346,7 +346,7 @@ void AAS_CheckArea(tmp_area_t *tmparea)
 
 		plane = &mapplanes[face->planenum ^ side];
 
-		if (Vec3_DotProduct(plane->normal, acenter) - plane->dist < 0)
+		if (DotProduct(plane->normal, acenter) - plane->dist < 0)
 		{
 			Log_Print("AAS_CheckArea: area %d face %d is flipped\n", tmparea->areanum, face->num);
 			Log_Print("AAS_CheckArea: area %d center is %f %f %f\n", tmparea->areanum, acenter[0], acenter[1], acenter[2]);
@@ -383,14 +383,14 @@ void AAS_CheckFaceWindingPlane(tmp_face_t *face)
 	WindingPlane(face->winding, normal, &dist);
 	plane = &mapplanes[face->planenum];
 	//
-	sign1 = Vec3_DotProduct(plane->normal, normal);
+	sign1 = DotProduct(plane->normal, normal);
 	//
 	if (fabs(dist - plane->dist) > 0.4 ||
 			fabs(normal[0] - plane->normal[0]) > 0.0001 ||
 			fabs(normal[1] - plane->normal[1]) > 0.0001 ||
 			fabs(normal[2] - plane->normal[2]) > 0.0001)
 	{
-		Vec3_Inverse(normal);
+		VectorInverse(normal);
 		dist = -dist;
 		if (fabs(dist - plane->dist) > 0.4 ||
 				fabs(normal[0] - plane->normal[0]) > 0.0001 ||
@@ -400,7 +400,7 @@ void AAS_CheckFaceWindingPlane(tmp_face_t *face)
 			Log_Write("AAS_CheckFaceWindingPlane: face %d winding plane unequal to face plane\r\n",
 									face->num);
 			//
-			sign2 = Vec3_DotProduct(plane->normal, normal);
+			sign2 = DotProduct(plane->normal, normal);
 			if ((sign1 < 0 && sign2 > 0) ||
 					(sign1 > 0 && sign2 < 0))
 			{
@@ -465,11 +465,11 @@ void AAS_FlipAreaFaces(tmp_area_t *tmparea)
 		//side of the face the area is on
 		side = face->frontarea != tmparea;
 		WindingCenter(face->winding, wcenter);
-		Vec3_Add(acenter, wcenter, acenter);
+		VectorAdd(acenter, wcenter, acenter);
 		n++;
 	} //end for
 	n = 1 / n;
-	Vec3_Scale(acenter, n, acenter);
+	VectorScale(acenter, n, acenter);
 	for (face = tmparea->tmpfaces; face; face = face->next[side])
 	{
 		//side of the face the area is on
@@ -477,7 +477,7 @@ void AAS_FlipAreaFaces(tmp_area_t *tmparea)
 
 		plane = &mapplanes[face->planenum ^ side];
 
-		if (Vec3_DotProduct(plane->normal, acenter) - plane->dist < 0)
+		if (DotProduct(plane->normal, acenter) - plane->dist < 0)
 		{
 			Log_Print("area %d face %d flipped: front area %d, back area %d\n", tmparea->areanum, face->num,
 					face->frontarea ? face->frontarea->areanum : 0,

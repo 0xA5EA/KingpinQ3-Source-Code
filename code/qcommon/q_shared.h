@@ -318,6 +318,8 @@ typedef enum {
 #else
 #  ifndef BSPC //hypov8 
    void *Hunk_Alloc(int size, ha_pref preference);
+#  else
+   void *Hunk_Alloc(size_t size, ha_pref preference);
 #  endif
 #endif
 
@@ -338,13 +340,9 @@ typedef enum {
 #define CIN_shader	 16
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-
-#ifndef BSPC //_MSC_VER //BSPC //hypov8 
 void  QDECL Com_Error(int level, const char *error, ...) __attribute__ ((format (printf, 2, 3)));
 void  QDECL Com_Printf(const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
-#else
-   //todo
-#endif
+
 
 /*
 ==============================================================
@@ -749,38 +747,6 @@ void ByteToDir(int b, vec3_t dir);
   unsigned ColorBytes3 (float r, float g, float b);
   unsigned ColorBytes4 (float r, float g, float b, float a);
 
-#ifdef BSPC //hypov8 add
-//
-//double Vector_Length(vec3_t v);
-//cm_trace.cc
-void RotatePoint(vec3_t point, float matrix[3][3]);
-//void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3]);
-//void CreateRotationMatrix(vec3_t angles, float matrix[3][3]);
-
-void KAAS_Com_Error(int level, char *error, ...);
-void KAAS_Com_Printf(const char *fmt, ...);
-void KAAS_Com_DPrintf(char *fmt, ...);
-#define Com_Error KAAS_Com_Error
-#define Com_Printf KAAS_Com_Printf
-#define Com_DPrintf KAAS_Com_DPrintf
-//int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *p);
-
-//hypov8 todo rename these for kaas
-#define Vec3_DotProduct DotProduct
-#define Vec3_Copy VectorCopy
-#define Vec3_Inverse VectorInverse //hypov8 now macro
-#define Vec3_Add VectorAdd
-#define Vec3_Scale VectorScale
-#define Vec3_Clear VectorClear
-#define Vec3_MA VectorMA
-#define Vec3_Negate VectorNegate
-#define Vec3_Subtract VectorSubtract
-#define Vec4_Copy Vector4Copy
-
-#define Vector_Length VectorLength
-
-extern vec3_t vec3_origin;
-#endif
 
 //FIXME (0xA5EA): brakes aas build ?
   float NormalizeColor(const vec3_t in, vec3_t out);
@@ -1719,7 +1685,7 @@ typedef enum {
   CHAN_ANNOUNCER		// announcer voices, etc
 } soundChannel_t;
 
-#if 2 //ndef BSPC //hypov8 
+#if 1 //ndef BSPC //hypov8 
 #ifndef Q3_VM
 extern force_inline int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, struct cplane_s * p)
 {

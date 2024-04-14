@@ -38,7 +38,7 @@ void AAS_UnlinkInvalidEntities(void);
 //resets the entity AAS and BSP links (sets areas and leaves pointers to NULL)
 void AAS_ResetEntityLinks(void);
 //updates an entity
-#ifndef BSPC
+#if 1 //ndef BSPC
 int AAS_UpdateEntity(int ent, bot_entitystate_t *state);
 //gives the entity data used for collision detection
 void AAS_EntityBSPData(int entnum, bsp_entdata_t *entdata);

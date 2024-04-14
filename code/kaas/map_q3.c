@@ -513,7 +513,7 @@ void AAS_CreateCurveBrushes(void)
 		Log_Print("CM_GeneratePatchCollide \n");
 		pc = CM_GeneratePatchCollide(width, height, points);
 		//
-		Log_Print("for (j = 0; j < pc->numFacets; j++)\n");
+		Log_Print("for (j = 0; j < pc->numFacets; j++) (q3_numDrawSurfaces: %i)\n", i);
 		for (j = 0; j < pc->numFacets; j++)
 		{
 			facet = &pc->facets[j];
@@ -528,7 +528,7 @@ void AAS_CreateCurveBrushes(void)
 			brush->contents = CONTENTS_SOLID;
 			//
 			//qprintf("\r%6d curve brushes", nummapbrushsides);//++numcurvebrushes);
-			qprintf("\r%6d curve brushes", ++numcurvebrushes);
+			qprintf("\r%6d curve brushes (face: %i)", ++numcurvebrushes, j);
 			//
 			planenum = FindFloatPlane(pc->planes[facet->surfacePlane].plane, pc->planes[facet->surfacePlane].plane[3]);
 			//

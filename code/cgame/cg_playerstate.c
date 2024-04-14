@@ -190,27 +190,27 @@ hypov8 view recoil for 1st person
 */
 void CG_ShootFeedback(int weaponUsed)
 {
-	float kick;
-	int timeAdd;
+  float kick;
+  int timeAdd;
 
-	switch (weaponUsed)
-	{
-		case WP_CROWBAR:			timeAdd = WP_TIME_FIRE_CROWBAR / 2;			kick = 1;	break;
-		case WP_PISTOL:				timeAdd = WP_TIME_FIRE_PISTOL / 2;				kick = 2.5;	break;
-		case WP_SHOTGUN:			timeAdd = WP_TIME_FIRE_SHOTGUN / 2;			kick = 4;	break;
-		case WP_MACHINEGUN:			timeAdd = WP_TIME_FIRE_MACHINEGUN / 2;			kick = 0.5f; break;
-		case WP_GRENADE_LAUNCHER:	timeAdd = WP_TIME_FIRE_GRENADE_LAUNCHER / 2;	kick = 5;	break;
-		case WP_ROCKET_LAUNCHER:	timeAdd = WP_TIME_FIRE_ROCKET_LAUNCHER / 2;	kick = 5;	break;
-		case WP_HMG:				timeAdd = WP_TIME_FIRE_HMG /2;					kick = 1.5;	break;
-		case WP_FLAMER:				timeAdd = WP_TIME_FIRE_FLAMEGUN / 2;			kick = 0.2f; break;
-		default:					timeAdd = 0;									kick = 0;	break;
-	}
+  switch (weaponUsed)
+  {
+    case WP_CROWBAR:          timeAdd = WP_TIME_FIRE_CROWBAR / 2;           kick = 1; break;
+    case WP_PISTOL:           timeAdd = WP_TIME_FIRE_PISTOL / 2;            kick = 2.5; break;
+    case WP_SHOTGUN:          timeAdd = WP_TIME_FIRE_SHOTGUN / 2;           kick = 4; break;
+    case WP_MACHINEGUN:       timeAdd = WP_TIME_FIRE_MACHINEGUN / 2;        kick = 0.5f; break;
+    case WP_GRENADE_LAUNCHER: timeAdd = WP_TIME_FIRE_GRENADE_LAUNCHER / 2;  kick = 5; break;
+    case WP_ROCKET_LAUNCHER:  timeAdd = WP_TIME_FIRE_ROCKET_LAUNCHER / 2;   kick = 5; break;
+    case WP_HMG:              timeAdd = WP_TIME_FIRE_HMG_3RD / 3;           kick = 1.5; break;
+    case WP_FLAMER:           timeAdd = WP_TIME_FIRE_FLAMEGUN / 2;          kick = 0.2f; break;
+    default:                  timeAdd = 0;                                  kick = 0; break;
+  }
 
-	cg.v_dmg_roll = (float)(((rand() / (float)RAND_MAX) * 1.0 - 0.5));
-	cg.v_dmg_pitch = -kick;
-	cg.v_dmg_time = cg.time + timeAdd;
+  cg.v_dmg_roll = (float)(((rand() / (float)RAND_MAX) * 1.0 - 0.5));
+  cg.v_dmg_pitch = -kick;
+  cg.v_dmg_time = cg.time + timeAdd;
 
-	cg.damageTime = cg.snap->serverTime;
+  cg.damageTime = cg.snap->serverTime;
 }
 
 

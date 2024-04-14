@@ -6334,7 +6334,8 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state)
     //FIXME: either add to sound queue or mark player as someone making noise
   case EV_FIRE_SHOTGUN:// add hypov8
   case EV_FIRE_SPISTOL: //add hypov8
-  case EV_FIRE_HMG_SHOT:
+  //case EV_FIRE_HMG_SHOT:
+  //case EV_FIRE_COOLDOWN:
     break;
   case EV_USE_ITEM0:
   case EV_USE_ITEM1:

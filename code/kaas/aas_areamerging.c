@@ -75,12 +75,12 @@ int NonConvex(tmp_face_t *face1, tmp_face_t *face2, int side1, int side2)
 	//check if one of the points of face1 is at the back of the plane of face2
 	for (i = 0; i < w1->numpoints; i++)
 	{
-		if (Vec3_DotProduct(plane2->normal, w1->p[i]) - plane2->dist < -CONVEX_EPSILON) return qtrue;
+		if (DotProduct(plane2->normal, w1->p[i]) - plane2->dist < -CONVEX_EPSILON) return qtrue;
 	} //end for
 	//check if one of the points of face2 is at the back of the plane of face1
 	for (i = 0; i < w2->numpoints; i++)
 	{
-		if (Vec3_DotProduct(plane1->normal, w2->p[i]) - plane1->dist < -CONVEX_EPSILON) return qtrue;
+		if (DotProduct(plane1->normal, w2->p[i]) - plane1->dist < -CONVEX_EPSILON) return qtrue;
 	} //end for
 
 	return qfalse;

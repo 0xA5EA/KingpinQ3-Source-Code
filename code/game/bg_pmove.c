@@ -2328,7 +2328,7 @@ PM_WeaponFireTimeOffset
 */
 static int PM_WeaponFireTimeOffset(int weapon, qboolean hmgLastBullet)
 {
-  switch (pm->ps->weapon)
+  switch (weapon) //pm->ps->weapon)
   {
   default:
   case WP_CROWBAR:
@@ -2347,12 +2347,14 @@ static int PM_WeaponFireTimeOffset(int weapon, qboolean hmgLastBullet)
     return WP_TIME_FIRE_ROCKET_LAUNCHER;         // 0xA5EA
   case WP_HMG:
     if (hmgLastBullet)
+    {
       if (pm->ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_COOLING))
-        return (int)(WP_TIME_FIRE_HMG_LAST / 2);
+        return WP_TIME_FIRE_HMG_3RD;
       else
-        return WP_TIME_FIRE_HMG_LAST;
+        return WP_TIME_FIRE_HMG_3RD * 2;
+    }
     else
-      return WP_TIME_FIRE_HMG;
+      return (int)(WP_TIME_FIRE_HMG_3RD/3.0f);
 
 #ifdef USE_FLAMEGUN
   case WP_FLAMER:
@@ -2373,6 +2375,7 @@ static void PM_Weapon(void)
 {
   int      addTime = 200; //default addTime - should never be used
   qboolean attack1 = ( pm->cmd.buttons & BUTTON_ATTACK );
+  qboolean wepCoolDown = qfalse; //hmg cooldown
 
   // Ignore weapons in some cases
   if (pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR)
@@ -2557,9 +2560,11 @@ static void PM_Weapon(void)
   // fire events for non auto weapons
   if ( attack1 || (pm->ps->hmgBulletNum && pm->ps->weapon == WP_HMG))
   {
-    if ( pm->ps->weapon == WP_PISTOL && pm->ps->stats[ STAT_WEAP_MODS ] & ( 1 << PW_WPMOD_SILENCER ) )
+    if (pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_SILENCER))
       PM_AddEvent(EV_FIRE_SPISTOL);
-    else
+    else if (!(pm->ps->hmgBulletNum == 3 && pm->ps->weapon == WP_HMG)) //dont shoot for cooldown
+    /*  PM_AddEvent(EV_FIRE_COOLDOWN);
+    else*/
       PM_AddEvent(EV_FIRE_WEAPON);
   }
   else
@@ -2600,30 +2605,38 @@ static void PM_Weapon(void)
       PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
       if (pm->ps->hmgBulletNum == 0)
       {
-        pm->ps->hmgBulletNum = 1;
+        pm->ps->hmgBulletNum = 1; //#1
         addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
+        PM_StartWeaponAnim(WEAPON_FIRING);
       }
       else if (pm->ps->hmgBulletNum == 1)
       {
-        pm->ps->hmgBulletNum = 2;
+        pm->ps->hmgBulletNum = 2; //#2
         addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
+        PM_ContinueWeaponAnim(WEAPON_FIRING);
       }
       else if (pm->ps->hmgBulletNum == 2)
       {
-        pm->ps->hmgBulletNum = 0;
-        addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qtrue);
+        pm->ps->hmgBulletNum = 3; //#3
+        addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
+        PM_ContinueWeaponAnim(WEAPON_FIRING);
       }
-
+      else if (pm->ps->hmgBulletNum == 3)
+      {
+        wepCoolDown = true;
+        pm->ps->hmgBulletNum = 0; //cooldown
+        addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qtrue);
+        PM_ContinueWeaponAnim(WEAPON_FIRING);
+      }
       break;
 
     default:
-    //case WP_SHOTGUN:
         PM_StartTorsoAnim(BG_AttackTorsoAnim(pm->ps->weapon));
         addTime = PM_WeaponFireTimeOffset(pm->ps->weapon, qfalse);
       break;
     }
 
-    if (pm->ps->weapon != WP_CROWBAR)
+    if (pm->ps->weapon != WP_CROWBAR && pm->ps->weapon != WP_HMG)
     {   //cycle animation using fps in animation.cfg
       if (pm->ps->weapon == WP_FLAMER || pm->ps->weapon == WP_MACHINEGUN )
         PM_ContinueWeaponAnim(WEAPON_FIRING);
@@ -2634,19 +2647,21 @@ static void PM_Weapon(void)
 
   pm->ps->weaponstate = WEAPON_FIRING;
 
-  //make view bob with bullet recoil
-  pm->ps->viewShootBob++;
-  if ( pm->ps->viewShootBob > 255 )
-    pm->ps->viewShootBob = 1;
-
-  // take an ammo away if not infinite
-  if (pm->ps->ammo_mag[pm->ps->weapon] != INFINITE_AMMO)
+  if (!wepCoolDown)
   {
-    pm->ps->ammo_mag[pm->ps->weapon]--;
-    if (pm->ps->ammo_mag[pm->ps->weapon] < 0)
-      pm->ps->ammo_mag[pm->ps->weapon] = 0;
-  }
+    //make view bob with bullet recoil
+    pm->ps->viewShootBob++;
+    if (pm->ps->viewShootBob > 255)
+      pm->ps->viewShootBob = 1;
 
+    // take an ammo away if not infinite
+    if (pm->ps->ammo_mag[pm->ps->weapon] != INFINITE_AMMO)
+    {
+      pm->ps->ammo_mag[pm->ps->weapon]--;
+      if (pm->ps->ammo_mag[pm->ps->weapon] < 0)
+        pm->ps->ammo_mag[pm->ps->weapon] = 0;
+    }
+  }
   pm->ps->weaponTime += addTime; //+
 }
 

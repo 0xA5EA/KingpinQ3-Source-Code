@@ -944,14 +944,17 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
   DEBUGNAME("EV_FIRE_SHOTGUN");
   CG_FireWeapon(cent, qfalse);
   break;
-  case	EV_FIRE_SPISTOL:
+  case EV_FIRE_SPISTOL:
   DEBUGNAME("EV_FIRE_SPISTOL");
   CG_FireWeapon(cent, qtrue);
   break;
-  case EV_FIRE_HMG_SHOT: //hypov8 todo: cleanup. not used anymore
+  /*case EV_FIRE_HMG_SHOT: //hypov8 todo: cleanup. not used anymore
   DEBUGNAME("EV_FIRE_HMG_SHOT");
   CG_FireWeapon(cent, qfalse);
-  break;
+  break;*/
+  /*case EV_FIRE_COOLDOWN:
+    //todo
+    break;*/
   case EV_RELOAD_WEAPON:
   DEBUGNAME("EV_RELOAD_WEAPON");
   CG_ReloadWeapon(cent);

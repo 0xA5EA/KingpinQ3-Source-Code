@@ -52,10 +52,14 @@ void *GetHunkMemoryDebug(unsigned long size, char *label, char *file, int line);
 void *GetClearedHunkMemoryDebug(unsigned long size, char *label, char *file, int line);
 #else
 
-//
 #ifdef BSPC
+//allocate a memory block of the given size
+void *GetMemory(size_t size);
+//allocate a memory block of the given size and clear it
+void *GetClearedMemory(size_t size);
+//
 #define GetHunkMemory GetMemory
-//#define GetClearedHunkMemory GetClearedMemory
+#define GetClearedHunkMemory GetClearedMemory
 #else
 //allocate a memory block of the given size
 void *GetMemory(unsigned long size);

@@ -301,7 +301,7 @@ bspbrush_t	*BrushFromBounds (vec3_t mins, vec3_t maxs)
 	b->numsides = 6;
 	for (i=0 ; i<3 ; i++)
 	{
-		Vec3_Clear (normal);
+		VectorClear (normal);
 		normal[i] = 1;
 		dist = maxs[i];
 		b->sides[i].planenum = FindFloatPlane (normal, dist);
@@ -365,7 +365,7 @@ vec_t BrushVolume (bspbrush_t *brush)
 		if (w) break;
 	} //end for
 	if (!w) return 0;
-	Vec3_Copy (w->p[0], corner);
+	VectorCopy (w->p[0], corner);
 
 	// make tetrahedrons to all other faces
 	volume = 0;
@@ -374,7 +374,7 @@ vec_t BrushVolume (bspbrush_t *brush)
 		w = brush->sides[i].winding;
 		if (!w) continue;
 		plane = &mapplanes[brush->sides[i].planenum];
-		d = -(Vec3_DotProduct (corner, plane->normal) - plane->dist);
+		d = -(DotProduct (corner, plane->normal) - plane->dist);
 		area = WindingArea(w);
 		volume += d * area;
 	} //end for
@@ -515,7 +515,7 @@ bspnode_t *PointInLeaf (bspnode_t *node, vec3_t point)
 	while (node->planenum != PLANENUM_LEAF)
 	{
 		plane = &mapplanes[node->planenum];
-		d = Vec3_DotProduct (point, plane->normal) - plane->dist;
+		d = DotProduct (point, plane->normal) - plane->dist;
 		if (d > 0)
 			node = node->children[0];
 		else
@@ -566,8 +566,8 @@ int BoxOnPlaneSide_Local (vec3_t mins, vec3_t maxs, plane_t *plane)
 		}
 	}
 
-	dist1 = Vec3_DotProduct (plane->normal, corners[0]) - plane->dist;
-	dist2 = Vec3_DotProduct (plane->normal, corners[1]) - plane->dist;
+	dist1 = DotProduct (plane->normal, corners[0]) - plane->dist;
+	dist2 = DotProduct (plane->normal, corners[1]) - plane->dist;
 	side = 0;
 	if (dist1 >= PLANESIDE_EPSILON)
 		side = PSIDE_FRONT;
@@ -773,7 +773,7 @@ int TestBrushToPlanenum (bspbrush_t *brush, int planenum,
 		front = back = 0;
 		for (j = 0; j < w->numpoints; j++)
 		{
-			d = Vec3_DotProduct(w->p[j], plane->normal) - plane->dist;
+			d = DotProduct(w->p[j], plane->normal) - plane->dist;
 			if (d > d_front) d_front = d;
 			if (d < d_back) d_back = d;
 			if (d > 0.1) // PLANESIDE_EPSILON)
@@ -834,7 +834,7 @@ qboolean WindingIsTiny (winding_t *w)
 	for (i=0 ; i<w->numpoints ; i++)
 	{
 		j = i == w->numpoints - 1 ? 0 : i+1;
-		Vec3_Subtract (w->p[j], w->p[i], delta);
+		VectorSubtract (w->p[j], w->p[i], delta);
 		len = VectorLength (delta);
 		if (len > EDGE_LENGTH)
 		{
@@ -1125,7 +1125,7 @@ int BrushMostlyOnSide (bspbrush_t *brush, plane_t *plane)
 			continue;
 		for (j=0 ; j<w->numpoints ; j++)
 		{
-			d = Vec3_DotProduct (w->p[j], plane->normal) - plane->dist;
+			d = DotProduct (w->p[j], plane->normal) - plane->dist;
 			if (d > max)
 			{
 				max = d;
@@ -1170,7 +1170,7 @@ void SplitBrush (bspbrush_t *brush, int planenum,
 			continue;
 		for (j=0 ; j<w->numpoints ; j++)
 		{
-			d = Vec3_DotProduct (w->p[j], plane->normal) - plane->dist;
+			d = DotProduct (w->p[j], plane->normal) - plane->dist;
 			if (d > 0 && d > d_front)
 				d_front = d;
 			if (d < 0 && d < d_back)
@@ -1738,7 +1738,7 @@ void BuildTree(tree_t *tree)
 	Log_Print("%6d threads max\n", numthreads);
 	if (use_nodequeue) Log_Print("breadth first bsp building\n");
 	else Log_Print("depth first bsp building\n");
-	qprintf("%6d splits", 0);
+	qprintf("%6d splits ", 0);
 	//add the first node to the list
 	AddNodeToList(tree->headnode);
 	//start the threads

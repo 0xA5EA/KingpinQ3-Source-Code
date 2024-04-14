@@ -757,7 +757,7 @@ void Info_Print(const char *s);
 
 void Com_BeginRedirect(char *buffer, int buffersize, void (*flush)(char *));
 void Com_EndRedirect(void);
-#ifndef BSPC
+#if 1 //ndef BSPC
 void QDECL Com_Printf(const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
 void QDECL Com_DPrintf(const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
 void QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
@@ -873,9 +873,7 @@ void *Z_MallocDebug(int size, char *label, char *file, int line);             //
 void *S_MallocDebug(int size, char *label, char *file, int line);             // returns 0 filled memory
 #else
 void *Z_TagMalloc(size_t size, int tag);                                         // NOT 0 filled memory
-#ifndef BSPC
 void *Z_Malloc(size_t size);                                                     // returns 0 filled memory
-#endif
 void *S_Malloc(size_t size);                                                     // NOT 0 filled memory only for small allocations
 #endif
 void Z_Free(void *ptr);

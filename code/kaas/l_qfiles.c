@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "qbsp.h"
-#include "../kaas/unzip.h"
 
 //file extensions with their type
 typedef struct qfile_exttype_s

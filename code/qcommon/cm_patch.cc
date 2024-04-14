@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cm_local.h"
 #include "cm_patch.h"
-#ifdef BSPC
+#if 0 //def BSPC
   #include "../kaas/be_aas_bspc.h"
   #include "../kaas/l_mem.h"
 #endif
@@ -683,6 +683,7 @@ static int CM_GridPlane(int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, 
   //FIXME (0xA5EA): getting ingame warnings from here, with kpq3dm5
   // should never happen
   //hypov8 ERRORS are now reported at the location of issues so it can be fixed
+  // note: issue was a patch control point places at mesh centre(0,0,0)
   Com_Printf("WARNING: CM_GridPlane unresolvable\n");
   return -1;
 }
@@ -705,7 +706,8 @@ static int CM_EdgePlaneNum(cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID
       p2 = grid->points[i + 1][j];
       p  = CM_GridPlane(gridPlanes, i, j, 0);
       //hypov8 report the location of errors. so issues can be fixed
-      if (p == -1) Com_Printf(" top %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
+      if (p == -1)
+        Com_Error(ERR_DROP, "CM_GridPlane: top %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
       VectorMA(p1, 4, planes[p].plane, up);
       return CM_FindPlane(p1, p2, up);
 
@@ -713,7 +715,8 @@ static int CM_EdgePlaneNum(cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID
       p1 = grid->points[i][j + 1];
       p2 = grid->points[i + 1][j + 1];
       p  = CM_GridPlane(gridPlanes, i, j, 1);
-      if (p == -1) Com_Printf(" bot %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
+      if (p == -1) 
+        Com_Error(ERR_DROP, "CM_GridPlane: bot %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
       VectorMA(p1, 4, planes[p].plane, up);
       return CM_FindPlane(p2, p1, up);
 
@@ -721,7 +724,8 @@ static int CM_EdgePlaneNum(cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID
       p1 = grid->points[i][j];
       p2 = grid->points[i][j + 1];
       p  = CM_GridPlane(gridPlanes, i, j, 1);
-      if (p == -1) Com_Printf(" left %f %f %f\n", grid->points[i][j][0], grid->points[i ][j][1], grid->points[i][j][2]);
+      if (p == -1) 
+        Com_Error(ERR_DROP, "CM_GridPlane: left %f %f %f\n", grid->points[i][j][0], grid->points[i ][j][1], grid->points[i][j][2]);
       VectorMA(p1, 4, planes[p].plane, up);
       return CM_FindPlane(p2, p1, up);
 
@@ -729,7 +733,8 @@ static int CM_EdgePlaneNum(cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID
       p1 = grid->points[i + 1][j];
       p2 = grid->points[i + 1][j + 1];
       p  = CM_GridPlane(gridPlanes, i, j, 0);
-      if (p == -1) Com_Printf(" right %f %f %f\n", grid->points[i][j][0], grid->points[i][j][1], grid->points[i][j][2]);
+      if (p == -1) 
+        Com_Error(ERR_DROP, "CM_GridPlane: right %f %f %f\n", grid->points[i][j][0], grid->points[i][j][1], grid->points[i][j][2]);
       VectorMA(p1, 4, planes[p].plane, up);
       return CM_FindPlane(p1, p2, up);
 
@@ -737,7 +742,8 @@ static int CM_EdgePlaneNum(cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID
       p1 = grid->points[i + 1][j + 1];
       p2 = grid->points[i][j];
       p  = CM_GridPlane(gridPlanes, i, j, 0);
-      if (p == -1) Com_Printf(" diag0 %f %f %f\n", grid->points[i + 1][j+1][0], grid->points[i + 1][j+1][1], grid->points[i + 1][j+1][2]);
+      if (p == -1) 
+        Com_Error(ERR_DROP, "CM_GridPlane: diag0 %f %f %f\n", grid->points[i + 1][j+1][0], grid->points[i + 1][j+1][1], grid->points[i + 1][j+1][2]);
       VectorMA(p1, 4, planes[p].plane, up);
       return CM_FindPlane(p1, p2, up);
 
@@ -745,9 +751,13 @@ static int CM_EdgePlaneNum(cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID
       p1 = grid->points[i][j];
       p2 = grid->points[i + 1][j + 1];
       p  = CM_GridPlane(gridPlanes, i, j, 1);
-      if (p == -1) Com_Printf(" diag1 %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
+      if (p == -1) 
+        Com_Error(ERR_DROP, "CM_GridPlane: diag1 %f %f %f\n", grid->points[i + 1][j][0], grid->points[i + 1][j][1], grid->points[i + 1][j][2]);
       VectorMA(p1, 4, planes[p].plane, up);
       return CM_FindPlane(p1, p2, up);
+
+    default:
+      break;
 
   }
 

@@ -20,23 +20,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef L_POLY_H
+#define L_POLY_H //hypov8 add. loaded twice in cm_... 
+
 //a winding gives the bounding points of a convex polygon
+#if 0 //hypov8 todo: use kass?
 #include "../qcommon/cm_polylib.h"
-#if 0
+#else
 typedef struct
 {
 	int		numpoints;
 	vec3_t	p[4];			//variable sized
 } winding_t;
 #endif
-#ifdef MAX_POINTS_ON_WINDING
-#undef MAX_POINTS_ON_WINDING
+//#ifdef MAX_POINTS_ON_WINDING
+//#undef MAX_POINTS_ON_WINDING
 #define	MAX_POINTS_ON_WINDING	96
-#endif
+//#endif
 
 //you can define on_epsilon in the makefile as tighter
 #ifndef	ON_EPSILON
-#define	ON_EPSILON	0.1
+#define	ON_EPSILON	0.1f
 #endif
 //winding errors
 #define WE_NONE						0
@@ -47,7 +51,7 @@ typedef struct
 #define WE_DEGENERATEEDGE			5
 #define WE_NONCONVEX					6
 
-#if 0
+#if 1
 //allocates a winding
 winding_t *AllocWinding (int points);
 //returns the area of the winding
@@ -142,3 +146,5 @@ int WindingError(winding_t *w);
 int WindingsNonConvex(winding_t *w1, winding_t *w2,
 							 vec3_t normal1, vec3_t normal2,
 							 float dist1, float dist2);
+
+#endif //L_POLY_H

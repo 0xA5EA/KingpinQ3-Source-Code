@@ -70,23 +70,24 @@ int MemorySize(void *ptr)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void *KAAS_GetClearedMemory(int size)
+void *GetClearedMemory(size_t size)
 {
 	void *ptr;
 
 	ptr = (void *) malloc(size);
-	if (!ptr) Error("out of memory");
+	if (!ptr) 
+		Error("out of memory");
 	memset(ptr, 0, size);
 	allocedmemory += MemorySize(ptr);
 	return ptr;
-} //end of the function KAAS_GetClearedMemory
+} //end of the function GetClearedMemory
 //===========================================================================
 //
 // Parameter:				-
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void *KAAS_GetMemory(unsigned long size)
+void *GetMemory(size_t size)
 {
 	void *ptr;
 	ptr = malloc(size);
@@ -100,11 +101,11 @@ void *KAAS_GetMemory(unsigned long size)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void KAAS_FreeMemory(void *ptr)
+void FreeMemory(void *ptr)
 {
 	allocedmemory -= MemorySize(ptr);
 	free(ptr);
-} //end of the function KAAS_FreeMemory
+} //end of the function FreeMemory
 //===========================================================================
 //
 // Parameter:				-
@@ -202,7 +203,7 @@ void *GetMemory(unsigned long size)
 #ifdef MEMDEBUG
 void *GetClearedMemoryDebug(unsigned long size, char *label, char *file, int line)
 #else
-void *KAAS_GetClearedMemory(unsigned long size)
+void *GetClearedMemory(size_t size)
 #endif //MEMDEBUG
 {
 	void *ptr;
@@ -222,7 +223,7 @@ void *KAAS_GetClearedMemory(unsigned long size)
 //===========================================================================
 void *GetClearedHunkMemory(unsigned long size)
 {
-	return KAAS_GetClearedMemory(size);
+	return GetClearedMemory(size);
 } //end of the function GetClearedHunkMemory
 //===========================================================================
 //
@@ -250,7 +251,7 @@ memoryblock_t *BlockFromPointer(void *ptr, char *str)
 		//char *crash = (char *) NULL;
 		//crash[0] = 1;
 		Error("%s: NULL pointer\n", str);
-#endif MEMDEBUG
+#endif
 		return NULL;
 	} //end if
 	block = (memoryblock_t *) ((char *) ptr - sizeof(memoryblock_t));
@@ -271,7 +272,7 @@ memoryblock_t *BlockFromPointer(void *ptr, char *str)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void KAAS_FreeMemory(void *ptr)
+void FreeMemory(void *ptr)
 {
 	memoryblock_t *block;
 
@@ -282,7 +283,7 @@ void KAAS_FreeMemory(void *ptr)
 	numblocks--;
 	//
 	free(block);
-} //end of the function KAAS_FreeMemory
+} //end of the function FreeMemory
 //===========================================================================
 //
 // Parameter:				-
@@ -351,7 +352,7 @@ void DumpMemory(void)
 
 	for (block = memory; block; block = memory)
 	{
-		KAAS_FreeMemory(block->ptr);
+		FreeMemory(block->ptr);
 	} //end for
 	totalmemorysize = 0;
 } //end of the function DumpMemory
@@ -395,7 +396,7 @@ void Hunk_ClearHigh(void)
 	for (h = memhunk_high; h; h = nexth)
 	{
 		nexth = h->next;
-		KAAS_FreeMemory(h);
+		FreeMemory(h);
 	} //end for
 	memhunk_high = NULL;
 	memhunk_high_size = 16 * 1024 * 1024;
@@ -406,30 +407,30 @@ void Hunk_ClearHigh(void)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-#if 1 //hypov8 in qcommon\common.cc
-void *KAAS_Hunk_Alloc(int size)
+void *Hunk_Alloc(size_t size, ha_pref preference)
 {
 	memhunk_t *h;
+	ha_pref tmp = preference; //unused
 
 	if (!size) return (void *) memhunk_high_size;
 	//
-	h = (memhunk_t*)KAAS_GetClearedMemory(size + sizeof(memhunk_t));
+	h = (memhunk_t*)GetClearedMemory(size + sizeof(memhunk_t));
 	h->ptr = (char *) h + sizeof(memhunk_t);
 	h->next = memhunk_high;
 	memhunk_high = h;
 	memhunk_high_size -= size;
 	return h->ptr;
 } //end of the function Hunk_Alloc
-#endif
+
 //===========================================================================
 //
 // Parameter:				-
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void *KAAS_Z_Malloc(int size)
+void *Z_Malloc(size_t size)
 {
-	return KAAS_GetClearedMemory(size);
+	return GetClearedMemory(size);
 } //end of the function Z_Malloc
 //===========================================================================
 //
@@ -437,7 +438,7 @@ void *KAAS_Z_Malloc(int size)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void KAAS_Z_Free (void *ptr)
+void Z_Free (void *ptr)
 {
-	KAAS_FreeMemory(ptr);
+	FreeMemory(ptr);
 } //end of the function Z_Free

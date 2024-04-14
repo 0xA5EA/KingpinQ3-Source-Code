@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 // surface geometry should not exceed these limits
-#define	SHADER_MAX_VERTEXES	100000
+#define	SHADER_MAX_VERTEXES	10000 //0 //hypov8 match engine
 #define	SHADER_MAX_INDEXES	(SHADER_MAX_VERTEXES * 6)
 #define SHADER_MAX_TRIANGLES (SHADER_MAX_INDEXES / 3)
 

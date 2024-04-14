@@ -146,6 +146,15 @@ void AAS_AllocMaxAAS(void)
 	int i;
 
 	AAS_InitMaxAAS();
+#if 1 //hypov8: changed to pointer to fix debugger not showing values
+	aasworld.filename = (char *)GetClearedMemory(MAX_PATH * sizeof(char));
+	allocatedaasmem += MAX_PATH * sizeof(char);
+
+	aasworld.mapname = (char *)GetClearedMemory(MAX_PATH * sizeof(char));
+	allocatedaasmem += MAX_PATH * sizeof(char);
+#endif
+
+
 	//bounding boxes
 	aasworld.numbboxes = 0;
 	aasworld.bboxes = (aas_bbox_t *) GetClearedMemory(max_aas.max_bboxes * sizeof(aas_bbox_t));
@@ -211,14 +220,20 @@ void AAS_AllocMaxAAS(void)
 	aas_planechain = (int *) GetClearedMemory(max_aas.max_planes * sizeof(int));
 	aas_edgechain = (int *) GetClearedMemory(max_aas.max_edges * sizeof(int));
 	//
-	for (i = 0; i < max_aas.max_vertexes; i++) aas_vertexchain[i] = -1;
-	for (i = 0; i < VERTEX_HASH_SIZE * VERTEX_HASH_SIZE; i++) aas_hashverts[i] = -1;
+	for (i = 0; i < max_aas.max_vertexes; i++) 
+		aas_vertexchain[i] = -1;
+	for (i = 0; i < VERTEX_HASH_SIZE * VERTEX_HASH_SIZE; i++) 
+		aas_hashverts[i] = -1;
 	//
-	for (i = 0; i < max_aas.max_planes; i++) aas_planechain[i] = -1;
-	for (i = 0; i < PLANE_HASH_SIZE; i++) aas_hashplanes[i] = -1;
+	for (i = 0; i < max_aas.max_planes; i++) 
+		aas_planechain[i] = -1;
+	for (i = 0; i < PLANE_HASH_SIZE; i++) 
+		aas_hashplanes[i] = -1;
 	//
-	for (i = 0; i < max_aas.max_edges; i++) aas_edgechain[i] = -1;
-	for (i = 0; i < EDGE_HASH_SIZE; i++) aas_hashedges[i] = -1;
+	for (i = 0; i < max_aas.max_edges; i++) 
+		aas_edgechain[i] = -1;
+	for (i = 0; i < EDGE_HASH_SIZE; i++) 
+		aas_hashedges[i] = -1;
 } //end of the function AAS_AllocMaxAAS
 //===========================================================================
 //
@@ -391,7 +406,7 @@ qboolean AAS_GetVertex(vec3_t v, int *vnum)
 	{
 		Error("AAS_MAX_VERTEXES = %d", max_aas.max_vertexes);
 	} //end if
-	Vec3_Copy(vert, aasworld.vertexes[aasworld.numvertexes]);
+	VectorCopy(vert, aasworld.vertexes[aasworld.numvertexes]);
 	*vnum = aasworld.numvertexes;
 
 #ifdef VERTEX_HASHING
@@ -696,12 +711,12 @@ qboolean AAS_GetPlane(vec3_t normal, vec_t dist, int *planenum)
 
 #ifdef STOREPLANESDOUBLE
 	plane = &aasworld.planes[aasworld.numplanes];
-	Vec3_Copy(normal, plane->normal);
+	VectorCopy(normal, plane->normal);
 	plane->dist = dist;
 	plane->type = (plane+1)->type = PlaneTypeForNormal(plane->normal);
 
-	Vec3_Copy(normal, (plane+1)->normal);
-	Vec3_Negate((plane+1)->normal, (plane+1)->normal);
+	VectorCopy(normal, (plane+1)->normal);
+	VectorNegate((plane+1)->normal, (plane+1)->normal);
 	(plane+1)->dist = -dist;
 
 	aasworld.numplanes += 2;
@@ -726,7 +741,7 @@ qboolean AAS_GetPlane(vec3_t normal, vec_t dist, int *planenum)
 	return qfalse;
 #else
 	plane = &aasworld.planes[aasworld.numplanes];
-	Vec3_Copy(normal, plane->normal);
+	VectorCopy(normal, plane->normal);
 	plane->dist = dist;
 	plane->type = AAS_PlaneTypeForNormal(normal);
 
@@ -931,7 +946,7 @@ int AAS_StoreArea(tmp_area_t *tmparea)
 	aasarea->numfaces = 0;
 	aasarea->firstface = aasworld.faceindexsize;
 	ClearBounds(aasarea->mins, aasarea->maxs);
-	Vec3_Clear(aasarea->center);
+	VectorClear(aasarea->center);
 	//
 //	Log_Write("tmparea %d became aasarea %d\r\n", tmparea->areanum, aasarea->areanum);
 	//store the aas area number at the tmp area
@@ -977,19 +992,19 @@ int AAS_StoreArea(tmp_area_t *tmparea)
 		} //end else
 		//add face points to the area bounds and
 		//calculate the face 'center'
-		Vec3_Clear(facecenter);
+		VectorClear(facecenter);
 		for (edgenum = 0; edgenum < aasface->numedges; edgenum++)
 		{
 			edge = &aasworld.edges[abs(aasworld.edgeindex[aasface->firstedge + edgenum])];
 			for (i = 0; i < 2; i++)
 			{
 				AddPointToBounds(aasworld.vertexes[edge->v[i]], aasarea->mins, aasarea->maxs);
-				Vec3_Add(aasworld.vertexes[edge->v[i]], facecenter, facecenter);
+				VectorAdd(aasworld.vertexes[edge->v[i]], facecenter, facecenter);
 			} //end for
 		} //end for
-		Vec3_Scale(facecenter, 1.0 / (aasface->numedges * 2.0), facecenter);
+		VectorScale(facecenter, 1.0 / (aasface->numedges * 2.0), facecenter);
 		//add the face 'center' to the area 'center'
-		Vec3_Add(aasarea->center, facecenter, aasarea->center);
+		VectorAdd(aasarea->center, facecenter, aasarea->center);
 		//
 		if (aasworld.faceindexsize >= max_aas.max_faceindexsize)
 		{
@@ -1001,7 +1016,7 @@ int AAS_StoreArea(tmp_area_t *tmparea)
 	//if the area has no faces at all (return 0, = solid leaf)
 	if (!aasarea->numfaces) return 0;
 	//
-	Vec3_Scale(aasarea->center, 1.0 / aasarea->numfaces, aasarea->center);
+	VectorScale(aasarea->center, 1.0 / aasarea->numfaces, aasarea->center);
 	//Log_Write("area %d center %f %f %f\r\n", aasworld.numareas,
 	//				aasarea->center[0], aasarea->center[1], aasarea->center[2]);
 	//store the area settings
@@ -1026,12 +1041,15 @@ int AAS_StoreTree_r(tmp_node_t *tmpnode)
 	aas_node_t *aasnode;
 
 	//if it is a solid leaf
-	if (!tmpnode) return 0;
+	if (!tmpnode) 
+	  return 0;
 	//negative so it's an area
-	if (tmpnode->tmparea) return AAS_StoreArea(tmpnode->tmparea);
+	if (tmpnode->tmparea) 
+	  return AAS_StoreArea(tmpnode->tmparea);
 	//it's another node
 	//the first node is a dummy
-	if (aasworld.numnodes == 0) aasworld.numnodes = 1;
+	if (aasworld.numnodes == 0) 
+		aasworld.numnodes = 1;
 	if (aasworld.numnodes >= max_aas.max_nodes)
 	{
 		Error("AAS_MAX_NODES = %d", max_aas.max_nodes);

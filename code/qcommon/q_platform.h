@@ -19,6 +19,7 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 #ifndef __Q_PLATFORM_H
 #define __Q_PLATFORM_H
 
@@ -37,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define idppc_altivec 0
 #define idsparc 0
 
-#else
+#else // !Q3_VM
 
 #if (defined _M_IX86 || defined __i386__) && !defined(C_ONLY)
 #define id386 1

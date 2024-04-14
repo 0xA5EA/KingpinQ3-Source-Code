@@ -532,7 +532,7 @@ bspbrush_t *MakeBspBrushList(int startbrush, int endbrush,
 
 	for (i=0 ; i<2 ; i++)
 	{
-		Vec3_Clear (normal);
+		VectorClear (normal);
 		normal[i] = 1;
 		dist = clipmaxs[i];
 		maxplanenums[i] = FindFloatPlane(normal, dist);
@@ -583,8 +583,8 @@ bspbrush_t *MakeBspBrushList(int startbrush, int endbrush,
 			if (newbrush->sides[j].surf & SURF_HINT)
 				newbrush->sides[j].flags |= SFL_VISIBLE;	// hints are always visible
 		}
-		Vec3_Copy (mb->mins, newbrush->mins);
-		Vec3_Copy (mb->maxs, newbrush->maxs);
+		VectorCopy (mb->mins, newbrush->mins);
+		VectorCopy (mb->maxs, newbrush->maxs);
 
 		//
 		// carve off anything outside the clip box
@@ -976,8 +976,8 @@ tree_t *ProcessWorldBrushes(int brush_start, int brush_end)
 
 		tree = Tree_Alloc();
 		tree->headnode = node;
-		Vec3_Copy(mins, tree->mins);
-		Vec3_Copy(maxs, tree->maxs);
+		VectorCopy(mins, tree->mins);
+		VectorCopy(maxs, tree->maxs);
 	} //end if
 	else
 	{

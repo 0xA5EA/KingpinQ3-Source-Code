@@ -24,15 +24,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CM_POLYLIB_H
 
 // this is only used for visualization tools in cm_ debug functions
-
+#ifdef BSPC //hypov8 use kass
+#include "../kaas/l_poly.h"
+#else
 typedef struct
 {
 	int numpoints;
 	vec3_t p[4];      // variable sized
 } winding_t;
-	
+
 	
 #define MAX_POINTS_ON_WINDING 64
+#endif
 
 #if 0
 #define SIDE_FRONT 0

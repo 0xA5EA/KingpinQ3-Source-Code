@@ -157,7 +157,7 @@ int AAS_TestSplitPlane(tmp_area_t *tmparea, vec3_t normal, float dist,
 		front = back = 0;
 		for (j = 0; j < w->numpoints; j++)
 		{
-			d = Vec3_DotProduct(w->p[j], normal) - dist;
+			d = DotProduct(w->p[j], normal) - dist;
 			if (d > d_front) d_front = d;
 			if (d < d_back) d_back = d;
 
@@ -334,8 +334,8 @@ int AAS_FindBestAreaSplitPlane(tmp_area_t *tmparea, vec3_t normal, float *dist)
 	float tmpdist;
 
 	//get inverse of gravity direction
-	Vec3_Copy(cfg.phys_gravitydirection, invgravity);
-	Vec3_Inverse(invgravity);
+	VectorCopy(cfg.phys_gravitydirection, invgravity);
+	VectorInverse(invgravity);
 
 	foundsplitter = qfalse;
 	bestvalue = -999999;
@@ -394,7 +394,7 @@ int AAS_FindBestAreaSplitPlane(tmp_area_t *tmparea, vec3_t normal, float *dist)
 			value += epsilonfaces * -1000;
 			if (value > bestvalue)
 			{
-				Vec3_Copy(tmpnormal, normal);
+				VectorCopy(tmpnormal, normal);
 				*dist = tmpdist;
 				bestvalue = value;
 				bestepsilonfaces = epsilonfaces;
@@ -554,7 +554,7 @@ tmp_node_t *AAS_LadderSubdivideArea_r(tmp_node_t *tmpnode)
 		{
 			plane = &mapplanes[face1->planenum];
 			//the ladder face plane should be pretty much vertical
-			if (Vec3_DotProduct(plane->normal, normal) > -0.1)
+			if (DotProduct(plane->normal, normal) > -0.1)
 			{
 				foundladderface = qtrue;
 				//find lowest point
@@ -562,7 +562,7 @@ tmp_node_t *AAS_LadderSubdivideArea_r(tmp_node_t *tmpnode)
 				{
 					if (face1->winding->p[i][2] < lowestpoint[2])
 					{
-						Vec3_Copy(face1->winding->p[i], lowestpoint);
+						VectorCopy(face1->winding->p[i], lowestpoint);
 					} //end if
 				} //end for
 			} //end if
@@ -584,7 +584,7 @@ tmp_node_t *AAS_LadderSubdivideArea_r(tmp_node_t *tmpnode)
 		//the ground plane
 		plane = &mapplanes[face1->planenum];
 		//get the difference between the ground plane and the lowest point
-		dist = Vec3_DotProduct(plane->normal, lowestpoint) - plane->dist;
+		dist = DotProduct(plane->normal, lowestpoint) - plane->dist;
 		//if the lowest point is very near one of the ground planes
 		if (dist > -1 && dist < 1)
 		{
@@ -592,7 +592,7 @@ tmp_node_t *AAS_LadderSubdivideArea_r(tmp_node_t *tmpnode)
 		} //end if
 	} //end for
 	//
-	dist = Vec3_DotProduct(normal, lowestpoint);
+	dist = DotProduct(normal, lowestpoint);
 	planenum = FindFloatPlane(normal, dist);
 	//
 	w = AAS_SplitWinding(tmparea, planenum);

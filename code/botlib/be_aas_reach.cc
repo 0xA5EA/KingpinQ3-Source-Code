@@ -3593,7 +3593,7 @@ void AAS_Reachability_JumpPad(void)
 		botimport.Print(PRT_MESSAGE, "absmaxs = %f %f %f\n", absmaxs[0], absmaxs[1], absmaxs[2]);
 #endif REACH_DEBUG
 		VectorAdd(absmins, absmaxs, origin);
-		Vec3_Scale (origin, 0.5, origin);
+		VectorScale (origin, 0.5, origin);
 
 		//get the start areas
 		VectorCopy(origin, teststart);
@@ -3635,7 +3635,7 @@ void AAS_Reachability_JumpPad(void)
 			continue;
 		} //end if
 		// set s.origin2 to the push velocity
-		Vec3_Subtract ( ent2origin, origin, velocity);
+		VectorSubtract ( ent2origin, origin, velocity);
 		dist = VectorNormalize( velocity);
 		forward = dist / time;
 		//FIXME: why multiply by 1.1

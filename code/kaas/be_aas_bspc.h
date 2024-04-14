@@ -25,5 +25,5 @@ void AAS_CalcReachAndClusters(struct quakefile_s *qf);
 void AAS_InitBotImport(void);
 //void Com_Memcpy2 (void* dest, const void* src, const size_t count);
 //void Com_Memset2 (void* dest, const int val, const size_t count);
-void KAAS_Com_DPrintf(char *fmt, ...);  //hypov8
+void Com_DPrintf(const char *fmt, ...);  //hypov8
 #endif // BE_AAS_BSPC_H_

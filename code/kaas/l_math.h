@@ -28,8 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define USE_Q_SHARED
 #ifdef USE_Q_SHARED
-//#include "../qcommon/q_platform.h"
-//#include "../qcommon/q_shared.h"
+#include "../qcommon/q_platform.h" //hypov8 re-enable
+#include "../qcommon/q_shared.h" //hypov8 re-enable
+#include "../qcommon/q_math.h"
 
 #define BSPC_SIDE_FRONT   0
 #define BSPC_SIDE_ON      2
@@ -104,13 +105,13 @@ qboolean lVectorCompare (vec3_t v1, vec3_t v2);
 #define DotProduct(x,y)			(x[0]*y[0]+x[1]*y[1]+x[2]*y[2])
 #define VectorSubtract(a,b,c)	{c[0]=a[0]-b[0];c[1]=a[1]-b[1];c[2]=a[2]-b[2];}
 #define VectorAdd(a,b,c)		{c[0]=a[0]+b[0];c[1]=a[1]+b[1];c[2]=a[2]+b[2];}
-#ifndef Vec3_Copy
+#ifndef VectorCopy
 #define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
 #endif
 #define Vector4Copy(a,b)		{b[0]=a[0];b[1]=a[1];b[2]=a[2];b[3]=a[3];}
 #define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
 //#define VectorClear(x)			{x[0] = x[1] = x[2] = 0;}
-#define Vec3_Clear(a)			((a)[0]=(a)[1]=(a)[2]=0)
+#define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
 #define VectorNegate(x, y)		{y[0]=-x[0];y[1]=-x[1];y[2]=-x[2];}
 #define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
 

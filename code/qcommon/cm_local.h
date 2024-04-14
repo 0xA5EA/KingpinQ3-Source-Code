@@ -24,13 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CM_LOCAL_H_
 
 #include "q_shared.h"
-
-#ifdef BSPC
-#include "../kaas/l_math.h"
-#endif
-
 #include "qcommon.h"
 #include "cm_polylib.h"
+
+#ifdef BSPC
+//#include "../kaas/l_math.h"
+#endif
 
 #define	MAX_SUBMODELS			MAX_MODELS	// was 256
 #define	BOX_MODEL_HANDLE		(MAX_SUBMODELS -1)	// was 255

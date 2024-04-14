@@ -81,9 +81,9 @@ vec_t BoxOriginDistanceFromPlane(vec3_t normal, vec3_t mins, vec3_t maxs, int si
 			else v1[i] = 0;
 		} //end for
 	} //end else
-	Vec3_Copy(normal, v2);
-	Vec3_Inverse(v2);
-	return Vec3_DotProduct(v1, v2);
+	VectorCopy(normal, v2);
+	VectorInverse(v2);
+	return DotProduct(v1, v2);
 } //end of the function BoxOriginDistanceFromPlane
 //===========================================================================
 //
@@ -301,7 +301,7 @@ void AAS_FixMapBrush(mapbrush_t *brush)
 	{
 		if (brush->mins[i] < -MAX_MAP_BOUNDS)
 		{
-			Vec3_Clear(normal);
+			VectorClear(normal);
 			normal[i] = -1;
 			dist = MAX_MAP_BOUNDS - 10;
 			planenum = FindFloatPlane(normal, dist);
@@ -311,7 +311,7 @@ void AAS_FixMapBrush(mapbrush_t *brush)
 		} //end if
 		if (brush->maxs[i] > MAX_MAP_BOUNDS)
 		{
-			Vec3_Clear(normal);
+			VectorClear(normal);
 			normal[i] = 1;
 			dist = MAX_MAP_BOUNDS - 10;
 			planenum = FindFloatPlane(normal, dist);
@@ -584,10 +584,10 @@ int AAS_TransformPlane(int planenum, vec3_t origin, vec3_t angles)
 	vec3_t normal;
 
 	//rotate the node plane
-	Vec3_Copy(mapplanes[planenum].normal, normal);
+	VectorCopy(mapplanes[planenum].normal, normal);
 	CreateRotationMatrix(angles, matrix);
 	RotatePoint(normal, matrix);
-	newdist = mapplanes[planenum].dist + Vec3_DotProduct(normal, origin);
+	newdist = mapplanes[planenum].dist + DotProduct(normal, origin);
 	return FindFloatPlane(normal, newdist);
 } //end of the function AAS_TransformPlane
 //===========================================================================
@@ -605,7 +605,7 @@ void AAS_PositionFuncRotatingBrush(entity_t *mapent, mapbrush_t *brush)
 	side_t *s;
 
 	spawnflags = FloatForKey(mapent, "spawnflags");
-	Vec3_Clear(movedir);
+	VectorClear(movedir);
 	if (spawnflags & DOOR_X_AXIS)
 		movedir[2] = 1.0;		//roll
 	else if (spawnflags & DOOR_Y_AXIS)
@@ -615,21 +615,21 @@ void AAS_PositionFuncRotatingBrush(entity_t *mapent, mapbrush_t *brush)
 
 	// check for reverse rotation
 	if (spawnflags & DOOR_REVERSE)
-		Vec3_Inverse(movedir);
+		VectorInverse(movedir);
 
 	distance = FloatForKey(mapent, "distance");
 	if (!distance) distance = 90;
 
 	GetVectorForKey(mapent, "angles", angles);
-	Vec3_Copy(angles, pos1);
-	Vec3_MA(angles, -distance, movedir, pos2);
+	VectorCopy(angles, pos1);
+	VectorMA(angles, -distance, movedir, pos2);
 	// if it starts open, switch the positions
 	if (spawnflags & DOOR_START_OPEN)
 	{
-		Vec3_Copy(pos2, angles);
-		Vec3_Copy(pos1, pos2);
-		Vec3_Copy(angles, pos1);
-		Vec3_Inverse(movedir);
+		VectorCopy(pos2, angles);
+		VectorCopy(pos1, pos2);
+		VectorCopy(angles, pos1);
+		VectorInverse(movedir);
 	} //end if
 	//
 	for (i = 0; i < brush->numsides; i++)
@@ -668,7 +668,7 @@ void AAS_PositionBrush(entity_t *mapent, mapbrush_t *brush)
 			{
 				s = &brush->original_sides[i];
 				newdist = mapplanes[s->planenum].dist +
-						Vec3_DotProduct(mapplanes[s->planenum].normal, mapent->origin);
+						DotProduct(mapplanes[s->planenum].normal, mapent->origin);
 				s->planenum = FindFloatPlane(mapplanes[s->planenum].normal, newdist);
 			} //end for
 		} //end if

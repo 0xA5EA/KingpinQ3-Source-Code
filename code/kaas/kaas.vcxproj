@@ -88,7 +88,8 @@
     </ClInclude>
     <ClInclude Include="..\qcommon\cm_patch.h" />
     <ClInclude Include="..\qcommon\cm_polylib.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\qcommon\cm_public.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -100,8 +101,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\qcommon\q_mathsse.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\qcommon\q_platform.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -172,11 +173,14 @@
     <ClCompile Include="..\qcommon\cm_load.cc" />
     <ClCompile Include="..\qcommon\cm_patch.cc" />
     <ClCompile Include="..\qcommon\cm_polylib.cc">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\qcommon\cm_test.cc" />
     <ClCompile Include="..\qcommon\cm_trace.cc" />
-    <ClCompile Include="..\qcommon\cm_trisoup.cc" />
+    <ClCompile Include="..\qcommon\cm_trisoup.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\qcommon\common.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -192,6 +196,8 @@
     </ClCompile>
     <ClCompile Include="..\qcommon\q_shared.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="aas_areamerging.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
@@ -342,6 +348,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4E4EBC16-F345-4667-84E1-86633BAFDAE6}</ProjectGuid>
     <RootNamespace>kaas</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -377,6 +384,7 @@
     <IntDir>..\..\build\debug-win32\kaas\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <TargetName>$(ProjectName).x86</TargetName>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\build\release-win32\</OutDir>
@@ -405,8 +413,9 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <StringPooling>true</StringPooling>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
       <AdditionalIncludeDirectories>..\..\code\qcommon;..\..\code\botlib;..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -424,8 +433,9 @@
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(IntDir)kaas.map</MapFileName>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDL.lib;OpenGL32.lib;glew.lib;alibcof32.lib;psapi.lib;libvorbisfile.lib;libvorbis.lib;libpng14.lib;libogg.lib;libtheora.lib;freetype244MT.lib;msvcrt.lib;zlib1.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <AssemblyDebug>true</AssemblyDebug>
     </Link>
     <PostBuildEvent>
       <Command>rem bash -c "perl ./unix/cons -- release-TA"
@@ -443,7 +453,7 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;BSPC;_CRT_SECURE_NO_WARNINGS;RNDER_EXTENDED;_CRT_SECURE_NO_DEPRECATE;USE_LOCAL_HEADERS;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
       <PrecompiledHeaderOutputFile>$(IntDir)kaas.pch</PrecompiledHeaderOutputFile>
@@ -457,7 +467,7 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
       <ShowIncludes>false</ShowIncludes>
       <RuntimeTypeInfo>
       </RuntimeTypeInfo>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\code\qcommon;..\..\code\botlib;..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -480,9 +490,11 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
       <MapFileName>$(IntDir)kaas.map</MapFileName>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
-      <DataExecutionPrevention />
+      <DataExecutionPrevention>true</DataExecutionPrevention>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <MapExports>true</MapExports>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>false</AssemblyDebug>
     </Link>
     <PostBuildEvent>
       <Command>rem bash -c "perl ./unix/cons -- release-TA"

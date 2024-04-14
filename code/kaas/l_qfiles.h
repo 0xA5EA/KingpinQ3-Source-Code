@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "../kaas/unzip.h"
+#include "l_utils.h"
 
 #define QFILETYPE_UNKNOWN			0x8000
 //#define QFILETYPE_PAK				0x0001

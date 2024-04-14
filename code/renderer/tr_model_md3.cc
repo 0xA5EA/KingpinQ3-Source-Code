@@ -86,6 +86,11 @@ qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, int bufferSize, const c
 	int            version;
 	int            size;
 
+#if defined(COMPAT_KPQ3)
+	//use frame dimensions for scale(reduce wobbles)
+	qboolean isHd = qfalse;
+#endif
+
 	md3Model = ( md3Header_t * ) buffer;
 
 	version = LittleLong( md3Model->version );
@@ -95,7 +100,14 @@ qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, int bufferSize, const c
 		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has wrong version (%i should be %i)\n", modName, version, MD3_VERSION );
 		return qfalse;
 	}
-
+#if defined(COMPAT_KPQ3)
+	//use frame dimensions for scale(reduce wobbles)
+	//memcompare
+	if (md3Model->name[59] == 'K' && md3Model->name[60] == 'P' &&
+		md3Model->name[61] == 'Q' && md3Model->name[62] == '3'
+	) //0x00 4b 50 51 33 00 'KPQ3'
+		isHd = qtrue;
+#endif
 	mod->type = MOD_MESH;
 	size = LittleLong( md3Model->ofsEnd );
 	mod->dataSize += size;
@@ -242,7 +254,8 @@ qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, int bufferSize, const c
 		// only consider the first shader
 		md3Shader = ( md3Shader_t * )( ( byte * ) md3Surf + md3Surf->ofsShaders );
 		surf->shader = R_FindShader( md3Shader->name, SHADER_3D_DYNAMIC, RSF_DEFAULT );
-#if HYPODEBUG
+
+#if HYPODEBUG //default for debug/developer?
 		if (surf->shader->defaultShader) //hypov8 add. show the model with invalid textures
 		{
 			surf->shader = R_FindShader("_white", SHADER_3D_DYNAMIC, RSF_DEFAULT);
@@ -268,11 +281,46 @@ qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, int bufferSize, const c
 
 		md3xyz = ( md3XyzNormal_t * )( ( byte * ) md3Surf + md3Surf->ofsXyzNormals );
 
+		frame = mdvModel->frames;
 		for ( j = 0; j < md3Surf->numVerts * md3Surf->numFrames; j++, md3xyz++, v++ )
 		{
-			v->xyz[ 0 ] = LittleShort( md3xyz->xyz[ 0 ] ) * MD3_XYZ_SCALE;
-			v->xyz[ 1 ] = LittleShort( md3xyz->xyz[ 1 ] ) * MD3_XYZ_SCALE;
-			v->xyz[ 2 ] = LittleShort( md3xyz->xyz[ 2 ] ) * MD3_XYZ_SCALE;
+#if defined(COMPAT_KPQ3)
+			if (isHd)
+			{
+				double scH = 32768.0;
+				//calculate scale. not stored in model like md2.
+				double scale[3] = { //todo move this. not needed every vert
+					(frame->bounds[1][0] - frame->bounds[0][0]) / 65535.0,
+					(frame->bounds[1][1] - frame->bounds[0][1]) / 65535.0,
+					(frame->bounds[1][2] - frame->bounds[0][2]) / 65535.0
+				};
+
+				//get vert locations. convert to unsigned int for +scale
+				v->xyz[0] = LittleShort(md3xyz->xyz[0]) + scH;
+				v->xyz[1] = LittleShort(md3xyz->xyz[1]) + scH;
+				v->xyz[2] = LittleShort(md3xyz->xyz[2]) + scH;
+
+				//add scale.
+				v->xyz[0] *= scale[0];
+				v->xyz[1] *= scale[1];
+				v->xyz[2] *= scale[2];
+
+				//relocate to objects origin
+				v->xyz[0] += frame->bounds[0][0];
+				v->xyz[1] += frame->bounds[0][1];
+				v->xyz[2] += frame->bounds[0][2];
+
+				//next frame
+				if (((j+1) % md3Surf->numVerts) == 0)
+					frame++;
+			}
+			else
+#endif
+			{
+				v->xyz[0] = LittleShort(md3xyz->xyz[0]) * MD3_XYZ_SCALE;
+				v->xyz[1] = LittleShort(md3xyz->xyz[1]) * MD3_XYZ_SCALE;
+				v->xyz[2] = LittleShort(md3xyz->xyz[2]) * MD3_XYZ_SCALE;
+			}
 		}
 
 		// swap all the ST

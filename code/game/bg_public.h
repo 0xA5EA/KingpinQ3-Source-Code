@@ -243,6 +243,7 @@ typedef enum
   WEAPON_FIRING,
   WEAPON_RELOADING,
   WEAPON_RELOAD_MOD, //reload shotty mod.
+  //WEAPON_FIRE_MOD, //cooldown. ROF
   //hypov8 todo: add silencer, mods etc..
   MAX_WEAPON_STATES,
   WEAPON_HM_LOCK
@@ -505,8 +506,8 @@ typedef enum
 #define WP_TIME_FIRE_MACHINEGUN         (1*100)
 #define WP_TIME_FIRE_GRENADE_LAUNCHER   ((4+8)*100) //fire + cycle mag
 #define WP_TIME_FIRE_ROCKET_LAUNCHER    (8*100)
-#define WP_TIME_FIRE_HMG                (2*100)
-#define WP_TIME_FIRE_HMG_LAST           (12*100)
+#define WP_TIME_FIRE_HMG_FULL           (12*100) //anim broken into 1/3 sections(3x shoot, cooldown1, cooldown2)
+#define WP_TIME_FIRE_HMG_3RD            (int)(WP_TIME_FIRE_HMG_FULL/3)
 #define WP_TIME_FIRE_FLAMEGUN           (1*100)
 #define WP_TIME_FIRE_GRAPPLING_HOOK     (4*100)
 
@@ -520,7 +521,7 @@ typedef enum
 #define WP_TIME_RELOAD_FLAMEGUN         (14*100)
 
 //WEAPON_RAISING || WEAPON_DROPPING
-#define WP_TIME_CHANGE_GUNS             500
+#define WP_TIME_CHANGE_GUNS             500 //hypov8 note: check mplayer speeds...
 #define WP_TIME_CHANGE_MELEE            250
 
 //WEAPON_RELOAD_MOD                     //shotty needs to <startReload> <reload> <finishReload>
@@ -639,8 +640,8 @@ typedef enum
   EV_FIRE_WEAPON,
   EV_FIRE_SHOTGUN, // add hypov8
   EV_FIRE_SPISTOL, //add hypov8
-  EV_FIRE_HMG_SHOT,
   EV_FIRE_CROWBAR, //hypov8 add
+  //EV_FIRE_COOLDOWN, //hypov8 todo. for weps with speed mods
 
   EV_RELOAD_WEAPON,
   EV_RELOAD_SHOTGUN, // add hypov8 shotgun reload sequence

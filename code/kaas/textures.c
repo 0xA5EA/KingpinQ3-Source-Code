@@ -96,7 +96,7 @@ void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv)
 	
 	for (i=0 ; i<6 ; i++)
 	{
-		dot = Vec3_DotProduct (pln->normal, baseaxis[i*3]);
+		dot = DotProduct (pln->normal, baseaxis[i*3]);
 		if (dot > best)
 		{
 			best = dot;
@@ -104,8 +104,8 @@ void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv)
 		}
 	}
 	
-	Vec3_Copy (baseaxis[bestaxis*3+1], xv);
-	Vec3_Copy (baseaxis[bestaxis*3+2], yv);
+	VectorCopy (baseaxis[bestaxis*3+1], xv);
+	VectorCopy (baseaxis[bestaxis*3+2], yv);
 } //end of the function TextureAxisFromPlane
 //===========================================================================
 //
@@ -134,8 +134,8 @@ int TexinfoForBrushTexture(plane_t *plane, brush_texture_t *bt, vec3_t origin)
 
 	TextureAxisFromPlane(plane, vecs[0], vecs[1]);
 
-	shift[0] = Vec3_DotProduct (origin, vecs[0]);
-	shift[1] = Vec3_DotProduct (origin, vecs[1]);
+	shift[0] = DotProduct (origin, vecs[0]);
+	shift[1] = DotProduct (origin, vecs[1]);
 
 	if (!bt->scale[0])
 		bt->scale[0] = 1;

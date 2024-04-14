@@ -212,7 +212,7 @@ vec_t VectorNormalize(vec3_t inout)
 	length = sqrt (inout[0]*inout[0] + inout[1]*inout[1] + inout[2]*inout[2]);
 	if (length == 0)
 	{
-		Vec3_Clear (inout);
+		VectorClear (inout);
 		return 0;
 	}
 
@@ -231,7 +231,7 @@ vec_t VectorNormalize2(const vec3_t in, vec3_t out)
 	length = sqrt (in[0]*in[0] + in[1]*in[1] + in[2]*in[2]);
 	if (length == 0)
 	{
-		Vec3_Clear (out);
+		VectorClear (out);
 		return 0;
 	}
 

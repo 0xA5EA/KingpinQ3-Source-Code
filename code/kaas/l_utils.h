@@ -20,9 +20,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef MAX_PATH
-	#define MAX_PATH			128 //hypov8: was 64.
+#ifndef L_UTILS_H
+#define L_UTILS_H
+
+
+#if 0 //ndef MAX_PATH //MAX_PATH
+	#define MAX_PATH		128 //hypov8: was 64. MAX_PATH
 #endif
+
+// maximum path length
+#ifdef _WIN32
+	#ifndef _MAX_PATH
+		#error unexpected
+	#endif
+	#ifndef MAX_PATH
+		#define MAX_PATH _MAX_PATH
+	#endif
+    #if MAX_PATH != _MAX_PATH
+		#error unexpected
+	#endif
+#else
+	#ifdef MAX_PATH
+		#error unexpected
+	#endif
+	#define MAX_PATH 8192
+#endif
+
+
 
 #ifndef PATH_SEPERATORSTR
 	#if defined(WIN32)|defined(_WIN32)|defined(__NT__)|defined(__WINDOWS__)|defined(__WINDOWS_386__)
@@ -75,5 +99,5 @@ qboolean FindQuakeFile(char *filename, foundfile_t *file);
 qboolean FindQuakeFile(char *basedir, char *gamedir, char *filename, foundfile_t *file);
 #endif //BOTLIB
 
-
+#endif
 

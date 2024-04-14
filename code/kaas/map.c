@@ -185,12 +185,12 @@ int CreateNewFloatPlane (vec3_t normal, vec_t dist)
 		Error ("MAX_MAPFILE_PLANES");
 
 	p = &mapplanes[nummapplanes];
-	Vec3_Copy (normal, p->normal);
+	VectorCopy (normal, p->normal);
 	p->dist = dist;
 	p->type = (p+1)->type = PlaneTypeForNormal (p->normal);
 	p->signbits = PlaneSignBits(p->normal);
 
-	Vec3_Subtract (vec3_origin, normal, (p+1)->normal);
+	VectorSubtract (vec3_origin, normal, (p+1)->normal);
 	(p+1)->dist = -dist;
 	(p+1)->signbits = PlaneSignBits((p+1)->normal);
 
@@ -230,13 +230,13 @@ void SnapVectorKAAS(vec3_t normal)
 	{
 		if ( fabs(normal[i] - 1) < NORMAL_EPSILON )
 		{
-			Vec3_Clear (normal);
+			VectorClear (normal);
 			normal[i] = 1;
 			break;
 		}
 		if ( fabs(normal[i] - -1) < NORMAL_EPSILON )
 		{
-			Vec3_Clear (normal);
+			VectorClear (normal);
 			normal[i] = -1;
 			break;
 		}
@@ -320,12 +320,12 @@ int BSPC_PlaneFromPoints (int *p0, int *p1, int *p2)
 	vec3_t	t1, t2, normal;
 	vec_t	dist;
 
-	Vec3_Subtract (p0, p1, t1);
-	Vec3_Subtract (p2, p1, t2);
+	VectorSubtract (p0, p1, t1);
+	VectorSubtract (p2, p1, t2);
 	CrossProduct (t1, t2, normal);
 	VectorNormalize (normal);
 
-	dist = Vec3_DotProduct (p0, normal);
+	dist = DotProduct (p0, normal);
 
 	return FindFloatPlane (normal, dist);
 } //end of the function BSPC_PlaneFromPoints
@@ -374,7 +374,7 @@ void AddBrushBevels (mapbrush_t *b)
 					Error ("MAX_MAP_BRUSHSIDES");
 				nummapbrushsides++;
 				b->numsides++;
-				Vec3_Clear (normal);
+				VectorClear (normal);
 				normal[axis] = dir;
 				if (dir == 1)
 					dist = b->maxs[axis];
@@ -427,7 +427,7 @@ void AddBrushBevels (mapbrush_t *b)
 		for (j=0 ; j<w->numpoints ; j++)
 		{
 			k = (j+1)%w->numpoints;
-			Vec3_Subtract (w->p[j], w->p[k], vec);
+			VectorSubtract (w->p[j], w->p[k], vec);
 			if (VectorNormalize3(vec) < 0.5)
 				continue;
 			SnapVectorKAAS (vec);
@@ -443,12 +443,12 @@ void AddBrushBevels (mapbrush_t *b)
 				for (dir=-1 ; dir <= 1 ; dir+=2)
 				{
 					// construct a plane
-					Vec3_Clear (vec2);
+					VectorClear (vec2);
 					vec2[axis] = dir;
 					CrossProduct (vec, vec2, normal);
 					if (VectorNormalize3(normal) < 0.5)
 						continue;
-					dist = Vec3_DotProduct (w->p[j], normal);
+					dist = DotProduct (w->p[j], normal);
 
 					// if all the points on all the sides are
 					// behind this plane, it is a proper edge bevel
@@ -464,7 +464,7 @@ void AddBrushBevels (mapbrush_t *b)
 							continue;
 						for (l=0 ; l<w2->numpoints ; l++)
 						{
-							d = Vec3_DotProduct (w2->p[l], normal) - dist;
+							d = DotProduct (w2->p[l], normal) - dist;
 							if (d > 0.1)
 								break;	// point in front
 						}
@@ -686,7 +686,7 @@ qboolean WriteMapBrush(FILE *fp, mapbrush_t *brush, vec3_t origin)
 			if (origin[0] || origin[1] || origin[2])
 			{
 				newdist = mapplanes[s->planenum].dist +
-					Vec3_DotProduct(mapplanes[s->planenum].normal, origin);
+					DotProduct(mapplanes[s->planenum].normal, origin);
 				planenum = FindFloatPlane(mapplanes[s->planenum].normal, newdist);
 			} //end if
 			else
@@ -797,8 +797,8 @@ qboolean WriteMapBrush(FILE *fp, mapbrush_t *brush, vec3_t origin)
 				//
 				TextureAxisFromPlane(plane, axis[0], axis[1]);
 				//calculate texture shift done by entity origin
-				originshift[0] = Vec3_DotProduct(origin, axis[0]);
-				originshift[1] = Vec3_DotProduct(origin, axis[1]);
+				originshift[0] = DotProduct(origin, axis[0]);
+				originshift[1] = DotProduct(origin, axis[1]);
 				//the texture shift without origin shift
 				shift[0] = ti->vecs[0][3] - originshift[0];
 				shift[1] = ti->vecs[1][3] - originshift[1];
@@ -875,7 +875,7 @@ qboolean WriteOriginBrush(FILE *fp, vec3_t origin)
 		for (s = -1; s <= 1; s += 2)
 		{
 			//
-			Vec3_Clear(normal);
+			VectorClear(normal);
 			normal[i] = s;
 			dist = origin[i] * s + 16;
 			//
@@ -1173,8 +1173,8 @@ void ResetMapLoading(void)
 	memset(map_texinfo, 0, MAX_MAPFILE_TEXINFO * sizeof(map_texinfo_t));
 	map_numtexinfo = 0;
 	//
-	Vec3_Clear(map_mins);
-	Vec3_Clear(map_maxs);
+	VectorClear(map_mins);
+	VectorClear(map_maxs);
 	//
 	c_boxbevels = 0;
 	c_edgebevels = 0;

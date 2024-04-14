@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "aas_file.h"
 #include "aas_store.h"
 #include "aas_create.h"
-#include "../botlib/be_aas_main.h"
+
 void QDECL AAS_Error(char *fmt, ...);
 
 //#define AAS_Error			Error

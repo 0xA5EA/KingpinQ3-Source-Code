@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "../qcommon/q_shared.h"
 #include "l_cmd.h"
 #include "l_math.h"
 #include "l_mem.h"
@@ -170,12 +169,12 @@ void Q3_PlaneFromPoints(vec3_t p0, vec3_t p1, vec3_t p2, vec3_t normal, float *d
 {
 	vec3_t t1, t2;
 
-	Vec3_Subtract(p0, p1, t1);
-	Vec3_Subtract(p2, p1, t2);
+	VectorSubtract(p0, p1, t1);
+	VectorSubtract(p2, p1, t2);
 	CrossProduct(t1, t2, normal);
 	VectorNormalize(normal);
 
-	*dist = Vec3_DotProduct(p0, normal);
+	*dist = DotProduct(p0, normal);
 } //end of the function PlaneFromPoints
 //===========================================================================
 //
@@ -195,8 +194,8 @@ void Q3_SurfacePlane(dsurface_t *surface, vec3_t normal, float *dist)
 	{
 		p1 = q3_drawVerts[surface->firstVert + ((i) % surface->numVerts)].xyz;
 		p2 = q3_drawVerts[surface->firstVert + ((i+1) % surface->numVerts)].xyz;
-		Vec3_Subtract(p0, p1, t1);
-		Vec3_Subtract(p2, p1, t2);
+		VectorSubtract(p0, p1, t1);
+		VectorSubtract(p2, p1, t2);
 		CrossProduct(t1, t2, normal);
 		VectorNormalize(normal);
 		if (VectorLength(normal)) break;
@@ -208,11 +207,11 @@ void Q3_SurfacePlane(dsurface_t *surface, vec3_t normal, float *dist)
 		p0 = q3_drawVerts[surface->firstVert + ((i) % surface->numVerts)].xyz;
 		p1 = q3_drawVerts[surface->firstVert + ((i+1) % surface->numVerts)].xyz;
 		p2 = q3_drawVerts[surface->firstVert + ((i+2) % surface->numVerts)].xyz;
-		Vec3_Subtract(p0, p1, t1);
-		Vec3_Subtract(p2, p1, t2);
+		VectorSubtract(p0, p1, t1);
+		VectorSubtract(p2, p1, t2);
 		VectorNormalize(t1);
 		VectorNormalize(t2);
-		dot = Vec3_DotProduct(t1, t2);
+		dot = DotProduct(t1, t2);
 		if (dot > -0.9 && dot < 0.9 &&
 			VectorLength(t1) > 0.1 && VectorLength(t2) > 0.1) break;
 	} //end for
@@ -229,7 +228,7 @@ void Q3_SurfacePlane(dsurface_t *surface, vec3_t normal, float *dist)
 			Log_Print("p%d = %f %f %f\n", i, p1[0], p1[1], p1[2]);
 		} //end for
 	} //end if
-	*dist = Vec3_DotProduct(p0, normal);
+	*dist = DotProduct(p0, normal);
 } //end of the function Q3_SurfacePlane
 //===========================================================================
 //
@@ -269,7 +268,7 @@ void Q3_SurfacePlane(q3_dsurface_t *surface, vec3_t normal, float *dist)
 	//take the plane information from the lightmap vector
 	//VectorCopy(surface->lightmapVecs[2], normal);
 	//calculate plane dist with first surface vertex
-	//*dist = Vec3_DotProduct(q3_drawVerts[surface->firstVert].xyz, normal);
+	//*dist = DotProduct(q3_drawVerts[surface->firstVert].xyz, normal);
 	Q3_PlaneFromPoints(q3_drawVerts[surface->firstVert].xyz,
 						q3_drawVerts[surface->firstVert+1].xyz,
 						q3_drawVerts[surface->firstVert+2].xyz, normal, dist);
@@ -302,10 +301,10 @@ float Q3_FaceOnWinding(dsurface_t *surface, winding_t *winding)
 		v2 = q3_drawVerts[surface->firstVert + ((i+1) % surface->numVerts)].xyz;
 		//create a plane through the edge from v1 to v2, orthogonal to the
 		//surface plane and with the normal vector pointing inward
-		Vec3_Subtract(v2, v1, edgevec);
+		VectorSubtract(v2, v1, edgevec);
 		CrossProduct(edgevec, plane.normal, normal);
 		VectorNormalize(normal);
-		dist = Vec3_DotProduct(normal, v1);
+		dist = DotProduct(normal, v1);
 		//
 		ChopWindingInPlace(&w, normal, dist, -0.1); //CLIP_EPSILON
 	} //end for
@@ -341,7 +340,7 @@ winding_t *Q3_BrushSideWinding(dbrush_t *brush, dbrushside_t *baseside)
 		if (side->planeNum == baseside->planeNum) continue;
 		//also don't use planes that are almost equal
 		plane = &q3_dplanes[side->planeNum];
-		if (Vec3_DotProduct(baseplane->normal, plane->normal) > 0.999
+		if (DotProduct(baseplane->normal, plane->normal) > 0.999
 				&& fabs(baseplane->dist - plane->dist) < 0.01) continue;
 		//
 		plane = &q3_dplanes[side->planeNum^1];
@@ -430,7 +429,7 @@ void Q3_FindVisibleBrushSides(void)
 				plane = &q3_surfaceplanes[k];
 				//the surface plane and the brush side plane should be pretty much the same
 				if (fabs(fabs(plane->dist) - fabs(q3_dplanes[brushside->planeNum].dist)) > 5) continue;
-				dot = Vec3_DotProduct(plane->normal, q3_dplanes[brushside->planeNum].normal);
+				dot = DotProduct(plane->normal, q3_dplanes[brushside->planeNum].normal);
 				if (dot > -0.9 && dot < 0.9) continue;
 				//if the face is partly or totally on the brush side
 				if (Q3_FaceOnWinding(surface, w))
@@ -519,14 +518,14 @@ void Q3_SwapBSPFile( void ) {
 
 #ifdef NO_TYPE_PUNNING
   byteptr = q3_visBytes;
-  Vec4_Copy(byteptr, bi.b);
+  Vector4Copy(byteptr, bi.b);
   LittleLongl(bi.i);
-  Vec4_Copy(bi.b, byteptr);
+  Vector4Copy(bi.b, byteptr);
 
   byteptr = q3_visBytes + 4;
-  Vec4_Copy(byteptr, bi.b);
+  Vector4Copy(byteptr, bi.b);
   LittleLongl(bi.i);
-  Vec4_Copy(bi.b, byteptr);
+  Vector4Copy(bi.b, byteptr);
 #else
   // vis
   ((int *)&q3_visBytes)[0] = LittleLongl( ((int *)&q3_visBytes)[0] );

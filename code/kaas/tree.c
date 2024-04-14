@@ -42,7 +42,7 @@ bspnode_t *NodeForPoint (bspnode_t *node, vec3_t origin)
 	while (node->planenum != PLANENUM_LEAF)
 	{
 		plane = &mapplanes[node->planenum];
-		d = Vec3_DotProduct (origin, plane->normal) - plane->dist;
+		d = DotProduct (origin, plane->normal) - plane->dist;
 		if (d >= 0)
 			node = node->children[0];
 		else
