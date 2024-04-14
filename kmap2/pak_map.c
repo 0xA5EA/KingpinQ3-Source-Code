@@ -168,6 +168,7 @@ static qboolean PakMap_IgnoredFile(char *texName)
 		!Q_strncasecmp(texName, "textures/color/", 15) || //move to common?
 		!Q_strncasecmp(texName, "textures/kpq3_", 14) ||
 		!Q_strncasecmp(texName, "textures/misc_", 14) ||
+		!Q_strncasecmp(texName, "textures/al0/", 13) || //contains flags, safe etc..
 		!Q_strncasecmp(texName, "lights/kpq3/", 12) ||
 		//Q_strnicmp(texName, "cubemaps/", 9) || //todo: move default?
 		!Q_strncasecmp(texName, "sprites/", 8) ||
