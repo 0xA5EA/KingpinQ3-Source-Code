@@ -153,6 +153,51 @@ static char *netnames[] =
   "UDP6"
 };
 
+static char *ui_vidGLModeNames[4] = {
+  "GL_LINEAR",
+  "GL_LINEAR_MIPMAP_NEAREST",
+  "GL_LINEAR_MIPMAP_LINEAR",
+  NULL
+};
+
+//hypo new menu. item changes are stored tempory
+#define UI_CVAR_STRCOUNT 27
+//{ cvar, uix_cvar }
+static char *ui_custStrings[UI_CVAR_STRCOUNT][2]{
+  //{"", "uix_videoEdited", },
+  {"",                                  "uix_r_texturemode_menu"}, //#0 //int (menu only)
+  {"r_texturemode",                     "uix_r_texturemode"},      //#1 //string
+  {"r_mode",                            "uix_r_mode"},             //#2 //uix_r_mode
+  {"r_forceAmbient",                    "uix_r_forceAmbient"},     //#3 //float
+  {"r_fullscreen",                      "uix_r_fullscreen"},       //#4 //int
+  {"r_hdrRendering",                    "uix_r_hdrRendering"},     //...
+  {"r_dynamicLight",                    "uix_r_dynamicLight"},
+  {"r_dynamicLightCastShadows",         "uix_r_dynamicLightCastShadows"},
+  {"cg_shadows",                        "uix_cg_shadows"},
+  {"r_softShadows",                     "uix_r_softShadows"},
+  {"r_shadowBlur",                      "uix_r_shadowBlur"},
+  {"r_shadowMapQuality",                "uix_r_shadowMapQuality"},
+  {"r_bloom",                           "uix_r_bloom"},
+  {"r_dynamicBspOcclusionCulling",      "uix_r_dynamicBspOcclusionCulling"},
+  {"r_picmip",                          "uix_r_picmip"},
+  {"r_ext_texture_filter_anisotropic",  "uix_r_ext_texture_filter_anisotropic"},
+  {"r_lodbias",                         "uix_r_lodbias"},
+  {"r_reflectionmapping",               "uix_r_reflectionmapping"},
+  {"r_ext_compressed_textures",         "uix_r_ext_compressed_textures"},
+  {"r_halfLambertLighting",             "uix_r_halfLambertLighting"}, //player light style
+  {"r_normalMapping",                   "uix_r_normalMapping"},
+  {"r_parallaxMapping",                 "uix_r_parallaxMapping"},
+  {"r_colorbits",                       "uix_r_colorbits"},
+  {"r_subdivisions",                    "uix_r_subdivisions"},
+  {"r_depthbits",                       "uix_r_depthbits"},
+  {"r_stencilbits",                     "uix_r_stencilbits"},
+  {"r_finish",                          "uix_r_finish"},
+};
+
+
+
+
+
 //#ifndef MISSIONPACK
 //static char quake3worldMessage[] = "Visit www.kingpinq3.com - News, Community, Files";
 //#endif
@@ -2529,7 +2574,7 @@ static void UI_DrawGLQuickQuality(rectDef_t *rect, float scale, vec4_t color, in
 
 static qboolean UI_GLMode_HandleKey(int flags, float *special, int key)
 {
-  int aniso = (int)trap_Cvar_VariableValue("uix_r_textureMode");
+  int aniso = (int)trap_Cvar_VariableValue(ui_custStrings[0][1]); //uix_r_textureMode
 
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER)
   {
@@ -2545,7 +2590,7 @@ static qboolean UI_GLMode_HandleKey(int flags, float *special, int key)
       if (aniso >3)
         aniso = 0;
     }
-    trap_Cvar_Set("uix_r_textureMode", va("%d", aniso));
+    trap_Cvar_Set(ui_custStrings[0][1], va("%i", aniso)); //uix_r_textureMode
     return qtrue;
   }
   return qfalse;
@@ -2553,7 +2598,7 @@ static qboolean UI_GLMode_HandleKey(int flags, float *special, int key)
 
 static void UI_GLModeQuality(rectDef_t *rect, float scale, vec4_t color, int textStyle)
 {
-  int aniso = (int)trap_Cvar_VariableValue("uix_r_textureMode");
+  int aniso = (int)trap_Cvar_VariableValue(ui_custStrings[0][1]);//uix_r_textureMode
   const char *video="\0";
 
   if (aniso < 0)
@@ -3775,6 +3820,7 @@ static void UI_LoadDemos(void)
   }
 }
 
+
 static int UI_FeederCount(float feederID);
 static void UI_Update(const char *name)
 {
@@ -3895,9 +3941,8 @@ static void UI_Update(const char *name)
       break;
     }
   }
-  /////////////// add hypov8 updated menu. use??
   else if (Q_stricmp(name, "uix_r_custQuality") == 0)
-  {
+  { //hypov8: updated fast GFX.
     trap_Cvar_Set("uix_videoEdited", "1"); //show apply button
 
     //FIXME (0xA5EA): this could mess up the gfx setting !!!!!
@@ -3928,7 +3973,7 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 1);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 0); //GL_LINEAR
+      trap_Cvar_SetValue("uix_r_texturemode_menu", 0); //GL_LINEAR
       //trap_Cvar_Set();
       break;
 
@@ -3951,7 +3996,7 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 1);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 2); //GL_LINEAR_MIPMAP_LINEAR
+      trap_Cvar_SetValue("uix_r_texturemode_menu", 2); //GL_LINEAR_MIPMAP_LINEAR
       break;
 
     case 3: 	//"High"
@@ -3973,7 +4018,7 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 0);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 2); //GL_LINEAR_MIPMAP_LINEAR
+      trap_Cvar_SetValue("uix_r_texturemode_menu", 2); //GL_LINEAR_MIPMAP_LINEAR
       break;
 
     case 4:		//"Medium"
@@ -3995,7 +4040,7 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 0);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 2); //GL_LINEAR_MIPMAP_LINEAR
+      trap_Cvar_SetValue("uix_r_texturemode_menu", 2); //GL_LINEAR_MIPMAP_LINEAR
       break;
 
     case 5:		//"Low"
@@ -4017,7 +4062,7 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 0);
       trap_Cvar_SetValue("uix_r_subdivisions", 12);
-      trap_Cvar_SetValue("uix_r_texturemode", 1); //GL_LINEAR_MIPMAP_NEAREST
+      trap_Cvar_SetValue("uix_r_texturemode_menu", 1); //GL_LINEAR_MIPMAP_NEAREST
       break;
 
     case 6:	//hypov8 windowed
@@ -4041,24 +4086,21 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 1);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 1); //GL_LINEAR_MIPMAP_NEAREST
+      trap_Cvar_SetValue("uix_r_texturemode_menu", 1); //GL_LINEAR_MIPMAP_NEAREST
       break;
     }
 
-  // trap_Cvar_SetValue("r_colorbits", 32);
-  // trap_Cvar_SetValue("r_depthbits", 24);
-  // trap_Cvar_SetValue("r_subdivisions", 4);
-  //trap_Cvar_SetValue("uix_r_fastSky", 0);
-  // trap_Cvar_SetValue("r_inGameVideo", 1);
-  //trap_Cvar_SetValue("cg_brassTime", 2500);
-  //"r_colorbits" text "Color Depth:" 0 16 32
-  //trap_Cvar_SetValue("r_vertexlight", 0);
+    // trap_Cvar_SetValue("r_colorbits", 32);
+    // trap_Cvar_SetValue("r_depthbits", 24);
+    // trap_Cvar_SetValue("r_subdivisions", 4);
+    //trap_Cvar_SetValue("uix_r_fastSky", 0);
+    // trap_Cvar_SetValue("r_inGameVideo", 1);
+    //trap_Cvar_SetValue("cg_brassTime", 2500);
+    //"r_colorbits" text "Color Depth:" 0 16 32
+    //trap_Cvar_SetValue("r_vertexlight", 0);
 
-  trap_Cvar_SetValue("uix_r_recompileShaders", 1);
-
-
+    trap_Cvar_SetValue("uix_r_recompileShaders", 1); //move
   }
-  ///////////////////////////// //end hypov8
 
   else if (Q_stricmp(name, "ui_mousePitch") == 0)
   {
@@ -4102,8 +4144,7 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_dynamicLightCastShadows", 0);
       trap_Cvar_SetValue("uix_r_dynamicBspOcclusionCulling", 0); //hypov8 ON. causing parallal lights to crash with shadows disabled
     }
-
-    if (cg_shd > 1)
+    else //if (cg_shd > 1)
     {
       //trap_Cvar_SetValue("uix_r_dynamicLightCastShadows", 1);
       trap_Cvar_SetValue("uix_r_dynamicBspOcclusionCulling", 0);
@@ -4117,25 +4158,11 @@ static void UI_Update(const char *name)
     int cg_shadws = (int)trap_Cvar_VariableValue("uix_cg_shadows");
     int r_dynLightShad = (int)trap_Cvar_VariableValue("uix_r_dynamicLightCastShadows");
 
-   // if (r_dynLightShad == 0)	  	  //"uix_r_dynamicLightCastShadows"
-    //{
-    //  trap_Cvar_SetValue("uix_r_dynamicLightCastShadows", 0);
-      //trap_Cvar_SetValue("uix_cg_shadows", 0);
-     // trap_Cvar_SetValue("uix_r_softShadows", 0);
-      //trap_Cvar_SetValue("uix_r_shadowMapQuality", 0);
-      //trap_Cvar_SetValue("ui_glLights", 1);
-
-   // }
-   // else
     if (cg_shadws > 1 && r_dynLightShad == 1) //"Shadows"
-        trap_Cvar_SetValue("uix_r_dynamicLightCastShadows", 1);
-    else
-   // if (cg_shadws <= 1)
-        trap_Cvar_SetValue("uix_r_dynamicLightCastShadows", 0);
-
+      trap_Cvar_SetValue("uix_r_dynamicLightCastShadows", 1);
+    else // if (cg_shadws <= 1)
+      trap_Cvar_SetValue("uix_r_dynamicLightCastShadows", 0);
   }
-
-
   else if (Q_stricmp(name, "uix_r_dynamicLight") == 0) //realtime lights. gun flash etc.. on world
   {
     int dyn_light = (int)trap_Cvar_VariableValue("uix_r_dynamicLight");
@@ -4147,8 +4174,74 @@ static void UI_Update(const char *name)
 
   else if (Q_stricmp(name, "uix_r_shadowMapQuality") == 0)
   {
-  trap_Cvar_SetValue("uix_r_recompileShaders", 1); //add hypov8
+    trap_Cvar_SetValue("uix_r_recompileShaders", 1); //add hypov8
   }
+}
+
+static qboolean UI_CVARCompareStr(char*s1, char*s2)
+{
+  char tmp1[128], tmp2[128];
+
+  trap_Cvar_VariableStringBuffer(s1, tmp1, 128);
+  trap_Cvar_VariableStringBuffer(s2, tmp2, 128);
+
+  if (Q_stricmp(tmp1, tmp2))
+    return qtrue;
+  return qfalse;
+}
+static qboolean UI_CVARCompareInt(char*s1, char*s2)
+{
+  if ((int)trap_Cvar_VariableValue(s1) != (int)trap_Cvar_VariableValue(s2))
+    return qtrue;
+  return qfalse;
+}
+static qboolean UI_CVARCompareFloat(char*s1, char*s2)
+{
+  char tmp1[128], tmp2[128];
+
+  trap_Cvar_VariableStringBuffer(s1, tmp1, 128);
+  trap_Cvar_VariableStringBuffer(s2, tmp2, 128);
+  if (Q_stricmp(va("%.6s", tmp1), va("%.6s", tmp2))) //truncate to 6 for compare
+    return qtrue;
+  return qfalse;
+}
+
+static void UI_CVARGetVidModeString(char * s)
+{
+  int uix_r_texturemode_menu = (int)trap_Cvar_VariableValue(ui_custStrings[0][1]); //uix_r_texturemode_menu
+
+  switch (uix_r_texturemode_menu)
+  {
+    case 0:
+    case 1:
+    case 2:  qstrcpy(s, ui_vidGLModeNames[uix_r_texturemode_menu]); 
+      break;
+    default: trap_Cvar_VariableStringBuffer(ui_custStrings[1][1], s, 128); //3.. restore orig value
+  }
+}
+
+static qboolean UI_GFXSettingsChanged()
+{
+  int i;
+  char uix_r_texturemode_st[128];
+
+  //update from menu index to cvar
+  UI_CVARGetVidModeString(uix_r_texturemode_st);
+  trap_Cvar_Set(ui_custStrings[1][1], uix_r_texturemode_st);
+
+  if (UI_CVARCompareStr(ui_custStrings[1][0], ui_custStrings[1][1])) //r_texturemode
+    return qtrue;
+  if (UI_CVARCompareInt(ui_custStrings[2][0], ui_custStrings[2][1])) //r_mode
+    return qtrue;
+  if (UI_CVARCompareFloat(ui_custStrings[3][0], ui_custStrings[3][1])) //r_forceAmbient
+    return qtrue;
+  for (i = 4; i < UI_CVAR_STRCOUNT; i++) //>3
+  {
+    if (UI_CVARCompareInt(ui_custStrings[i][0], ui_custStrings[i][1]))
+      return qtrue;
+  }
+
+  return qfalse;
 }
 
 static void UI_RunMenuScript(char **args)
@@ -4678,44 +4771,21 @@ static void UI_RunMenuScript(char **args)
 #ifdef COMPAT_KPQ3
     else if (Q_stricmp(name, "resetMenu") == 0)
     {
-      trap_Cvar_SetValue("uix_r_custQuality", 0); // add hypov8
-      trap_Cvar_SetValue("uix_videoEdited", 1); //show apply button when gfx changed
+      if (UI_GFXSettingsChanged())
+      {
+        trap_Cvar_SetValue("uix_r_custQuality", 0); // add hypov8
+        trap_Cvar_SetValue("uix_videoEdited", 1); //show apply button when gfx changed
+      }
+      else
+      {
+        trap_Cvar_SetValue("uix_videoEdited", 0); //show apply button when gfx changed
+      }
     }
     else if (Q_stricmp(name, "custGFX") == 0)
     { //show apply button when gfx changed
       trap_Cvar_SetValue("uix_videoEdited", 1); // add hypov8
       //not used in menu
     }
-
-//hypo new menu. item changes are stored tempory
-  //uix_videoEdited //show apply button
-  //uix_r_forceAmbient //allow brighter models
-  //uix_r_fullscreen
-  //uix_r_hdrRendering
-  //uix_r_dynamicLight
-  //uix_r_dynamicLightCastShadows
-  //uix_cg_shadows					"No" 0 "Blobs" 1 "Exponential mapping" 3 "Variance mapping" 5 "Exponential variance" 6
-  //uix_r_softShadows				"Off" 0 "PCF 2x2" 1 "PCF 3x3" 2 "PCF 4x4" 3 "PCF 5x5" 4 "PCF 6x6" 5 "PCSS" 6
-  //uix_r_shadowBlur"
-  //uix_r_shadowMapQuality			"Custom" 0 "Low" 1 "Medium" 2 "High" 3 "Very High" 4
-  //uix_r_bloom
-  //uix r_mode
-  //uix_r_dynamicBspOcclusionCulling		hypov8 need to disable when cg_shadows are disables
-  //uix_r_picmip
-  //uix_r_ext_texture_filter_anisotropic
-  //uix_r_lodbias
-  //uix_r_reflectionmapping
-  //uix_r_ext_compressed_textures
-  //uix_r_halfLambertLighting
-  //uix_r_normalMapping
-  //uix_r_parallaxMapping
-  //uix_r_texturemode
-  //uix_r_colorbits
-  //uix_r_subdivisions
-  //uix_r_depthbits
-  //uix_r_stencilbits
-  //uix_r_texturemode_str
-  //uix_
 
   else if (Q_stricmp(name, "systemCvarsGet") == 0) //hypov8
   {
@@ -4729,88 +4799,35 @@ static void UI_RunMenuScript(char **args)
   }
   else if (Q_stricmp(name, "systemCvarsApply") == 0)
   {
+    int i;
     int uix_r_shadowMapQuality = (int)trap_Cvar_VariableValue("uix_r_shadowMapQuality");
-    int uix_r_texturemode = (int)trap_Cvar_VariableValue("uix_r_texturemode");
-    char uix_r_texturemode_str[128];
+    int uix_r_texturemode_menu = (int)trap_Cvar_VariableValue("uix_r_texturemode_menu");
+    char uix_r_texturemode_st[128];
 
-    switch (uix_r_texturemode)
-    {
-    case 0:  qstrcpy(uix_r_texturemode_str, "GL_LINEAR"); break;
-    case 1:  qstrcpy(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_NEAREST"); break;
-    case 2:  qstrcpy(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_LINEAR"); break;
-    default: trap_Cvar_VariableStringBuffer("uix_r_texturemode_str", uix_r_texturemode_str, 128);
-    }
+    UI_CVARGetVidModeString(uix_r_texturemode_st);
 
-
-    // make the tempory values perm
     trap_Cvar_Set("uix_videoEdited", "0"); //show apply button
-    trap_Cvar_Set("r_forceAmbient",                   va("%f.3", trap_Cvar_VariableValue("uix_r_forceAmbient"))); //float
-    trap_Cvar_Set("r_recompileShaders",               va("%i", (int)trap_Cvar_VariableValue("uix_r_recompileShaders")));
-    trap_Cvar_Set("r_fullscreen",                     va("%i", (int)trap_Cvar_VariableValue("uix_r_fullscreen")));
-    trap_Cvar_Set("r_hdrRendering",                   va("%i", (int)trap_Cvar_VariableValue("uix_r_hdrRendering")));
-    trap_Cvar_Set("r_dynamicLight",                   va("%i", (int)trap_Cvar_VariableValue("uix_r_dynamicLight")));
-    trap_Cvar_Set("r_dynamicLightCastShadows",        va("%i", (int)trap_Cvar_VariableValue("uix_r_dynamicLightCastShadows")));
-    trap_Cvar_Set("cg_shadows",                       va("%i", (int)trap_Cvar_VariableValue("uix_cg_shadows")));
-    trap_Cvar_Set("r_softShadows",                    va("%i", (int)trap_Cvar_VariableValue("uix_r_softShadows")));
-    trap_Cvar_Set("r_shadowBlur",                     va("%i", (int)trap_Cvar_VariableValue("uix_r_shadowBlur"))); //hypov8 todo: float??
-    trap_Cvar_Set("r_shadowMapQuality",               va("%i", (int)trap_Cvar_VariableValue("uix_r_shadowMapQuality")));
-    trap_Cvar_Set("r_bloom",                          va("%i", (int)trap_Cvar_VariableValue("uix_r_bloom")));
-    trap_Cvar_Set("r_mode",                           va("%i", (int)trap_Cvar_VariableValue("uix_r_mode")));
-    trap_Cvar_Set("r_dynamicBspOcclusionCulling",     va("%i", (int)trap_Cvar_VariableValue("uix_r_dynamicBspOcclusionCulling")));
-    trap_Cvar_Set("r_picmip",                         va("%i", (int)trap_Cvar_VariableValue("uix_r_picmip")));
-    trap_Cvar_Set("r_ext_texture_filter_anisotropic", va("%i", (int)trap_Cvar_VariableValue("uix_r_ext_texture_filter_anisotropic")));
-    trap_Cvar_Set("r_lodbias",                        va("%i", (int)trap_Cvar_VariableValue("uix_r_lodbias")));
-    trap_Cvar_Set("r_reflectionmapping",              va("%i", (int)trap_Cvar_VariableValue("uix_r_reflectionmapping")));
-    trap_Cvar_Set("r_ext_compressed_textures",        va("%i", (int)trap_Cvar_VariableValue("uix_r_ext_compressed_textures")));
-    trap_Cvar_Set("r_halfLambertLighting",            va("%i", (int)trap_Cvar_VariableValue("uix_r_halfLambertLighting")));
-    trap_Cvar_Set("r_normalMapping",                  va("%i", (int)trap_Cvar_VariableValue("uix_r_normalMapping")));
-    trap_Cvar_Set("r_parallaxMapping",                va("%i", (int)trap_Cvar_VariableValue("uix_r_parallaxMapping")));
-    trap_Cvar_Set("r_subdivisions",                   va("%i", (int)trap_Cvar_VariableValue("uix_r_subdivisions")));
-    trap_Cvar_Set("r_colorbits",                      va("%i", (int)trap_Cvar_VariableValue("uix_r_colorbits")));
-    trap_Cvar_Set("r_depthbits",                      va("%i", (int)trap_Cvar_VariableValue("uix_r_depthbits")));
-    trap_Cvar_Set("r_stencilbits",                    va("%i", (int)trap_Cvar_VariableValue("uix_r_stencilbits")));
 
-    trap_Cvar_Set("r_texturemode", va("%s", uix_r_texturemode_str));
-
-
-    switch (uix_r_shadowMapQuality)
+    // make tempory values permanent
+    trap_Cvar_Set(ui_custStrings[1][0], va("%s",      uix_r_texturemode_st)); //string
+    trap_Cvar_Set(ui_custStrings[2][0], va("%i", (int)trap_Cvar_VariableValue(ui_custStrings[2][1]))); //r_mode //check this.
+    trap_Cvar_Set(ui_custStrings[3][0], va("%.4f",    trap_Cvar_VariableValue(ui_custStrings[3][1]))); //float r_forceAmbient
+    for (i = 4; i < UI_CVAR_STRCOUNT; i++) //>3
     {
-      case 1: // low
-        trap_Cvar_SetValue("r_shadowMapSizeUltra", 256);
-        trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 128);
-        trap_Cvar_SetValue("r_shadowMapSizeHigh", 64);
-        trap_Cvar_SetValue("r_shadowMapSizeMedium", 32);
-        trap_Cvar_SetValue("r_shadowMapSizeLow", 16);
-        break;
+      trap_Cvar_Set(ui_custStrings[i][0], va("%i", (int)trap_Cvar_VariableValue(ui_custStrings[i][1])));
+    }
+    //todo should this only be set relating to specific cvar changes?
+    trap_Cvar_Set("r_recompileShaders",   va("%i", (int)trap_Cvar_VariableValue("uix_r_recompileShaders")));
 
-      case 2: // medium
-        trap_Cvar_SetValue("r_shadowMapSizeUltra", 512);
-        trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 256);
-        trap_Cvar_SetValue("r_shadowMapSizeHigh", 128);
-        trap_Cvar_SetValue("r_shadowMapSizeMedium", 64);
-        trap_Cvar_SetValue("r_shadowMapSizeLow", 32);
-        break;
-
-      case 3: // high
-        trap_Cvar_SetValue("r_shadowMapSizeUltra", 1024);
-        trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 512);
-        trap_Cvar_SetValue("r_shadowMapSizeHigh", 256);
-        trap_Cvar_SetValue("r_shadowMapSizeMedium", 128);
-        trap_Cvar_SetValue("r_shadowMapSizeLow", 64);
-        break;
-
-      case 4: // very high
-        trap_Cvar_SetValue("r_shadowMapSizeUltra", 2048);
-        trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", 1024);
-        trap_Cvar_SetValue("r_shadowMapSizeHigh", 512);
-        trap_Cvar_SetValue("r_shadowMapSizeMedium", 256);
-        trap_Cvar_SetValue("r_shadowMapSizeLow", 128);
-        break;
-
-      case 0: // custom
-      default:
-        Com_Printf(S_COLOR_YELLOW"invalid r_shadowMapQuality value %i", uix_r_shadowMapQuality);
-        break;
+    if (uix_r_shadowMapQuality <= 0 || uix_r_shadowMapQuality > 4)
+      Com_Printf(S_COLOR_YELLOW"invalid r_shadowMapQuality value %i", uix_r_shadowMapQuality);
+    else
+    {
+        trap_Cvar_SetValue("r_shadowMapSizeLow",      (1 << (uix_r_shadowMapQuality+3))); //start from 16
+        trap_Cvar_SetValue("r_shadowMapSizeMedium",   (1 << (uix_r_shadowMapQuality+4)));
+        trap_Cvar_SetValue("r_shadowMapSizeHigh",     (1 << (uix_r_shadowMapQuality+5)));
+        trap_Cvar_SetValue("r_shadowMapSizeVeryHigh", (1 << (uix_r_shadowMapQuality+6)));
+        trap_Cvar_SetValue("r_shadowMapSizeUltra",    (1 << (uix_r_shadowMapQuality+7)));
     }
 
     //reset tempory values
@@ -4841,88 +4858,46 @@ static void UI_RunMenuScript(char **args)
 //add hypov8 used multiple times. get old cvar values
 static void UI_UpdateCvarList(void)
 {
+  int i;
   char uix_r_texturemode_str[128];
-  int uix_r_texturemode = 3; //3 custom. stored 
+  int uix_r_texturemode_menu = 3; //3 custom. 
   
   trap_Cvar_VariableStringBuffer("r_texturemode", uix_r_texturemode_str , 128);
 
-  if (!qstrcmp(uix_r_texturemode_str, "GL_LINEAR"))
-    uix_r_texturemode = 0;
-  else if (!qstrcmp(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_NEAREST"))
-    uix_r_texturemode = 1;
-  else if (!qstrcmp(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_LINEAR"))
-    uix_r_texturemode = 2;
+  for (i = 0; i < 3; i++)
+  {
+    if (!qstrcmp(uix_r_texturemode_str, ui_vidGLModeNames[i]))
+    {
+      uix_r_texturemode_menu = i;
+      break;
+    }
+  }
 
-  
   trap_Cvar_Set("uix_videoEdited", "0"); //show apply button. when vid settings have changed
-  trap_Cvar_Set("uix_r_forceAmbient",                   va("%f.3",    trap_Cvar_VariableValue("r_forceAmbient"))); //float
-  trap_Cvar_Set("uix_r_recompileShaders",               va("%i", (int)trap_Cvar_VariableValue("r_recompileShaders")));
-  trap_Cvar_Set("uix_r_fullscreen",                     va("%i", (int)trap_Cvar_VariableValue("r_fullscreen")));
-  trap_Cvar_Set("uix_r_hdrRendering",                   va("%i", (int)trap_Cvar_VariableValue("r_hdrRendering")));
-  trap_Cvar_Set("uix_r_dynamicLight",                   va("%i", (int)trap_Cvar_VariableValue("r_dynamicLight")));
-  trap_Cvar_Set("uix_r_dynamicLightCastShadows",        va("%i", (int)trap_Cvar_VariableValue("r_dynamicLightCastShadows")));
-  trap_Cvar_Set("uix_cg_shadows",                       va("%i", (int)trap_Cvar_VariableValue("cg_shadows")));
-  trap_Cvar_Set("uix_r_softShadows",                    va("%i", (int)trap_Cvar_VariableValue("r_softShadows")));
-  trap_Cvar_Set("uix_r_shadowBlur",                     va("%i", (int)trap_Cvar_VariableValue("r_shadowBlur")));
-  trap_Cvar_Set("uix_r_shadowMapQuality",               va("%i", (int)trap_Cvar_VariableValue("r_shadowMapQuality")));
-  trap_Cvar_Set("uix_r_bloom",                          va("%i", (int)trap_Cvar_VariableValue("r_bloom")));
-  trap_Cvar_Set("uix_r_mode",                           va("%i", (int)trap_Cvar_VariableValue("r_mode")));
-  trap_Cvar_Set("uix_r_dynamicBspOcclusionCulling",     va("%i", (int)trap_Cvar_VariableValue("r_dynamicBspOcclusionCulling")));
-  trap_Cvar_Set("uicx_r_picmip",                        va("%i", (int)trap_Cvar_VariableValue("r_picmip")));
-  trap_Cvar_Set("uicx_r_textureMode",                   va("%i", (int)trap_Cvar_VariableValue("r_textureMode"))); //uix_r_textureMode //fixme
-  trap_Cvar_Set("uix_r_ext_texture_filter_anisotropic", va("%i", (int)trap_Cvar_VariableValue("r_ext_texture_filter_anisotropic")));
-  trap_Cvar_Set("uix_r_lodbias",                        va("%i", (int)trap_Cvar_VariableValue("r_lodbias")));
-  trap_Cvar_Set("uix_r_reflectionmapping",              va("%i", (int)trap_Cvar_VariableValue("r_reflectionmapping")));
-  trap_Cvar_Set("uix_r_ext_compressed_textures",        va("%i", (int)trap_Cvar_VariableValue("r_ext_compressed_textures")));
-  trap_Cvar_Set("uix_r_halfLambertLighting",            va("%i", (int)trap_Cvar_VariableValue("r_halfLambertLighting")));
-  trap_Cvar_Set("uix_r_normalMapping",                  va("%i", (int)trap_Cvar_VariableValue("r_normalMapping")));
-  trap_Cvar_Set("uix_r_parallaxMapping",                va("%i", (int)trap_Cvar_VariableValue("r_parallaxMapping")));
-  trap_Cvar_Set("uix_r_subdivisions",                   va("%i", (int)trap_Cvar_VariableValue("r_subdivisions")));
-  trap_Cvar_Set("uix_r_colorbits",                      va("%i", (int)trap_Cvar_VariableValue("r_colorbits")));
-  trap_Cvar_Set("uix_r_depthbits",                      va("%i", (int)trap_Cvar_VariableValue("r_depthbits")));
-  trap_Cvar_Set("uix_r_stencilbits",                    va("%i", (int)trap_Cvar_VariableValue("r_stencilbits")));
 
-  trap_Cvar_Set("uix_r_texturemode",                    va("%i", uix_r_texturemode));
-  trap_Cvar_Set("uix_r_texturemode_str",                va("%s", uix_r_texturemode_str));
-  //trap_Cvar_Set("uix_", va("%i", uix_));
+  trap_Cvar_Set(ui_custStrings[0][1], va("%i",      uix_r_texturemode_menu));                        //uix_r_texturemode_menu
+  trap_Cvar_Set(ui_custStrings[1][1], va("%s",      uix_r_texturemode_str));                         //uix_r_texturemode_str
+  trap_Cvar_Set(ui_custStrings[2][1], va("%i", (int)trap_Cvar_VariableValue(ui_custStrings[2][0]))); //r_mode
+  trap_Cvar_Set(ui_custStrings[3][1], va("%.4f",    trap_Cvar_VariableValue(ui_custStrings[3][0]))); //r_forceAmbient" //float
+  for (i = 4; i < UI_CVAR_STRCOUNT; i++) //>2
+  {
+    trap_Cvar_Set(ui_custStrings[i][1],   va("%i", (int)trap_Cvar_VariableValue(ui_custStrings[i][0])));
+  }
+  trap_Cvar_Set("uix_r_recompileShaders", va("%i", (int)trap_Cvar_VariableValue("r_recompileShaders")));
+
   //trap_Cvar_Set("uix_r_custQuality", 0);
-
 }
 
 static void UI_ResetTempCvarList(void)
 {
-    trap_Cvar_Set("uix_videoEdited", ""); //show apply button
-    trap_Cvar_Set("uix_r_forceAmbient", ""); //show ambiant slider
-    trap_Cvar_Set("uix_r_recompileShaders", "");
-    trap_Cvar_Set("uix_r_fullscreen", "");
-    trap_Cvar_Set("uix_r_hdrRendering", "");
-    trap_Cvar_Set("uix_r_dynamicLight", "");
-    trap_Cvar_Set("uix_r_dynamicLightCastShadows", "");
-    trap_Cvar_Set("uix_cg_shadows", "");
-    trap_Cvar_Set("uix_r_softShadows", "");
-    trap_Cvar_Set("uix_r_shadowBlur", "");
-    trap_Cvar_Set("uix_r_shadowMapQuality", "");
-    trap_Cvar_Set("uix_r_bloom", "");
-    trap_Cvar_Set("uix_r_mode", "");
-    trap_Cvar_Set("uix_r_dynamicBspOcclusionCulling", "");
-    trap_Cvar_Set("uix_r_picmip", "");
-    trap_Cvar_Set("uix_r_textureMode", ""); //uix_r_textureMode
-    trap_Cvar_Set("uix_r_ext_texture_filter_anisotropic", "");
-    trap_Cvar_Set("uix_r_lodbias", "");
-    trap_Cvar_Set("uix_r_reflectionmapping", "");
-    trap_Cvar_Set("uix_r_ext_compressed_textures", "");
-    trap_Cvar_Set("uix_r_halfLambertLighting", ""); //player light style
-    trap_Cvar_Set("uix_r_normalMapping", "");
-    trap_Cvar_Set("uix_r_parallaxMapping", "");
-    trap_Cvar_Set("uix_r_subdivisions", "");
-    trap_Cvar_Set("uix_r_colorbits", "");
-    trap_Cvar_Set("uix_r_depthbits", "");
-    trap_Cvar_Set("uix_r_stencilbits", "");
-    trap_Cvar_Set("uix_r_texturemode", "");
-    trap_Cvar_Set("uix_r_texturemode_str", "");
-    //trap_Cvar_Set("uix_", "");
-
-    trap_Cvar_SetValue("uix_r_custQuality", 0);
+  int i;
+  for (i = 0; i < UI_CVAR_STRCOUNT; i++)
+  {
+    trap_Cvar_Set(ui_custStrings[i][1], "");
+  }
+  trap_Cvar_Set("uix_videoEdited", ""); //show ui 'apply' button
+  trap_Cvar_Set("uix_r_recompileShaders", "");
+  trap_Cvar_SetValue("uix_r_custQuality", 0); //int
 }
 
 
