@@ -161,10 +161,12 @@ qboolean	PlaneEqual(plane_t *p, vec3_t normal, vec_t dist)
 void AddPlaneToHash(plane_t *p)
 {
 	int		hash;
-
+#if 0 //1 //ET
+  	hash = ( PLANE_HASHES - 1 ) & (int)fabs( p->dist );
+#else
 	hash = (int)fabs(p->dist) / 8;
 	hash &= (PLANE_HASHES-1);
-
+#endif
 	p->hash_chain = planehash[hash];
 	planehash[hash] = p;
 } //end of the function AddPlaneToHash
@@ -251,9 +253,10 @@ void SnapVectorKAAS(vec3_t normal)
 void SnapPlane(vec3_t normal, vec_t *dist)
 {
 	SnapVectorKAAS(normal);
-
+#if 1 //0 //ET
 	if (fabs(*dist-Q_rint(*dist)) < DIST_EPSILON)
 		*dist = Q_rint(*dist);
+#endif
 } //end of the function SnapPlane
 //===========================================================================
 //
@@ -370,7 +373,7 @@ void AddBrushBevels (mapbrush_t *b)
 
 			if (i == b->numsides)
 			{	// add a new side
-				if (nummapbrushsides == MAX_MAP_BRUSHSIDES)
+				if (nummapbrushsides == Q3_MAX_MAP_BRUSHSIDES)
 					Error ("MAX_MAP_BRUSHSIDES");
 				nummapbrushsides++;
 				b->numsides++;
@@ -475,7 +478,7 @@ void AddBrushBevels (mapbrush_t *b)
 					if (k != b->numsides)
 						continue;	// wasn't part of the outer hull
 					// add this plane
-					if (nummapbrushsides == MAX_MAP_BRUSHSIDES)
+					if (nummapbrushsides == Q3_MAX_MAP_BRUSHSIDES)
 						Error ("MAX_MAP_BRUSHSIDES");
 					nummapbrushsides++;
 					s2 = &b->original_sides[b->numsides];
@@ -493,6 +496,7 @@ void AddBrushBevels (mapbrush_t *b)
 		}
 	}
 } //end of the function AddBrushBevels
+
 //===========================================================================
 // creates windigs for sides and mins / maxs for the brush
 //
@@ -746,16 +750,19 @@ qboolean WriteMapBrush(FILE *fp, mapbrush_t *brush, vec3_t origin)
 					//monster clip
 					if (loadedmaptype == MAPTYPE_SIN)
 					{
-						if (fprintf(fp, "generic/misc/monster 0 0 0 1 1") < 0) return qfalse;
+						if (fprintf(fp, "generic/misc/monster 0 0 0 1 1") < 0) 
+							return qfalse;
 					} //end if
 					else if (loadedmaptype == MAPTYPE_QUAKE2)
 					{
-						if (fprintf(fp, "e1u1/clip_mon 0 0 0 1 1") < 0) return qfalse;
+						if (fprintf(fp, "e1u1/clip_mon 0 0 0 1 1") < 0) 
+							return qfalse;
 					} //end else
 					else
 #endif
 					{
-						if (fprintf(fp, "clip 0 0 0 1 1") < 0) return qfalse;
+						if (fprintf(fp, "clip 0 0 0 1 1") < 0) 
+							return qfalse;
 					} //end else
 				} //end else
 				else
@@ -810,34 +817,48 @@ qboolean WriteMapBrush(FILE *fp, mapbrush_t *brush, vec3_t origin)
 				else if (axis[1][1]) tv = 1;
 				else tv = 2;
 				//calculate rotation of texture
-				if (vecs[0][tv] == 0) ang1 = vecs[0][sv] > 0 ? 90.0 : -90.0;
-				else ang1 = atan2(vecs[0][sv], vecs[0][tv]) * 180 / Q_PI;
-				if (ang1 < 0) ang1 += 360;
-				if (ang1 >= 360) ang1 -= 360;
-				if (axis[0][tv] == 0) ang2 = axis[0][sv] > 0 ? 90.0 : -90.0;
+				if (vecs[0][tv] == 0) 
+					ang1 = vecs[0][sv] > 0 ? 90.0 : -90.0;
+				else 
+					ang1 = atan2(vecs[0][sv], vecs[0][tv]) * 180 / Q_PI;
+				if (ang1 < 0) 
+					ang1 += 360;
+				if (ang1 >= 360) 
+					ang1 -= 360;
+				if (axis[0][tv] == 0) 
+					ang2 = axis[0][sv] > 0 ? 90.0 : -90.0;
 				else ang2 = atan2(axis[0][sv], axis[0][tv]) * 180 / Q_PI;
-				if (ang2 < 0) ang2 += 360;
-				if (ang2 >= 360) ang2 -= 360;
+				if (ang2 < 0) 
+					ang2 += 360;
+				if (ang2 >= 360) 
+					ang2 -= 360;
 				rotate = ang2 - ang1;
-				if (rotate < 0) rotate += 360;
-				if (rotate >= 360) rotate -= 360;
+				if (rotate < 0) 
+					rotate += 360;
+				if (rotate >= 360) 
+					rotate -= 360;
 				//write the texture info
-				if (fprintf(fp, "%s %d %d %d", ti->texture, shift[0], shift[1], rotate) < 0) return qfalse;
+				if (fprintf(fp, "%s %d %d %d", ti->texture, shift[0], shift[1], rotate) < 0)
+					return qfalse;
 				if (fabs(scale[0] - ((int) scale[0])) < 0.001)
 				{
-					if (fprintf(fp, " %d", (int) scale[0]) < 0) return qfalse;
+					if (fprintf(fp, " %d", (int) scale[0]) < 0) 
+					return qfalse;
 				} //end if
 				else
 				{
-					if (fprintf(fp, " %4f", scale[0]) < 0) return qfalse;
+					if (fprintf(fp, " %4f", scale[0]) < 0) 
+					return qfalse;
 				} //end if
 				if (fabs(scale[1] - ((int) scale[1])) < 0.001)
 				{
-					if (fprintf(fp, " %d", (int) scale[1]) < 0) return qfalse;
+					if (fprintf(fp, " %d", (int) scale[1]) < 0) 
+					return qfalse;
 				} //end if
 				else
 				{
-					if (fprintf(fp, " %4f", scale[1]) < 0) return qfalse;
+					if (fprintf(fp, " %4f", scale[1]) < 0) 
+					return qfalse;
 				} //end else
 #if 0
 				//write the extra brush side info
@@ -848,10 +869,12 @@ qboolean WriteMapBrush(FILE *fp, mapbrush_t *brush, vec3_t origin)
 #endif
 				//*/
 			} //end else
-			if (fprintf(fp, "\n") < 0) return qfalse;
+			if (fprintf(fp, "\n") < 0) 
+				return qfalse;
 		} //end if
 	} //end if
-	if (fprintf(fp, " }\n") < 0) return qfalse;
+	if (fprintf(fp, " }\n") < 0) 
+		return qfalse;
 	c_writtenbrushes++;
 	return qtrue;
 } //end of the function WriteMapBrush
@@ -868,7 +891,8 @@ qboolean WriteOriginBrush(FILE *fp, vec3_t origin)
 	int i, s;
 	winding_t *w;
 
-	if (fprintf(fp, " {\n") < 0) return qfalse;
+	if (fprintf(fp, " {\n") < 0) 
+		return qfalse;
 	//
 	for (i = 0; i < 3; i++)
 	{
@@ -910,10 +934,12 @@ qboolean WriteOriginBrush(FILE *fp, vec3_t origin)
 				//if (fprintf(fp, " 16777216 128 0") < 0) return qfalse;
 			} //end if
 #endif
-			if (fprintf(fp, "\n") < 0) return qfalse;
+			if (fprintf(fp, "\n") < 0) 
+				return qfalse;
 		} //end for
 	} //end for
-	if (fprintf(fp, " }\n") < 0) return qfalse;
+	if (fprintf(fp, " }\n") < 0) 
+			return qfalse;
 	c_writtenbrushes++;
 	return qtrue;
 } //end of the function WriteOriginBrush
@@ -1193,7 +1219,7 @@ void ResetMapLoading(void)
 		} //end for
 	} //end for
 	num_entities = 0;
-	memset(entities, 0, MAX_MAP_ENTITIES * sizeof(entity_t));
+	memset(entities, 0, Q3_MAX_MAP_ENTITIES * sizeof(entity_t));
 } //end of the function ResetMapLoading
 //===========================================================================
 //
@@ -1235,10 +1261,12 @@ int LoadMapFromBSP(struct quakefile_s *qf)
 
 	idheader.ident = LittleLongl(idheader.ident);
 	idheader.version = LittleLongl(idheader.version);
+#ifndef COMPAT_KPQ3
 	//Quake3 BSP file
-
-//	if (idheader.ident == Q3_BSP_IDENT && idheader.version == Q3_BSP_VERSION)
+	if (idheader.ident == Q3_BSP_IDENT && idheader.version == Q3_BSP_VERSION)
+#else
 	if (idheader.ident == BSP_IDENT_KPQ3 && idheader.version == BSP_VERSION_KPQ3)
+#endif
 	{
 		ResetMapLoading();
 #if 1

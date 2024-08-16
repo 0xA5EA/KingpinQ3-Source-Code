@@ -5764,6 +5764,13 @@ static void RB_RenderDebugUtils()
 
           if ( ( length = VectorNormalize( diff ) ) )
           {
+            vec4_t boneColor;
+            Vector4Scale(g_color_table[ColorIndex(j)], 0.5f, boneColor);
+            boneColor[0] += 0.5f;
+            boneColor[1] += 0.5f;
+            boneColor[2] += 0.5f;
+            boneColor[3] = 1.0f;
+
             PerpendicularVector( tmp, diff );
             //VectorCopy(up, tmp);
 
@@ -5780,11 +5787,11 @@ static void RB_RenderDebugUtils()
 
             VectorScale( origin, skel->scale, tetraVerts[ 3 ] );
             tetraVerts[ 3 ][ 3 ] = 1;
-            Tess_AddTetrahedron( tetraVerts, g_color_table[ ColorIndex( j ) ] );
+            Tess_AddTetrahedron( tetraVerts, boneColor );
 
             VectorScale( offset, skel->scale, tetraVerts[ 3 ] );
             tetraVerts[ 3 ][ 3 ] = 1;
-            Tess_AddTetrahedron( tetraVerts, g_color_table[ ColorIndex( j ) ] );
+            Tess_AddTetrahedron( tetraVerts, boneColor );
           }
 
           MatrixTransformPoint( backEnd.orientation.transformMatrix, skel->bones[ j ].t.trans, worldOrigins[ j ] );
@@ -6076,7 +6083,8 @@ static void RB_RenderDebugUtils()
     GL_LoadModelViewMatrix( backEnd.viewParms.world.modelViewMatrix );
   }
 
-  if ( r_showLightGrid->integer && tr.world->numLightGridPoints > 0)
+  if ( r_showLightGrid->integer && tr.world->numLightGridPoints > 0 
+      && tr.world->lightGridData) //failsafe
   {
     bspGridPoint_t *gridPoint;
     int            j, k;
@@ -6127,6 +6135,12 @@ static void RB_RenderDebugUtils()
     for ( j = 0; j < tr.world->numLightGridPoints; j++ )
     {
       gridPoint = &tr.world->lightGridData[ j ];
+
+      if (!gridPoint)
+      { //hypov8 fix null lightgrid
+        R_FallbackLight(gridPoint->ambientColor, gridPoint->directedColor, gridPoint->direction);
+        VectorCopy(backEnd.viewParms.orientation.origin,  gridPoint->origin);
+      }
 
       if ( DistanceSquared( gridPoint->origin, backEnd.viewParms.orientation.origin ) > Square( 1024 ) )
       {

@@ -3256,7 +3256,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 	extern cvar_t *r_evsmPostProcess;
 
-	extern cvar_t *r_fontScale;
+	//extern cvar_t *r_fontScale;
 
 //====================================================================
 
@@ -3709,6 +3709,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	int      R_CullLightWorldBounds( trRefLight_t *light, vec3_t worldBounds[ 2 ] );
 
 	void     R_ComputeFinalAttenuation( shaderStage_t *pStage, trRefLight_t *light );
+
+	void R_FallbackLight(vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir); //hypov8 lightgrid fallback
 
 	/*
 	============================================================

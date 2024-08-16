@@ -63,8 +63,10 @@ int	Q3_BrushContents(mapbrush_t *b)
 	for (i = 1; i < b->numsides; i++)
 	{
 		s = &b->original_sides[i];
-		if (s->contents != contents) mixed = qtrue;
-		if (s->surf & (SURF_HINT|SURF_SKIP)) hint = qtrue;
+		if (s->contents != contents) 
+			mixed = qtrue;
+		if (s->surf & (SURF_HINT|SURF_SKIP)) 
+			hint = qtrue;
 		contents |= s->contents;
 	} //end for
 	//
@@ -99,7 +101,8 @@ int	Q3_BrushContents(mapbrush_t *b)
 		PrintContents(b->contents);
 		Log_Write("\r\n");
 		//
-		if (contents & CONTENTS_DONOTENTER) return CONTENTS_DONOTENTER;//Log_Print("mixed contents with donotenter\n");
+		if (contents & CONTENTS_DONOTENTER) 
+			return CONTENTS_DONOTENTER;//Log_Print("mixed contents with donotenter\n");
 		/*
 		Log_Print("contents:"); PrintContents(contents);
 		Log_Print("\ncontents:"); PrintContents(s->contents);
@@ -111,7 +114,8 @@ int	Q3_BrushContents(mapbrush_t *b)
 		{
 			return (contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER));
 		} //end if
-		if (contents & CONTENTS_PLAYERCLIP) return (contents & CONTENTS_PLAYERCLIP);
+		if (contents & CONTENTS_PLAYERCLIP) 
+			return (contents & CONTENTS_PLAYERCLIP);
 		return (contents & CONTENTS_SOLID);
 	} //end if
 	/*
@@ -153,14 +157,16 @@ void Q3_DPlanes2MapPlanes(void)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void Q3_BSPBrushToMapBrush(dbrush_t *bspbrush, entity_t *mapent)
+void Q3_BSPBrushToMapBrush(q3_dbrush_t *bspbrush, entity_t *mapent)
 {
 	mapbrush_t *b;
 	int i, k, n;
 	side_t *side, *s2;
 	int planenum;
-	dbrushside_t *bspbrushside;
-	dplane_t *bspplane;
+	xbsp_dbrushSide_t *bspbrushside;
+	q3_dplane_t *bspplane;
+	int contentFlags = 0;
+	const char* classname;
 
 	if (nummapbrushes >= MAX_MAPFILE_BRUSHES)
 		Error ("nummapbrushes >= MAX_MAPFILE_BRUSHES");
@@ -175,7 +181,18 @@ void Q3_BSPBrushToMapBrush(dbrush_t *bspbrush, entity_t *mapent)
 	{
 		//pointer to the bsp brush side
 		bspbrushside = &q3_dbrushsides[bspbrush->firstSide + n];
+#if 1 //ET
+		for ( k = n + 1; k < bspbrush->numSides; k++ ) {
+			if ( q3_dbrushsides[bspbrush->firstSide + k].planeNum == bspbrushside->planeNum ) {
+				break;
+			}
+		}
+		if ( k != bspbrush->numSides ) {
+			Log_Print( "\nEntity %i, Brush %i: duplicate plane\n", b->entitynum, b->brushnum );
+			continue;       // duplicated
+		}
 
+#endif
 		if (nummapbrushsides >= MAX_MAPFILE_BRUSHSIDES)
 		{
 			Error ("MAX_MAPFILE_BRUSHSIDES");
@@ -183,8 +200,10 @@ void Q3_BSPBrushToMapBrush(dbrush_t *bspbrush, entity_t *mapent)
 		//pointer to the map brush side
 		side = &brushsides[nummapbrushsides];
 		//if the BSP brush side is textured
-		if (q3_dbrushsidetextured[bspbrush->firstSide + n]) side->flags |= SFL_TEXTURED|SFL_VISIBLE;
-		else side->flags &= ~SFL_TEXTURED;
+		if (q3_dbrushsidetextured[bspbrush->firstSide + n]) 
+			side->flags |= SFL_TEXTURED|SFL_VISIBLE;
+		else 
+			side->flags &= ~SFL_TEXTURED;
 		//NOTE: all Quake3 sides are assumed textured
 		//side->flags |= SFL_TEXTURED|SFL_VISIBLE;
 		//
@@ -204,10 +223,12 @@ void Q3_BSPBrushToMapBrush(dbrush_t *bspbrush, entity_t *mapent)
 			} //end if
 		} //end else
 		//
+#if 1 //0 //ET
 		if (side->surf & SURF_NODRAW)
 		{
 			side->flags |= SFL_TEXTURED|SFL_VISIBLE;
 		} //end if
+#endif
 		/*
 		if (side->contents & (CONTENTS_TRANSLUCENT|CONTENTS_STRUCTURAL))
 		{
@@ -283,18 +304,41 @@ void Q3_BSPBrushToMapBrush(dbrush_t *bspbrush, entity_t *mapent)
 	} //end for
 
 	// get the content for the entire brush
-	b->contents = q3_dshaders[bspbrush->shaderNum].contentFlags;
+	//Quake3 bsp brushes don't have a contents
+	b->contents = q3_dshaders[bspbrush->shaderNum].contentFlags | contentFlags;
+	// Ridah, Wolf has ladders (if we call Q3_BrushContents(), we'll get the solid area bug
 	b->contents &= ~(CONTENTS_LADDER|CONTENTS_FOG|CONTENTS_STRUCTURAL);
 //	b->contents = Q3_BrushContents(b);
 	//
+	// RF, only allow known contents
+	b->contents &= ( CONTENTS_SOLID | CONTENTS_LADDER | CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER | CONTENTS_AREAPORTAL | CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP | CONTENTS_DETAIL | CONTENTS_CLUSTERPORTAL 
+#ifdef COMPAT_KPQ3
+		| CONTENTS_BOTCLIP //hypov8 add. missing?
+#endif
+		);
+	//
+	// Ridah, CONTENTS_MOSTERCLIP should prevent AAS from being created, but not clip players/AI in the game
+	if ( b->contents & (CONTENTS_MONSTERCLIP 
+#ifdef COMPAT_KPQ3
+		| CONTENTS_BOTCLIP //hypov8 add. missing?
+#endif		
+		)) {
+		b->contents |= CONTENTS_PLAYERCLIP;
+	}
 
+	// RF, optimization, if the brush is one of the following kind, make it standard solid
+	//if (b->contents & (CONTENTS_MONSTERCLIP|CONTENTS_PLAYERCLIP)) b->contents = CONTENTS_SOLID;
+
+
+
+#if 1 //0 //ET
 	if (BrushExists(b))
 	{
 		c_squattbrushes++;
 		b->numsides = 0;
 		return;
 	} //end if
-
+#endif
 	//if we're creating AAS
 	if (create_aas)
 	{
@@ -325,9 +369,13 @@ void Q3_BSPBrushToMapBrush(dbrush_t *bspbrush, entity_t *mapent)
 
 	// brushes that will not be visible at all will never be
 	// used as bsp splitters
-	if (b->contents & (CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP) )
+	if (b->contents & (CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP
+#ifdef COMPAT_KPQ3
+		| CONTENTS_BOTCLIP //hypov8 add. missing?
+#endif
+		) )
 	{
-			c_clipbrushes++;
+		c_clipbrushes++;
 		for (i = 0; i < b->numsides; i++)
 			b->original_sides[i].texinfo = TEXINFO_NODE;
 	} //end for
@@ -460,8 +508,8 @@ qboolean Q3_ParseBSPEntity(int entnum)
 void AAS_CreateCurveBrushes(void)
 {
 	int i, j, n, planenum, numcurvebrushes = 0;
-	dsurface_t *surface;
-	drawVert_t *dv_p;
+	xbsp_dsurface_t *surface;
+	xbsp_drawVert_t *dv_p;
 	vec3_t points[MAX_PATCH_VERTS];
 	int width, height, c;
 #if 0
@@ -482,7 +530,14 @@ void AAS_CreateCurveBrushes(void)
 	for (i = 0; i < q3_numDrawSurfaces; i++)
 	{
 		surface = &q3_drawSurfaces[i];
-		if ( ! surface->patchWidth ) continue;
+#if 1 //1 //ET
+		// Gordon: only on patches, other surface types use this for other stuff (foliage for example)
+		if ( surface->surfaceType != MST_PATCH )
+			continue;
+#endif
+		if ( ! surface->patchWidth ) 
+			continue;
+
 		// if the curve is not solid
 		if (!(q3_dshaders[surface->shaderNum].contentFlags & (CONTENTS_SOLID|CONTENTS_PLAYERCLIP)))
 		{
@@ -558,16 +613,19 @@ void AAS_CreateCurveBrushes(void)
 			for (n = 0; n < facet->numBorders; n++)
 			{
 				//never use the surface plane as a border
-				if (facet->borderPlanes[n] == facet->surfacePlane) continue;
+				if (facet->borderPlanes[n] == facet->surfacePlane) 
+					continue;
 				//
 				side = &brush->original_sides[2 + n];
 				side->planenum = FindFloatPlane(pc->planes[facet->borderPlanes[n]].plane, pc->planes[facet->borderPlanes[n]].plane[3]);
-				if (facet->borderInward[n]) side->planenum ^= 1;
+				if (facet->borderInward[n]) 
+					side->planenum ^= 1;
 				side->contents = CONTENTS_SOLID;
 				side->flags |= SFL_TEXTURED|SFL_CURVE;
 				side->surf = 0;
 				//chop the winding in place
-				if (winding) ChopWindingInPlace(&winding, mapplanes[side->planenum^1].normal, mapplanes[side->planenum^1].dist, 0.1); //CLIP_EPSILON);
+				if (winding) 
+					ChopWindingInPlace(&winding, mapplanes[side->planenum^1].normal, mapplanes[side->planenum^1].dist, 0.1); //CLIP_EPSILON);
 			} //end for
 			//VectorCopy(pc->bounds[0], brush->mins);
 			//VectorCopy(pc->bounds[1], brush->maxs);
@@ -599,9 +657,10 @@ void AAS_CreateCurveBrushes(void)
 			} //end for
 			if (create_aas)
 			{
-				//NOTE: brush bevels now already added
-				//AddBrushBevels(brush);
+				// add bevels here because we told CM_GeneratePatchCollide not to add them
+				AddBrushBevels(brush); //hypov8 enabled in ET
 				Log_Print("AAS_CreateMapBrushes(brush, mapent, qfalse);\n");
+				// create the AAS brushes from this brush, don't add bevels
 				AAS_CreateMapBrushes(brush, mapent, qfalse);
 			} //end if
 			else
@@ -654,7 +713,9 @@ void Q3_LoadMapFromBSP(struct quakefile_s *qf)
 		Q3_ParseBSPEntity(i);
 	} //end for
 
-	AAS_CreateCurveBrushes();
+	if (!noPatches)
+		AAS_CreateCurveBrushes();
+
 	//get the map mins and maxs from the world model
 	ClearBounds(map_mins, map_maxs);
 	for (i = 0; i < entities[0].numbrushes; i++)
@@ -664,6 +725,19 @@ void Q3_LoadMapFromBSP(struct quakefile_s *qf)
 		AddPointToBounds (mapbrushes[i].mins, map_mins, map_maxs);
 		AddPointToBounds (mapbrushes[i].maxs, map_mins, map_maxs);
 	} //end for
+
+#if 1 //ET
+	//write aas data to a quake3 .map so it can be viewed.
+	if ( writeaasmap )
+	{
+		char name[MAX_QPATH];
+		strncpy( name, qf->filename, sizeof( name ) );
+		StripExtension( name );
+		strcat( name, "_aas.map" );
+		WriteMapFile( name );
+	}
+#endif
+
 	/*/
 	for (i = 0; i < nummapbrushes; i++)
 	{

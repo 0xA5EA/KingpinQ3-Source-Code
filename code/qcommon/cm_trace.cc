@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 #include "cm_local.h"
+#include "cm_patch.h" //hypov8. bspc. re'add, wolf
 
 // always use bbox vs. bbox collision and never capsule vs. bbox or vice versa
 //#define ALWAYS_BBOX_VS_BBOX
@@ -990,16 +991,25 @@ void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 		c_trisoup_traces++;
 	}
 #endif
-#if 0
+
+
+	if(tw->trace.fraction < oldFrac)
+	{
+		tw->trace.surfaceFlags = surface->surfaceFlags;
+		tw->trace.contents = surface->contents;
+	}
+}
+#ifdef BSPC //hypov8
 	// 0xA5EA: this is the orginal q3 function
-	void CM_TraceThroughPatch( traceWork_t *tw, cPatch_t *patch ) {
+void CM_TraceThroughPatch( traceWork_t *tw, cSurface_t *patch ) 
+{
 	float		oldFrac;
 
 	c_patch_traces++;
 
 	oldFrac = tw->trace.fraction;
 
-	CM_TraceThroughPatchCollide( tw, patch->pc );
+	CM_TraceThroughPatchCollide( tw, patch->sc );
 
 	if ( tw->trace.fraction < oldFrac ) {
 		tw->trace.surfaceFlags = patch->surfaceFlags;
@@ -1008,12 +1018,6 @@ void CM_TraceThroughSurface(traceWork_t * tw, cSurface_t * surface)
 }
 #endif
 
-	if(tw->trace.fraction < oldFrac)
-	{
-		tw->trace.surfaceFlags = surface->surfaceFlags;
-		tw->trace.contents = surface->contents;
-	}
-}
 
 /*
 ================
@@ -1404,6 +1408,235 @@ static void CM_ProximityToSurface(traceWork_t * tw, cSurface_t * surface)
 CM_TraceThroughLeaf
 ================
 */
+#ifdef BSPC
+
+/*
+================
+CM_CalcTraceBounds
+================
+*/
+static void CM_CalcTraceBounds(traceWork_t * tw, qboolean expand)
+{
+	int             i;
+
+	if(tw->sphere.use)
+	{
+		for(i = 0; i < 3; i++)
+		{
+			if(tw->start[i] < tw->end[i])
+			{
+				tw->bounds[0][i] = tw->start[i] - Q_fabs(tw->sphere.offset[i]) - tw->sphere.radius;
+				tw->bounds[1][i] =
+					tw->start[i] + tw->trace.fraction * tw->dir[i] + Q_fabs(tw->sphere.offset[i]) + tw->sphere.radius;
+			}
+			else
+			{
+				tw->bounds[0][i] =
+					tw->start[i] + tw->trace.fraction * tw->dir[i] - Q_fabs(tw->sphere.offset[i]) - tw->sphere.radius;
+				tw->bounds[1][i] = tw->start[i] + Q_fabs(tw->sphere.offset[i]) + tw->sphere.radius;
+			}
+		}
+	}
+	else
+	{
+		for(i = 0; i < 3; i++)
+		{
+			if(tw->start[i] < tw->end[i])
+			{
+				tw->bounds[0][i] = tw->start[i] + tw->size[0][i];
+				tw->bounds[1][i] = tw->start[i] + tw->trace.fraction * tw->dir[i] + tw->size[1][i];
+			}
+			else
+			{
+				tw->bounds[0][i] = tw->start[i] + tw->trace.fraction * tw->dir[i] + tw->size[0][i];
+				tw->bounds[1][i] = tw->start[i] + tw->size[1][i];
+			}
+		}
+	}
+
+	if(expand)
+	{
+		// expand for epsilon
+		for(i = 0; i < 3; i++)
+		{
+			tw->bounds[0][i] -= 1.0f;
+			tw->bounds[1][i] += 1.0f;
+		}
+	}
+}
+
+
+
+/*
+================
+CM_BoxDistanceFromPlane
+================
+*/
+static float CM_BoxDistanceFromPlane(vec3_t center, vec3_t extents, cplane_t * plane)
+{
+	float           d1, d2;
+
+	d1 = DotProduct(center, plane->normal) - plane->dist;
+	d2 = Q_fabs(extents[0] * plane->normal[0]) + Q_fabs(extents[1] * plane->normal[1]) + Q_fabs(extents[2] * plane->normal[2]);
+
+	if(d1 - d2 > 0.0f)
+	{
+		return d1 - d2;
+	}
+	if(d1 + d2 < 0.0f)
+	{
+		return d1 + d2;
+	}
+	return 0.0f;
+}
+
+/*
+================
+CM_BoxDistanceFromPlane
+================
+*/
+static int CM_TraceThroughBounds(traceWork_t * tw, vec3_t mins, vec3_t maxs)
+{
+	int             i;
+	vec3_t          center, extents;
+
+	for(i = 0; i < 3; i++)
+	{
+		if(mins[i] > tw->bounds[1][i])
+		{
+			return qfalse;
+		}
+		if(maxs[i] < tw->bounds[0][i])
+		{
+			return qfalse;
+		}
+	}
+
+	VectorAdd(mins, maxs, center);
+	VectorScale(center, 0.5f, center);
+	VectorSubtract(maxs, center, extents);
+
+	if(Q_fabs(CM_BoxDistanceFromPlane(center, extents, &tw->tracePlane1)) > tw->traceDist1)
+	{
+		return qfalse;
+	}
+	if(Q_fabs(CM_BoxDistanceFromPlane(center, extents, &tw->tracePlane2)) > tw->traceDist2)
+	{
+		return qfalse;
+	}
+
+	// trace might go through the bounds
+	return qtrue;
+}
+
+
+/*
+================
+CM_CalcTraceBounds
+================
+*/
+static void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
+{
+	int             k;
+	int             brushnum;
+	cbrush_t       *brush;
+	cSurface_t     *patch;
+
+#ifdef MRE_OPTIMIZE
+	float           fraction;
+#endif
+
+	// trace line against all brushes in the leaf
+	for(k = 0; k < leaf->numLeafBrushes; k++)
+	{
+		brushnum = cm.leafbrushes[leaf->firstLeafBrush + k];
+
+		brush = &cm.brushes[brushnum];
+		if(brush->checkcount == cm.checkcount)
+		{
+			continue;			// already checked this brush in another leaf
+		}
+		brush->checkcount = cm.checkcount;
+
+		if(!(brush->contents & tw->contents))
+		{
+			continue;
+		}
+
+#ifdef MRE_OPTIMIZE
+		{
+			if(!CM_TraceThroughBounds(tw, brush->bounds[0], brush->bounds[1]))
+			{
+				continue;
+			}
+		}
+
+		fraction = tw->trace.fraction;
+#endif
+
+		CM_TraceThroughBrush(tw, brush);
+
+		if(!tw->trace.fraction)
+		{
+			return;
+		}
+
+#ifdef MRE_OPTIMIZE
+		if(tw->trace.fraction < fraction)
+		{
+			CM_CalcTraceBounds(tw, qtrue);
+		}
+#endif
+	}
+
+	// trace line against all patches in the leaf
+	for(k = 0; k < leaf->numLeafSurfaces; k++)
+	{
+		patch = cm.surfaces[cm.leafsurfaces[leaf->firstLeafSurface + k]];
+		if(!patch)
+		{
+			continue;
+		}
+		if(patch->checkcount == cm.checkcount)
+		{
+			continue;		// already checked this patch in another leaf
+		}
+		patch->checkcount = cm.checkcount;
+
+		if(!(patch->contents & tw->contents))
+		{
+			continue;
+		}
+
+#ifdef MRE_OPTIMIZE
+
+		if(!CM_TraceThroughBounds(tw, patch->sc->bounds[0], patch->sc->bounds[1]))
+		{
+			continue;
+		}
+
+
+		fraction = tw->trace.fraction;
+#endif
+
+		CM_TraceThroughPatch(tw, patch);
+
+		if(!tw->trace.fraction)
+		{
+			return;
+		}
+
+#ifdef MRE_OPTIMIZE
+		if(tw->trace.fraction < fraction)
+		{
+			CM_CalcTraceBounds(tw, qtrue);
+		}
+#endif
+	}
+	
+}
+
+#else
 void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
 {
 	int             k;
@@ -1516,7 +1749,7 @@ void CM_TraceThroughLeaf(traceWork_t * tw, cLeaf_t * leaf)
 		}
 	}
 }
-
+#endif
 #define RADIUS_EPSILON		1.0f
 
 /*

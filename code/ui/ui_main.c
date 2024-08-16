@@ -1541,12 +1541,9 @@ static void UI_DrawPlayerModel(rectDef_t *rect)
   char model[MAX_QPATH];
   char team[256];
   char head[256];
-  // vec3_t viewangles;
-  vec3_t moveangles;
-  //refEntity_t     body; //add hypov8
-  //playerInfo_t Skin; //add hypov8
 
-  if ((int)trap_Cvar_VariableValue("ui_Q3Model"))
+
+  if ((int)trap_Cvar_VariableValue("ui_Q3Model")) //DM
   {
     qstrcpy(model, UI_Cvar_VariableString("model"));
     qstrcpy(head, UI_Cvar_VariableString("headmodel"));
@@ -1557,12 +1554,11 @@ static void UI_DrawPlayerModel(rectDef_t *rect)
     }
     team[0] = '\0';
   }
-  else
+  else //TEAM
   {
-
     qstrcpy(team, UI_Cvar_VariableString("ui_teamName"));
     qstrcpy(model, UI_Cvar_VariableString("team_model"));
-    qstrcpy(head, UI_Cvar_VariableString("team_headmodel")); //note hypov8 not changed with team_model
+    qstrcpy(head, UI_Cvar_VariableString("team_headmodel"));
     if (q3Model)
     {
       q3Model     = qfalse;
@@ -1572,15 +1568,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect)
   if (updateModel)
   {
     Com_Memset(&info, 0, sizeof(playerInfo_t));
-    //viewangles[YAW]   = 180 - 10;
-    //viewangles[PITCH] = 0;
-    //viewangles[ROLL]  = 0;
-    VectorClear(moveangles);
-    ////////UI_PlayerInfo_SetModel(&info, model, team); //hypov8 todo: merge (not in kpq3)
-  /**///UI_XPPM_RegisterModel(&info, &body , &Skin);
-    //UI_PlayerInfo_SetInfo(&info, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_MACHINEGUN, qfalse);
-    //UI_RegisterClientModelname( &info, model, head, team);
-  UI_RegisterClientModelname( &info, model, team, head);
+    UI_RegisterClientModelname( &info, model, team, head);
     updateModel = qfalse;
   }
   UI_DrawPlayer(rect->x, rect->y, rect->w, rect->h, &info, uiInfo.uiDC.realTime / 2);
@@ -1750,12 +1738,12 @@ static void UI_DrawOpponent(rectDef_t *rect)
     qstrcpy(model, UI_Cvar_VariableString("ui_opponentModel"));
     qstrcpy(headmodel, UI_Cvar_VariableString("ui_opponentModel"));
     team[0] = '\0';
-  //head[0] = '\0'; //add hypov8
+    //head[0] = '\0'; //add hypov8
 
 
-  //qstrcpy(team, UI_Cvar_VariableString("ui_teamName"));
-  //qstrcpy(model, UI_Cvar_VariableString("team_model"));
-  qstrcpy(head, UI_Cvar_VariableString("team_headmodel")); //note hypov8 not changed with team_model
+    //qstrcpy(team, UI_Cvar_VariableString("ui_teamName"));
+    //qstrcpy(model, UI_Cvar_VariableString("team_model"));
+    qstrcpy(head, UI_Cvar_VariableString("team_headmodel")); //note hypov8 not changed with team_model
 
     Com_Memset(&info2, 0, sizeof(playerInfo_t));
     //viewangles[YAW]   = 180 - 10;
@@ -2094,7 +2082,7 @@ static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color)
     uiInfo.currentCrosshair = 0;
   }
  //UI_DrawHandlePic(rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
-  UI_DrawHandlePic(rect->x, rect->y - (rect->h/2), rect->h, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]); //hypov8 add: stop stretch
+  UI_DrawHandlePic(rect->x, rect->y - rect->h +(rect->h*scale), rect->h, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]); //hypov8 add: stop stretch
   trap_R_SetColor(NULL);
 }
 
@@ -2549,12 +2537,12 @@ static qboolean UI_GLMode_HandleKey(int flags, float *special, int key)
     {
       aniso--;
       if (aniso < 0)
-        aniso = 2;
+        aniso = 3;
     }
     else
     {
       aniso++;
-      if (aniso >2)
+      if (aniso >3)
         aniso = 0;
     }
     trap_Cvar_Set("uix_r_textureMode", va("%d", aniso));
@@ -2570,14 +2558,15 @@ static void UI_GLModeQuality(rectDef_t *rect, float scale, vec4_t color, int tex
 
   if (aniso < 0)
     aniso = 0;
-  if (aniso  >2)
-    aniso = 2;
+  if (aniso  >3)
+    aniso = 3;
 
   switch (aniso)
   {
     case 0: video = "Linear"; break;
     case 1: video = "Bilinear"; break;
     case 2: video = "Trilinear"; break;
+    case 3: video = "Custom"; break;
   }
 
   //Text_Paint(rect->x, rect->y, scale, color, va(" %d", aniso), 0, 0, textStyle, NULL_FONT);
@@ -2963,15 +2952,14 @@ static qboolean UI_Effects_HandleKey(int flags, float *special, int key)
   return qfalse;
 }
 
+//teamplay player selector. team toggle skin
 static qboolean UI_ClanName_HandleKey(int flags, float *special, int key)
 {
-  int headIndex;
-
   //hypov8 todo: needed else where?
-  if (trap_Cvar_VariableValue("ui_q3SelectedHead"))
-  {
+  if (trap_Cvar_VariableValue("ui_q3SelectedHead")) {
     uiInfo.q3SelectedHead = (int)trap_Cvar_VariableValue("ui_q3SelectedHead");
   }
+
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER)
   {
     int i;
@@ -2990,15 +2978,10 @@ static qboolean UI_ClanName_HandleKey(int flags, float *special, int key)
     else if (i < 0)
       i = uiInfo.teamCount - 1;
 
-  headIndex = uiInfo.q3SelectedHead; //add hypov8
-
-
-  trap_Cvar_SetValue("ui_q3SelectedHead", uiInfo.q3SelectedHead);
-  //trap_Cvar_Set("ui_q3SelectedHead", va("%d", uiInfo.q3SelectedHead)); //hypov8 add. alow old head selection to be saved
-
+    trap_Cvar_SetValue("ui_q3SelectedHead", uiInfo.q3SelectedHead);
     trap_Cvar_Set("ui_teamName", uiInfo.teamList[i].teamName);
     UI_HeadCountByTeam();
-    UI_FeederSelection(FEEDER_HEADS, headIndex);
+    UI_FeederSelection(FEEDER_HEADS, uiInfo.q3SelectedHead);
     updateModel = qtrue;
     return qtrue;
   }
@@ -3792,6 +3775,7 @@ static void UI_LoadDemos(void)
   }
 }
 
+static int UI_FeederCount(float feederID);
 static void UI_Update(const char *name)
 {
   int val = (int)trap_Cvar_VariableValue(name);
@@ -3823,12 +3807,53 @@ static void UI_Update(const char *name)
   }
   else if (Q_stricmp(name, "ui_GetName") == 0)
   {
-    trap_Cvar_Set("ui_Name", UI_Cvar_VariableString("name"));
+    trap_Cvar_Set("ui_Name", UI_Cvar_VariableString("name")); //todo: check. dont save on esc?
   }
+  else if (Q_stricmp(name, "ui_SetTeamSkin") == 0)
+  {
+    char model[256], head[256];
+    //hypov8 feed team skin name. when player model clicked
+    qstrcpy(model, UI_Cvar_VariableString("team_model"));
+    qstrcpy(head, UI_Cvar_VariableString("team_headmodel")); //note hypov8 not changed with team_model
+    //Com_sprintf(skinTmp, sizeof(skinTmp), "%s/%s", UI_Cvar_VariableString("team_model"), UI_Cvar_VariableString("team_headmodel"));
+    trap_Cvar_Set("ui_team_headmodel", va("%s/%s", model, head));
+  }
+  else if (Q_stricmp(name, "ui_SetSelectedModels") == 0)
+  { 
+    //set heads listbox index
+    //char model[256], head[256];
+    int idxDM = (int)trap_Cvar_VariableValue("ui_selectedModelDM");
+    int idxBM = (int)trap_Cvar_VariableValue("ui_selectedModelBM");
+
+    //qstrcpy(model, UI_Cvar_VariableString("team_model"));
+    //qstrcpy(head, UI_Cvar_VariableString("team_headmodel")); //note hypov8 not changed with team_model
+    //player
+    UI_FeederCount(FEEDER_Q3HEADS);
+    UI_FeederSelection(FEEDER_Q3HEADS, idxDM);
+    UI_FeederCount(FEEDER_HEADS);
+    UI_FeederSelection(FEEDER_HEADS, idxBM);
+    if ((int)trap_Cvar_VariableValue("ui_q3model")) ///DM model
+      uiInfo.q3SelectedHead = idxDM;
+
+    //UI_HeadCountByTeam();
+    //Menu_SetFeederSelection();
+
+    //hypov8 feed team skin name. when player model clicked
+
+    //Com_sprintf(skinTmp, sizeof(skinTmp), "%s/%s", UI_Cvar_VariableString("team_model"), UI_Cvar_VariableString("team_headmodel"));
+    //trap_Cvar_Set("ui_team_headmodel", va("%s/%s", model, head));
+  }
+
+  else if (Q_stricmp(name, "custGFX") == 0)
+  { //show apply button when gfx changed
+    trap_Cvar_SetValue("uix_videoEdited", 1);
+    //trap_Cvar_SetValue("uix_r_custQuality", 0);
+  }
+
   //hypov8
   else if (Q_stricmp(name, "uix_r_hdrRendering") == 0)
   {
-    trap_Cvar_SetValue("uix_r_recompileShaders", 1); //add hypov8
+    trap_Cvar_SetValue("uix_r_recompileShaders", 1); //add hypov8. not needed
   }
 
 #if 0
@@ -3873,9 +3898,11 @@ static void UI_Update(const char *name)
   /////////////// add hypov8 updated menu. use??
   else if (Q_stricmp(name, "uix_r_custQuality") == 0)
   {
+    trap_Cvar_Set("uix_videoEdited", "1"); //show apply button
+
     //FIXME (0xA5EA): this could mess up the gfx setting !!!!!
-    //hypov8 fixed: no lobnger setting rez, bit depth etc..
-    //settings are stoered temporary and can esc without settings being applied
+    //hypov8 fixed: no longer setting rez, bit depth etc..
+    //settings are also stored temporary and can esc without settings being applied
     switch (val)
     {
     case 0:	//"Custom"
@@ -3897,10 +3924,12 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_lodbias", 0);
       trap_Cvar_SetValue("uix_r_reflectionmapping", 1);
       trap_Cvar_SetValue("uix_r_ext_compressed_textures", 0);
+      trap_Cvar_SetValue("uix_r_halfLambertLighting", 1);
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 1);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 0); //GL_LINEAR_MIPMAP_LINEAR
+      trap_Cvar_SetValue("uix_r_texturemode", 0); //GL_LINEAR
+      //trap_Cvar_Set();
       break;
 
     case 2:	//"Very High"
@@ -3918,10 +3947,11 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_lodbias", 0);
       trap_Cvar_SetValue("uix_r_reflectionmapping", 1);
       trap_Cvar_SetValue("uix_r_ext_compressed_textures", 0);
+      trap_Cvar_SetValue("uix_r_halfLambertLighting", 1);
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 1);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 2);
+      trap_Cvar_SetValue("uix_r_texturemode", 2); //GL_LINEAR_MIPMAP_LINEAR
       break;
 
     case 3: 	//"High"
@@ -3939,10 +3969,11 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_lodbias", 0);
       trap_Cvar_SetValue("uix_r_reflectionmapping", 0);
       trap_Cvar_SetValue("uix_r_ext_compressed_textures", 1);
+      trap_Cvar_SetValue("uix_r_halfLambertLighting", 1);
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 0);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 2);
+      trap_Cvar_SetValue("uix_r_texturemode", 2); //GL_LINEAR_MIPMAP_LINEAR
       break;
 
     case 4:		//"Medium"
@@ -3960,10 +3991,11 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_lodbias", 0);
       trap_Cvar_SetValue("uix_r_reflectionmapping", 0);
       trap_Cvar_SetValue("uix_r_ext_compressed_textures", 1);
+      trap_Cvar_SetValue("uix_r_halfLambertLighting", 0);
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 0);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 2);
+      trap_Cvar_SetValue("uix_r_texturemode", 2); //GL_LINEAR_MIPMAP_LINEAR
       break;
 
     case 5:		//"Low"
@@ -3981,15 +4013,16 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_lodbias", 1);
       trap_Cvar_SetValue("uix_r_reflectionmapping", 0);
       trap_Cvar_SetValue("uix_r_ext_compressed_textures", 1);
+      trap_Cvar_SetValue("uix_r_halfLambertLighting", 0);
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 0);
       trap_Cvar_SetValue("uix_r_subdivisions", 12);
-      trap_Cvar_SetValue("uix_r_texturemode", 1);
+      trap_Cvar_SetValue("uix_r_texturemode", 1); //GL_LINEAR_MIPMAP_NEAREST
       break;
 
     case 6:	//hypov8 windowed
       trap_Cvar_SetValue("uix_r_fullScreen", 0);
-      trap_Cvar_SetValue("uix_r_mode", 4); //hypov8 800x600
+      trap_Cvar_SetValue("uix_r_mode", 5); //hypov8 4=800x600 5=1024x768
       trap_Cvar_SetValue("uix_r_dynamicLight", 1);
       trap_Cvar_SetValue("uix_r_dynamicLightCastShadows", 0);
       trap_Cvar_SetValue("uix_r_softShadows", 0);
@@ -4004,10 +4037,11 @@ static void UI_Update(const char *name)
       trap_Cvar_SetValue("uix_r_lodbias", 0);
       trap_Cvar_SetValue("uix_r_reflectionmapping", 1);
       trap_Cvar_SetValue("uix_r_ext_compressed_textures", 1);
+      trap_Cvar_SetValue("uix_r_halfLambertLighting", 1);
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
       trap_Cvar_SetValue("uix_r_parallaxMapping", 1);
       trap_Cvar_SetValue("uix_r_subdivisions", 4);
-      trap_Cvar_SetValue("uix_r_texturemode", 0);
+      trap_Cvar_SetValue("uix_r_texturemode", 1); //GL_LINEAR_MIPMAP_NEAREST
       break;
     }
 
@@ -4168,7 +4202,7 @@ static void UI_RunMenuScript(char **args)
         if (bot > 1)
         {
           if (ui_actualNetGameType.integer >= GT_TEAM)
-        Com_sprintf(buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, TEAM_NAME_NIKKIS);
+            Com_sprintf(buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, TEAM_NAME_NIKKIS);
           else
             Com_sprintf(buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot - 2), skill);
 
@@ -4178,7 +4212,7 @@ static void UI_RunMenuScript(char **args)
         if (bot > 1)
         {
           if (ui_actualNetGameType.integer >= GT_TEAM)
-        Com_sprintf(buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, TEAM_NAME_DRAGONS);
+            Com_sprintf(buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, TEAM_NAME_DRAGONS);
           else
             Com_sprintf(buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot - 2), skill);
 
@@ -4204,7 +4238,7 @@ static void UI_RunMenuScript(char **args)
       trap_Cmd_ExecuteText(EXEC_APPEND, "cvar_restart\n");
       Controls_SetDefaults();
       trap_Cvar_Set("com_introPlayed", "1");
-    trap_Cvar_Set("r_recompileShaders", "1"); //hypov8
+      trap_Cvar_Set("r_recompileShaders", "1"); //hypov8
       trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
 #ifndef STANDALONE  // 0xA5EA
     }
@@ -4320,7 +4354,10 @@ static void UI_RunMenuScript(char **args)
     }
     else if (Q_stricmp(name, "RunDemo") == 0)
     {
-      trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s\n", uiInfo.demoList[uiInfo.demoIndex]));
+      if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < MAX_DEMOS && uiInfo.demoList[uiInfo.demoIndex] != NULL)
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s\n", uiInfo.demoList[uiInfo.demoIndex]));
+      else
+        Com_Printf(S_COLOR_RED"ERROR: failed to load a demo.\n");
     }
     else if (Q_stricmp(name, "KingpinQ3") == 0)
     {
@@ -4485,11 +4522,11 @@ static void UI_RunMenuScript(char **args)
     {
       if ((int)trap_Cvar_VariableValue("g_gametype") >= GT_TEAM)
       {
-      trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ?"": (uiInfo.redBlue == 1) ?  TEAM_NAME_DRAGONS : TEAM_NAME_NIKKIS));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ?"": (uiInfo.redBlue == 1) ?  TEAM_NAME_DRAGONS : TEAM_NAME_NIKKIS));
       }
       else
       {
-      trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "": (uiInfo.redBlue == 1) ? TEAM_NAME_DRAGONS : TEAM_NAME_NIKKIS));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "": (uiInfo.redBlue == 1) ? TEAM_NAME_DRAGONS : TEAM_NAME_NIKKIS));
       }
     }
     else if (Q_stricmp(name, "addFavorite") == 0)
@@ -4638,12 +4675,21 @@ static void UI_RunMenuScript(char **args)
         Menus_CloseAll();
       }
     }
-  else if (Q_stricmp(name, "resetMenu") == 0)
-  {
-    trap_Cvar_SetValue("uix_r_custQuality", 0); // add hypov8
-  }
+#ifdef COMPAT_KPQ3
+    else if (Q_stricmp(name, "resetMenu") == 0)
+    {
+      trap_Cvar_SetValue("uix_r_custQuality", 0); // add hypov8
+      trap_Cvar_SetValue("uix_videoEdited", 1); //show apply button when gfx changed
+    }
+    else if (Q_stricmp(name, "custGFX") == 0)
+    { //show apply button when gfx changed
+      trap_Cvar_SetValue("uix_videoEdited", 1); // add hypov8
+      //not used in menu
+    }
 
-#if 1 //hypo new menu. item changes are stored tempory
+//hypo new menu. item changes are stored tempory
+  //uix_videoEdited //show apply button
+  //uix_r_forceAmbient //allow brighter models
   //uix_r_fullscreen
   //uix_r_hdrRendering
   //uix_r_dynamicLight
@@ -4656,11 +4702,11 @@ static void UI_RunMenuScript(char **args)
   //uix r_mode
   //uix_r_dynamicBspOcclusionCulling		hypov8 need to disable when cg_shadows are disables
   //uix_r_picmip
-  //uix_r_textureMode
   //uix_r_ext_texture_filter_anisotropic
   //uix_r_lodbias
   //uix_r_reflectionmapping
   //uix_r_ext_compressed_textures
+  //uix_r_halfLambertLighting
   //uix_r_normalMapping
   //uix_r_parallaxMapping
   //uix_r_texturemode
@@ -4668,6 +4714,7 @@ static void UI_RunMenuScript(char **args)
   //uix_r_subdivisions
   //uix_r_depthbits
   //uix_r_stencilbits
+  //uix_r_texturemode_str
   //uix_
 
   else if (Q_stricmp(name, "systemCvarsGet") == 0) //hypov8
@@ -4682,74 +4729,48 @@ static void UI_RunMenuScript(char **args)
   }
   else if (Q_stricmp(name, "systemCvarsApply") == 0)
   {
-    //hypov8 todo: move out of int. was for debuging values
-    int uix_r_recompileShaders = (int)trap_Cvar_VariableValue("uix_r_recompileShaders");
-    int uix_r_fullscreen = (int)trap_Cvar_VariableValue("uix_r_fullscreen");
-    int uix_r_hdrRendering = (int)trap_Cvar_VariableValue("uix_r_hdrRendering");
-    int uix_r_dynamicLight = (int)trap_Cvar_VariableValue("uix_r_dynamicLight");
-    int uix_r_dynamicLightCastShadows = (int)trap_Cvar_VariableValue("uix_r_dynamicLightCastShadows");
-    int uix_cg_shadows = (int)trap_Cvar_VariableValue("uix_cg_shadows");
-    int uix_r_softShadows = (int)trap_Cvar_VariableValue("uix_r_softShadows");
-    int uix_r_shadowBlur = trap_Cvar_VariableValue("uix_r_shadowBlur"); //hypov8 todo: float?
-    int uix_r_shadowMapQuality = trap_Cvar_VariableValue("uix_r_shadowMapQuality");
-    int uix_r_bloom = (int)trap_Cvar_VariableValue("uix_r_bloom");
-    int uix_r_mode = (int)trap_Cvar_VariableValue("uix_r_mode");
-    int uix_r_dynamicBspOcclusionCulling = (int)trap_Cvar_VariableValue("uix_r_dynamicBspOcclusionCulling");
-    int uix_r_picmip = (int)trap_Cvar_VariableValue("uix_r_picmip");
-    int uix_r_textureMode = (int)trap_Cvar_VariableValue("uix_r_textureMode"); //uix_r_textureMode
-    int uix_r_ext_texture_filter_anisotropic = (int)trap_Cvar_VariableValue("uix_r_ext_texture_filter_anisotropic");
-    int uix_r_lodbias = (int)trap_Cvar_VariableValue("uix_r_lodbias");
-    int uix_r_reflectionmapping = (int)trap_Cvar_VariableValue("uix_r_reflectionmapping");
-    int uix_r_ext_compressed_textures = (int)trap_Cvar_VariableValue("uix_r_ext_compressed_textures");
-    int uix_r_normalMapping = (int)trap_Cvar_VariableValue("uix_r_normalMapping");
-    int uix_r_parallaxMapping = (int)trap_Cvar_VariableValue("uix_r_parallaxMapping");
-    int uix_r_subdivisions = (int)trap_Cvar_VariableValue("uix_r_subdivisions");
-    int uix_r_colorbits = (int)trap_Cvar_VariableValue("uix_r_colorbits");
-    int uix_r_depthbits = (int)trap_Cvar_VariableValue("uix_r_depthbits");
-    int uix_r_stencilbits = (int)trap_Cvar_VariableValue("uix_r_stencilbits");
+    int uix_r_shadowMapQuality = (int)trap_Cvar_VariableValue("uix_r_shadowMapQuality");
     int uix_r_texturemode = (int)trap_Cvar_VariableValue("uix_r_texturemode");
-    //int uix_ = (int)trap_Cvar_VariableValue("uix_");
-
-    char uix_r_texturemode_str[32];
+    char uix_r_texturemode_str[128];
 
     switch (uix_r_texturemode)
     {
-    case 0:
-      qstrcpy(uix_r_texturemode_str, "GL_LINEAR"); break;
-    case 1:
-      qstrcpy(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_NEAREST"); break;
-    case 2:
-      qstrcpy(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_LINEAR"); break;
+    case 0:  qstrcpy(uix_r_texturemode_str, "GL_LINEAR"); break;
+    case 1:  qstrcpy(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_NEAREST"); break;
+    case 2:  qstrcpy(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_LINEAR"); break;
+    default: trap_Cvar_VariableStringBuffer("uix_r_texturemode_str", uix_r_texturemode_str, 128);
     }
 
 
     // make the tempory values perm
-    trap_Cvar_Set("r_recompileShaders", va("%i", uix_r_recompileShaders));
-    trap_Cvar_Set("r_fullscreen", va("%i", uix_r_fullscreen));
-    trap_Cvar_Set("r_hdrRendering", va("%i", uix_r_hdrRendering));
-    trap_Cvar_Set("r_dynamicLight", va("%i", uix_r_dynamicLight));
-    trap_Cvar_Set("r_dynamicLightCastShadows", va("%i", uix_r_dynamicLightCastShadows));
-    trap_Cvar_Set("cg_shadows", va("%i", uix_cg_shadows));
-    trap_Cvar_Set("r_softShadows", va("%i", uix_r_softShadows));
-    trap_Cvar_Set("r_shadowBlur", va("%i", uix_r_shadowBlur)); //hypov8 todo: float??
-    trap_Cvar_Set("r_shadowMapQuality", va("%i", uix_r_shadowMapQuality));
-    trap_Cvar_Set("r_bloom", va("%i", uix_r_bloom));
-    trap_Cvar_Set("r_mode", va("%i", uix_r_mode));
-    trap_Cvar_Set("r_dynamicBspOcclusionCulling", va("%i", uix_r_dynamicBspOcclusionCulling));
-    trap_Cvar_Set("r_picmip", va("%i", uix_r_picmip));
-    trap_Cvar_Set("r_textureMode", va("%i", uix_r_textureMode)); //uix_r_textureMode
-    trap_Cvar_Set("r_ext_texture_filter_anisotropic", va("%i", uix_r_ext_texture_filter_anisotropic));
-    trap_Cvar_Set("r_lodbias", va("%i", uix_r_lodbias));
-    trap_Cvar_Set("r_reflectionmapping", va("%i", uix_r_reflectionmapping));
-    trap_Cvar_Set("r_ext_compressed_textures", va("%i", uix_r_ext_compressed_textures));
-    trap_Cvar_Set("r_normalMapping", va("%i", uix_r_normalMapping));
-    trap_Cvar_Set("r_parallaxMapping", va("%i", uix_r_parallaxMapping));
-    trap_Cvar_Set("r_subdivisions", va("%i", uix_r_subdivisions));
-    trap_Cvar_Set("r_colorbits", va("%i", uix_r_colorbits));
-    trap_Cvar_Set("r_depthbits", va("%i", uix_r_depthbits));
-    trap_Cvar_Set("r_stencilbits", va("%i", uix_r_stencilbits));
+    trap_Cvar_Set("uix_videoEdited", "0"); //show apply button
+    trap_Cvar_Set("r_forceAmbient",                   va("%f.3", trap_Cvar_VariableValue("uix_r_forceAmbient"))); //float
+    trap_Cvar_Set("r_recompileShaders",               va("%i", (int)trap_Cvar_VariableValue("uix_r_recompileShaders")));
+    trap_Cvar_Set("r_fullscreen",                     va("%i", (int)trap_Cvar_VariableValue("uix_r_fullscreen")));
+    trap_Cvar_Set("r_hdrRendering",                   va("%i", (int)trap_Cvar_VariableValue("uix_r_hdrRendering")));
+    trap_Cvar_Set("r_dynamicLight",                   va("%i", (int)trap_Cvar_VariableValue("uix_r_dynamicLight")));
+    trap_Cvar_Set("r_dynamicLightCastShadows",        va("%i", (int)trap_Cvar_VariableValue("uix_r_dynamicLightCastShadows")));
+    trap_Cvar_Set("cg_shadows",                       va("%i", (int)trap_Cvar_VariableValue("uix_cg_shadows")));
+    trap_Cvar_Set("r_softShadows",                    va("%i", (int)trap_Cvar_VariableValue("uix_r_softShadows")));
+    trap_Cvar_Set("r_shadowBlur",                     va("%i", (int)trap_Cvar_VariableValue("uix_r_shadowBlur"))); //hypov8 todo: float??
+    trap_Cvar_Set("r_shadowMapQuality",               va("%i", (int)trap_Cvar_VariableValue("uix_r_shadowMapQuality")));
+    trap_Cvar_Set("r_bloom",                          va("%i", (int)trap_Cvar_VariableValue("uix_r_bloom")));
+    trap_Cvar_Set("r_mode",                           va("%i", (int)trap_Cvar_VariableValue("uix_r_mode")));
+    trap_Cvar_Set("r_dynamicBspOcclusionCulling",     va("%i", (int)trap_Cvar_VariableValue("uix_r_dynamicBspOcclusionCulling")));
+    trap_Cvar_Set("r_picmip",                         va("%i", (int)trap_Cvar_VariableValue("uix_r_picmip")));
+    trap_Cvar_Set("r_ext_texture_filter_anisotropic", va("%i", (int)trap_Cvar_VariableValue("uix_r_ext_texture_filter_anisotropic")));
+    trap_Cvar_Set("r_lodbias",                        va("%i", (int)trap_Cvar_VariableValue("uix_r_lodbias")));
+    trap_Cvar_Set("r_reflectionmapping",              va("%i", (int)trap_Cvar_VariableValue("uix_r_reflectionmapping")));
+    trap_Cvar_Set("r_ext_compressed_textures",        va("%i", (int)trap_Cvar_VariableValue("uix_r_ext_compressed_textures")));
+    trap_Cvar_Set("r_halfLambertLighting",            va("%i", (int)trap_Cvar_VariableValue("uix_r_halfLambertLighting")));
+    trap_Cvar_Set("r_normalMapping",                  va("%i", (int)trap_Cvar_VariableValue("uix_r_normalMapping")));
+    trap_Cvar_Set("r_parallaxMapping",                va("%i", (int)trap_Cvar_VariableValue("uix_r_parallaxMapping")));
+    trap_Cvar_Set("r_subdivisions",                   va("%i", (int)trap_Cvar_VariableValue("uix_r_subdivisions")));
+    trap_Cvar_Set("r_colorbits",                      va("%i", (int)trap_Cvar_VariableValue("uix_r_colorbits")));
+    trap_Cvar_Set("r_depthbits",                      va("%i", (int)trap_Cvar_VariableValue("uix_r_depthbits")));
+    trap_Cvar_Set("r_stencilbits",                    va("%i", (int)trap_Cvar_VariableValue("uix_r_stencilbits")));
+
     trap_Cvar_Set("r_texturemode", va("%s", uix_r_texturemode_str));
-    //trap_Cvar_Set("", va("%i", uix_));
 
 
     switch (uix_r_shadowMapQuality)
@@ -4820,75 +4841,58 @@ static void UI_RunMenuScript(char **args)
 //add hypov8 used multiple times. get old cvar values
 static void UI_UpdateCvarList(void)
 {
-  int uix_r_recompileShaders = (int)trap_Cvar_VariableValue("r_recompileShaders");
-  int uix_r_fullscreen = (int)trap_Cvar_VariableValue("r_fullscreen");
-  int uix_r_hdrRendering = (int)trap_Cvar_VariableValue("r_hdrRendering");
-  int uix_r_dynamicLight = (int)trap_Cvar_VariableValue("r_dynamicLight");
-  int uix_r_dynamicLightCastShadows = (int)trap_Cvar_VariableValue("r_dynamicLightCastShadows");
-  int uix_cg_shadows = (int)trap_Cvar_VariableValue("cg_shadows");
-  int uix_r_softShadows = trap_Cvar_VariableValue("r_softShadows");
-  int uix_r_shadowBlur = trap_Cvar_VariableValue("r_shadowBlur"); //hypov8 todo: float?
-  int uix_r_shadowMapQuality = trap_Cvar_VariableValue("r_shadowMapQuality");
-  int uix_r_bloom = (int)trap_Cvar_VariableValue("r_bloom");
-  int uix_r_mode = (int)trap_Cvar_VariableValue("r_mode");
-  int uix_r_dynamicBspOcclusionCulling = (int)trap_Cvar_VariableValue("r_dynamicBspOcclusionCulling");
-  int uix_r_picmip = (int)trap_Cvar_VariableValue("r_picmip");
-  int uix_r_textureMode = (int)trap_Cvar_VariableValue("r_textureMode"); //uix_r_textureMode //missing
-  int uix_r_ext_texture_filter_anisotropic = (int)trap_Cvar_VariableValue("r_ext_texture_filter_anisotropic");
-  int uix_r_lodbias = (int)trap_Cvar_VariableValue("r_lodbias");
-  int uix_r_reflectionmapping = (int)trap_Cvar_VariableValue("r_reflectionmapping");
-  int uix_r_ext_compressed_textures = (int)trap_Cvar_VariableValue("r_ext_compressed_textures");
-  int uix_r_normalMapping = (int)trap_Cvar_VariableValue("r_normalMapping");
-  int uix_r_parallaxMapping = (int)trap_Cvar_VariableValue("r_parallaxMapping");
-  int uix_r_subdivisions = (int)trap_Cvar_VariableValue("r_subdivisions");
-  int uix_r_colorbits = trap_Cvar_VariableValue("r_colorbits");
-  int uix_r_depthbits = trap_Cvar_VariableValue("r_depthbits");
-  int uix_r_stencilbits = trap_Cvar_VariableValue("r_stencilbits");
-  char uix_r_texturemode_str[32];
-  int uix_r_texturemode = 1;
-  //int uix_ = trap_Cvar_VariableValue("");
+  char uix_r_texturemode_str[128];
+  int uix_r_texturemode = 3; //3 custom. stored 
+  
+  trap_Cvar_VariableStringBuffer("r_texturemode", uix_r_texturemode_str , 128);
 
-  trap_Cvar_VariableStringBuffer("r_texturemode", uix_r_texturemode_str , 32);
   if (!qstrcmp(uix_r_texturemode_str, "GL_LINEAR"))
     uix_r_texturemode = 0;
+  else if (!qstrcmp(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_NEAREST"))
+    uix_r_texturemode = 1;
   else if (!qstrcmp(uix_r_texturemode_str, "GL_LINEAR_MIPMAP_LINEAR"))
-    uix_r_texturemode = 0;
+    uix_r_texturemode = 2;
 
+  
+  trap_Cvar_Set("uix_videoEdited", "0"); //show apply button. when vid settings have changed
+  trap_Cvar_Set("uix_r_forceAmbient",                   va("%f.3",    trap_Cvar_VariableValue("r_forceAmbient"))); //float
+  trap_Cvar_Set("uix_r_recompileShaders",               va("%i", (int)trap_Cvar_VariableValue("r_recompileShaders")));
+  trap_Cvar_Set("uix_r_fullscreen",                     va("%i", (int)trap_Cvar_VariableValue("r_fullscreen")));
+  trap_Cvar_Set("uix_r_hdrRendering",                   va("%i", (int)trap_Cvar_VariableValue("r_hdrRendering")));
+  trap_Cvar_Set("uix_r_dynamicLight",                   va("%i", (int)trap_Cvar_VariableValue("r_dynamicLight")));
+  trap_Cvar_Set("uix_r_dynamicLightCastShadows",        va("%i", (int)trap_Cvar_VariableValue("r_dynamicLightCastShadows")));
+  trap_Cvar_Set("uix_cg_shadows",                       va("%i", (int)trap_Cvar_VariableValue("cg_shadows")));
+  trap_Cvar_Set("uix_r_softShadows",                    va("%i", (int)trap_Cvar_VariableValue("r_softShadows")));
+  trap_Cvar_Set("uix_r_shadowBlur",                     va("%i", (int)trap_Cvar_VariableValue("r_shadowBlur")));
+  trap_Cvar_Set("uix_r_shadowMapQuality",               va("%i", (int)trap_Cvar_VariableValue("r_shadowMapQuality")));
+  trap_Cvar_Set("uix_r_bloom",                          va("%i", (int)trap_Cvar_VariableValue("r_bloom")));
+  trap_Cvar_Set("uix_r_mode",                           va("%i", (int)trap_Cvar_VariableValue("r_mode")));
+  trap_Cvar_Set("uix_r_dynamicBspOcclusionCulling",     va("%i", (int)trap_Cvar_VariableValue("r_dynamicBspOcclusionCulling")));
+  trap_Cvar_Set("uicx_r_picmip",                        va("%i", (int)trap_Cvar_VariableValue("r_picmip")));
+  trap_Cvar_Set("uicx_r_textureMode",                   va("%i", (int)trap_Cvar_VariableValue("r_textureMode"))); //uix_r_textureMode //fixme
+  trap_Cvar_Set("uix_r_ext_texture_filter_anisotropic", va("%i", (int)trap_Cvar_VariableValue("r_ext_texture_filter_anisotropic")));
+  trap_Cvar_Set("uix_r_lodbias",                        va("%i", (int)trap_Cvar_VariableValue("r_lodbias")));
+  trap_Cvar_Set("uix_r_reflectionmapping",              va("%i", (int)trap_Cvar_VariableValue("r_reflectionmapping")));
+  trap_Cvar_Set("uix_r_ext_compressed_textures",        va("%i", (int)trap_Cvar_VariableValue("r_ext_compressed_textures")));
+  trap_Cvar_Set("uix_r_halfLambertLighting",            va("%i", (int)trap_Cvar_VariableValue("r_halfLambertLighting")));
+  trap_Cvar_Set("uix_r_normalMapping",                  va("%i", (int)trap_Cvar_VariableValue("r_normalMapping")));
+  trap_Cvar_Set("uix_r_parallaxMapping",                va("%i", (int)trap_Cvar_VariableValue("r_parallaxMapping")));
+  trap_Cvar_Set("uix_r_subdivisions",                   va("%i", (int)trap_Cvar_VariableValue("r_subdivisions")));
+  trap_Cvar_Set("uix_r_colorbits",                      va("%i", (int)trap_Cvar_VariableValue("r_colorbits")));
+  trap_Cvar_Set("uix_r_depthbits",                      va("%i", (int)trap_Cvar_VariableValue("r_depthbits")));
+  trap_Cvar_Set("uix_r_stencilbits",                    va("%i", (int)trap_Cvar_VariableValue("r_stencilbits")));
 
-
-  trap_Cvar_Set("uix_r_recompileShaders", va("%i", uix_r_recompileShaders));
-  trap_Cvar_Set("uix_r_fullscreen", va("%i", uix_r_fullscreen));
-  trap_Cvar_Set("uix_r_hdrRendering", va("%i", uix_r_hdrRendering));
-  trap_Cvar_Set("uix_r_dynamicLight", va("%i", uix_r_dynamicLight));
-  trap_Cvar_Set("uix_r_dynamicLightCastShadows", va("%i", uix_r_dynamicLightCastShadows));
-  trap_Cvar_Set("uix_cg_shadows", va("%i", uix_cg_shadows));
-  trap_Cvar_Set("uix_r_softShadows", va("%i", uix_r_softShadows));
-  trap_Cvar_Set("uix_r_shadowBlur", va("%i", uix_r_shadowBlur));
-  trap_Cvar_Set("uix_r_shadowMapQuality", va("%i", uix_r_shadowMapQuality));
-  trap_Cvar_Set("uix_r_bloom", va("%i", uix_r_bloom));
-  trap_Cvar_Set("uix_r_mode", va("%i", uix_r_mode));
-  trap_Cvar_Set("uix_r_dynamicBspOcclusionCulling", va("%i", uix_r_dynamicBspOcclusionCulling));
-  trap_Cvar_Set("uicx_r_picmip", va("%i", uix_r_picmip));
-  trap_Cvar_Set("uicx_r_textureMode", va("%i", uix_r_textureMode)); //uix_r_textureMode
-  trap_Cvar_Set("uix_r_ext_texture_filter_anisotropic", va("%i", uix_r_ext_texture_filter_anisotropic));
-  trap_Cvar_Set("uix_r_lodbias", va("%i", uix_r_lodbias));
-  trap_Cvar_Set("uix_r_reflectionmapping", va("%i", uix_r_reflectionmapping));
-  trap_Cvar_Set("uix_r_ext_compressed_textures", va("%i", uix_r_ext_compressed_textures));
-  trap_Cvar_Set("uix_r_normalMapping", va("%i", uix_r_normalMapping));
-  trap_Cvar_Set("uix_r_parallaxMapping", va("%i", uix_r_parallaxMapping));
-  trap_Cvar_Set("uix_r_subdivisions", va("%i", uix_r_subdivisions));
-  trap_Cvar_Set("uix_r_colorbits", va("%i", uix_r_colorbits));
-  trap_Cvar_Set("uix_r_depthbits", va("%i", uix_r_depthbits));
-  trap_Cvar_Set("uix_r_stencilbits", va("%i", uix_r_stencilbits));
-  trap_Cvar_Set("uix_r_texturemode", va("%i", uix_r_texturemode));
+  trap_Cvar_Set("uix_r_texturemode",                    va("%i", uix_r_texturemode));
+  trap_Cvar_Set("uix_r_texturemode_str",                va("%s", uix_r_texturemode_str));
   //trap_Cvar_Set("uix_", va("%i", uix_));
-
   //trap_Cvar_Set("uix_r_custQuality", 0);
 
 }
 
 static void UI_ResetTempCvarList(void)
 {
+    trap_Cvar_Set("uix_videoEdited", ""); //show apply button
+    trap_Cvar_Set("uix_r_forceAmbient", ""); //show ambiant slider
     trap_Cvar_Set("uix_r_recompileShaders", "");
     trap_Cvar_Set("uix_r_fullscreen", "");
     trap_Cvar_Set("uix_r_hdrRendering", "");
@@ -4907,6 +4911,7 @@ static void UI_ResetTempCvarList(void)
     trap_Cvar_Set("uix_r_lodbias", "");
     trap_Cvar_Set("uix_r_reflectionmapping", "");
     trap_Cvar_Set("uix_r_ext_compressed_textures", "");
+    trap_Cvar_Set("uix_r_halfLambertLighting", ""); //player light style
     trap_Cvar_Set("uix_r_normalMapping", "");
     trap_Cvar_Set("uix_r_parallaxMapping", "");
     trap_Cvar_Set("uix_r_subdivisions", "");
@@ -4914,6 +4919,7 @@ static void UI_ResetTempCvarList(void)
     trap_Cvar_Set("uix_r_depthbits", "");
     trap_Cvar_Set("uix_r_stencilbits", "");
     trap_Cvar_Set("uix_r_texturemode", "");
+    trap_Cvar_Set("uix_r_texturemode_str", "");
     //trap_Cvar_Set("uix_", "");
 
     trap_Cvar_SetValue("uix_r_custQuality", 0);
@@ -4998,7 +5004,7 @@ static int UI_HeadCountByTeam(void)
   int i, j, k, c, tIndex;
 
   c = 0;
- // if (!init) //hypov8 using list
+  if (!init)
   {
     for (i = 0; i < uiInfo.characterCount; i++)
     {
@@ -5986,26 +5992,28 @@ static void UI_FeederSelection(float feederID, int index)
 {
   static char info[MAX_STRING_CHARS];
 
-  if (feederID == FEEDER_HEADS)
+  if (feederID == FEEDER_HEADS) //TEAM models
   {
     int actual;
-  uiInfo.q3SelectedHead = index; //add hypov8
-  trap_Cvar_SetValue("ui_q3SelectedHead", index);//add hypov8
 
-  {
-    uiInfo.q3SelectedHead = (int)trap_Cvar_VariableValue("ui_q3SelectedHead");// UI_Cvar_VariableString("model"));
-  }
+    uiInfo.q3SelectedHead = index; //add hypov8. this does not hilight selected model?
+    trap_Cvar_SetValue("ui_selectedModelBM", index);//add hypov8 //old nameui_q3SelectedHead
     UI_SelectedHead(index, &actual);
     index = actual;
     if (index >= 0 && index < uiInfo.characterCount)
     {
       trap_Cvar_Set("team_model", va("%s", uiInfo.characterList[index].base));
       trap_Cvar_Set("team_headmodel", va("%s", uiInfo.characterList[index].name)); //hypov8 was "*%s"
+      trap_Cvar_Set("ui_team_headmodel", va("%s/%s", 
+        uiInfo.characterList[index].base, uiInfo.characterList[index].name));
       updateModel = qtrue;
     }
   }
-  else if (feederID == FEEDER_Q3HEADS)
+  else if (feederID == FEEDER_Q3HEADS) //DM models
   {
+    trap_Cvar_SetValue("ui_selectedModelDM", index);//add hypov8
+    uiInfo.q3SelectedHead = index; //add hypov8
+
     if (index >= 0 && index < uiInfo.q3HeadCount)
     {
       trap_Cvar_Set("model", uiInfo.q3HeadNames[index]);
@@ -6134,7 +6142,7 @@ static qboolean Team_Parse(char **p)
 
       uiInfo.teamList[uiInfo.teamCount].imageName      = tempStr;
       uiInfo.teamList[uiInfo.teamCount].teamIcon       = trap_R_RegisterShaderNoMip(uiInfo.teamList[uiInfo.teamCount].imageName);
-      uiInfo.teamList[uiInfo.teamCount].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal", uiInfo.teamList[uiInfo.teamCount].imageName));
+      uiInfo.teamList[uiInfo.teamCount].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal", uiInfo.teamList[uiInfo.teamCount].imageName)); //hypov8 todo: images?
       uiInfo.teamList[uiInfo.teamCount].teamIcon_Name  = trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[uiInfo.teamCount].imageName));
 
       uiInfo.teamList[uiInfo.teamCount].cinematic = -1;
@@ -7463,7 +7471,13 @@ vmCvar_t ui_fontTiny;
 vmCvar_t ui_fontHuge;
 vmCvar_t ui_findPlayer;
 vmCvar_t ui_Q3Model;
+//vmCvar_t ui_bmSelectedModel; //add hypov8: model index
+vmCvar_t ui_bmSelectedHead; //add hypov8: head index
 vmCvar_t ui_Q3SelectedHead; //add hypov8
+
+vmCvar_t ui_selectedModelDM; //add hypov8
+vmCvar_t ui_selectedModelBM; //add hypov8
+
 vmCvar_t ui_hudFiles;
 vmCvar_t ui_recordSPDemo;
 vmCvar_t ui_realCaptureLimit;
@@ -7601,8 +7615,9 @@ static cvarTable_t cvarTable[] = {
   {&ui_fontHuge, "ui_fontHuge",  "0.45", CVAR_ARCHIVE},
 
   {&ui_findPlayer, "ui_findPlayer", "thug", CVAR_ARCHIVE},
-  {&ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE}, /*note hypo 1 will load player model in selection menu*/
-  {&ui_Q3SelectedHead, "ui_q3selectedhead", "0", CVAR_ARCHIVE }, //hypov8 used to rember selected player in menu
+  {&ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE}, //hypov8: toggle between team/dm models in player menu's //archive not needed?
+  {&ui_selectedModelDM, "ui_selectedModelDM", "0", CVAR_ARCHIVE}, //hypov8 used to rember selected player in menu
+  {&ui_selectedModelBM, "ui_selectedModelBM", "0", CVAR_ARCHIVE}, //hypov8 used to rember selected player in menu
   {&ui_hudFiles, "cg_hudFiles", DFLT_HUDFILE, CVAR_ARCHIVE},
   {&ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
   {&ui_KingpinQ3FirstRun, "ui_KingpinQ3FirstRun", "0", CVAR_ARCHIVE},

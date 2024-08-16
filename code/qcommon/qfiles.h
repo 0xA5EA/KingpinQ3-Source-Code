@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 // surface geometry should not exceed these limits
-#define	SHADER_MAX_VERTEXES	10000 // match kmap2, was 100000. hypov8 todo check this
+#define	SHADER_MAX_VERTEXES	100000 // match kmap2. hypov8 todo check this
 #define	SHADER_MAX_INDEXES	(SHADER_MAX_VERTEXES * 6)
 #define SHADER_MAX_TRIANGLES (SHADER_MAX_INDEXES / 3)
 
@@ -160,8 +160,9 @@ typedef struct
   int             ofsEnd;		// next surface follows
 } md3Surface_t;
 
-typedef struct {
-  char			name[64];
+typedef struct 
+{
+  char            name[64];
   int             shaderIndex;	// for in-game use
 } md3Shader_t;
 
@@ -793,7 +794,7 @@ typedef struct
 // expense of more memory allocation in the utilities
 #define	MAX_MAP_MODELS		0x400
 #define	MAX_MAP_BRUSHES		0x8000
-#define	MAX_MAP_ENTITIES	0x800
+#define	MAX_MAP_ENTITIES		0x800
 #define	MAX_MAP_ENTSTRING	0x80000
 #define	MAX_MAP_SHADERS		0x400
 
@@ -935,16 +936,6 @@ typedef struct
   byte            latLong[2];
 } dgridPoint_t;
 
-#if /*!defined( COMPAT_KPQ3 ) &&*/ ( defined(COMPAT_Q3A) || defined(COMPAT_ET) ) //hypov8 #if OLDMAP_VERSIONS
-typedef struct
-{
-  vec3_t          xyz;
-  float           st[2];
-  float           lightmap[2];
-  vec3_t          normal;
-  byte            color[4];
-} drawVert_t;
-#else
 typedef struct
 {
   float           xyz[3];
@@ -955,7 +946,7 @@ typedef struct
   float           lightColor[4]; //vertex light 0-255
   float           lightDirection[3];
 } drawVert_t;
-#endif
+
 
 typedef enum
 {

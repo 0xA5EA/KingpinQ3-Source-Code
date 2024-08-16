@@ -166,8 +166,7 @@
       <BaseAddress>0x30000000</BaseAddress>
       <ImportLibrary>$(IntDir)/cgamex86.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
-      <GenerateDebugInformation>
-      </GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>
       </AssemblyDebug>
       <MinimumRequiredVersion />

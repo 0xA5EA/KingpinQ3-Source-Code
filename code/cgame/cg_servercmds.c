@@ -838,10 +838,10 @@ int CG_HeadModelVoiceChats(char *filename)
   char *token;
 
   len = trap_FS_FOpenFile(filename, &f, FS_READ);
-  if (!f)
-    //trap_Print( va( "voice chat file not found: %s\n", filename ) );
+  if (!f){
+    //trap_Print(va("voice chat file not found: %s\n", filename));
     return -1;
-
+  }
   if (len >= MAX_VOICEFILESIZE)
   {
     trap_Print(va(S_COLOR_RED "voice chat file too large: %s is %i, max allowed is %i", filename, len, MAX_VOICEFILESIZE));
@@ -883,6 +883,8 @@ int CG_GetVoiceChat(voiceChatList_t *voiceChatList, const char *id, sfxHandle_t 
   {
     if (!Q_stricmp(id, voiceChatList->voiceChats[i].id))
     {
+      if (!voiceChatList->voiceChats[i].numSounds)
+        return qfalse;//missing sound
       rnd   = random() * voiceChatList->voiceChats[i].numSounds;
       *snd  = voiceChatList->voiceChats[i].sounds[rnd];
       *chat = voiceChatList->voiceChats[i].chats[rnd];
@@ -940,11 +942,15 @@ voiceChatList_t *CG_VoiceChatListForClient(int clientNum)
       if (!qstrlen(headModelVoiceChat[i].headmodel))
       {
         //FIXME(0xA5EA): headmodel vc files ?
-        Com_sprintf(filename, sizeof(filename), "botfiles/bots/%s.vc", headModelName); //hypov8 was scripts/
+        Com_sprintf(filename, sizeof(filename), "botfiles/bots/%s.vc", headModelName); //hypov8 was /scripts/
         voiceChatNum = CG_HeadModelVoiceChats(filename);
 
         if (voiceChatNum == -1)
+        {
+          if (k==1) //print on 2nd try failure
+            Com_DPrintf(S_COLOR_YELLOW"voice chat file not found: %s\n", filename);
           break;
+        }
 
         Com_sprintf(headModelVoiceChat[i].headmodel, sizeof(headModelVoiceChat[i].headmodel), "%s", headModelName);
         headModelVoiceChat[i].voiceChatNum = voiceChatNum;

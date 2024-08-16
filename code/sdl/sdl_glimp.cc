@@ -1786,8 +1786,8 @@ static void GLimp_InitExtensions( void )
 }
 
 #endif
-
-#define R_MODE_FALLBACK 3       // 640 * 480
+//#define R_MODE_FALLBACK 3       // 640 * 480
+#define R_MODE_FALLBACK 4       // 800 * 600
 
 /* Support code for GLimp_Init */
 

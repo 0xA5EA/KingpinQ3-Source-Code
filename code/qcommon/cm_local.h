@@ -88,6 +88,19 @@ typedef struct
 	int             numEdges;
 } cbrush_t;
 
+#ifdef BSPC
+// enable to make the collision detection a bunch faster
+#define MRE_OPTIMIZE
+
+/*typedef struct
+{
+	int             checkcount;	// to avoid repeated testings
+	int             surfaceFlags;
+	int             contents;
+	struct patchCollide_s *pc;
+} cPatch_t;*/
+#endif
+
 
 typedef struct cPlane_s
 {
@@ -214,6 +227,9 @@ typedef struct
 // Used for oriented capsule collision detection
 typedef struct
 {
+#ifdef BSPC //hypov8 copy wolf
+	qboolean        use;
+#endif
 	float           radius;
 	float           halfheight;
 	vec3_t          offset;
@@ -236,6 +252,16 @@ typedef struct
 	sphere_t        sphere;		// sphere for oriendted capsule collision
 	biSphere_t      biSphere;
 	qboolean        testLateralCollision;	// whether or not to test for lateral collision
+
+#ifdef BSPC
+#ifdef MRE_OPTIMIZE
+	cplane_t        tracePlane1;
+	cplane_t        tracePlane2;
+	float           traceDist1;
+	float           traceDist2;
+	vec3_t          dir;
+#endif
+#endif
 } traceWork_t;
 
 typedef struct leafList_s
@@ -345,5 +371,14 @@ cmodel_t       *CM_ClipHandleToModel(clipHandle_t handle);
 
 qboolean        CM_BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
 qboolean        CM_BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t point);
+
+
+// cm_patch.c
+#ifdef BSPC
+//cSurfaceCollide_t *CM_GeneratePatchCollide(int width, int height, vec3_t * points, qboolean addBevels);
+void            CM_TraceThroughPatchCollide(traceWork_t * tw, cSurfaceCollide_t *pc);
+qboolean        CM_PositionTestInPatchCollide(traceWork_t * tw, cSurfaceCollide_t *pc);
+void            CM_ClearLevelPatches(void);
+#endif
 
 #endif // CM_LOCAL_H_

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MAX_VALUE	1024
 
 int num_entities;
-entity_t	entities[MAX_MAP_ENTITIES];
+entity_t	entities[Q3_MAX_MAP_ENTITIES];
 
 void StripTrailing(char *e)
 {
@@ -94,7 +94,7 @@ qboolean	ParseEntity(script_t *script)
 	if (strcmp(token.string, "{"))
 		Error ("ParseEntity: { not found");
 
-	if (num_entities == MAX_MAP_ENTITIES)
+	if (num_entities == Q3_MAX_MAP_ENTITIES)
 		Error ("num_entities == MAX_MAP_ENTITIES");
 
 	mapent = &entities[num_entities];

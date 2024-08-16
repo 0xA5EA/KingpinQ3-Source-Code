@@ -28,10 +28,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 // surface geometry should not exceed these limits
-//#define	SHADER_MAX_VERTEXES	1000
-//#define	SHADER_MAX_INDEXES	(6*SHADER_MAX_VERTEXES)
+#define Q3_SHADER_MAX_VERTEXES 1000
+#define Q3_SHADER_MAX_INDEXES  (6*SHADER_MAX_VERTEXES)
 // 0xA5EA: commented out
-#include "../qcommon/qfiles.h"
+//#include "../qcommon/qfiles.h"
 
 // the maximum size of game reletive pathnames
 #define	MAX_QPATH_KASS		64
@@ -201,7 +201,12 @@ typedef struct {
 //#define Q3_BSP_VERSION			46
 #define Q3_BSP_VERSION			48
 
-#if 0
+#ifdef COMPAT_KPQ3
+#define BSP_IDENT_KPQ3	(('P'<<24)+('S'<<16)+('B'<<8)+'X')  // little-endian "XBSP"
+#define BSP_VERSION_KPQ3			48
+#endif
+
+#if 1
 // there shouldn't be any problem with increasing these values at the
 // expense of more memory allocation in the utilities
 #define	Q3_MAX_MAP_MODELS		0x400
@@ -212,12 +217,12 @@ typedef struct {
 
 #define	Q3_MAX_MAP_AREAS		0x100	// MAX_MAP_AREA_BYTES in q_shared must match!
 #define	Q3_MAX_MAP_FOGS		0x100
-#define	Q3_MAX_MAP_PLANES		0x10000
+#define	Q3_MAX_MAP_PLANES		0x40000
 #define	Q3_MAX_MAP_NODES		0x10000
-#define	Q3_MAX_MAP_BRUSHSIDES	0x10000
+#define	Q3_MAX_MAP_BRUSHSIDES	0x100000
 #define	Q3_MAX_MAP_LEAFS		0x10000
 #define	Q3_MAX_MAP_LEAFFACES	0x10000
-#define	Q3_MAX_MAP_LEAFBRUSHES	0x10000
+#define	Q3_MAX_MAP_LEAFBRUSHES	0x20000
 #define	Q3_MAX_MAP_PORTALS		0x10000
 #define	Q3_MAX_MAP_LIGHTING	0x400000
 #define	Q3_MAX_MAP_LIGHTGRID	0x400000
@@ -280,7 +285,7 @@ typedef struct {
 } q3_dmodel_t;
 
 typedef struct {
-	char		shader[MAX_QPATH_KASS];
+	char		shader[64]; //MAX_QPATH_KASS
 	int			surfaceFlags;
 	int			contentFlags;
 } q3_dshader_t;
@@ -325,11 +330,11 @@ typedef struct {
 } q3_dbrush_t;
 
 typedef struct {
-	char		shader[MAX_QPATH_KASS];
+	char		shader[64]; //MAX_QPATH_KASS
 	int			brushNum;
 	int			visibleSide;	// the brush side that ray tests need to clip against (-1 == none)
 } q3_dfog_t;
-#ifndef COMPAT_KPQ3
+
 typedef struct {
 	vec3_t		xyz;
 	float		st[2];
@@ -337,29 +342,17 @@ typedef struct {
 	vec3_t		normal;
 	byte		color[4];
 } q3_drawVert_t;
-#else
-typedef struct
-{
-	float           xyz[3];
-	float           st[2];
-	float           lightmap[2];
-	float           normal[3];
-	float           paintColor[4];
-	float           lightColor[4];
-	float           lightDirection[3];
-} q3_drawVert_t;
-#endif
-#if 0
+
+
 typedef enum {
-	MST_BAD,
-	MST_PLANAR,
-	MST_PATCH,
-	MST_TRIANGLE_SOUP,
-	MST_FLARE
+	Q3_MST_BAD,
+	Q3_MST_PLANAR,
+	Q3_MST_PATCH,
+	Q3_MST_TRIANGLE_SOUP,
+	Q3_MST_FLARE,
+	Q3_MST_FOLIAGE
 } q3_mapSurfaceType_t;
-#else
-typedef mapSurfaceType_t q3_mapSurfaceType_t;
-#endif
+//typedef mapSurfaceType_t q3_mapSurfaceType_t;
 
 typedef struct {
 	int			shaderNum;
@@ -381,7 +374,44 @@ typedef struct {
 
 	int			patchWidth;
 	int			patchHeight;
-} q3_dsurface_t;
+} xbsp_dsurface_t;
 
+
+#ifdef COMPAT_KPQ3
+// light grid
+typedef struct
+{
+  float           ambient[3]; //hypov8 kpq3 float(was byte). kmap2 = xbspGridPoint_t
+  float           directed[3]; //hypov8 kpq3 float, was byte
+  byte            latLong[2];
+} xbsp_dgridPoint_t;
+
+
+/* brush sides */
+typedef struct
+{
+	int             planeNum;
+	int             shaderNum;
+} xbsp_dbrushSide_t;
+
+/* light grid */
+typedef struct
+{
+	float           ambient[3];
+	float           directed[3];
+	byte            latLong[2];
+} xbsp_gridPoint_t; //hypo new
+
+typedef struct
+{
+  vec3_t           xyz;
+  float           st[2];
+  float           lightmap[2];
+  vec3_t           normal;
+  float           paintColor[4]; //vertex paint color 0.0-1.0
+  float           lightColor[4]; //vertex light 0-255
+  float           lightDirection[3];
+} xbsp_drawVert_t;
+#endif
 
 #endif

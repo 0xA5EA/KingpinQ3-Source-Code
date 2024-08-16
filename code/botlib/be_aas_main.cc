@@ -313,6 +313,11 @@ int AAS_LoadFiles(const char *mapname)
 	char aasfile[MAX_PATH];
 //	char bspfile[MAX_PATH];
 
+#if 1 //hypov8: changed to pointer to fix debugger not showing values
+	aasworld.filename = (char *)GetClearedMemory(MAX_PATH * sizeof(char));
+	aasworld.mapname = (char *)GetClearedMemory(MAX_PATH * sizeof(char));
+#endif
+
 	qstrcpy(aasworld.mapname, mapname);
 	//NOTE: first reset the entity links into the AAS areas and BSP leaves
 	// the AAS link heap and BSP link heap are reset after respectively the

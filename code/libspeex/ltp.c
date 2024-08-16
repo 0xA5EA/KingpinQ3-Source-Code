@@ -782,8 +782,8 @@ spx_word32_t *cumul_gain
    if (pitch_coef>63)
       pitch_coef=63;
 #else
-   if (pitch_coef>.99)
-      pitch_coef=.99;
+   if (pitch_coef>.99f)
+      pitch_coef=.99f;
 #endif
    for (i=0;i<nsf&&i<start;i++)
    {

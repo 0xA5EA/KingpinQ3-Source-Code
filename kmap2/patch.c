@@ -286,8 +286,11 @@ void ParsePatch(qboolean onlyLights, qboolean patchDef3)
 	MatchToken("}");
 
 	/* short circuit */
-	if(noCurveBrushes || onlyLights)
+	if (noCurveBrushes || onlyLights)
+	{
+		free(m.verts);
 		return;
+	}
 
 
 	/* ydnar: delete and warn about degenerate patches */

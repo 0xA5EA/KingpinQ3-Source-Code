@@ -79,6 +79,9 @@ qboolean	noliquids;			//no liquids when writing map file
 qboolean	forcesidesvisible;	//force all brush sides to be visible when loaded from bsp
 qboolean	capsule_collision = 0;
 
+qboolean writeaasmap; //ET
+qboolean noPatches = false; //ET
+
 /*
 //===========================================================================
 //
@@ -510,6 +513,7 @@ int main (int argc, char **argv)
 	char filename[MAX_PATH] = "unknown";
 	quakefile_t *qfiles = NULL, *qf;
 	double start_time;
+	qboolean tmp_verbose = qtrue;
 
 	myargc = argc;
 	myargv = argv;
@@ -531,7 +535,7 @@ int main (int argc, char **argv)
 		else if (!Q_stricmp(argv[i], "-noverbose"))
 		{
 			Log_Print("verbose = false\n");
-			verbose = qfalse;
+			tmp_verbose = qfalse;
 		} //end else if
 		else if (!Q_stricmp(argv[i], "-nocsg"))
 		{
@@ -654,7 +658,6 @@ int main (int argc, char **argv)
 		} //end else if
 		else if (!Q_stricmp(argv[i], "-forcesidesvisible"))
 		{
-			Log_Print("forcesidesvisible\n");
 			forcesidesvisible = qtrue;
 			Log_Print("forcesidesvisible = qtrue\n");
 		} //end else if
@@ -722,6 +725,17 @@ int main (int argc, char **argv)
 			comp = COMP_AASOPTIMIZE;
 			qfiles = GetArgumentFiles(argc, argv, &i, "aas");
 		} //end else if
+ //ET
+		else if (!Q_stricmp(argv[i], "-writeaasmap")) 
+		{
+			writeaasmap = qtrue;
+			Log_Print("writeaasmap = true\n");
+		}
+		else if ( !Q_stricmp(argv[i], "-noPatches")) //ET
+		{
+			noPatches = qtrue;
+			Log_Print("noPatches = true\n");
+		}
 #endif //ME
 		else
 		{
@@ -730,6 +744,9 @@ int main (int argc, char **argv)
 		} //end else
 	} //end for
 
+	//print commands before turning off verbose
+	verbose = tmp_verbose;
+	
 	//if there are parameters and there's no mismatch in one of the parameters
 	if (argc > 1 && i == argc)
 	{
@@ -968,6 +985,8 @@ int main (int argc, char **argv)
 			"   nocsg                                = disables brush chopping\n"
 			"   forcesidesvisible                    = force all sides to be visible\n"
 			"   grapplereach                         = calculate grapple reachabilities\n"
+			"   noPatches                            = remove patches\n"
+			"   writeaasmap                          = write the map the AI sees\n"
 
 /*			"   glview     = output a GL view\n"
 			"   draw       = enables drawing\n"

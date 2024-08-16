@@ -971,8 +971,8 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match)
 #ifdef AI_BM //hypov8 merge:
   else if (gametype == GT_BAGMAN)
   {
-	  if (/*!bm_cash.areanum || */!bm_dragonsafe.areanum || !bm_nikkisafe.areanum)
-		  return;
+    if (/*!bm_cash.areanum || */!bm_dragonsafe.areanum || !bm_nikkisafe.areanum)
+      return;
   }
 #endif
 

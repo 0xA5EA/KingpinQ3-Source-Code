@@ -406,17 +406,17 @@ static void CG_Item(centity_t *cent)
 
   // items without glow textures need to keep a minimum light value
   // so they are always visible
-  if ((item->giType == IT_WEAPON) || (item->giType == IT_ARMOR))
-  {
-    //ent.renderfx |= RF_MINLIGHT;
-    //ent.renderfx |= RF_NOSHADOW;
-    //FIXME(0xA5EA): does this brake reflection mapping ?
+  if (item->giType == IT_WEAPON || item->giType == IT_ARMOR || item->giType == IT_HEALTH || 
+      item->giType == IT_AMMO || item->giType == IT_WEAPMOD)
+  { //just add them all?
+    ent.renderfx |= RF_MINLIGHT;
+    ent.renderfx |= RF_NOSHADOW;
   }
   //FIXME: 0xA5EA IT_WEAPMOD and IT_CASH to add ?
 #ifdef WITH_BAGMAN_MOD
-  if (item->giType == IT_CASH || item->giType == IT_CASH_STOLEN)
+  if (item->giType == IT_CASH || item->giType == IT_CASH_STOLEN || 
+    item->giType == IT_TEAM_SAFE ||item->giType == IT_TEAM)
   {
-    //Com_Printf("IT_CASH\n");
     ent.renderfx |= RF_MINLIGHT;
     ent.renderfx |= RF_NOSHADOW;
     //FIXME(0xA5EA): cashdrop implement

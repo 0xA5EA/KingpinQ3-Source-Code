@@ -908,7 +908,7 @@ static colorGen_t ReturnRGBGenModes()
   if (r_vertexLighting->integer == 1) // hypov8 add vertex light to diffuse images
   {
     if (shader.surfaceFlags & SURF_NOLIGHTMAP)
-      mode = CGEN_IDENTITY;
+      mode = CGEN_IDENTITY; //force white
     else
       mode = CGEN_VERTEX;
   }
@@ -3806,7 +3806,7 @@ static void ParseLightFalloffImage( shaderStage_t *stage, char **text )
 
   stage->active = qtrue;
   stage->type = ST_ATTENUATIONMAP_Z;
-  stage->rgbGen = ReturnRGBGenModes();
+  stage->rgbGen = CGEN_IDENTITY; // ReturnRGBGenModes();
   stage->stateBits = GLS_DEFAULT;
   stage->overrideWrapType = qtrue;
   stage->wrapType = WT_EDGE_CLAMP;
@@ -5591,7 +5591,7 @@ static shader_t *FinishShader( void )
 
       stages[ 0 ].active = qtrue;
       stages[ 0 ].type = ST_ATTENUATIONMAP_Z;
-      stages[ 0 ].rgbGen = ReturnRGBGenModes();
+      stages[ 0 ].rgbGen = CGEN_IDENTITY; // ReturnRGBGenModes();
       stages[ 0 ].stateBits = GLS_DEFAULT;
       stages[ 0 ].overrideWrapType = qtrue;
       stages[ 0 ].wrapType = WT_EDGE_CLAMP;
@@ -5781,11 +5781,11 @@ static shader_t *FinishShader( void )
     //bug: check if <alphaGen vertex> not set for pointlight shaders
     if (pStage->type == ST_COLORMAP 
       && pStage->alphaGen != AGEN_VERTEX 
-      && (shader.surfaceFlags & SURF_VERTEXLIT)
+      && (shader.surfaceFlags & SURF_POINTLIGHT)
       && !( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS )) )
     {
       //todo: fix this b4 it gets here
-      ri.Printf(PRINT_WARNING, "WARNING: pointlight shader needs alphaGen vertex set in\n '%s'\n", shader.name);
+      ri.Printf(PRINT_WARNING, "WARNING: pointlight shader needs alphaGen vertex set in '%s'\n", shader.name);
     }
   }
 
@@ -6399,13 +6399,13 @@ shader_t       *R_FindShader( const char *name, shaderType_t type,
         stages[ 0 ].type = ST_ATTENUATIONMAP_Z;
         stages[ 0 ].bundle[ 0 ].image[ 0 ] = tr.noFalloffImage; // FIXME should be attenuationZImage
         stages[ 0 ].active = qtrue;
-		stages[0].rgbGen = CGEN_IDENTITY; // ReturnRGBGenModes();
+		stages[0].rgbGen = CGEN_IDENTITY;
         stages[ 0 ].stateBits = GLS_DEFAULT;
 
         stages[ 1 ].type = ST_ATTENUATIONMAP_XY;
         stages[ 1 ].bundle[ 0 ].image[ 0 ] = image;
         stages[ 1 ].active = qtrue;
-		stages[1].rgbGen = CGEN_IDENTITY; // ReturnRGBGenModes();
+		stages[1].rgbGen = CGEN_IDENTITY;
         stages[ 1 ].stateBits = GLS_DEFAULT;
         //stages[1].stateBits |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
         break;

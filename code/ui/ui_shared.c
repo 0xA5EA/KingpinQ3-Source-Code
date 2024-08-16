@@ -1144,6 +1144,11 @@ void Menus_OpenByName(const char *p)
 
 static void Menu_RunCloseScript(menuDef_t *menu)
 {
+
+#ifdef HYPODEBUG
+    if (menu && DC->getCVarValue("developer"))
+      Com_Printf("ui Script_Close ("S_COLOR_RED"%s"S_COLOR_WHITE")\n", menu->window.name);
+#endif
   if (menu && menu->window.flags & WINDOW_VISIBLE && menu->onClose)
   {
     itemDef_t item;
@@ -2890,6 +2895,12 @@ static void Display_CloseCinematics(void)
 
 void Menus_Activate(menuDef_t *menu)
 {
+#ifdef HYPODEBUG
+  //print opened menu name
+  if (DC->getCVarValue("developer"))
+    Com_Printf("ui Script_Open ("S_COLOR_CYAN"%s"S_COLOR_WHITE")\n", menu->window.name);
+#endif
+
   menu->window.flags |= (WINDOW_HASFOCUS | WINDOW_VISIBLE);
   if (menu->onOpen)
   {
@@ -3599,6 +3610,7 @@ static bind_t g_bindings[] =
   {"+attack",       K_CTRL,             -1,     -1, -1},
   {"+button11",       'r',              -1,     -1, -1},     // reload //hypov8 todo: toggle reload??  cleanup!!!
   {"flashlight",      'g',              -1,     -1, -1},     // flashlight
+  {"screenshotPNG",     K_F11,          -1,     -1, -1},     // hypov8 add: screenshotPNG
   {"weapprev",       '[',               -1,     -1, -1},
   {"weapnext",          ']',            -1,     -1, -1},
   {"+button3",      K_MOUSE3,           -1,     -1, -1},

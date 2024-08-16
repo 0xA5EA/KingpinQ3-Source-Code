@@ -125,7 +125,7 @@ winding_t *AddWindingPoint(winding_t *w, vec3_t point, int spot);
 //returns true if the point is on one of the winding 'edges'
 //when the point is on one of the edged the number of the first
 //point of the edge is stored in 'spot' 
-int PointOnWinding(winding_t *w, vec3_t normal, float dist, vec3_t point, int *spot);
+//int PointOnWinding(winding_t *w, vec3_t normal, float dist, vec3_t point, int *spot);
 //removes equal points from the winding
 void RemoveEqualPoints(winding_t *w, float epsilon);
 //try to merge the two windings which are in the given plane
@@ -135,16 +135,16 @@ void RemoveEqualPoints(winding_t *w, float epsilon);
 winding_t *TryMergeWinding (winding_t *f1, winding_t *f2, vec3_t planenormal);
 //brute force winding merging... creates a convex winding out of
 //the two whatsoever
-winding_t *MergeWindings(winding_t *w1, winding_t *w2, vec3_t planenormal);
-int FindPlaneSeperatingWindings(winding_t *w1, winding_t *w2, vec3_t dir,
-											vec3_t normal, float *dist);
-int WindingMemory(void);
+//winding_t *MergeWindings(winding_t *w1, winding_t *w2, vec3_t planenormal);
+/*int FindPlaneSeperatingWindings(winding_t *w1, winding_t *w2, vec3_t dir,
+											vec3_t normal, float *dist, vec3_t* points);*/
+//int WindingMemory(void);
 //returns the winding error string
 char *WindingErrorString(void);
 //returns one of the WE_ flags when the winding has errors
 int WindingError(winding_t *w);
-int WindingsNonConvex(winding_t *w1, winding_t *w2,
+/*int WindingsNonConvex(winding_t *w1, winding_t *w2,
 							 vec3_t normal1, vec3_t normal2,
-							 float dist1, float dist2);
+							 float dist1, float dist2);*/
 
 #endif //L_POLY_H

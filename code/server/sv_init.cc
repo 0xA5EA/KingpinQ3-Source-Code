@@ -639,28 +639,28 @@ void SV_Init (void)
 	SV_AddOperatorCommands();
 
 	// serverinfo vars
-	sv_dmflags		  = Cvar_Get("g_dmflags", "0", CVAR_SERVERINFO); //hypov8 "g_dmflags"
-						Cvar_Get("g_fraglimit", "20", CVAR_SERVERINFO); //hypov8 "fraglimit"
-						Cvar_Get("g_timelimit", "0", CVAR_SERVERINFO); //hypov8 "timelimit"
-	sv_gametype		  = Cvar_Get("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_TEMP); //hypov8 allways load dm if not specified
-	sv_weaponMode	  = Cvar_Get("g_weaponmod", "0", CVAR_SERVERINFO | CVAR_LATCH);     // 0xA5EA
-						Cvar_Get("sv_keywords", "", CVAR_SERVERINFO);
-						//Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM); //hypov8 "protocol"
-	sv_mapname        = Cvar_Get("mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM);
+	sv_dmflags        = Cvar_Get("g_dmflags",   "0", CVAR_SERVERINFO); //hypov8 "g_dmflags"
+	                    Cvar_Get("g_fraglimit", "20", CVAR_SERVERINFO); //hypov8 "fraglimit"
+	                    Cvar_Get("g_timelimit", "0", CVAR_SERVERINFO); //hypov8 "timelimit"
+	sv_gametype       = Cvar_Get("g_gametype",  "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_TEMP); //hypov8 allways load dm if not specified
+	sv_weaponMode     = Cvar_Get("g_weaponmod", "0", CVAR_SERVERINFO | CVAR_LATCH);     // 0xA5EA
+	                    Cvar_Get("sv_keywords", "", CVAR_SERVERINFO);
+	                  //Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM); //hypov8 "protocol"
+	sv_mapname        = Cvar_Get("mapname",           "nomap", CVAR_SERVERINFO | CVAR_ROM);
 	sv_privateClients = Cvar_Get("sv_privateClients", "0", CVAR_SERVERINFO);
-	sv_hostname       = Cvar_Get("sv_hostname", "KingpinQ3 Server", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	sv_maxclients     = Cvar_Get("sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
-	sv_minRate        = Cvar_Get("sv_minRate", "1000", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_maxRate        = Cvar_Get("sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_maxvelocity    = Cvar_Get("sv_maxvelocity", "2000", CVAR_ARCHIVE | CVAR_SERVERINFO); //hypov8 add: bunny speed?
-	sv_dlRate         = Cvar_Get("sv_dlRate", "100", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_minPing        = Cvar_Get("sv_minPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_maxPing        = Cvar_Get("sv_maxPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_floodProtect   = Cvar_Get("sv_floodProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_hostname       = Cvar_Get("sv_hostname",       "KingpinQ3 Server", CVAR_SERVERINFO | CVAR_ARCHIVE);
+	sv_maxclients     = Cvar_Get("sv_maxclients",     "8", CVAR_SERVERINFO | CVAR_LATCH);
+	sv_minRate        = Cvar_Get("sv_minRate",        "1000", CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_maxRate        = Cvar_Get("sv_maxRate",        "0",    CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_maxvelocity    = Cvar_Get("sv_maxvelocity",    "2000", CVAR_ARCHIVE | CVAR_SERVERINFO); //hypov8 add: bunny speed?
+	sv_dlRate         = Cvar_Get("sv_dlRate",         "100", CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_minPing        = Cvar_Get("sv_minPing",        "0",  CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_maxPing        = Cvar_Get("sv_maxPing",        "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_floodProtect   = Cvar_Get("sv_floodProtect",   "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
 	// systeminfo
-	Cvar_Get("sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM);
+	              Cvar_Get("sv_cheats",   "1", CVAR_SYSTEMINFO | CVAR_ROM);
 	sv_serverid = Cvar_Get("sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM);
-	sv_pure			= Cvar_Get("sv_pure", "1", CVAR_SYSTEMINFO | CVAR_SERVERINFO); //hypov8 +set 0 for dev
+	sv_pure     = Cvar_Get("sv_pure",     "1", CVAR_SYSTEMINFO | CVAR_SERVERINFO); //hypov8 +set 0 for dev
 #ifdef USE_VOIP
 	sv_voip = Cvar_Get("sv_voip", "1", CVAR_SYSTEMINFO | CVAR_LATCH);
 	Cvar_CheckRange(sv_voip, 0, 1, qtrue);

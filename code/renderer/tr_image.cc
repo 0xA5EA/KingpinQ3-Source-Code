@@ -2696,7 +2696,7 @@ image_t        *R_FindImageFile( const char *imageName, int bits, filterType_t f
 
 				if ( image->wrapType != wrapType )
 				{
-					ri.Printf( PRINT_ALL, "WARNING: reused image '%s' with mixed glWrapType parm for shader '%s'\n", imageName, materialName );
+					ri.Printf( PRINT_WARNING, "WARNING: reused image '%s' with mixed glWrapType parm for shader '%s'\n", imageName, materialName );
 				}
 			}
 			return image;

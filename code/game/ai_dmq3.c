@@ -146,6 +146,7 @@ int BotCTFCarryingFlag(bot_state_t *bs)
     return CTF_FLAG_NIKKI;
   return CTF_FLAG_NONE;
 }
+
 #ifdef AI_BM
 /*
 ==================
@@ -153,11 +154,12 @@ BotBMCarryingCash
 hypov8 cash
 ==================
 */
-
 int BotBMCarryingCash(bot_state_t *bs) //hypo
 {
-  if (gametype != GT_BAGMAN)						return qfalse;
-  if (bs->inventory[INVENTORY_PLAYER_CASH] >= 100)	return qtrue;
+  if (gametype != GT_BAGMAN)
+    return qfalse;
+  if (bs->inventory[INVENTORY_PLAYER_CASH] >= 100)
+    return qtrue;
 
   return qfalse;
 }
@@ -168,11 +170,12 @@ BotBMCarryingStolen
 hypov8 stolen bags
 ==================
 */
-
 int BotBMCarryingStolen(bot_state_t *bs) //hypo
 {
-  if (gametype != GT_BAGMAN)						return qfalse;
-  if (bs->inventory[INVENTORY_BAG_CASH] >= 100)		return qtrue; //hypov8 testing
+  if (gametype != GT_BAGMAN)
+    return qfalse;
+  if (bs->inventory[INVENTORY_BAG_CASH] > 0)
+    return qtrue;
 
   return qfalse;
 }
@@ -189,11 +192,9 @@ bot_goal_t FindItemCash( char itemname, bot_state_t  *bs)
 
   trap_AAS_EntityInfo(0,0);
 
-
   Com_Memcpy(&bs->teamgoal, &bm_cash, sizeof(bot_goal_t));
   return bm_cash;
 }
-
 #endif //endif AI_BM
 
 
@@ -249,10 +250,6 @@ bot_goal_t *BotEnemyFlag(bot_state_t *bs)
     return &ctf_blueflag;
   else
     return &ctf_redflag;
-
-#ifdef AI_BM
-  //hypov8 todo:
-#endif
 }
 
 /*
@@ -266,10 +263,35 @@ bot_goal_t *BotTeamFlag(bot_state_t *bs)
     return &ctf_redflag;
   else
     return &ctf_blueflag;
-#ifdef AI_BM
-  //hypov8 todo:
-#endif
 }
+
+#ifdef AI_BM
+/*
+ ==================
+ BotEnemySafe
+ ==================
+ */
+bot_goal_t *BotEnemySafe(bot_state_t *bs)
+{
+  if (BotTeam(bs) == TEAM_DRAGONS)
+    return &bm_nikkisafe;
+  else
+    return &bm_dragonsafe;
+}
+
+/*
+ ==================
+ BotTeamsafe
+ ==================
+ */
+bot_goal_t *BotTeamsafe(bot_state_t *bs)
+{
+  if (BotTeam(bs) == TEAM_DRAGONS)
+    return &bm_dragonsafe;
+  else
+    return &bm_nikkisafe;
+}
+#endif //END AI_BM
 
 /*
  ==================
@@ -303,10 +325,10 @@ qboolean EntityCarriesFlag(aas_entityinfo_t *entinfo)
     return qtrue;
   if ( entinfo->powerups & ( 1 << PW_NEUTRALFLAG ) )
     return qtrue;
-
+#ifdef AI_BM
   if (entinfo->powerups & (1 << PW_STOLENSCASH))
     return qtrue;
-
+#endif
   return qfalse;
 }
 //FIXME(0xA5EA): BAGMAN
@@ -467,53 +489,53 @@ void BotSetTeamStatus(bot_state_t *bs)
     break;
     case LTG_TEAMACCOMPANY:
       //FIXME (0xA5EA):
-    BotEntityInfo(bs->teammate, &entinfo);
-    if ( ( (gametype == GT_CTF || gametype == GT_1FCTF) && EntityCarriesFlag(&entinfo)))
+      BotEntityInfo(bs->teammate, &entinfo);
+      if ( ( (gametype == GT_CTF || gametype == GT_1FCTF) && EntityCarriesFlag(&entinfo)))
 #if 0
         || ( gametype == GT_HARVESTER && EntityCarriesCubes(&entinfo)) )
 #endif
-    {
-      teamtask = TEAMTASK_ESCORT;
-    }
-    else
-    {
-      teamtask = TEAMTASK_FOLLOW;
-    }
-    break;
+      {
+        teamtask = TEAMTASK_ESCORT;
+      }
+      else
+      {
+        teamtask = TEAMTASK_FOLLOW;
+      }
+      break;
     case LTG_DEFENDKEYAREA:
-    teamtask = TEAMTASK_DEFENSE;
-    break;
+      teamtask = TEAMTASK_DEFENSE;
+      break;
     case LTG_GETFLAG:
-    teamtask = TEAMTASK_OFFENSE;
-    break;
+      teamtask = TEAMTASK_OFFENSE;
+      break;
     case LTG_RUSHBASE:
-    teamtask = TEAMTASK_DEFENSE;
-    break;
+      teamtask = TEAMTASK_DEFENSE;
+      break;
     case LTG_RETURNFLAG:
-    teamtask = TEAMTASK_RETRIEVE;
-    break;
+      teamtask = TEAMTASK_RETRIEVE;
+      break;
     case LTG_CAMP:
     case LTG_CAMPORDER:
-    teamtask = TEAMTASK_CAMP;
-    break;
+      teamtask = TEAMTASK_CAMP;
+      break;
     case LTG_PATROL:
-    teamtask = TEAMTASK_PATROL;
-    break;
+      teamtask = TEAMTASK_PATROL;
+      break;
     case LTG_GETITEM:
-    teamtask = TEAMTASK_PATROL;
-    break;
+      teamtask = TEAMTASK_PATROL;
+      break;
     case LTG_KILL:
-    teamtask = TEAMTASK_PATROL;
-    break;
+      teamtask = TEAMTASK_PATROL;
+      break;
     case LTG_HARVEST:
-    teamtask = TEAMTASK_OFFENSE;
-    break;
+      teamtask = TEAMTASK_OFFENSE;
+      break;
     case LTG_ATTACKENEMYBASE:
-    teamtask = TEAMTASK_OFFENSE;
-    break;
+      teamtask = TEAMTASK_OFFENSE;
+      break;
     default:
-    teamtask = TEAMTASK_PATROL;
-    break;
+      teamtask = TEAMTASK_PATROL;
+      break;
   }
   BotSetUserInfo(bs, "teamtask", va("%d", teamtask));
 }
@@ -1226,204 +1248,234 @@ void Bot1FCTFRetreatGoals(bot_state_t *bs)
 #ifdef AI_BM //TODO: its just copied form ctf
 void BotBMSeekGoals(bot_state_t *bs)
 {
-  float UNUSED l1, l2;
-  //	float rnd;
-  int c;
+  float UNUSED l1, l2, rnd;
+  int cashSelfTeam, cashOpTeam, cash50, cash75;
+  //int c;
   //vec3_t dir;
   aas_entityinfo_t entinfo;
-
-  //trap_BotGetLevelItemGoal(i, goalname, goal);
-
-  //if (!BotGetItemTeamGoal(char *goalname, bot_goal_t *goal))
-
-  //BG_FindItem("Cashroll");
+#if 0
   // if the bot decided to follow someone
   if (bs->ltgtype == LTG_TEAMACCOMPANY && !bs->ordered)
   {
     // if the team mate being accompanied no longer carries the flag
     BotEntityInfo(bs->teammate, &entinfo);
-    if (!EntityCarriesFlag(&entinfo))
+    //
+    if (!EntityCarriesFlag(&entinfo) /*|| BotBMCarryingStolen(bs)*/)
     {
       bs->ltgtype = 0;
     }
   }
-
-  //when carrying a stolen cash, bot should rush to the safe
-  if (BotBMCarryingStolen(bs))
+#endif
+  //when carrying a stolen/pickup cash, bot should rush to the safe
+  if (BotBMCarryingStolen(bs) || BotBMCarryingCash(bs))
   {
-    //if not already rushing to the base
-    if (bs->ltgtype != LTG_RUSHBASE)
+    //if not already rush back to base
+    if (bs->ltgtype != LTG_BM_DEPOSIT_CASH_STOLEN)//LTG_RUSHBASE)
     {
       BotRefuseOrder(bs);
-      bs->ltgtype = LTG_RUSHBASE;
+      bs->ltgtype = LTG_BM_DEPOSIT_CASH_STOLEN; //LTG_RUSHBASE;
       bs->teamgoal_time = FloatTime() + CTF_RUSHBASE_TIME;
       bs->rushbaseaway_time = 0;
       bs->decisionmaker = bs->client;
       bs->ordered = qfalse;
-      //bs->;
-
-      Com_Memcpy(&bs->teamgoal, &bm_cash, sizeof(bot_goal_t));
-
-      // get an alternative route goal through the enemy base
-      //BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
-      //BotSetTeamStatus(bs);
-      // don't use any alt route goal, just get the hell out of the base
       bs->altroutegoal.areanum = 0;
 
       BotSetUserInfo(bs, "teamtask", va("%d", TEAMTASK_OFFENSE));
       BotVoiceChat(bs, -1, VOICECHAT_IHAVEFLAG);
     }
     else if (bs->rushbaseaway_time > FloatTime())
-
-
-      //hypov8 not needed safe will not go missing
     {
-      bs->ltgtype = LTG_RUSHBASE;
+      // get an alternative route goal through the enemy base
+      //BotGetAlternateRouteGoal(bs, BotTeam(bs)); // BotOppositeTeam(bs));
+      //BotSetTeamStatus(bs);
+      //bs->ltgtype = LTG_BM_DEPOSIT_CASH; // LTG_RUSHBASE;
+      //bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
+    }
+    return;
+  }//end bot carrying stolen cash. rush to base
 
-      /*
-      if (BotTeam(bs) == TEAM_DRAGONS)
-      flagstatus = bs->cur_ps.stats[47]; //hypo
-      else
-      flagstatus =  bs->blueflagstatus;
-      //if the flag is back
-      if (flagstatus == 0)
+  // if the bot decided to follow someone
+  if (bs->ltgtype == LTG_TEAMACCOMPANY && !bs->ordered)
+  {
+    // if the team mate being accompanied no longer carries the flag
+    BotEntityInfo(bs->teammate, &entinfo);
+    if (!EntityCarriesFlag(&entinfo)) //or bag
+    {
+      bs->ltgtype = 0;
+    }
+  }
+
+  //
+  if (BotTeam(bs) == TEAM_DRAGONS){
+    cashSelfTeam = level.teamScores[TEAM_DRAGONS];
+    cashOpTeam = level.teamScores[TEAM_NIKKIS];
+  }
+  else{
+    cashSelfTeam = level.teamScores[TEAM_NIKKIS];
+    cashOpTeam = level.teamScores[TEAM_DRAGONS];
+  }
+  cash50 = (int)(g_cashlimit.integer * 0.5);
+  cash75 = (int)(g_cashlimit.integer * 0.75);
+  /////////////////
+  //defend our cash
+#if 0 
+  if (cashSelfTeam >= cash75 /*&& rand()%5*/) //hypov8 add random?
+  {
+    if ( bs->owndecision_time < FloatTime())
+    {
+      if (!(bs->ltgtype == LTG_DEFENDKEYAREA 
+        && (bs->teamgoal.number == bm_dragonsafe.number || bs->teamgoal.number == bm_nikkisafe.number))
+      )
+      //if (bs->ltgtype != LTG_BM_COLLECT_CASH //LTG_GETFLAG /*LTG_RUSHBASE*/ 
+      //  && bs->ltgtype != LTG_GETITEM)
       {
-      bs->rushbaseaway_time = 0;
+        BotRefuseOrder(bs);
+        bs->decisionmaker = bs->client;
+        bs->ordered = qfalse;
+        //get enemy cash
+        bs->teammessage_time = FloatTime() + 2 * random();
+        //get cash
+        bs->ltgtype = LTG_GETFLAG; //hypo
+        //set the time the bot will stop getting the flag
+        bs->teamgoal_time = FloatTime() + TEAM_GETITEM_TIME; // CTF_GETFLAG_TIME;
+        //get an alternative route goal towards base
+        //BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
+        //set status
+        BotSetTeamStatus(bs);
+        bs->owndecision_time = FloatTime() + 5;
       }
-       */
     }
 
-    return;
-  }
-
-  else if (BotBMCarryingCash(bs))//if bot has enough cash
-  {
-    //if not already rushing to the base
-    if (bs->ltgtype != LTG_RUSHBASE)
+    // if not trying to return the flag and not following the team flag carrier
+    if (bs->ltgtype != LTG_RETURNFLAG && bs->ltgtype != LTG_TEAMACCOMPANY)
     {
-      BotRefuseOrder(bs);
-      bs->ltgtype = LTG_RUSHBASE;
-      bs->teamgoal_time = FloatTime() + CTF_RUSHBASE_TIME;
-      bs->rushbaseaway_time = 0;
-      bs->decisionmaker = bs->client;
-      bs->ordered = qfalse;
-      Com_Memcpy(&bs->teamgoal, &bm_cash, sizeof(bot_goal_t));
-
-      // don't use any alt route goal, just get the hell out of the base
-      bs->altroutegoal.areanum = 0;
-      BotSetUserInfo(bs, "teamtask", va("%d", TEAMTASK_OFFENSE));
-      BotVoiceChat(bs, -1, VOICECHAT_IHAVEFLAG);
-
-    }
-    else if (bs->rushbaseaway_time > FloatTime()) //hypov8 else set a new goal???
-    {
-      /*
-      if (BotTeam(bs) == TEAM_DRAGONS)
-        flagstatus = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP]; //hypo
-
-      else
-        flagstatus = bs->blueflagstatus;
-      //if the flag is back
-      if (flagstatus == 0)
-      {
-
-      } */
-      bs->rushbaseaway_time = 0;
-    }
-    return;
-  }
-  //steal cash if other team has pleanty
-  else if (level.teamScores[BotOppositeTeam(bs)] >= g_cashlimit.integer *.5) //hypov8 add random?
-  {
-
-    if (bs->ltgtype != LTG_RUSHBASE && bs->ltgtype != LTG_GETITEM)
-    {
-      BotRefuseOrder(bs);
-      bs->decisionmaker = bs->client;
-      bs->ordered = qfalse;
-      //get the enemy flag
-      bs->teammessage_time = FloatTime() + 2 * random();
-      //get the flag
-      bs->ltgtype = LTG_GETFLAG; //hypo
-      //set the time the bot will stop getting the flag
-      bs->teamgoal_time = FloatTime() + CTF_GETFLAG_TIME;
-      //get an alternative route goal towards the enemy base
-      BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
       //
-      BotSetTeamStatus(bs);
-      bs->owndecision_time = FloatTime() + 5;
-
-    }
-
-    /*
-      switch (BotOppositeTeam(bs))
+      c = BotTeamFlagCarrierVisible(bs);
+      // if there is a visible team mate flag carrier
+      if (c >= 0)
       {
-      case TEAM_DRAGONS:
-      if (level.teamScores[TEAM_DRAGONS] >= g_cashlimit.integer *.7)
-      //bm_dragonsafe.origin //hypo
-      break;
-      case TEAM_NIKKIS:
-      if (level.teamScores[TEAM_NIKKIS] >= g_cashlimit.value *.7)
-      bm_nikkisafe.number; //hypo
-      break;
-      }
-     */
-
-    //Com_Memcpy(&bs->teamgoal, &bm_cash, sizeof(bot_goal_t));
-    //
-    if (bs->owndecision_time < FloatTime())
-    {
-      // if not trying to return the flag and not following the team flag carrier
-      if (bs->ltgtype != LTG_RETURNFLAG && bs->ltgtype != LTG_TEAMACCOMPANY)
-      {
+        BotRefuseOrder(bs);
+        //follow the flag carrier
+        bs->decisionmaker = bs->client;
+        bs->ordered = qfalse;
+        //the team mate
+        bs->teammate = c;
+        //last time the team mate was visible
+        bs->teammatevisible_time = FloatTime();
+        //no message
+        bs->teammessage_time = 0;
+        //no arrive message
+        bs->arrive_time = 1;
         //
-        c = BotTeamFlagCarrierVisible(bs);
-        // if there is a visible team mate flag carrier
-        if (c >= 0)
-        {
-          BotRefuseOrder(bs);
-          //follow the flag carrier
-          bs->decisionmaker = bs->client;
-          bs->ordered = qfalse;
-          //the team mate
-          bs->teammate = c;
-          //last time the team mate was visible
-          bs->teammatevisible_time = FloatTime();
-          //no message
-          bs->teammessage_time = 0;
-          //no arrive message
-          bs->arrive_time = 1;
-          //
-          BotVoiceChat(bs, bs->teammate, VOICECHAT_ONFOLLOW);
-          //get the team goal time
-          bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
-          bs->ltgtype = LTG_TEAMACCOMPANY;
-          bs->formation_dist = 3.5 * 32; //3.5 meter
-          //
-          BotSetTeamStatus(bs);
-          bs->owndecision_time = FloatTime() + 5;
-        }
-        else
-        {
-          BotRefuseOrder(bs);
-          bs->decisionmaker = bs->client;
-          bs->ordered = qfalse;
-          //get the enemy flag
-          bs->teammessage_time = FloatTime() + 2 * random();
-          //get the flag
-          bs->ltgtype = LTG_GETFLAG; //hypo
-          //set the time the bot will stop getting the flag
-          bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
-          //get an alternative route goal towards the enemy base
-          BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
-          //
-          BotSetTeamStatus(bs);
-          bs->owndecision_time = FloatTime() + 5;
-        }
+        BotVoiceChat(bs, bs->teammate, VOICECHAT_ONFOLLOW);
+        //get the team goal time
+        bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
+        bs->ltgtype = LTG_TEAMACCOMPANY;
+        bs->formation_dist = 3.5 * 32; //3.5 meter
+        //
+        BotSetTeamStatus(bs);
+        bs->owndecision_time = FloatTime() + 5;
+      }
+      else
+      {
+        BotRefuseOrder(bs);
+        bs->decisionmaker = bs->client;
+        bs->ordered = qfalse;
+        //get the enemy flag
+        bs->teammessage_time = FloatTime() + 2 * random();
+        //get the flag
+        bs->ltgtype = LTG_GETFLAG; //hypo
+        //set the time the bot will stop getting the flag
+        bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
+        //get an alternative route goal towards the enemy base
+        BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
+        //
+        BotSetTeamStatus(bs);
+        bs->owndecision_time = FloatTime() + 5;
       }
     }
-    return;
+
+    return; //end guard own cash
   }
+  /////////////////////////////////////
+  //steal cash if other team has enough
+  else if (cashOpTeam >= cash50)
+  {
+    if ( bs->owndecision_time < FloatTime())
+    {
+      if (bs->ltgtype != LTG_BM_COLLECT_CASH //LTG_GETFLAG /*LTG_RUSHBASE*/ 
+        && bs->ltgtype != LTG_GETITEM)
+      {
+        BotRefuseOrder(bs);
+        bs->decisionmaker = bs->client;
+        bs->ordered = qfalse;
+        //get enemy cash
+        bs->teammessage_time = FloatTime() + 2 * random();
+        //get cash
+        bs->ltgtype = LTG_GETFLAG; //hypo
+        //set the time the bot will stop getting the flag
+        bs->teamgoal_time = FloatTime() + TEAM_GETITEM_TIME; // CTF_GETFLAG_TIME;
+        //get an alternative route goal towards base
+        //BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
+        //set status
+        BotSetTeamStatus(bs);
+        bs->owndecision_time = FloatTime() + 5;
+      }
+    }
+
+    // if not trying to return the flag and not following the team flag carrier
+    if (bs->ltgtype != LTG_RETURNFLAG && bs->ltgtype != LTG_TEAMACCOMPANY)
+    {
+      //
+      c = BotTeamFlagCarrierVisible(bs);
+      // if there is a visible team mate flag carrier
+      if (c >= 0)
+      {
+        BotRefuseOrder(bs);
+        //follow the flag carrier
+        bs->decisionmaker = bs->client;
+        bs->ordered = qfalse;
+        //the team mate
+        bs->teammate = c;
+        //last time the team mate was visible
+        bs->teammatevisible_time = FloatTime();
+        //no message
+        bs->teammessage_time = 0;
+        //no arrive message
+        bs->arrive_time = 1;
+        //
+        BotVoiceChat(bs, bs->teammate, VOICECHAT_ONFOLLOW);
+        //get the team goal time
+        bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
+        bs->ltgtype = LTG_TEAMACCOMPANY;
+        bs->formation_dist = 3.5 * 32; //3.5 meter
+        //
+        BotSetTeamStatus(bs);
+        bs->owndecision_time = FloatTime() + 5;
+      }
+      else
+      {
+        BotRefuseOrder(bs);
+        bs->decisionmaker = bs->client;
+        bs->ordered = qfalse;
+        //get the enemy flag
+        bs->teammessage_time = FloatTime() + 2 * random();
+        //get the flag
+        bs->ltgtype = LTG_GETFLAG; //hypo
+        //set the time the bot will stop getting the flag
+        bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
+        //get an alternative route goal towards the enemy base
+        BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
+        //
+        BotSetTeamStatus(bs);
+        bs->owndecision_time = FloatTime() + 5;
+      }
+    }
+
+    return; // end steal cash
+  }
+#endif
+  //
 #if 0 //hypo use random goal with cash spawn
   else if (!BotBMCarryingCash(bs)) /* get some cash if nothing to do */
   {
@@ -1503,11 +1555,13 @@ void BotBMSeekGoals(bot_state_t *bs)
   }
 #endif //no cash
 
+//#if 0 //bot just stands there
   // don't just do something wait for the bot team leader to give orders
   if (BotTeamLeader(bs))
   {
     return;
   }
+//#endif
   // if the bot is ordered to do something
   if (bs->lastgoal_ltgtype)
   {
@@ -1531,7 +1585,7 @@ void BotBMSeekGoals(bot_state_t *bs)
     return;
   //
   if (bs->owndecision_time > FloatTime())
-    return;;
+    return;
   //if the bot is roaming
   if (bs->ctfroam_time > FloatTime())
     return;
@@ -1559,19 +1613,27 @@ void BotBMSeekGoals(bot_state_t *bs)
     l1 = 0.4f;
     l2 = 0.7f;
   }
+  l1 *= cashOpTeam   / g_cashlimit.integer;
+  l2 *= cashSelfTeam / g_cashlimit.integer;
+
+
   //hypov8 use instead of above, rand *3 guard. raid, collect
-#if 0
+#if 1
   //get the flag or defend the base
   rnd = random();
   if (rnd < l1 && bm_dragonsafe.areanum && bm_nikkisafe.areanum)
   {
     bs->decisionmaker = bs->client;
     bs->ordered = qfalse;
-    bs->ltgtype = LTG_GETFLAG;
+    if (BotTeam(bs) == TEAM_DRAGONS)
+      Com_Memcpy(&bs->teamgoal, &bm_nikkisafe, sizeof(bot_goal_t));
+    else
+      Com_Memcpy(&bs->teamgoal, &bm_dragonsafe, sizeof(bot_goal_t));
+    bs->ltgtype = LTG_BM_STEAL_CASH; // LTG_GETFLAG;
     //set the time the bot will stop getting the flag
     bs->teamgoal_time = FloatTime() + CTF_GETFLAG_TIME;
     //get an alternative route goal towards the enemy base
-    BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
+    //BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
     BotSetTeamStatus(bs);
   }
   else if (rnd < l2 && bm_dragonsafe.areanum && bm_nikkisafe.areanum)
@@ -1598,10 +1660,8 @@ void BotBMSeekGoals(bot_state_t *bs)
     bs->ctfroam_time = FloatTime() + CTF_ROAM_TIME;
     BotSetTeamStatus(bs);
   }
-  //endif^^^^^
-
-
   bs->owndecision_time = FloatTime() + 5;
+
 #ifdef DEBUG
   BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -1616,7 +1676,7 @@ BotBMRetreatGoals
 void BotBMRetreatGoals(bot_state_t *bs) //hypov8
 {
   //when carrying a flag in ctf the bot should rush to the enemy base
-if (BotBMCarryingStolen(bs))
+  if (BotBMCarryingStolen(bs))
   {
     //if not already rushing to the base
     if (bs->ltgtype != LTG_RUSHBASE)
@@ -1633,7 +1693,7 @@ if (BotBMCarryingStolen(bs))
     }
   }
 }
-#endif
+#endif //END AI_BM
 
 
 
@@ -1953,6 +2013,7 @@ void BotHarvesterRetreatGoals(bot_state_t *bs)
   }
 }
 #endif  // 0 bzw. MISIONPACK 0xA5EA
+
 /*
  ==================
  BotTeamGoals
@@ -1960,27 +2021,26 @@ void BotHarvesterRetreatGoals(bot_state_t *bs)
  */
 void BotTeamGoals(bot_state_t *bs, int retreat)
 {
-
   if (retreat)
   {
     if (gametype == GT_CTF)    {
       BotCTFRetreatGoals(bs);
     }
-     else if (gametype == GT_1FCTF) {
-     Bot1FCTFRetreatGoals(bs);
-     }
+    else if (gametype == GT_1FCTF) {
+      Bot1FCTFRetreatGoals(bs);
+    }
 #ifdef AI_BM
-   else if (gametype == GT_BAGMAN) {
-    BotBMRetreatGoals(bs);
-   }
+    else if (gametype == GT_BAGMAN) {
+      BotBMRetreatGoals(bs);
+    }
 #endif
 #ifdef GT_USE_TA_TYPES
-     else if (gametype == GT_OBELISK) {
-     BotObeliskRetreatGoals(bs);
-     }
-     else if (gametype == GT_HARVESTER) {
-     BotHarvesterRetreatGoals(bs);
-     }
+    else if (gametype == GT_OBELISK) {
+      BotObeliskRetreatGoals(bs);
+    }
+    else if (gametype == GT_HARVESTER) {
+      BotHarvesterRetreatGoals(bs);
+    }
 #endif
   }
   else
@@ -1990,21 +2050,21 @@ void BotTeamGoals(bot_state_t *bs, int retreat)
       //decide what to do in CTF mode
       BotCTFSeekGoals(bs);
     }
-     else if (gametype == GT_1FCTF) {
-     Bot1FCTFSeekGoals(bs);
-     }
+    else if (gametype == GT_1FCTF) {
+      Bot1FCTFSeekGoals(bs);
+    }
 #ifdef AI_BM
-   else if (gametype == GT_BAGMAN) {
-     BotBMSeekGoals(bs);
-   }
+    else if (gametype == GT_BAGMAN) {
+      BotBMSeekGoals(bs);
+    }
 #endif
 #ifdef GT_USE_TA_TYPES
-     else if (gametype == GT_OBELISK) {
-     BotObeliskSeekGoals(bs);
-     }
-     else if (gametype == GT_HARVESTER) {
-     BotHarvesterSeekGoals(bs);
-     }
+    else if (gametype == GT_OBELISK) {
+      BotObeliskSeekGoals(bs);
+    }
+    else if (gametype == GT_HARVESTER) {
+      BotHarvesterSeekGoals(bs);
+    }
 #endif
   }
   // reset the order time which is used to see if
@@ -4032,16 +4092,16 @@ int BotFindEnemy(bot_state_t *bs, int curenemy)
 
     //if it's the current enemy
     if (i == curenemy)
-  {
-    if (BotSameTeam(bs, i)) //hypov8 must have recently changed team
     {
-      curenemy = -1;
-      bs->enemy = -1;
-      cursquaredist = 0;
-      //return qfalse;
-    }
+      if (BotSameTeam(bs, i)) //hypov8 must have recently changed team
+      {
+        curenemy = -1;
+        bs->enemy = -1;
+        cursquaredist = 0;
+        //return qfalse;
+      }
       continue;
-  }
+    }
 
     BotEntityInfo(i, &entinfo);
 

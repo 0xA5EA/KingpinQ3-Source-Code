@@ -294,7 +294,7 @@ typedef struct
 	int			spectatorNum;		// for determining next-in-line to play
 	spectatorState_t spectatorState;
 	int spectatorClient;            // for chasecam and follow mode
-	int specViewModes;				//add hypov8 third person chase
+	int specViewModes;              //add hypov8 third person chase
 	int wins, losses;               // tournament stats
 	qboolean teamLeader;            // true when this client is a team leader
 } clientSession_t;

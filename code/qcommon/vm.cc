@@ -70,7 +70,7 @@ VM_Init
 ==============
 */
 void VM_Init( void ) {
-	Cvar_Get( "vm_cgame", "0", CVAR_ARCHIVE );	// !@# SHIP WITH SET TO 2 //hypov8 todo: reset default calls this
+	Cvar_Get( "vm_cgame", "0", CVAR_ARCHIVE );	// !@# SHIP WITH SET TO 2 //hypov8 todo: reset default calls this.
 	Cvar_Get( "vm_game", "0", CVAR_ARCHIVE );	// !@# SHIP WITH SET TO 2
 	Cvar_Get( "vm_ui", "0", CVAR_ARCHIVE );		// !@# SHIP WITH SET TO 2
 

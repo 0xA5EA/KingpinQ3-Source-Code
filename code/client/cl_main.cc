@@ -1942,8 +1942,8 @@ doesn't know what graphics to reload
 */
 void CL_Vid_Restart_f(void)
 {
-	//hypov8 recompile shaders on vid_restart. should solve some issues and help testing changes
-	Cvar_Set("r_recompileShaders", "1");
+  //hypov8 recompile shaders on vid_restart. should solve some issues and help testing changes
+  Cvar_Set("r_recompileShaders", "1");
   // Settings may have changed so stop recording now
   if (CL_VideoRecording())
   {
@@ -3584,7 +3584,7 @@ void CL_Init(void)
 
 #ifdef USE_VOIP
   cl_voipSend              = Cvar_Get("cl_voipSend", "0", 0);
-	cl_voipSendTarget = Cvar_Get ("cl_voipSendTarget", "spatial", 0);
+	cl_voipSendTarget        = Cvar_Get ("cl_voipSendTarget", "spatial", 0);
 	cl_voipGainDuringCapture = Cvar_Get ("cl_voipGainDuringCapture", "0.2", CVAR_ARCHIVE);
   cl_voipCaptureMult       = Cvar_Get("cl_voipCaptureMult", "2.0", CVAR_ARCHIVE);
   cl_voipUseVAD            = Cvar_Get("cl_voipUseVAD", "0", CVAR_ARCHIVE);

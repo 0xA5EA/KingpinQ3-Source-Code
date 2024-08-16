@@ -126,13 +126,13 @@ static const spx_word16_t fold_quant_bound[32] = {
 #else
 
 static const spx_word16_t gc_quant_bound[16] = {
-      0.97979, 1.28384, 1.68223, 2.20426, 2.88829, 3.78458, 4.95900, 6.49787, 
-      8.51428, 11.15642, 14.61846, 19.15484, 25.09895, 32.88761, 43.09325, 56.46588};
+      0.97979f, 1.28384f, 1.68223f, 2.20426f, 2.88829f, 3.78458f, 4.95900f, 6.49787f, 
+      8.51428f, 11.15642f, 14.61846f, 19.15484f, 25.09895f, 32.88761f, 43.09325f, 56.46588f};
 static const spx_word16_t fold_quant_bound[32] = {
-   0.30498, 0.34559, 0.39161, 0.44375, 0.50283, 0.56979, 0.64565, 0.73162,
-   0.82903, 0.93942, 1.06450, 1.20624, 1.36685, 1.54884, 1.75506, 1.98875,
-   2.25355, 2.55360, 2.89361, 3.27889, 3.71547, 4.21018, 4.77076, 5.40598,
-   6.12577, 6.94141, 7.86565, 8.91295, 10.09969, 11.44445, 12.96826, 14.69497};
+   0.30498f, 0.34559f, 0.39161f, 0.44375f, 0.50283f, 0.56979f, 0.64565f, 0.73162f,
+   0.82903f, 0.93942f, 1.06450f, 1.20624f, 1.36685f, 1.54884f, 1.75506f, 1.98875f,
+   2.25355f, 2.55360f, 2.89361f, 3.27889f, 3.71547f, 4.21018f, 4.77076f, 5.40598f,
+   6.12577f, 6.94141f, 7.86565f, 8.91295f, 10.09969f, 11.44445f, 12.96826f, 14.69497f};
 
 #define LSP_MARGIN .05
 #define LSP_DELTA1 .2
@@ -408,10 +408,10 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
    }
 
    /* LPC to LSPs (x-domain) transform */
-   roots=lpc_to_lsp (lpc, st->lpcSize, lsp, 10, LSP_DELTA1, stack);
+   roots=lpc_to_lsp (lpc, st->lpcSize, lsp, 10, (float)LSP_DELTA1, stack);
    if (roots!=st->lpcSize)
    {
-      roots = lpc_to_lsp (lpc, st->lpcSize, lsp, 10, LSP_DELTA2, stack);
+      roots = lpc_to_lsp (lpc, st->lpcSize, lsp, 10, (float)LSP_DELTA2, stack);
       if (roots!=st->lpcSize) {
          /*If we can't find all LSP's, do some damage control and use a flat filter*/
          for (i=0;i<st->lpcSize;i++)
@@ -433,10 +433,10 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
          {
             /* Only adapt if long-term and short-term drift are the same sign */
             qual_change = -.00001*st->abr_drift/(1+st->abr_count);
-            if (qual_change>.1)
-               qual_change=.1;
-            if (qual_change<-.1)
-               qual_change=-.1;
+            if (qual_change>.1f)
+               qual_change=.1f;
+            if (qual_change<-.1f)
+               qual_change=-.1f;
          }
          st->vbr_quality += qual_change;
          if (st->vbr_quality>10)
@@ -566,8 +566,8 @@ int sb_encode(void *state, void *vin, SpeexBits *bits)
       lsp_interpolate(st->old_lsp, lsp, interp_lsp, st->lpcSize, sub, st->nbSubframes);
       lsp_interpolate(st->old_qlsp, qlsp, interp_qlsp, st->lpcSize, sub, st->nbSubframes);
 
-      lsp_enforce_margin(interp_lsp, st->lpcSize, LSP_MARGIN);
-      lsp_enforce_margin(interp_qlsp, st->lpcSize, LSP_MARGIN);
+      lsp_enforce_margin(interp_lsp, st->lpcSize, (float)LSP_MARGIN);
+      lsp_enforce_margin(interp_qlsp, st->lpcSize, (float)LSP_MARGIN);
 
       lsp_to_lpc(interp_lsp, interp_lpc, st->lpcSize,stack);
       lsp_to_lpc(interp_qlsp, st->interp_qlpc, st->lpcSize, stack);
@@ -999,7 +999,7 @@ int sb_decode(void *state, SpeexBits *bits, void *vout)
       /* LSP interpolation */
       lsp_interpolate(st->old_qlsp, qlsp, interp_qlsp, st->lpcSize, sub, st->nbSubframes);
 
-      lsp_enforce_margin(interp_qlsp, st->lpcSize, LSP_MARGIN);
+      lsp_enforce_margin(interp_qlsp, st->lpcSize, (float)LSP_MARGIN);
 
       /* LSP to LPC */
       lsp_to_lpc(interp_qlsp, ak, st->lpcSize, stack);

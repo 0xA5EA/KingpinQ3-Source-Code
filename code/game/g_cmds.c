@@ -629,6 +629,7 @@ void SetTeam(gentity_t *ent, char *s)
   client->sess.sessionTeam     = (team_t)team;
   client->sess.spectatorState  = specState;
   client->sess.spectatorClient = specClient;
+  ent->client->ps.eFlags ^= EF_TELEPORT_BIT; //unvan 5.0 //hypov8 fix wrong gun frame
 
   client->sess.teamLeader = qfalse;
   if (team == TEAM_DRAGONS || team == TEAM_NIKKIS)
@@ -780,6 +781,7 @@ void Cmd_Follow_f(gentity_t *ent)
 
   ent->client->sess.spectatorState  = SPECTATOR_FOLLOW;
   ent->client->sess.spectatorClient = i;
+  ent->client->ps.eFlags ^= EF_TELEPORT_BIT; //unvan 5.0 //hypov8 fix wrong gun frame
 }
 
 /*
@@ -826,6 +828,7 @@ void Cmd_FollowCycle_f(gentity_t *ent, int dir)
     // this is good, we can use it
     ent->client->sess.spectatorClient = clientnum;
     ent->client->sess.spectatorState  = SPECTATOR_FOLLOW;
+    ent->client->ps.eFlags ^= EF_TELEPORT_BIT; //unvan 5.0 //hypov8 fix wrong gun frame
     return;
   }
   while(clientnum != original);

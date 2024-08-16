@@ -179,7 +179,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WIN32;WIN32;NDEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;BUILD_FREETYPE;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;USE_SSE;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32;WIN32;NDEBUG;_WINDOWS;USE_OPENAL;USE_OPENAL_DLOPEN;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;_BUILD_FREETYPE_not_in_svpure;FT2_BUILD_LIBRARY;USE_FREETYPE;USE_CODEC_VORBIS;USE_INTERNAL_SPEEX;USE_CURL;USE_LOCAL_HEADERS;USE_ASM_LIB;NO_GZIP;USE_VOIP;HAVE_CONFIG_H;USE_SSE;USE_INTERNAL_JPG;USE_CIN_THEORA;USE_CURL_DLOPEN;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -222,8 +222,7 @@
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
       <ShowProgress>NotSet</ShowProgress>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <GenerateDebugInformation>
-      </GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>
       </AssemblyDebug>
       <MinimumRequiredVersion />
@@ -264,7 +263,7 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>$(IntDir)KingpinQ3.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
@@ -272,15 +271,15 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"
       </BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <DisableSpecificWarnings>4706;4996;4201;4221;4204;4055;4131;4127;4244;4133;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4706;4996;4201;4221;4204;4055;4131;4127;4244;4133;4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDLmain.lib;SDL.lib;OpenGL32.lib;glew.lib;alibcof64.lib;psapi.lib;libvorbisfile.lib;libvorbis.lib;libpng14.lib;libogg.lib;libtheora.lib;freetype244MT.lib;msvcrt.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;advapi32.lib;winmm.lib;wsock32.lib;ws2_32.lib;SDL.lib;OpenGL32.lib;glew.lib;alibcof64.lib;psapi.lib;libvorbisfile.lib;libvorbis.lib;libpng14.lib;libogg.lib;libtheora.lib;freetype244MT.lib;msvcrt.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>%(OutputFile)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\code\libs\win64;..\..\code\asmlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -433,7 +432,7 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|Win32'">
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;DEDICATED;USE_ASM_LIB;USE_SSE;COMPAT_ET;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;DEDICATED;USE_ASM_LIB;USE_SSE;_COMPAT_ET_;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -476,7 +475,7 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DED|Win32'">
     <ClCompile>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;DEDICATED;USE_ASM_LIB;USE_SSE;COMPAT_ET;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;DEDICATED;USE_ASM_LIB;USE_SSE;_COMPAT_ET_;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -525,7 +524,7 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dedicated Server|x64'">
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>NDEBUG;_WIN64;__WIN64__;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;DEDICATED;USE_ASM_LIB;USE_SSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WIN64;__WIN64__;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;DEDICATED;USE_ASM_LIB;USE_SSE;_COMPAT_ET_;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -536,7 +535,7 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\..\code\ogg\include;..\..\code\vorbis\include;..\..\code\zlib;..\..\code\SDL12\include;..\..\code\freetype\include;..\..\code\OpenAL1.1\include;..\..\libcurl;..\..\code\libspeex\include;..\..\code\theora\include;..\..\code\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAs>Default</CompileAs>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
@@ -565,9 +564,9 @@ xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\"</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DED|x64'">
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>NDEBUG;_WIN64;__WIN64__;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;DEDICATED;USE_ASM_LIB;USE_SSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WIN64;__WIN64__;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;STANDALONE;DEDICATED;USE_ASM_LIB;USE_SSE;_COMPAT_ET_;COMPAT_KPQ3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeaderOutputFile>$(IntDir)kpq3ded.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>

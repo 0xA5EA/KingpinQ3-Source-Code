@@ -280,6 +280,10 @@ void BotTestAAS(vec3_t origin)
   int areanum;
   aas_areainfo_t info;
 
+  //slow updates
+  if (level.time % 10 != 0)
+	return;
+
   trap_Cvar_Update(&bot_testsolid);
   trap_Cvar_Update(&bot_testclusters);
   if (bot_testsolid.integer)

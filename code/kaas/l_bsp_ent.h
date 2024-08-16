@@ -20,10 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-//#ifndef MAX_MAP_ENTITIES
-//#define	MAX_MAP_ENTITIES	2048
-//#endif
-#include "../qcommon/qfiles.h"
+#ifndef Q3_MAX_MAP_ENTITIES
+//#define	Q3_MAX_MAP_ENTITIES 2048 //hypov8
+#endif
+
+#include "../kaas/q3files.h"
+//#include "../qcommon/qfiles.h"
 typedef struct epair_s
 {
 	struct epair_s	*next;
@@ -45,7 +47,7 @@ typedef struct
 } entity_t;
 
 extern	int num_entities;
-extern	entity_t entities[MAX_MAP_ENTITIES];
+extern	entity_t entities[Q3_MAX_MAP_ENTITIES];
 
 void StripTrailing(char *e);
 void SetKeyValue(entity_t *ent, char *key, char *value);

@@ -456,7 +456,7 @@ SpeexEchoState *speex_echo_state_init(int frame_size, int filter_length)
       spx_word32_t sum = 0;
       /* Ratio of ~10 between adaptation rate of first and last block */
       spx_word16_t decay = SHR32(spx_exp(NEG16(DIV32_16(QCONST16(2.4,11),M))),1);
-      st->prop[0] = QCONST16(.7, 15);
+      st->prop[0] = QCONST16(.7f, 15);
       sum = EXTEND32(st->prop[0]);
       for (i=1;i<M;i++)
       {
@@ -470,13 +470,13 @@ SpeexEchoState *speex_echo_state_init(int frame_size, int filter_length)
    }
    
    st->memX=st->memD=st->memE=0;
-   st->preemph = QCONST16(.9,15);
+   st->preemph = QCONST16(.9f,15);
    if (st->sampling_rate<12000)
-      st->notch_radius = QCONST16(.9, 15);
+      st->notch_radius = QCONST16(.9f, 15);
    else if (st->sampling_rate<24000)
-      st->notch_radius = QCONST16(.982, 15);
+      st->notch_radius = QCONST16(.982f, 15);
    else
-      st->notch_radius = QCONST16(.992, 15);
+      st->notch_radius = QCONST16(.992f, 15);
 
    st->notch_mem[0] = st->notch_mem[1] = 0;
    st->adapted = 0;
@@ -1160,11 +1160,11 @@ int speex_echo_ctl(SpeexEchoState *st, int request, void *ptr)
          st->beta_max = (.5f*st->frame_size)/st->sampling_rate;
 #endif
          if (st->sampling_rate<12000)
-            st->notch_radius = QCONST16(.9, 15);
+            st->notch_radius = QCONST16(.9f, 15);
          else if (st->sampling_rate<24000)
-            st->notch_radius = QCONST16(.982, 15);
+            st->notch_radius = QCONST16(.982f, 15);
          else
-            st->notch_radius = QCONST16(.992, 15);
+            st->notch_radius = QCONST16(.992f, 15);
          break;
       case SPEEX_ECHO_GET_SAMPLING_RATE:
          (*(int*)ptr) = st->sampling_rate;

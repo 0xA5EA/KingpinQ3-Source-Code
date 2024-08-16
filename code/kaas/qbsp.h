@@ -62,10 +62,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BSPC_VERSION KAAS_VERSION
 #endif
 
+//Mr Elusive
 #define ME
 #define DEBUG
 #define NODELIST
 #define SIN
+//#define MRE_ET
 
 #define MAX_BRUSH_SIDES		128		//maximum number of sides per brush
 //#define CLIP_EPSILON		0.1
@@ -344,6 +346,10 @@ extern	qboolean nobrushmerge;
 extern	qboolean cancelconversion;
 extern	qboolean noliquids;
 extern	qboolean capsule_collision;
+
+extern qboolean writeaasmap; //ET 
+extern qboolean writebrushmap; //ET
+extern qboolean noPatches; //ET
 #endif //ME
 
 extern	float subdivide_size;

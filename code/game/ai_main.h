@@ -62,6 +62,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LTG_ATTACKENEMYBASE			13	//attack the enemy base
 #define LTG_MAKELOVE_UNDER			14
 #define LTG_MAKELOVE_ONTOP			15
+//#ifdef AI_BM
+#define LTG_BM_DEPOSIT_CASH_STOLEN LTG_RUSHBASE
+#define LTG_BM_DEPOSIT_CASH_PICUP  LTG_RETURNFLAG
+#define LTG_BM_STEAL_CASH          LTG_GETFLAG
+//#endif
 //some goal dedication times
 #define TEAM_HELP_TIME				60	//1 minute teamplay help time
 #define TEAM_ACCOMPANY_TIME			600	//10 minutes teamplay accompany time

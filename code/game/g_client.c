@@ -811,9 +811,13 @@ void ClientUserinfoChanged(int clientNum)
   if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT)
   {
     s = Info_ValueForKey(userinfo, "team");
-	if (!Q_stricmp(s, TEAM_NAME_DRAGONS) || !Q_stricmp(s, "d") || !Q_stricmp(s, "1")) //add hypov8 \team "1"
+	if (!Q_stricmp(s, TEAM_NAME_DRAGONS) 
+    || !Q_strnicmp(s , TEAM_NAME_DRAGONS, 1) /*!Q_stricmp(s, "d")*/  //hypov8: match first letter
+    || !Q_stricmp(s, "1")) //hypov8: search /team/1/
       team = TEAM_DRAGONS;
-	else if (!Q_stricmp(s, TEAM_NAME_NIKKIS) || !Q_stricmp(s, "n") || !Q_stricmp(s, "2")) //add hypov8 \team "2"
+	else if (!Q_stricmp(s, TEAM_NAME_NIKKIS) 
+    || !Q_strnicmp(s , TEAM_NAME_DRAGONS, 1) /*!Q_stricmp(s, "n")*/ //hypov8: match first letter
+    || !Q_stricmp(s, "2")) //hypov8: add /team/2/
       team = TEAM_NIKKIS;
     else
       team = PickTeam(clientNum); // pick the team with the least number of players

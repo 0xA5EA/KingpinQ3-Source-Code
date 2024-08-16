@@ -1270,6 +1270,7 @@ static void CG_SetWeaponLerpFrameAnimation( weapon_t weapon, lerpFrame_t *lf, in
 {
   animation_t *anim;
   qboolean toggle = qfalse;
+  qboolean noLerp = (lf->animationNumber == -1)? qtrue : qfalse; //forced. 
 
   lf->animationNumber = newAnimation;
   toggle = newAnimation & ANIM_TOGGLEBIT;
@@ -1285,7 +1286,7 @@ static void CG_SetWeaponLerpFrameAnimation( weapon_t weapon, lerpFrame_t *lf, in
   lf->animation = anim;
 
   //animation changed. choose blend mode.
-  if (newAnimation == WEAPON_FIRING || newAnimation == WEAPON_RAISING || lf->animationNumber == -1) //hypov8 add: dont tween animations
+  if (newAnimation == WEAPON_FIRING || newAnimation == WEAPON_RAISING || noLerp) //hypov8 add: dont tween animations
   {
     lf->animationTime = lf->frameTime = cg.time;
     lf->frame = lf->oldFrame = anim->firstFrame; //hypov8 md3 is not 0
@@ -1304,7 +1305,7 @@ static void CG_SetWeaponLerpFrameAnimation( weapon_t weapon, lerpFrame_t *lf, in
     CG_Printf( "Anim: %i\n", newAnimation );
   }
 
-  if ( &cg_weapons[ weapon ].md5 && !toggle && lf && lf->old_animation && lf->old_animation->handle )
+  if ( /*&cg_weapons[ weapon ].md5 &&*/ !toggle && lf && lf->old_animation && lf->old_animation->handle )
   {
     if ( !trap_R_BuildSkeleton( &oldGunSkeleton, lf->old_animation->handle, lf->oldFrame, lf->frame, lf->backlerp, lf->old_animation->clearOrigin ) )
     {

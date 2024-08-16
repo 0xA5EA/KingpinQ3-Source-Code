@@ -3412,6 +3412,8 @@ void CG_Player(centity_t * cent)
 
 
     renderfx |= RF_LIGHTING_ORIGIN; // use the same origin for all
+    if (cgs.gametype >= GT_TEAM)
+      renderfx |= RF_MINLIGHT;
 
     // add the body
     body.hModel = ci->bodyModel;

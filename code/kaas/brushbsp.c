@@ -84,6 +84,10 @@ cname_t contentnames[] =
 	{CONTENTS_AREAPORTAL,"CONTENTS_AREAPORTAL"},
 	{CONTENTS_PLAYERCLIP,"CONTENTS_PLAYERCLIP"},
 	{CONTENTS_MONSTERCLIP,"CONTENTS_MONSTERCLIP"},
+
+#ifdef COMPAT_KPQ3
+	{CONTENTS_BOTCLIP,"CONTENTS_BOTCLIP"}, //hypov8 add. missing?
+#endif
 //	{CONTENTS_CURRENT_0,"CONTENTS_CURRENT_0"},
 //	{CONTENTS_CURRENT_90,"CONTENTS_CURRENT_90"},
 //	{CONTENTS_CURRENT_180,"CONTENTS_CURRENT_180"},
@@ -524,6 +528,7 @@ bspnode_t *PointInLeaf (bspnode_t *node, vec3_t point)
 
 	return node;
 } //end of the function PointInLeaf
+
 //===========================================================================
 // Returns PSIDE_FRONT, PSIDE_BACK, or PSIDE_BOTH
 //
@@ -531,6 +536,7 @@ bspnode_t *PointInLeaf (bspnode_t *node, vec3_t point)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
+
 #if 1 //hypov8 was 0
 int BoxOnPlaneSide_Local (vec3_t mins, vec3_t maxs, plane_t *plane)
 {
@@ -718,7 +724,7 @@ int TestBrushToPlanenum (bspbrush_t *brush, int planenum,
 
 	plane = &mapplanes[planenum];
 
-#ifdef ME
+#ifdef ME //ET
 	//fast axial cases
 	type = plane->type;
 	if (type < 3)
@@ -1148,6 +1154,7 @@ int BrushMostlyOnSide (bspbrush_t *brush, plane_t *plane)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
+
 void SplitBrush (bspbrush_t *brush, int planenum,
 	bspbrush_t **front, bspbrush_t **back)
 {
@@ -1739,8 +1746,14 @@ void BuildTree(tree_t *tree)
 	if (use_nodequeue) Log_Print("breadth first bsp building\n");
 	else Log_Print("depth first bsp building\n");
 	qprintf("%6d splits ", 0);
+
+  //todo hypov8 ET
+#if 0 //def MRE_ET
+	BuildGrid_r( tree->headnode );
+#else
 	//add the first node to the list
 	AddNodeToList(tree->headnode);
+#endif
 	//start the threads
 	for (i = 0; i < numthreads; i++)
 		AddThread(BuildTreeThread);

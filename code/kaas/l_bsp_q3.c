@@ -42,22 +42,22 @@ void GetLeafNums (void);
 
 
 int				q3_nummodels;
-dmodel_t		*q3_dmodels;//[MAX_MAP_MODELS];
+q3_dmodel_t		*q3_dmodels;//[MAX_MAP_MODELS];
 
 int				q3_numShaders;
-dshader_t	*q3_dshaders;//[Q3_MAX_MAP_SHADERS];
+q3_dshader_t	*q3_dshaders;//[Q3_MAX_MAP_SHADERS];
 
 int				q3_entdatasize;
 char			*q3_dentdata;//[Q3_MAX_MAP_ENTSTRING];
 
 int				q3_numleafs;
-dleaf_t		*q3_dleafs;//[Q3_MAX_MAP_LEAFS];
+q3_dleaf_t		*q3_dleafs;//[Q3_MAX_MAP_LEAFS];
 
 int				q3_numplanes;
-dplane_t		*q3_dplanes;//[Q3_MAX_MAP_PLANES];
+q3_dplane_t		*q3_dplanes;//[Q3_MAX_MAP_PLANES];
 
 int				q3_numnodes;
-dnode_t		*q3_dnodes;//[Q3_MAX_MAP_NODES];
+q3_dnode_t		*q3_dnodes;//[Q3_MAX_MAP_NODES];
 
 int				q3_numleafsurfaces;
 int				*q3_dleafsurfaces;//[Q3_MAX_MAP_LEAFFACES];
@@ -66,34 +66,34 @@ int				q3_numleafbrushes;
 int				*q3_dleafbrushes;//[Q3_MAX_MAP_LEAFBRUSHES];
 
 int				q3_numbrushes;
-dbrush_t		*q3_dbrushes;//[Q3_MAX_MAP_BRUSHES];
+q3_dbrush_t		*q3_dbrushes;//[Q3_MAX_MAP_BRUSHES];
 
 int				q3_numbrushsides;
-dbrushside_t	*q3_dbrushsides;//[Q3_MAX_MAP_BRUSHSIDES];
+xbsp_dbrushSide_t *q3_dbrushsides;//[Q3_MAX_MAP_BRUSHSIDES]; //xbsp
 
 int				q3_numLightBytes;
 byte			*q3_lightBytes;//[Q3_MAX_MAP_LIGHTING];
 
 int				q3_numGridPoints;
 //byte			*q3_gridData;//[Q3_MAX_MAP_LIGHTGRID];
-dgridPoint_t *q3_gridData;//[Q3_MAX_MAP_LIGHTGRID];
+xbsp_dgridPoint_t *q3_gridData;//[Q3_MAX_MAP_LIGHTGRID]; //xbsp
 
 int				q3_numVisBytes;
 byte			*q3_visBytes;//[Q3_MAX_MAP_VISIBILITY];
 
 int				q3_numDrawVerts;
-drawVert_t	*q3_drawVerts;//[Q3_MAX_MAP_DRAW_VERTS];
+xbsp_drawVert_t	*q3_drawVerts;//[Q3_MAX_MAP_DRAW_VERTS]; //xbsp
 
 int				q3_numDrawIndexes;
 int				*q3_drawIndexes;//[Q3_MAX_MAP_DRAW_INDEXES];
 
 int				q3_numDrawSurfaces;
-dsurface_t	*q3_drawSurfaces;//[Q3_MAX_MAP_DRAW_SURFS];
+xbsp_dsurface_t	*q3_drawSurfaces;//[Q3_MAX_MAP_DRAW_SURFS]; //xbsp
 
 int				q3_numFogs;
-dfog_t		*q3_dfogs;//[Q3_MAX_MAP_FOGS];
+q3_dfog_t		*q3_dfogs;//[Q3_MAX_MAP_FOGS];
 
-char			q3_dbrushsidetextured[MAX_MAP_BRUSHSIDES];
+char			q3_dbrushsidetextured[Q3_MAX_MAP_BRUSHSIDES];
 
 extern qboolean forcesidesvisible;
 
@@ -182,7 +182,7 @@ void Q3_PlaneFromPoints(vec3_t p0, vec3_t p1, vec3_t p2, vec3_t normal, float *d
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void Q3_SurfacePlane(dsurface_t *surface, vec3_t normal, float *dist)
+void Q3_SurfacePlane(xbsp_dsurface_t *surface, vec3_t normal, float *dist)
 {
 	int i;
 	float *p0, *p1, *p2;
@@ -236,20 +236,21 @@ void Q3_SurfacePlane(dsurface_t *surface, vec3_t normal, float *dist)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-dplane_t *q3_surfaceplanes;
+q3_dplane_t *q3_surfaceplanes;
 
 void Q3_CreatePlanarSurfacePlanes(void)
 {
 	int i;
-	dsurface_t *surface;
+	xbsp_dsurface_t *surface;
 
 	Log_Print("creating planar surface planes...\n");
-	q3_surfaceplanes = (dplane_t *) GetClearedMemory(q3_numDrawSurfaces * sizeof(dplane_t));
+	q3_surfaceplanes = (q3_dplane_t *) GetClearedMemory(q3_numDrawSurfaces * sizeof(q3_dplane_t));
 
 	for (i = 0; i < q3_numDrawSurfaces; i++)
 	{
 		surface = &q3_drawSurfaces[i];
-		if (surface->surfaceType != MST_PLANAR) continue;
+		if (surface->surfaceType != Q3_MST_PLANAR) 
+			continue;
 		Q3_SurfacePlane(surface, q3_surfaceplanes[i].normal, &q3_surfaceplanes[i].dist);
 		//Log_Print("normal = %f %f %f, dist = %f\n", q3_surfaceplanes[i].normal[0],
 		//											q3_surfaceplanes[i].normal[1],
@@ -281,11 +282,11 @@ void Q3_SurfacePlane(q3_dsurface_t *surface, vec3_t normal, float *dist)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-float Q3_FaceOnWinding(dsurface_t *surface, winding_t *winding)
+float Q3_FaceOnWinding(xbsp_dsurface_t *surface, winding_t *winding)
 {
 	int i;
 	float dist, area;
-	dplane_t plane;
+	q3_dplane_t plane;
 	vec_t *v1, *v2;
 	vec3_t normal, edgevec;
 	winding_t *w;
@@ -323,12 +324,12 @@ float Q3_FaceOnWinding(dsurface_t *surface, winding_t *winding)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-winding_t *Q3_BrushSideWinding(dbrush_t *brush, dbrushside_t *baseside)
+winding_t *Q3_BrushSideWinding(q3_dbrush_t *brush, xbsp_dbrushSide_t *baseside)
 {
 	int i;
-	dplane_t *baseplane, *plane;
+	q3_dplane_t *baseplane, *plane;
 	winding_t *w;
-	dbrushside_t *side;
+	xbsp_dbrushSide_t *side;
 
 	//create a winding for the brush side with the given planenumber
 	baseplane = &q3_dplanes[baseside->planeNum];
@@ -361,13 +362,13 @@ void Q3_FindVisibleBrushSides(void)
 {
 	int i, j, k, we, numtextured, numsides;
 	float dot;
-	dplane_t *plane;
-	dbrushside_t *brushside;
-	dbrush_t *brush;
-	dsurface_t *surface;
+	q3_dplane_t *plane;
+	xbsp_dbrushSide_t *brushside;
+	q3_dbrush_t *brush;
+	xbsp_dsurface_t *surface;
 	winding_t *w;
 
-	memset(q3_dbrushsidetextured, qfalse, MAX_MAP_BRUSHSIDES);
+	memset(q3_dbrushsidetextured, qfalse, Q3_MAX_MAP_BRUSHSIDES);
 	//
 	numsides = 0;
 	//create planes for the planar surfaces
@@ -423,7 +424,8 @@ void Q3_FindVisibleBrushSides(void)
 			for (k = 0; k < q3_numDrawSurfaces; k++)
 			{
 				surface = &q3_drawSurfaces[k];
-				if (surface->surfaceType != MST_PLANAR) continue;
+				if (surface->surfaceType != Q3_MST_PLANAR) 
+					continue;
 				//
 				//Q3_SurfacePlane(surface, plane.normal, &plane.dist);
 				plane = &q3_surfaceplanes[k];
@@ -589,7 +591,7 @@ CountTriangles
 */
 void CountTriangles( void ) {
 	int i, numTris, numPatchTris;
-	dsurface_t *surface;
+	xbsp_dsurface_t *surface;
 
 	numTris = numPatchTris = 0;
 	for ( i = 0; i < q3_numDrawSurfaces; i++ ) {
@@ -629,6 +631,27 @@ void Q3_LoadBSPFile(struct quakefile_s *qf)
 	if ( header->version != Q3_BSP_VERSION ) {
 		Error( "%s is version %i, not %i", qf->filename, header->version, Q3_BSP_VERSION );
 	}
+
+	q3_numShaders = Q3_CopyLump( header, Q3_LUMP_SHADERS, (void *) &q3_dshaders, sizeof( q3_dshader_t ) );
+	q3_nummodels = Q3_CopyLump( header, Q3_LUMP_MODELS, (void *) &q3_dmodels, sizeof( q3_dmodel_t ) );
+	q3_numplanes = Q3_CopyLump( header, Q3_LUMP_PLANES, (void *) &q3_dplanes, sizeof( q3_dplane_t ) );
+	q3_numleafs = Q3_CopyLump( header, Q3_LUMP_LEAFS, (void *) &q3_dleafs, sizeof( q3_dleaf_t ) );
+	q3_numnodes = Q3_CopyLump( header, Q3_LUMP_NODES, (void *) &q3_dnodes, sizeof( q3_dnode_t ) );
+	q3_numleafsurfaces = Q3_CopyLump( header, Q3_LUMP_LEAFSURFACES, (void *) &q3_dleafsurfaces, sizeof( q3_dleafsurfaces[0] ) );
+	q3_numleafbrushes = Q3_CopyLump( header, Q3_LUMP_LEAFBRUSHES, (void *) &q3_dleafbrushes, sizeof( q3_dleafbrushes[0] ) );
+	q3_numbrushes = Q3_CopyLump( header, Q3_LUMP_BRUSHES, (void *) &q3_dbrushes, sizeof( q3_dbrush_t ) );
+	q3_numbrushsides = Q3_CopyLump( header, Q3_LUMP_BRUSHSIDES, (void *) &q3_dbrushsides, sizeof( q3_dbrushside_t ) );
+	q3_numDrawVerts = Q3_CopyLump( header, Q3_LUMP_DRAWVERTS, (void *) &q3_drawVerts, sizeof( q3_drawVert_t ) );
+	q3_numDrawSurfaces = Q3_CopyLump( header, Q3_LUMP_SURFACES, (void *) &q3_drawSurfaces, sizeof( q3_dsurface_t ) );
+	q3_numFogs = Q3_CopyLump( header, Q3_LUMP_FOGS, (void *) &q3_dfogs, sizeof( q3_dfog_t ) );
+	q3_numDrawIndexes = Q3_CopyLump( header, Q3_LUMP_DRAWINDEXES, (void *) &q3_drawIndexes, sizeof( q3_drawIndexes[0] ) );
+
+	q3_numVisBytes = Q3_CopyLump( header, Q3_LUMP_VISIBILITY, (void *) &q3_visBytes, 1 );
+	q3_numLightBytes = Q3_CopyLump( header, Q3_LUMP_LIGHTMAPS, (void *) &q3_lightBytes, 1 );
+	q3_entdatasize = Q3_CopyLump( header, Q3_LUMP_ENTITIES, (void *) &q3_dentdata, 1 );
+
+	q3_numGridPoints = Q3_CopyLump( header, Q3_LUMP_LIGHTGRID, (void *) &q3_gridData, 8 );
+
 #else
 	if ( header->ident != BSP_IDENT_KPQ3 ) {
 		Error( "%s is not a IBSP file", qf->filename );
@@ -636,56 +659,50 @@ void Q3_LoadBSPFile(struct quakefile_s *qf)
 	if ( header->version != BSP_VERSION_KPQ3 ) {
 		Error( "%s is version %i, not %i", qf->filename, header->version, Q3_BSP_VERSION );
 	}
-#endif
-	//#ifndef COMPAT_KPQ3
-	q3_numShaders = Q3_CopyLump( header, LUMP_SHADERS, (void **) &q3_dshaders, sizeof(dshader_t) );
-	Log_Print( "%6d q3_numShaders\n", q3_numShaders );
-	q3_nummodels = Q3_CopyLump( header, LUMP_MODELS, (void **) &q3_dmodels, sizeof(dmodel_t) );
-	Log_Print( "%6d q3_nummodels\n", q3_nummodels );
 
-	q3_numplanes = Q3_CopyLump( header, LUMP_PLANES, (void **) &q3_dplanes, sizeof(dplane_t) );
-	Log_Print( "%6d q3_numplanes\n", q3_numplanes );
+	// COMPAT_KPQ3
+	q3_numShaders = Q3_CopyLump( header, Q3_LUMP_SHADERS, (void **) &q3_dshaders, sizeof(q3_dshader_t) );
+	q3_nummodels = Q3_CopyLump( header, Q3_LUMP_MODELS, (void **) &q3_dmodels, sizeof(q3_dmodel_t) );
+	q3_numplanes = Q3_CopyLump( header, Q3_LUMP_PLANES, (void **) &q3_dplanes, sizeof(q3_dplane_t) );
+	q3_numleafs = Q3_CopyLump( header, Q3_LUMP_LEAFS, (void **) &q3_dleafs, sizeof(q3_dleaf_t) );
+	q3_numnodes = Q3_CopyLump( header, Q3_LUMP_NODES, (void **) &q3_dnodes, sizeof(q3_dnode_t) );
+	q3_numleafsurfaces = Q3_CopyLump( header, Q3_LUMP_LEAFSURFACES, (void **) &q3_dleafsurfaces, sizeof(q3_dleafsurfaces[0]) );
+	q3_numleafbrushes = Q3_CopyLump( header, Q3_LUMP_LEAFBRUSHES, (void **) &q3_dleafbrushes, sizeof(q3_dleafbrushes[0]) );
+	q3_numbrushes = Q3_CopyLump( header, Q3_LUMP_BRUSHES, (void **) &q3_dbrushes, sizeof(q3_dbrush_t) );
+	q3_numbrushsides = Q3_CopyLump( header, Q3_LUMP_BRUSHSIDES, (void **) &q3_dbrushsides, sizeof(xbsp_dbrushSide_t) ); //xbsp
+	q3_numDrawVerts = Q3_CopyLump( header, Q3_LUMP_DRAWVERTS, (void **) &q3_drawVerts, sizeof(xbsp_drawVert_t) );       //xbsp
+	q3_numDrawSurfaces = Q3_CopyLump( header, Q3_LUMP_SURFACES, (void **) &q3_drawSurfaces, sizeof(xbsp_dsurface_t) );  //xbsp
+	q3_numFogs = Q3_CopyLump( header, Q3_LUMP_FOGS, (void **) &q3_dfogs, sizeof(q3_dfog_t) );
+	q3_numDrawIndexes = Q3_CopyLump( header, Q3_LUMP_DRAWINDEXES, (void **) &q3_drawIndexes, sizeof(q3_drawIndexes[0]) );
 
-	q3_numleafs = Q3_CopyLump( header, LUMP_LEAFS, (void **) &q3_dleafs, sizeof(dleaf_t) );
-	Log_Print( "%6d q3_numleafs\n", q3_numleafs );
+	q3_numVisBytes = Q3_CopyLump( header, Q3_LUMP_VISIBILITY, (void **) &q3_visBytes, 1 );
+	q3_numLightBytes = Q3_CopyLump( header, Q3_LUMP_LIGHTMAPS, (void **) &q3_lightBytes, 1 );
+	q3_entdatasize = Q3_CopyLump( header, Q3_LUMP_ENTITIES, (void **) &q3_dentdata, 1);
 
-	q3_numnodes = Q3_CopyLump( header, LUMP_NODES, (void **) &q3_dnodes, sizeof(dnode_t) );
-	Log_Print( "%6d q3_numnodes\n", q3_numnodes );
-
-	q3_numleafsurfaces = Q3_CopyLump( header, LUMP_LEAFSURFACES, (void **) &q3_dleafsurfaces, sizeof(q3_dleafsurfaces[0]) );
-	Log_Print( "%6d q3_numleafsurfaces\n", q3_numleafsurfaces );
-
-	q3_numleafbrushes = Q3_CopyLump( header, LUMP_LEAFBRUSHES, (void **) &q3_dleafbrushes, sizeof(q3_dleafbrushes[0]) );
-	Log_Print( "%6d q3_numleafbrushes\n", q3_numleafbrushes );
-
-	q3_numbrushes = Q3_CopyLump( header, LUMP_BRUSHES, (void **) &q3_dbrushes, sizeof(dbrush_t) );
-	Log_Print( "%6d q3_numbrushes\n", q3_numbrushes );
-
-	q3_numbrushsides = Q3_CopyLump( header, LUMP_BRUSHSIDES, (void **) &q3_dbrushsides, sizeof(dbrushside_t) );
-	Log_Print( "%6d q3_numbrushsides\n", q3_numbrushsides );
-
-	q3_numDrawVerts = Q3_CopyLump( header, LUMP_DRAWVERTS, (void **) &q3_drawVerts, sizeof(drawVert_t) );
-	Log_Print( "%6d q3_numDrawVerts\n", q3_numDrawVerts );
-
-	q3_numDrawSurfaces = Q3_CopyLump( header, LUMP_SURFACES, (void **) &q3_drawSurfaces, sizeof(dsurface_t) );
-	Log_Print( "%6d q3_numDrawSurfaces\n", q3_numDrawSurfaces );
-
-	q3_numFogs = Q3_CopyLump( header, LUMP_FOGS, (void **) &q3_dfogs, sizeof(dfog_t) );
-	Log_Print( "%6d q3_numFogs\n", q3_numFogs );
-
-	q3_numDrawIndexes = Q3_CopyLump( header, LUMP_DRAWINDEXES, (void **) &q3_drawIndexes, sizeof(q3_drawIndexes[0]) );
-	Log_Print( "%6d q3_numDrawIndexes\n", q3_numDrawIndexes );
-
-	q3_numVisBytes = Q3_CopyLump( header, LUMP_VISIBILITY, (void **) &q3_visBytes, 1 );
-	Log_Print( "%6d q3_numVisBytes\n", q3_numVisBytes );
-	q3_numLightBytes = Q3_CopyLump( header, LUMP_LIGHTMAPS, (void **) &q3_lightBytes, 1 );
-	Log_Print( "%6d q3_numLightBytes\n", q3_numLightBytes );
-	q3_entdatasize = Q3_CopyLump( header, LUMP_ENTITIES, (void **) &q3_dentdata, 1);
-	Log_Print( "%6d q3_entdatasize\n", q3_entdatasize );
 //	q3_numGridPoints = Q3_CopyLump( header, Q3_LUMP_LIGHTGRID, (void *) &q3_gridData, 8 );
-	q3_numGridPoints = Q3_CopyLump( header, LUMP_LIGHTGRID, (void **) &q3_gridData, sizeof(dgridPoint_t) );
+	q3_numGridPoints = Q3_CopyLump( header, Q3_LUMP_LIGHTGRID, (void **) &q3_gridData, sizeof(xbsp_dgridPoint_t) ); //xbsp
+	
+
+#endif
+	
+	Log_Print( "%6d q3_numShaders\n", q3_numShaders );
+	Log_Print( "%6d q3_nummodels\n", q3_nummodels );
+	Log_Print( "%6d q3_numplanes\n", q3_numplanes );
+	Log_Print( "%6d q3_numleafs\n", q3_numleafs );
+	Log_Print( "%6d q3_numnodes\n", q3_numnodes );
+	Log_Print( "%6d q3_numleafsurfaces\n", q3_numleafsurfaces );
+	Log_Print( "%6d q3_numleafbrushes\n", q3_numleafbrushes );
+	Log_Print( "%6d q3_numbrushes\n", q3_numbrushes );
+	Log_Print( "%6d q3_numbrushsides\n", q3_numbrushsides );
+	Log_Print( "%6d q3_numDrawVerts\n", q3_numDrawVerts );
+	Log_Print( "%6d q3_numDrawSurfaces\n", q3_numDrawSurfaces );
+	Log_Print( "%6d q3_numFogs\n", q3_numFogs );
+	Log_Print( "%6d q3_numDrawIndexes\n", q3_numDrawIndexes );
+	Log_Print( "%6d q3_numVisBytes\n", q3_numVisBytes );
+	Log_Print( "%6d q3_numLightBytes\n", q3_numLightBytes );
+	Log_Print( "%6d q3_entdatasize\n", q3_entdatasize );
 	Log_Print( "%6d q3_numGridPoints\n", q3_numGridPoints );
-	//if(l->filelen != numGridPoints * (int)sizeof(dgridPoint_t))
+	
 	CountTriangles();
 
 	FreeMemory( header );		// everything has been copied out
@@ -759,27 +776,27 @@ void Q3_WriteBSPFile( char *filename )
 	Q3_AddLump( bspfile, header, Q3_LUMP_FOGS, q3_dfogs, q3_numFogs * sizeof(q3_dfog_t) );
 	Q3_AddLump( bspfile, header, Q3_LUMP_DRAWINDEXES, q3_drawIndexes, q3_numDrawIndexes * sizeof(q3_drawIndexes[0]) );
 #else
-	Q3_AddLump( bspfile, header, Q3_LUMP_SHADERS, q3_dshaders, q3_numShaders*sizeof(dshader_t) );
-	Q3_AddLump( bspfile, header, Q3_LUMP_PLANES, q3_dplanes, q3_numplanes*sizeof(dplane_t) );
-	Q3_AddLump( bspfile, header, Q3_LUMP_LEAFS, q3_dleafs, q3_numleafs*sizeof(dleaf_t) );
-	Q3_AddLump( bspfile, header, Q3_LUMP_NODES, q3_dnodes, q3_numnodes*sizeof(dnode_t) );
-	Q3_AddLump( bspfile, header, Q3_LUMP_BRUSHES, q3_dbrushes, q3_numbrushes*sizeof(dbrush_t) );
-	Q3_AddLump( bspfile, header, Q3_LUMP_BRUSHSIDES, q3_dbrushsides, q3_numbrushsides*sizeof(dbrushside_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_SHADERS, q3_dshaders, q3_numShaders*sizeof(q3_dshader_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_PLANES, q3_dplanes, q3_numplanes*sizeof(q3_dplane_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_LEAFS, q3_dleafs, q3_numleafs*sizeof(q3_dleaf_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_NODES, q3_dnodes, q3_numnodes*sizeof(q3_dnode_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_BRUSHES, q3_dbrushes, q3_numbrushes*sizeof(q3_dbrush_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_BRUSHSIDES, q3_dbrushsides, q3_numbrushsides*sizeof(xbsp_dbrushSide_t) ); //xbsp
 	Q3_AddLump( bspfile, header, Q3_LUMP_LEAFSURFACES, q3_dleafsurfaces, q3_numleafsurfaces*sizeof(q3_dleafsurfaces[0]) );
 	Q3_AddLump( bspfile, header, Q3_LUMP_LEAFBRUSHES, q3_dleafbrushes, q3_numleafbrushes*sizeof(q3_dleafsurfaces[0]) );
-	Q3_AddLump( bspfile, header, Q3_LUMP_MODELS, q3_dmodels, q3_nummodels*sizeof(dmodel_t) );
-	Q3_AddLump( bspfile, header, Q3_LUMP_DRAWVERTS, q3_drawVerts, q3_numDrawVerts*sizeof(drawVert_t) );
-	Q3_AddLump( bspfile, header, Q3_LUMP_SURFACES, q3_drawSurfaces, q3_numDrawSurfaces*sizeof(dsurface_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_MODELS, q3_dmodels, q3_nummodels*sizeof(q3_dmodel_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_DRAWVERTS, q3_drawVerts, q3_numDrawVerts*sizeof(xbsp_drawVert_t) );       //xbsp
+	Q3_AddLump( bspfile, header, Q3_LUMP_SURFACES, q3_drawSurfaces, q3_numDrawSurfaces*sizeof(xbsp_dsurface_t) );  //xbsp
 	Q3_AddLump( bspfile, header, Q3_LUMP_VISIBILITY, q3_visBytes, q3_numVisBytes );
 	Q3_AddLump( bspfile, header, Q3_LUMP_LIGHTMAPS, q3_lightBytes, q3_numLightBytes );
 	//Q3_AddLump( bspfile, header, Q3_LUMP_LIGHTGRID, q3_gridData, 8 * q3_numGridPoints );
-	Q3_AddLump( bspfile, header, Q3_LUMP_LIGHTGRID, q3_gridData, sizeof(dgridPoint_t) * q3_numGridPoints );
+	Q3_AddLump( bspfile, header, Q3_LUMP_LIGHTGRID, q3_gridData, sizeof(xbsp_dgridPoint_t) * q3_numGridPoints );   //xbsp
 	Q3_AddLump( bspfile, header, Q3_LUMP_ENTITIES, q3_dentdata, q3_entdatasize );
-	Q3_AddLump( bspfile, header, Q3_LUMP_FOGS, q3_dfogs, q3_numFogs * sizeof(dfog_t) );
+	Q3_AddLump( bspfile, header, Q3_LUMP_FOGS, q3_dfogs, q3_numFogs * sizeof(q3_dfog_t) );
 	Q3_AddLump( bspfile, header, Q3_LUMP_DRAWINDEXES, q3_drawIndexes, q3_numDrawIndexes * sizeof(q3_drawIndexes[0]) );
 #endif
 	fseek (bspfile, 0, SEEK_SET);
-	SafeWrite (bspfile, header, sizeof(dheader_t));
+	SafeWrite (bspfile, header, sizeof(q3_dheader_t));
 	fclose (bspfile);
 }
 
@@ -811,16 +828,16 @@ void Q3_PrintBSPFileSizes( void )
 	Log_Print ("%6i leafs        %7i\n" ,q3_numleafs, (int)(q3_numleafs*sizeof(q3_dleaf_t)));
 	Log_Print ("%6i leafsurfaces %7i\n" ,q3_numleafsurfaces, (int)(q3_numleafsurfaces*sizeof(q3_dleafsurfaces[0])));
 #else
-	Log_Print ("%6i models       %7i\n" ,q3_nummodels, (int)(q3_nummodels*sizeof(dmodel_t)));
-	Log_Print ("%6i shaders      %7i\n" ,q3_numShaders, (int)(q3_numShaders*sizeof(dshader_t)));
-	Log_Print ("%6i brushes      %7i\n" ,q3_numbrushes, (int)(q3_numbrushes*sizeof(dbrush_t)));
-	Log_Print ("%6i brushsides   %7i\n" ,q3_numbrushsides, (int)(q3_numbrushsides*sizeof(dbrushside_t)));
-	Log_Print ("%6i fogs         %7i\n" ,q3_numFogs, (int)(q3_numFogs*sizeof(dfog_t)));
-	Log_Print ("%6i planes       %7i\n" ,q3_numplanes, (int)(q3_numplanes*sizeof(dplane_t)));
+	Log_Print ("%6i models       %7i\n" ,q3_nummodels, (int)(q3_nummodels*sizeof(q3_dmodel_t)));
+	Log_Print ("%6i shaders      %7i\n" ,q3_numShaders, (int)(q3_numShaders*sizeof(q3_dshader_t)));
+	Log_Print ("%6i brushes      %7i\n" ,q3_numbrushes, (int)(q3_numbrushes*sizeof(q3_dbrush_t)));
+	Log_Print ("%6i brushsides   %7i\n" ,q3_numbrushsides, (int)(q3_numbrushsides*sizeof(xbsp_dbrushSide_t)));
+	Log_Print ("%6i fogs         %7i\n" ,q3_numFogs, (int)(q3_numFogs*sizeof(q3_dfog_t)));
+	Log_Print ("%6i planes       %7i\n" ,q3_numplanes, (int)(q3_numplanes*sizeof(q3_dplane_t)));
 	Log_Print ("%6i entdata      %7i\n", num_entities, q3_entdatasize);
 	Log_Print ("\n");
-	Log_Print ("%6i nodes        %7i\n" ,q3_numnodes, (int)(q3_numnodes*sizeof(dnode_t)));
-	Log_Print ("%6i leafs        %7i\n" ,q3_numleafs, (int)(q3_numleafs*sizeof(dleaf_t)));
+	Log_Print ("%6i nodes        %7i\n" ,q3_numnodes, (int)(q3_numnodes*sizeof(q3_dnode_t)));
+	Log_Print ("%6i leafs        %7i\n" ,q3_numleafs, (int)(q3_numleafs*sizeof(q3_dleaf_t)));
 #endif
 
 	Log_Print ("%6i leafsurfaces %7i\n" ,q3_numleafsurfaces, (int)(q3_numleafsurfaces*sizeof(q3_dleafsurfaces[0])));
@@ -830,7 +847,7 @@ void Q3_PrintBSPFileSizes( void )
 	Log_Print ("%6i drawsurfaces %7i\n"	,q3_numDrawSurfaces, (int)(q3_numDrawSurfaces*sizeof(q3_drawSurfaces[0])));
 	Log_Print ("%6i lightmaps    %7i\n"	,q3_numLightBytes / (LIGHTMAP_WIDTH*LIGHTMAP_HEIGHT*3), q3_numLightBytes );
 	Log_Print ("       visibility   %7i\n", q3_numVisBytes );
-
+	//todo grid?
 }
 
 /*
@@ -893,7 +910,7 @@ void Q3_UnparseEntities (void)
 		strcat (end,"}\n");
 		end += 2;
 
-		if (end > buf + MAX_MAP_ENTSTRING)
+		if (end > buf + Q3_MAX_MAP_ENTSTRING)
 			Error ("Entity text too long");
 	}
 	q3_entdatasize = end - buf + 1;

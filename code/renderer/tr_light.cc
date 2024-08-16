@@ -329,6 +329,20 @@ static void LogLight( trRefEntity_t *ent )
 
 #endif
 
+void R_FallbackLight(vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir)
+{
+    ambientLight[ 0 ] = tr.identityLight * ( 64.0f / 255.0f ); //player menu (missing lightgrid)
+    ambientLight[ 1 ] = tr.identityLight * ( 64.0f / 255.0f );
+    ambientLight[ 2 ] = tr.identityLight * ( 96.0f / 255.0f );
+
+    directedLight[ 0 ] = tr.identityLight * ( 255.0f / 255.0f );
+    directedLight[ 1 ] = tr.identityLight * ( 232.0f / 255.0f );
+    directedLight[ 2 ] = tr.identityLight * ( 224.0f / 255.0f );
+
+    VectorSet( lightDir, -1, 1, 1.25 ); //hypov8 fallback direction. todo lightgrid default
+    VectorNormalize( lightDir );
+}
+
 /*
 =================
 R_SetupEntityLighting
@@ -411,16 +425,9 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent, vec3_t
     //% ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = tr.identityLight * 150;
     //% ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
     //% VectorCopy( tr.sunDirection, ent->lightDir );
-    ent->ambientLight[ 0 ] = tr.identityLight * ( 64.0f / 255.0f ); //player menu
-    ent->ambientLight[ 1 ] = tr.identityLight * ( 64.0f / 255.0f );
-    ent->ambientLight[ 2 ] = tr.identityLight * ( 96.0f / 255.0f );
 
-    ent->directedLight[ 0 ] = tr.identityLight * ( 255.0f / 255.0f );
-    ent->directedLight[ 1 ] = tr.identityLight * ( 232.0f / 255.0f );
-    ent->directedLight[ 2 ] = tr.identityLight * ( 224.0f / 255.0f );
+    R_FallbackLight(ent->ambientLight, ent->directedLight, ent->lightDir);
 
-    VectorSet( ent->lightDir, -1, 1, 1.25 );
-    VectorNormalize( ent->lightDir );
 #endif
   }
 
@@ -491,6 +498,8 @@ int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, ve
 	// bk010103 - this segfaults with -nolight maps
 	if ( tr.world->lightGridData == NULL )
 	{
+		//use global value when null    
+		R_FallbackLight(ambientLight, directedLight, lightDir);
 		return qfalse;
 	}
 

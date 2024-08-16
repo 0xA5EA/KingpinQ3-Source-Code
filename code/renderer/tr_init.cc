@@ -303,7 +303,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 	cvar_t      *r_evsmPostProcess;
 
-	cvar_t      *r_fontScale;
+	//cvar_t      *r_fontScale;
 
 
 //	glBroken_t  glBroken = {};
@@ -1404,8 +1404,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 		r_mode = ri.Cvar_Get( "r_mode", "4", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER );
 		r_fullscreen = ri.Cvar_Get( "r_fullscreen", "0", CVAR_ARCHIVE );
-		r_customwidth = ri.Cvar_Get( "r_customwidth", "1600", CVAR_ARCHIVE | CVAR_LATCH );
-		r_customheight = ri.Cvar_Get( "r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH );
+		r_customwidth = ri.Cvar_Get( "r_customwidth", "800", CVAR_ARCHIVE | CVAR_LATCH );//1600
+		r_customheight = ri.Cvar_Get( "r_customheight", "600", CVAR_ARCHIVE | CVAR_LATCH );//1024
 		r_customaspect = ri.Cvar_Get( "r_customaspect", "1", CVAR_ARCHIVE | CVAR_LATCH );
 		r_simpleMipMaps = ri.Cvar_Get( "r_simpleMipMaps", "0", CVAR_ARCHIVE | CVAR_LATCH );
 		r_subdivisions = ri.Cvar_Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1477,7 +1477,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_CHEAT );
 		r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
 		r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
-		r_gamma = ri.Cvar_Get( "r_gamma", "1.3", CVAR_ARCHIVE );
+		r_gamma = ri.Cvar_Get( "r_gamma", "1.0", CVAR_ARCHIVE );
 		r_facePlaneCull = ri.Cvar_Get( "r_facePlaneCull", "1", CVAR_ARCHIVE );
 
 		r_ambientScale = ri.Cvar_Get( "r_ambientScale", "0.6", CVAR_CHEAT );
@@ -1582,7 +1582,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		r_parallaxDepthScale = ri.Cvar_Get( "r_parallaxDepthScale", "0.03", CVAR_CHEAT );
 
 		r_wrapAroundLighting = ri.Cvar_Get( "r_wrapAroundLighting", "0.7", CVAR_CHEAT | CVAR_SHADER | CVAR_LATCH );
-		r_halfLambertLighting = ri.Cvar_Get( "r_halfLambertLighting", "1", CVAR_CHEAT | CVAR_SHADER | CVAR_LATCH );
+		r_halfLambertLighting = ri.Cvar_Get( "r_halfLambertLighting", "1", /*CVAR_CHEAT |*/ CVAR_SHADER | CVAR_LATCH ); //hypov8 disable cheat. reverts back to r_wrapAroundLighting
 		r_rimLighting = ri.Cvar_Get( "r_rimLighting", "0", CVAR_ARCHIVE | CVAR_SHADER | CVAR_LATCH );
 		r_rimExponent = ri.Cvar_Get( "r_rimExponent", "3", CVAR_CHEAT | CVAR_LATCH );
 		AssertCvarRange( r_rimExponent, 0.5, 8.0, qfalse );
@@ -1686,7 +1686,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		r_showParallelShadowSplits = ri.Cvar_Get( "r_showParallelShadowSplits", "0", CVAR_CHEAT | CVAR_SHADER );
 		r_showDecalProjectors = ri.Cvar_Get( "r_showDecalProjectors", "0", CVAR_CHEAT );
 
-		r_fontScale = ri.Cvar_Get( "r_fontScale", "36", CVAR_ARCHIVE | CVAR_LATCH );
+		//r_fontScale = ri.Cvar_Get( "r_fontScale", "36", CVAR_ARCHIVE | CVAR_LATCH );
 
 		// make sure all the commands added here are also removed in R_Shutdown
 		ri.Cmd_AddCommand( "imagelist", R_ImageList_f );

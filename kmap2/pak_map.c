@@ -6,7 +6,7 @@ pack map file into .pk3
 generate a shader file that includes non kpq3 assets
 these shaders will be renamed to prevent conflicts (eg maps using the same map models)
 shader names are textures/kmap2_<mapname>/<index>
-also .bsp internal shader names will be re-named
+also .bsp internal shader names will be re-named (.aas crc updated to suit)
 
 
 usage: 
@@ -42,13 +42,18 @@ todo:
 //copied to kmap
 unsigned Com_BlockChecksum(const void *buffer, int length);
 
+typedef enum{
+	SHADER_NONE,
+	SHADER_STORED,
+	SHADER_FOUND
+}storeState_t;
 
 typedef struct
 {
 	char newName[MAX_QPATH];
 	char oldName[MAX_QPATH];
 	char *script; //complete script
-	int unique; //1=needs shader, -1=match found
+	storeState_t storeState; //1=needs shader, -1=match found
 } shaderStruct;
 shaderStruct pakMapShaders[MAX_SHADER_INFO];
 
@@ -80,7 +85,7 @@ static void PakMap_Cleanup(qboolean restoreOrigMap, qboolean printError, char *s
 
 	for (i = 0; i < numBSPShaders; i++)
 	{
-		if (pakMapShaders[i].unique == 1)
+		if (pakMapShaders[i].storeState == SHADER_STORED)
 			free(pakMapShaders[i].script);
 	}
 
@@ -123,7 +128,7 @@ static void PakMap_ReNameShader()
 	{
 		j = 0;
 		//skip rename
-		if (pakMapShaders[i].unique != 1)
+		if (pakMapShaders[i].storeState != SHADER_STORED)
 			continue;
 
 		c = &bspShaders[i].shader[0];
@@ -160,17 +165,17 @@ static qboolean PakMap_IgnoredFile(char *texName)
 	//ignore internal and base images
 	if (texName[0] == '*' || texName[0] == '$' || texName[0] == '_' ||
 		/* skip known base textures */
+		!Q_strncasecmp(texName, "textures/skies_kpq3/", 20) || //moved from textures/skies/
 		!Q_strncasecmp(texName, "textures/strombine", 18) ||
 		!Q_strncasecmp(texName, "textures/decals/", 16) ||
 		!Q_strncasecmp(texName, "textures/method/", 16) ||
 		!Q_strncasecmp(texName, "textures/common/", 16) || //textures not used in kpq3
-		!Q_strncasecmp(texName, "textures/skies/", 15) || //todo: in kpq3
 		!Q_strncasecmp(texName, "textures/color/", 15) || //move to common?
 		!Q_strncasecmp(texName, "textures/kpq3_", 14) ||
 		!Q_strncasecmp(texName, "textures/misc_", 14) ||
 		!Q_strncasecmp(texName, "textures/al0/", 13) || //contains flags, safe etc..
 		!Q_strncasecmp(texName, "lights/kpq3/", 12) ||
-		//Q_strnicmp(texName, "cubemaps/", 9) || //todo: move default?
+		//Q_strncasecmp(texName, "cubemaps/", 9) || //todo: move default?
 		!Q_strncasecmp(texName, "sprites/", 8) ||
 		!Q_strncasecmp(texName, "gfx/", 4) ||
 		!Q_strncasecmp(texName, "ui/", 3))
@@ -203,8 +208,8 @@ static int PakMap_Shader_CheckForMatchingInBsp(char *shaderName)
 		//found match?
 		if (!ret)
 		{
-			if (pakMapShaders[i].unique == 0)
-				pakMapShaders[i].unique = -1; //mark as found
+			if (pakMapShaders[i].storeState == SHADER_NONE)
+				pakMapShaders[i].storeState = SHADER_FOUND; //mark as found
 			return i;
 		}
 	}
@@ -346,7 +351,7 @@ int PakMap_ReadShaderFile()
 		pakMapShaders[bspIndex].script = safe_malloc(strlen(shaderText) + 1);
 		Q_strncpyz(pakMapShaders[bspIndex].script, shaderText, strlen(shaderText)+1); //copy all shader text
 		numShaderScripts++;
-		pakMapShaders[bspIndex].unique = 1;
+		pakMapShaders[bspIndex].storeState = SHADER_STORED;
 	}
 
 	return qtrue;
@@ -527,7 +532,7 @@ void PakMap_AddFileToPk3(zipFile pk3File, char *texName)
 PakMap_GenerateShader
 
 found texture but shader is missing. 
-this generates a new one
+this generates a new shader for image
 note: some models have image name set. not using shader
 ===============
 */
@@ -548,11 +553,12 @@ static void PakMap_GenerateShader(char *filePath,int bspIndex)
 	Q_strncpyz(pakMapShaders[bspIndex].script, shaderText, strlen(shaderText)+1); //copy all shader text
 	numShaderScripts++;
 	Q_strncpyz(pakMapShaders[bspIndex].oldName, bspShaders[bspIndex].shader, 64); //add materal name
-	pakMapShaders[bspIndex].unique = 1; //marked save
+	pakMapShaders[bspIndex].storeState = SHADER_STORED; //marked save
 	//warn user
 	//Sys_Printf("Note: Generated missing shader for \"%s\"\n", filePath);
 
-	Sys_Printf("%-23s (%s)\n", "Note: Generated shader", filePath);
+	//Sys_Printf("%-23s (%s)\n", "Note: Generated shader", filePath);
+	Sys_Printf("%-23s (%s)\n", "Make shader for image", filePath);
 }
 
 
@@ -564,7 +570,10 @@ static void PakMap_CheckMissingShaderIsTexture()
 	char *ptrBase = strstr(bspFilename, game->gamePath); //todo: check multiple mod names?
 	char *bspPath = &bspFilename[0];
 
-	Sys_Printf("======== pak map ========\n");
+	Sys_Printf(
+		"=========================\n"
+		"=        pak map        =\n"
+		"=========================\n");
 
 	if (ptrBase)
 	{
@@ -574,7 +583,7 @@ static void PakMap_CheckMissingShaderIsTexture()
 
 		for (i = 0; i < numBSPShaders; i++)
 		{
-			if (pakMapShaders[i].unique == 0)
+			if (pakMapShaders[i].storeState == SHADER_NONE)
 			{
 				Q_strncpyz(tmp1, bspShaders[i].shader, 256);
 				for (j = 0; j < fExCount; j++)
@@ -716,17 +725,6 @@ static void PakMap_SaveShaderFile()
 	if(mapShaderFile[0] == '\0')
 		return;
 
-	/* are there any custom shaders? */
-	for(i = 0; i < numBSPShaders; i++)
-	{
-		if (pakMapShaders[i].unique == 0)
-			Sys_Printf ("%-23s (%s)\n", "WARNING: Missing shader", bspShaders[i].shader);
-	}
-
-	/* note it */
-	Sys_FPrintf(SYS_VRB, "--- WriteMapShaderFile ---\n");
-	Sys_FPrintf(SYS_VRB, "Writing %s", mapShaderFile);
-
 	/* open shader file */
 	file = fopen(mapShaderFile, "w");
 	if(file == NULL)
@@ -739,25 +737,46 @@ static void PakMap_SaveShaderFile()
 	fprintf(file,
 			"// Custom shader file for %s.bsp\n"
 			"// Generated by KMap2\n" "// This file is overwritten on -pakmap recompiles.\n\n", mapName);
+	
+	Sys_FPrintf(SYS_VRB, //verbose
+		//"-------------------------\n"
+		"---- bsp shader list ----\n");
 
 	/* walk the shader list */
 	for(i = 0; i < numBSPShaders; i++)
 	{
 		// skip?
-		if(pakMapShaders[i].unique != 1 || pakMapShaders[i].oldName == NULL || pakMapShaders[i].oldName[0] == '\0')
+		if (pakMapShaders[i].storeState != SHADER_STORED || pakMapShaders[i].oldName == NULL || pakMapShaders[i].oldName[0] == '\0')
+		{
+			// print all bsp shaders. verbose
+			Sys_FPrintf(SYS_VRB, "       %s\n", bspShaders[i].shader);
+
+			// dont save custom shader
 			continue;
+		}
 
-		// print it to the file
+		//print custom shader. verbose
+		Sys_FPrintf(SYS_VRB, "Stored %s\n", pakMapShaders[i].oldName);
+
+		// write custom shader to .mtr file
 		fprintf(file, "//%s\n%s%s\n", pakMapShaders[i].oldName, pakMapShaders[i].newName, pakMapShaders[i].script);
+	}
+	Sys_FPrintf(SYS_VRB, //verbose
+		"--- end bsp shader list ---\n"
+		"---------------------------\n");
 
-		Sys_FPrintf(SYS_VRB, ".");
+	// print missing shaders
+	for(i = 0; i < numBSPShaders; i++)
+	{
+		if (pakMapShaders[i].storeState == SHADER_NONE)
+			Sys_Printf ("%-23s (%s)\n", "WARNING: Missing shader", bspShaders[i].shader);
 	}
 
 	//close the shader 
 	fflush(file);
 	fclose(file);
 
-	Sys_FPrintf(SYS_VRB, "\n");
+	//Sys_FPrintf(SYS_VRB, "\n");
 
 	/* print some stats */
 	Sys_Printf ("%-23s (%d)\n", "Shaders in bsp", numBSPShaders);

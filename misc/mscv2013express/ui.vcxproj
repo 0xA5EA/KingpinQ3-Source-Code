@@ -170,6 +170,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(TargetPath)" "D:\kpq3_beta2\basekpq3\"</Command>

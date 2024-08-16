@@ -434,15 +434,15 @@ int nb_encode(void *state, void *vin, SpeexBits *bits)
          if (st->abr_drift2 * st->abr_drift > 0)
          {
             /* Only adapt if long-term and short-term drift are the same sign */
-            qual_change = -.00001*st->abr_drift/(1+st->abr_count);
-            if (qual_change>.05)
-               qual_change=.05;
-            if (qual_change<-.05)
-               qual_change=-.05;
+            qual_change = -.00001f*st->abr_drift/(1+st->abr_count);
+            if (qual_change>.05f)
+               qual_change=.05f;
+            if (qual_change<-.05f)
+               qual_change=-.05f;
          }
          st->vbr_quality += qual_change;
-         if (st->vbr_quality>10)
-            st->vbr_quality=10;
+         if (st->vbr_quality>10.0f)
+            st->vbr_quality=10.0f;
          if (st->vbr_quality<0)
             st->vbr_quality=0;
       }
@@ -1013,7 +1013,7 @@ void nb_decoder_destroy(void *state)
 #ifdef FIXED_POINT
 const spx_word16_t attenuation[10] = {32767, 31483, 27923, 22861, 17278, 12055, 7764, 4616, 2533, 1283};
 #else
-const spx_word16_t attenuation[10] = {1., 0.961, 0.852, 0.698, 0.527, 0.368, 0.237, 0.141, 0.077, 0.039};
+const spx_word16_t attenuation[10] = {1.f, 0.961f, 0.852f, 0.698f, 0.527f, 0.368f, 0.237f, 0.141f, 0.077f, 0.039f};
 
 #endif
 
@@ -1043,8 +1043,8 @@ static void nb_decode_lost(DecState *st, spx_word16_t *out, char *stack)
    pitch_gain = SHL16(pitch_gain, 9);
 #else   
    pitch_gain = GAIN_SCALING_1*st->last_pitch_gain;
-   if (pitch_gain>.85)
-      pitch_gain=.85;
+   if (pitch_gain>.85f)
+      pitch_gain=.85f;
 #endif
    pitch_gain = MULT16_16_Q15(fact,pitch_gain) + VERY_SMALL;
    /* FIXME: This was rms of innovation (not exc) */
@@ -1065,7 +1065,7 @@ static void nb_decode_lost(DecState *st, spx_word16_t *out, char *stack)
             speex_rand(noise_gain, &st->seed);
    }
 
-   bw_lpc(QCONST16(.98,15), st->interp_qlpc, st->interp_qlpc, st->lpcSize);
+   bw_lpc(QCONST16(.98f,15), st->interp_qlpc, st->interp_qlpc, st->lpcSize);
    iir_mem16(&st->exc[-st->subframeSize], st->interp_qlpc, out, st->frameSize,
              st->lpcSize, st->mem_sp, stack);
    highpass(out, out, st->frameSize, HIGHPASS_NARROWBAND|HIGHPASS_OUTPUT, st->mem_hp);

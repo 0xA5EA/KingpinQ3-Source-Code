@@ -171,6 +171,10 @@ void AAS_SetTexinfo(mapbrush_t *brush)
 									| CONTENTS_LAVA
 									| CONTENTS_SLIME
 								/*	| CONTENTS_WINDOW */
+#ifdef COMPAT_KPQ3
+									| CONTENTS_BOTCLIP //hypov8 add. missing?
+									| CONTENTS_MONSTERCLIP //ET
+#endif
 									| CONTENTS_PLAYERCLIP))
 	{
 		//we just set texinfo to 0 because these brush sides MUST be used as
@@ -452,7 +456,7 @@ mapbrush_t *AAS_CopyMapBrush(mapbrush_t *brush, entity_t *mapent)
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int mark_entities[MAX_MAP_ENTITIES];
+int mark_entities[Q3_MAX_MAP_ENTITIES];
 
 int AAS_AlwaysTriggered_r(char *targetname)
 {
