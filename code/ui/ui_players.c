@@ -779,9 +779,10 @@ float UI_MachinegunSpinAngle(playerInfo_t *pi)
 UI_DrawPlayer
 ===============
 */
-void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int time)
+void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int time,
+  int mouseX, int mouseY)
 {
-	UI_XPPM_Player(x, y, w, h, pi, time);
+  UI_XPPM_Player(x, y, w, h, pi, time, mouseX, mouseY);
 }
 
 /*
@@ -872,312 +873,49 @@ static qboolean UI_FindClientHeadFile(char *filename, int length, const char *te
 
 /*
 ==========================
-UI_RegisterClientSkin
-==========================
-*/
-/*
-static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, const char *skinName)
-{
-	char            filename[MAX_QPATH];
-
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/lower_%s.skin", modelName, skinName);
-	pi->legsSkin = trap_R_RegisterSkin(filename);
-
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/upper_%s.skin", modelName, skinName);
-	pi->torsoSkin = trap_R_RegisterSkin(filename);
-
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/head_%s.skin", modelName, skinName);
-	pi->headSkin = trap_R_RegisterSkin(filename);
-
-	if(!pi->legsSkin || !pi->torsoSkin || !pi->headSkin)
-	{
-		return qfalse;
-	}
-
-	return qtrue;
-}*/
-
-/*
-======================
-UI_ParseAnimationFile
-md3 files
-======================
-*/
-/*
-static qboolean UI_ParseAnimationFile(const char *filename, animation_t *animations)
-{
-  char *text_p, *prev;
-  int len;
-  int i;
-  char *token;
-  float fps;
-  int skip;
-  char text[20000];
-  fileHandle_t f;
-
-  Com_Memset(animations, 0, sizeof(animation_t) * MAX_TOTALANIMATIONS);
-
-  // load the file
-  len = trap_FS_FOpenFile(filename, &f, FS_READ);
-  if (len <= 0)
-  {
-    return qfalse;
-  }
-  if (len >=  (int)(sizeof(text) - 1))
-  {
-    Com_Printf("File %s too long\n", filename);
-    trap_FS_FCloseFile(f);
-    return qfalse;
-  }
-  trap_FS_Read(text, len, f);
-  text[len] = 0;
-  trap_FS_FCloseFile(f);
-
-  COM_Compress(text);
-
-  // parse the text
-  text_p = text;
-  skip   = 0;          // quite the compiler warning
-
-  // read optional parameters
-  while (1)
-  {
-    prev  = text_p;  // so we can unget
-    token = COM_Parse(&text_p);
-    if (!token)
-    {
-      break;
-    }
-    if (!Q_stricmp(token, "footsteps"))
-    {
-      token = COM_Parse(&text_p);
-      if (!token)
-      {
-        break;
-      }
-      continue;
-    }
-    else if (!Q_stricmp(token, "headoffset"))
-    {
-      for (i = 0; i < 3; i++)
-      {
-        token = COM_Parse(&text_p);
-        if (!token)
-        {
-          break;
-        }
-      }
-      continue;
-    }
-    else if (!Q_stricmp(token, "sex"))
-    {
-      token = COM_Parse(&text_p);
-      if (!token)
-      {
-        break;
-      }
-      continue;
-    }
-
-    // if it is a number, start parsing animations
-    if (token[0] >= '0' && token[0] <= '9')
-    {
-      text_p = prev;  // unget the token
-      break;
-    }
-
-    Com_Printf("unknown token '%s' is %s\n", token, filename);
-  }
-
-  // read information for each frame
-  for (i = 0; i < MAX_TOTALANIMATIONS; i++)
-  {
-
-    token = COM_Parse(&text_p);
-    if (!token)
-    {
-      break;
-    }
-    animations[i].firstFrame = atoi(token);
-    // leg only frames are adjusted to not count the upper body only frames
-    if (i == LEGS_WALKCR)
-    {
-      skip = animations[LEGS_WALKCR].firstFrame - animations[TORSO_GESTURE].firstFrame;
-    }
-    if (i >= LEGS_WALKCR)
-    {
-      animations[i].firstFrame -= skip;
-    }
-
-    token = COM_Parse(&text_p);
-    if (!token)
-    {
-      break;
-    }
-    animations[i].numFrames = atoi(token);
-
-    token = COM_Parse(&text_p);
-    if (!token)
-    {
-      break;
-    }
-    animations[i].loopFrames = atoi(token);
-
-    token = COM_Parse(&text_p);
-    if (!token)
-    {
-      break;
-    }
-    fps = atof(token);
-    if (fps == 0)
-    {
-      fps = 1;
-    }
-    animations[i].frameTime   = 1000 / fps;
-    animations[i].initialLerp = 1000 / fps;
-  }
-
-  if (i != MAX_TOTALANIMATIONS)
-  {
-    Com_Printf("Error parsing animation file: %s", filename);
-    return qfalse;
-  }
-
-  return qtrue;
-}
-*/
-/*
-==========================
 UI_RegisterClientModelname
 ==========================
 */
-//qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelSkinName, const char *headModelSkinName, const char *teamName)
-qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelSkinName, const char *teamName, const char *headModelSkinName)
+qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelName, const char *skinName, const char *teamName)
 {
-	char            modelName[MAX_QPATH];
-	char            skinName[MAX_QPATH];
-	char           *slash;
+  char            model[MAX_QPATH];
+  char            skin[MAX_QPATH];
+  char           *slash;
 
-	pi->torsoModel = 0;
-	pi->headModel = 0;
+  pi->torsoModel = 0;
+  pi->headModel = 0;
 
-	if(!modelSkinName[0])
-	{
-		return qfalse;
-	}
+  if(!modelName[0])
+  {
+	  return qfalse;
+  }
 
-	Q_strncpyz(modelName, modelSkinName, sizeof(modelName));
+  Q_strncpyz(model, modelName, sizeof(model));
 
-	slash = strchr(modelName, '/');
-	if(!slash)
-	{
-		// modelName did not include a skin name
-		Q_strncpyz(skinName, "default", sizeof(skinName));
-	}
-	else
-	{
-		Q_strncpyz(skinName, slash + 1, sizeof(skinName));
-		// truncate modelName
-		*slash = 0;
-	}
+  if (teamName[0] == '\0') //DM
+  {
+    slash = strchr(model, '/');
+    if (!slash)
+    {
+      // modelName did not include a skin name
+      Q_strncpyz(skin, "default", sizeof(skin));
+    }
+    else
+    {
+      Q_strncpyz(skin, slash + 1, sizeof(skin));
+      // truncate modelName
+      *slash = 0;
+    }
+  }
+  else //TEAM
+  {
+    Q_strncpyz(skin, skinName, sizeof(skin));
+  }
 
 #ifdef XPPM
-	return UI_XPPM_RegisterModel(pi, modelName, skinName, teamName, headModelSkinName);
+  return UI_XPPM_RegisterModel(pi, model, skin, teamName);
 #endif
-//remove hypov8
-/*
-  Q_strncpyz(headModelName, headModelSkinName, sizeof(headModelName));
-  slash = strchr(headModelName, '/');
-  if (!slash)
-  {
-    // modelName did not include a skin name
-    Q_strncpyz(headSkinName, "default", sizeof(skinName));
-  }
-  else
-  {
-    Q_strncpyz(headSkinName, slash + 1, sizeof(skinName));
-    *slash = '\0';
-  }
 
-  // load cmodels before models so filecache works
-
-  Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", modelName);
-  pi->legsModel = trap_R_RegisterModel(filename);
-
-  if (!pi->legsModel)
-  {
-    Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/lower.md3", modelName);
-
-    pi->legsModel = trap_R_RegisterModel(filename);
-
-    if (!pi->legsModel)
-    {
-      Com_Printf("Failed to load model file %s\n", filename);
-      return qfalse;
-    }
-  }
-
-  Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", modelName);
-  pi->torsoModel = trap_R_RegisterModel(filename);
-  if (!pi->torsoModel)
-  {
-    Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/upper.md3", modelName);
-    pi->torsoModel = trap_R_RegisterModel(filename);
-    if (!pi->torsoModel)
-    {
-      Com_Printf("Failed to load model file %s\n", filename);
-      return qfalse;
-    }
-  }
-
-  if (headModelName[0] == '*')
-  {
-    Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/%s.md3", &headModelName[1], &headModelName[1]);
-  }
-  else
-  {
-    Com_sprintf(filename, sizeof(filename), "models/players/%s/head.md3", headModelName);
-  }
-
-  pi->headModel = trap_R_RegisterModel(filename);
-
-  if (!pi->headModel && headModelName[0] != '*')
-  {
-    Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/%s.md3", headModelName, headModelName);
-
-    pi->headModel = trap_R_RegisterModel(filename);
-  }
-
-  if (!pi->headModel)
-  {
-    Com_Printf("Failed to load model file %s\n", filename);
-    return qfalse;
-  }
-
-  // if any skins failed to load, fall back to default
-  if (!UI_RegisterClientSkin(pi, modelName, skinName, headModelName, headSkinName, teamName))
-  {
-    if (!UI_RegisterClientSkin(pi, modelName, "default", headModelName, "default", teamName))
-    {
-      Com_Printf("Failed to load skin file: %s : %s\n", modelName, skinName);
-      return qfalse;
-    }
-  }
-
-  // load the animations
-  Com_sprintf(filename, sizeof(filename), "models/players/%s/animation.cfg", modelName);
-  if (!UI_ParseAnimationFile(filename, pi->animations))
-  {
-    Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/animation.cfg", modelName);
-    if (!UI_ParseAnimationFile(filename, pi->animations))
-    {
-      Com_Printf(S_COLOR_RED"Failed to load animation file %s\n", filename);
-      return qfalse;
-    }
-  }
-
-  return qtrue;
-*/
 }
 
 
@@ -1186,11 +924,10 @@ qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelSkinName,
 UI_PlayerInfo_SetModel
 ===============
 */
-//void UI_PlayerInfo_SetModel(playerInfo_t * pi, const char *model)
-void UI_PlayerInfo_SetModel(playerInfo_t *pi, const char *model, char *teamName, char *headimage)
+void UI_PlayerInfo_SetModel(playerInfo_t *pi, const char *model, const  char *headName, char *teamName)
 {
-	memset(pi, 0, sizeof(*pi)); //edit hypov8 was =   Com_Memset(pi, 0, sizeof(*pi));
-	UI_RegisterClientModelname(pi, model, teamName, headimage);
+  Com_Memset(pi, 0, sizeof(*pi));
+  UI_RegisterClientModelname(pi, model, headName, teamName);
 //remove hypov8
 /*
   pi->weapon        = WP_MACHINEGUN;

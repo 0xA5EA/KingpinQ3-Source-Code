@@ -45,23 +45,22 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 gitem_t bg_itemlist[] =
 {
   {
-    NULL,							/* classname; */
-    NULL,							/* pickup_sound;*/
-	{		/* world_model[6] */
-		0,		/*"v_wep.md3",*/	/* WORLD_GUNMODEL_POS */			// first person view wep
-		0,		/*"v_hand.md3",*/	/* WORLD_HANDMODEL_POS */			// first person view hand
-		0,		/*"flash.md3",*/	/* WORLD_FLASHMODEL_POS */			// first person+3rd person flash model sprite
-		0,		/*"v_ammo.md3",*/	/* WORLD_CLIPMODEL_POS */			// first person ammo clip
-		0,		/*"w_player.md3",*/	/* WORLD_PLAYERWEAPONMODEL_POS */	// world player weaponmodel
-		0		/*"w_map.md3"*/		/* WORLD_WEAPONMODEL_POS */			// world map model
-	},									
-    NULL,		/* icon */ 
-    NULL,		/* pickup_name */ 
-    0,			/* quantity */
-    IT_BAD,		/* giType */
-    0,			/* giTag */
-    "",			/* precache */ 
-    ""			/* sounds */ 
+    NULL, /* classname; */
+    NULL, /* pickup_sound;*/
+	{       /* world_model[5] */
+		0,    /* "v_wep.md3", */     /* WORLD_GUNMODEL_POS */          // first person view wep
+		0,    /* "v_hand.md3", */    /* WORLD_HANDMODEL_POS */         // first person view hand
+		0,    /* "flash.md3", */     /* WORLD_FLASHMODEL_POS */        // first person+3rd person flash model sprite
+		0,    /* "w_player.md3", */  /* WORLD_PLAYERWEAPONMODEL_POS */ // world player weaponmodel
+		0     /* "w_map.md3" */      /* WORLD_WEAPONMODEL_POS */       // world map model
+	},
+    NULL,   /* icon */ 
+    NULL,   /* pickup_name */ 
+    0,      /* quantity */
+    IT_BAD, /* giType */
+    0,      /* giTag */
+    "",     /* precache */ 
+    ""      /* sounds */ 
   },                                               // leave index 0 alone
 
   /*QUAKED item_armor_body_heavy (.3 .3 1) (-16 -16 -16) (16 16 16) suspended   #1 */
@@ -70,7 +69,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/generic.ogg",           /* 0xA5EA */
     {
       "models/pu_icon/armor/armorhdtop.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/armor/armorhdtop.md3"
     },
     "gfx/icons/h_chest_hvy",  // icon
@@ -88,7 +87,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/generic.ogg",
     {
       "models/pu_icon/armor/armor_vest.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/armor/armor_vest.md3"
     },
     "gfx/icons/h_chest_lt", // icon
@@ -106,7 +105,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/health.ogg",
     {
       "models/pu_icon/health_s/tris.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/health_s/tris.md3"
     },
    "gfx/icons/h_smed",       // icon
@@ -124,7 +123,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/health.ogg",
     {
       "models/pu_icon/health/tris.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/health/tris.md3"
     },
     "gfx/icons/h_lmed",     // icon
@@ -142,7 +141,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/health.ogg",            /* 0xA5EA */
     {
       "models/pu_icon/adrenaline/tris.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/adrenaline/tris.md3"
     },
     "gfx/icons/h_pmed",       // icon
@@ -153,15 +152,14 @@ gitem_t bg_itemlist[] =
     "",                   // precache
     ""                    // sounds
   },
+//hypov8: todo item_pack
 
   /*QUAKED weapon_crowbar (.3 .3 1) (-16 -16 -16) (16 16 16) suspended   6  */
   {
     "weapon_crowbar",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/crowbar/v_wep.md3",
-      "models/weapons/crowbar/v_hand.md3",
-      0, //"models/weapons/crowbar/flash.md3",
+      "models/weapons/crowbar/v_wep.md5mesh", 0,
       0,
       "models/weapons/crowbar/w_player.md3",
       "models/weapons/crowbar/w_map.md3"
@@ -175,38 +173,36 @@ gitem_t bg_itemlist[] =
     ""                      // sounds
   },
   /*QUAKED weapon_pistol (.3 .3 1) (-16 -16 -16) (16 16 16) suspended   #7  */
-	  {
-		  "weapon_pistol",
-		  "sound/misc/w_pkup.ogg",
-		  {
-			  "models/weapons/colt/v_wep.md3",			// first person view wep
-			  "models/weapons/colt/v_hand.md3", 		// first person view hand
-			  "models/weapons/colt/flash.md3",			// first person+3rd person flash model sprite 
-			  0,		// first person ammo clip
-			  "models/weapons/colt/w_player.md3",	// world player weapon model
-			  "models/weapons/colt/w_map.md3"			// world map model
-			  //FIXME (0xA5EA): use world pistol model
-		  },
-		  "gfx/icons/h_pistol_mag",    // icon
-		  "Pistol",                // pickup name
-		  10,                     // quantity
-		  IT_WEAPON,               // giType
-		  WP_PISTOL,               // giTag
-		  "",                      // precache
-		  ""                       // sounds
-	  },
+  {
+    "weapon_pistol",
+    "sound/misc/w_pkup.ogg",
+    {
+      "models/weapons/colt/v_wep.md3",			// first person view wep
+      "models/weapons/colt/v_hand.md3", 		// first person view hand
+      "models/weapons/colt/flash.md3",			// first person+3rd person flash model sprite
+      "models/weapons/colt/w_player.md3",	// world player weapon model
+      "models/weapons/colt/w_map.md3"			// world map model
+      //FIXME (0xA5EA): use world pistol model
+    },
+    "gfx/icons/h_pistol_mag",    // icon
+    "Pistol",                // pickup name
+    10,                     // quantity
+    IT_WEAPON,               // giType
+    WP_PISTOL,               // giTag
+    "",                      // precache
+    ""                       // sounds
+  },
 
   /*QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended   8 */
   {
     "weapon_shotgun",
     "sound/misc/w_pkup.ogg",
     {
-		"models/weapons/shotgun/v_wep.md3",		// first person view wep
-		"models/weapons/shotgun/v_hand.md3",	// first person view hand
-		"models/weapons/shotgun/flash.md3",		// first person+3rd person flash model sprite
-		0, //"models/weapons/shotgun/v_ammo.md3",	// first person ammo clip
-		"models/weapons/shotgun/w_player.md3",	// world player weaponmodel
-		"models/weapons/shotgun/w_map.md3"		// world map model 
+      "models/weapons/shotgun/v_wep.md3",		// first person view wep
+      "models/weapons/shotgun/v_hand.md3",	// first person view hand
+      "models/weapons/shotgun/flash.md3",		// first person+3rd person flash model sprite
+      "models/weapons/shotgun/w_player.md3",	// world player weaponmodel
+      "models/weapons/shotgun/w_map.md3"		// world map model 
     },
     "gfx/icons/h_shotgun",        // icon
     "Shotgun",                // pickup name
@@ -222,13 +218,11 @@ gitem_t bg_itemlist[] =
     "weapon_tommygun",							// classname
     "sound/misc/w_pkup.ogg",					// pickup_sound
     {
-	  "models/weapons/tomgun/v_wep.md3",		// first person view wep
-	  "models/weapons/tomgun/v_hand.md3",		// first person view hand
-	  "models/weapons/tomgun/flash.md3",		// first person+3rd person flash model sprite
-	  0,										// first person ammo clip
-	  "models/weapons/tomgun/w_player.md3",		// world player weaponmodel
-	  "models/weapons/tomgun/w_map.md3"			// world map model 
-      //FIXME (0xA5EA): add model to data
+      "models/weapons/tomgun/v_wep.md5mesh",// first person view wep
+      0,                                    // first person view hand
+      "models/weapons/tomgun/flash.md3",    // first person+3rd person flash model sprite
+      "models/weapons/tomgun/w_wep.md3",    // world player weaponmodel
+      "models/weapons/tomgun/w_wep.md3"     // world map model
     },
     "gfx/icons/h_tgun",			// icon
     "Machinegun",				// pickup name
@@ -248,10 +242,8 @@ gitem_t bg_itemlist[] =
       "models/weapons/grenadelauncher/v_wep.md3",       // first person view wep
       "models/weapons/grenadelauncher/v_hand.md3",      // first person view hand
       "models/weapons/grenadelauncher/flash.md3",       // first person+3rd person flash model sprite
-      0,                                                // first person ammo clip
       "models/weapons/grenadelauncher/w_player.md3",    // world player weaponmodel
       "models/weapons/grenadelauncher/w_map.md3"        // world map model 
-      //FIXME (0xA5EA): add model to data
     },
     "gfx/icons/h_grenade_l",      // icon
     "Grenade Launcher",       // pickup name
@@ -267,10 +259,9 @@ gitem_t bg_itemlist[] =
     "weapon_bazooka",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/rocketlauncher/v_wep.md3",
-      "models/weapons/rocketlauncher/v_hand.md3",
+      "models/weapons/rocketlauncher/v_wep.md5mesh",
+      0,
       "models/weapons/rocketlauncher/flash.md3",
-      "models/weapons/rocketlauncher/v_ammo.md3",    //hypov8 todo: merge
       "models/weapons/rocketlauncher/w_player.md3",  // world player weaponmodel
       "models/weapons/rocketlauncher/w_map.md3"      // world spawn weaponmodel
     },
@@ -288,10 +279,9 @@ gitem_t bg_itemlist[] =
     "weapon_heavymachinegun",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/hmg/v_wep.md3",
+      "models/weapons/hmg/v_wep.md5mesh",
       0,
       "models/weapons/hmg/flash.md3",
-      0,
       "models/weapons/hmg/w_player.md3",        // world player weaponmodel
       "models/weapons/hmg/w_map.md3"               // world spawn weaponmodel
       //FIXME (0xA5EA): add model to data
@@ -310,15 +300,11 @@ gitem_t bg_itemlist[] =
     "weapon_flamethrower",
     "sound/misc/w_pkup.ogg",
     {
-
       "models/weapons/flamegun/v_wep.md3",     // first person view wep
       "models/weapons/flamegun/v_hand.md3",    // first person view hand
       "models/weapons/flamegun/flash.md3",     // first person+3rd person flash model sprite
-      0,                                       // first person ammo clip
       "models/weapons/flamegun/w_player.md3",  // world player weaponmodel
       "models/weapons/flamegun/w_map.md3"      // world map model 
-      //FIXME (0xA5EA): add model to data
-
     },
     "gfx/icons/h_flamethrower",    // icon
     "Flamegun",                // pickup name
@@ -334,12 +320,11 @@ gitem_t bg_itemlist[] =
     "weapon_grapplinghook",
     "sound/misc/w_pkup.ogg",
     {
-	  "models/weapons/grapple/v_wep.md3",		// first person view wep
-	  "models/weapons/grapple/v_hand.md3",		// first person view hand
-	  "models/weapons/grapple/flash.md3",		// first person+3rd person flash model sprite
-	  "models/weapons/grapple/v_ammo.md3",		// first person ammo clip
-	  "models/weapons/grapple/w_player.md3",	// world player weaponmodel
-	  "models/weapons/grapple/w_map.md3"		// world map model 
+      "models/weapons/grapple/v_wep.md3",		// first person view wep
+      "models/weapons/grapple/v_hand.md3",		// first person view hand
+      "models/weapons/grapple/flash.md3",		// first person+3rd person flash model sprite
+      "models/weapons/grapple/w_player.md3",	// world player weaponmodel
+      "models/weapons/grapple/w_map.md3"		// world map model 
     },
     "gfx/icons/iconw_grapple",  // icon
     "Grappling Hook",           // pickup name
@@ -356,7 +341,7 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.ogg",
     {
       "models/pu_icon/shotgun_shell/tris.md3",
-      0, 0, 0,
+      0, 0,
       "models/pu_icon/shotgun_shell/tris.md3",
       "models/pu_icon/shotgun_shell/tris.md3"
     },
@@ -375,14 +360,14 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.ogg",
     {
       "models/pu_icon/pclip/tris.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/pclip/tris.md3"
     },
     "gfx/icons/h_clip",          // icon
     "Bullets",               // pickup name
     10,                      // quantity
     IT_AMMO,                 // giType
-	WP_MACHINEGUN,           // giTag
+    WP_MACHINEGUN,           // giTag
     "",                      // precache
     ""                       // sounds
   },
@@ -393,7 +378,7 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.ogg",
     {
 	  "models/pu_icon/tgclip/tris.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/tgclip/tris.md3"
     }, 
     /* icon */ "gfx/icons/h_tclip",
@@ -411,8 +396,7 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.ogg",  //"sound/misc/w_pkup.ogg",
     {                                //"models/powerups/ammo/grenadeam.md3",
       "models/pu_icon/grenade/tris.md3",
-      //"models/weapons/grenade_launcher/clip.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/grenade/tris.md3"
     },
     "gfx/icons/h_grenade",	/* icon */             //icona_grenade",
@@ -431,7 +415,7 @@ gitem_t bg_itemlist[] =
     //{ "models/powerups/ammo/rocketam.md3",
     {
       "models/pu_icon/rocket/tris.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/rocket/tris.md3"
     },
     /* icon */ "gfx/icons/h_missle",                     //icona_rocket
@@ -447,12 +431,12 @@ gitem_t bg_itemlist[] =
   {
     "ammo_308",
     "sound/misc/w_pkup.ogg",
-    {                                        //"models/powerups/ammo/railgunam.md3",
-      "models/pu_icon/hmgclip/tris.md3",   //"models/weapons/v_hmg/clip.md3",
-      0, 0, 0, 0,
+    {
+      "models/pu_icon/hmgclip/tris.md3",
+      0, 0, 0,
       "models/pu_icon/hmgclip/tris.md3"
     },
-    /* icon */ "gfx/icons/h_hmg_clip",                   //"gfx/icons/icona_railgun",
+    /* icon */ "gfx/icons/h_hmg_clip",
     /* pickup */ "308",
     30,
     IT_AMMO,
@@ -467,7 +451,7 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.ogg",
     {
       "models/pu_icon/exting/ext2.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/exting/ext2.md3"
     },
     /* icon */ "gfx/icons/h_ftank",
@@ -488,7 +472,7 @@ gitem_t bg_itemlist[] =
     "sound/items/holdable.ogg",
     {
       "models/powerups/holdable/teleporter.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/powerups/holdable/teleporter.md3"
     },
     /* icon */ "gfx/icons/teleporter",
@@ -506,7 +490,7 @@ gitem_t bg_itemlist[] =
     {
       "models/powerups/holdable/medkit.md3",
       "models/powerups/holdable/medkit_sphere.md3",
-      0, 0, 0,
+      0, 0,
       "models/powerups/holdable/medkit.md3"
     },
     /* icon         "gfx/icons/medkit",*/
@@ -528,7 +512,7 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.ogg",
     {
       "models/pu_icon/coolmod/tris.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/coolmod/tris.md3"
     },
     /* icon */ "gfx/icons/h_heavymachinegun_cooling",
@@ -546,7 +530,7 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.ogg",
     {
         "models/pu_icon/ro_fire_mod/tris.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/ro_fire_mod/tris.md3"
     },
     /* icon */ "gfx/icons/h_ecd",
@@ -566,7 +550,7 @@ gitem_t bg_itemlist[] =
 			"sound/misc/w_pkup.ogg",
 			{
 				"models/pu_icon/ro_fire_mod/tris.md3",
-				0, 0, 0, 0,
+				0, 0, 0,
 				"models/pu_icon/ro_fire_mod/tris.md3"
 			},
 			/* icon */ "gfx/icons/h_ecd",
@@ -586,7 +570,7 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.ogg",
     {
       "models/pu_icon/silencer/tris.md3",
-      0, 0, 0,  0,
+      0, 0, 0,
       "models/pu_icon/silencer/tris.md3"
     },
     /* icon */ "gfx/icons/h_silencer",
@@ -604,7 +588,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/cash.ogg",
     {
       "models/qpin_gameobj/cash.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/qpin_gameobj/cash.md3"
     },
     "gfx/icons/h_money",	/* icon */ 
@@ -622,7 +606,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/cash.ogg",
     {
       "models/qpin_gameobj/moneybag.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/qpin_gameobj/moneybag.md3"
     },
     "gfx/icons/h_money",	/* icon */ 
@@ -640,7 +624,7 @@ gitem_t bg_itemlist[] =
 	  "sound/world/pickups/cash.ogg",
 	  {
 		  "models/qpin_gameobj/moneybag.md3",
-		  0, 0, 0, 0,
+		  0, 0, 0,
 		  "models/qpin_gameobj/moneybag.md3"
 	  },
 	  "gfx/icons/h_money",		/* icon */ 
@@ -659,7 +643,7 @@ gitem_t bg_itemlist[] =
 		NULL,
 		{
 			"models/qpin_gameobj/moneybag.md3",
-			0, 0, 0, 0, 0
+			0, 0, 0, 0
 		},
 		"gfx/icons/iconf_red1",	/* icon */ 
 		ITEMNAME_DRAGON_SAFE,	/* pickup */ 
@@ -676,7 +660,7 @@ gitem_t bg_itemlist[] =
 		  NULL,
 		  {
 			  "models/qpin_gameobj/moneybag.md3",
-			  0, 0, 0, 0, 0
+			  0, 0, 0, 0
 		  },
 		  "gfx/icons/iconf_blu1",	/* icon */ 
 		  ITEMNAME_NIKKIS_SAFE,		/* pickup */ 
@@ -695,7 +679,7 @@ gitem_t bg_itemlist[] =
     NULL,
     {
       "models/flags/drag_flag.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/flags/drag_flag.md3"
     },
     /* icon */ "gfx/icons/iconf_red",
@@ -713,7 +697,7 @@ gitem_t bg_itemlist[] =
     NULL,
     {
       "models/flags/nikki_flag.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/flags/nikki_flag.md3"
     },
     /* icon */ "gfx/icons/iconf_blu",
@@ -731,7 +715,7 @@ gitem_t bg_itemlist[] =
     NULL,
     {
       "models/flags/n_flag.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/flags/n_flag.md3"
     },
     /* icon */ "gfx/icons/iconf_neut",
@@ -750,7 +734,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/generic.ogg",
     {
       "models/pu_icon/armor_head/armor_head.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/armor_head/armor_head.md3"
     },
     /* icon */ "gfx/icons/h_helmet_lt",
@@ -769,7 +753,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/generic.ogg",
     {
       "models/pu_icon/armor_head/armor_head_hd.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/armor_head/armor_head_hd.md3"
     },
     /* icon */ "gfx/icons/h_helmet_hvy",
@@ -787,7 +771,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/generic.ogg",
     {
       "models/pu_icon/armor_lo/armor_lo.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/armor_lo/armor_lo.md3"
     },
     /* icon */ "gfx/icons/h_pants_lt",
@@ -805,7 +789,7 @@ gitem_t bg_itemlist[] =
     "sound/world/pickups/generic.ogg",
     {
       "models/pu_icon/armor_lo/armor_lo_hd.md3",
-      0, 0, 0, 0,
+      0, 0, 0,
       "models/pu_icon/armor_lo/armor_lo_hd.md3"
     },
 	"gfx/icons/h_pants_hvy",	/* icon */ 
@@ -822,9 +806,7 @@ gitem_t bg_itemlist[] =
     NULL,
     NULL,
     {
-      0,
-      0, 0, 0, 0,
-      0
+      0, 0, 0, 0, 0
     },
     /* icon */ 0,
     /* pickup */ 0,
@@ -1032,10 +1014,18 @@ qboolean BG_PlayerTouchesItem(playerState_t *ps, entityState_t *item, int atTime
 /*
 =================
 BG_PlayerCanChangeWeapon
+
+can't change if weapon is firing and counter > 0
+can change again if lowering or raising or reloading
 =================
 */
 qboolean BG_PlayerCanChangeWeapon(playerState_t *ps) //unvan .52
 {
+	if (ps->weapon == WP_SHOTGUN && ps->weaponstate == WEAPON_RELOAD_MOD)
+	{
+		return qtrue;
+	}
+
 	if ( ps->weaponstate == WEAPON_RELOADING
 		|| ps->weaponstate == WEAPON_RELOAD_MOD
 		//|| ps->weaponstate == WEAPON_FIRING
@@ -1719,10 +1709,9 @@ BG_WeaponMaxAmmoCount
 int BG_WeaponMaxAmmoCount(int weapon) //total bullets on self
 {
   switch (weapon)
-  {                                    // kp values ammo/rounds
-  case WP_PISTOL:		//combined
+  {                                     // kp values ammo/rounds
+  case WP_PISTOL:           //combined
   case WP_MACHINEGUN:       return 200; // 200/50
-
   case WP_SHOTGUN:          return 100; // 100/8
   case WP_GRENADE_LAUNCHER: return  12; // 12/3
   case WP_ROCKET_LAUNCHER:  return  25; // 25/5
@@ -1745,21 +1734,20 @@ skip crowbar
 */
 qboolean BG_IsReloadableWeapon(int weapon)
 {
-	switch (weapon)
-	{
-		case WP_PISTOL:
-		case WP_SHOTGUN:
-		case WP_MACHINEGUN:
-		case WP_GRENADE_LAUNCHER:
-		case WP_ROCKET_LAUNCHER:
-		case WP_HMG:
+  switch (weapon)
+  {
+    case WP_PISTOL:
+    case WP_SHOTGUN:
+    case WP_MACHINEGUN:
+    case WP_GRENADE_LAUNCHER:
+    case WP_ROCKET_LAUNCHER:
+    case WP_HMG:
 #ifdef USE_FLAMEGUN
-		case WP_FLAMER:
-			return qtrue;
+    case WP_FLAMER:
+      return qtrue;
 #endif
-	}
-
-	return qfalse;
+  }
+    return qfalse;
 }
 
 /*
@@ -1767,19 +1755,43 @@ qboolean BG_IsReloadableWeapon(int weapon)
 BG_AttackTorsoAnim
 ===============
 */
-animNumber_t BG_AttackTorsoAnim(int weapon)
+animNumber_t BG_GetTorsoAttackAnimNumber(int weapon)
 {
   switch (weapon)
   {
   case WP_CROWBAR: 
   case WP_GRAPPLING_HOOK: 
-	  return TORSO_ATTACK2;
+    return TORSO_ATTACK2;
+
   case WP_PISTOL:  
-	  return TORSO_ATTACK3;
+    return TORSO_ATTACK3;
+
   default:         
-	  return TORSO_ATTACK;
+    return TORSO_ATTACK;
   }
 }
+
+/*
+===============
+BG_GetTorsoIdleAnimNumber
+===============
+*/
+animNumber_t BG_GetTorsoIdleAnimNumber(int weapon)
+{
+  switch (weapon)
+  {
+  case WP_CROWBAR: 
+  case WP_GRAPPLING_HOOK: 
+    return TORSO_STAND2;
+
+  case WP_PISTOL:  
+    return TORSO_STAND3;
+
+  default:         
+    return TORSO_STAND;
+  }
+}
+
 
 /*
 ===============
@@ -1841,6 +1853,4 @@ int BG_AmmoCombineCheck(int weaponNum)
 
 	return weaponNum;
 }
-
-
 

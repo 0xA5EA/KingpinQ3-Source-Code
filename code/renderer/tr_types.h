@@ -217,6 +217,8 @@ typedef struct
 	float shaderTexCoord[ 2 ]; // texture coordinates used by tcMod entity modifiers
 	float shaderTime; // subtracted from refdef time to control effect start times
 
+  float coolerModTime;
+
 	// extra sprite information
 	float radius;
 	float rotation;

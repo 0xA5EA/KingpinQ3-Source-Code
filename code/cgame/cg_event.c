@@ -921,45 +921,41 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
     break;
 
   case EV_HITMEN_INFOMSG:
-  DEBUGNAME("EV_HITMEN_INFOMSG");
-  CG_HMInfoMsg(cent, es->eventParm);
-  break;
+    DEBUGNAME("EV_HITMEN_INFOMSG");
+    CG_HMInfoMsg(cent, es->eventParm);
+    break;
   case EV_CHANGE_WEAPON_DROP:
     DEBUGNAME("EV_CHANGE_WEAPON_DROP");
-  if ( clientNum == cg.predictedPlayerState.clientNum ){ //local client only
-    trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.useNothingSound); //stop old sounds
-    CG_ResetWeaponSwitch(cent, es->eventParm);
-  }
+    if ( clientNum == cg.predictedPlayerState.clientNum ){ //local client only
+      trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.useNothingSound); //stop old sounds
+      CG_ResetWeaponSwitch(cent, es->eventParm);
+    }
     break;
   case EV_CHANGE_WEAPON_RAISE:
-  DEBUGNAME("EV_CHANGE_WEAPON_RAISE");
-  if (clientNum == cg.predictedPlayerState.clientNum) //local client only
-    CG_ResetWeaponSwitch(cent, es->eventParm);
-  break;
+    DEBUGNAME("EV_CHANGE_WEAPON_RAISE");
+    if (clientNum == cg.predictedPlayerState.clientNum) //local client only
+      CG_ResetWeaponSwitch(cent, es->eventParm);
+    break;
   case EV_FIRE_WEAPON:
     DEBUGNAME("EV_FIRE_WEAPON");
-  CG_FireWeapon(cent, qfalse);
+    CG_FireWeapon(cent, qfalse);
     break;
   case EV_FIRE_SHOTGUN:
-  DEBUGNAME("EV_FIRE_SHOTGUN");
-  CG_FireWeapon(cent, qfalse);
-  break;
+    DEBUGNAME("EV_FIRE_SHOTGUN");
+    CG_FireWeapon(cent, qfalse);
+    break;
   case EV_FIRE_SPISTOL:
-  DEBUGNAME("EV_FIRE_SPISTOL");
-  CG_FireWeapon(cent, qtrue);
-  break;
-  /*case EV_FIRE_HMG_SHOT: //hypov8 todo: cleanup. not used anymore
-  DEBUGNAME("EV_FIRE_HMG_SHOT");
-  CG_FireWeapon(cent, qfalse);
-  break;*/
-  /*case EV_FIRE_COOLDOWN:
+    DEBUGNAME("EV_FIRE_SPISTOL");
+    CG_FireWeapon(cent, qtrue);
+    break;
+  case EV_MOD_COOLDOWN:
     //todo
-    break;*/
+    break;
   case EV_RELOAD_WEAPON:
-  DEBUGNAME("EV_RELOAD_WEAPON");
-  CG_ReloadWeapon(cent);
-  break;
-  case EV_RELOAD_SHOTGUN:
+    DEBUGNAME("EV_RELOAD_WEAPON");
+    CG_ReloadWeapon(cent);
+    break;
+    case EV_RELOAD_SHOTGUN:
   DEBUGNAME("EV_RELOAD_SHOTGUN");
     CG_ReloadWeapon(cent);
     break;

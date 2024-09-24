@@ -577,8 +577,7 @@ typedef struct
   int barrelTime;
 
 
-  //add hypov8
-  #ifdef XPPM
+#ifdef XPPM
   // Tr3B: don't forget to add these values to CG_CopyClientInfoModel !
   char firstTorsoBoneName[MAX_QPATH];
   char lastTorsoBoneName[MAX_QPATH];
@@ -586,25 +585,26 @@ typedef struct
   char torsoControlBoneName[MAX_QPATH];
   char neckControlBoneName[MAX_QPATH];
 
-  vec3_t modelScale;
+  vec_t modelScale;
 
   qhandle_t bodyModel;
   qhandle_t bodySkin;
 
-   gender_t gender;        // from model
+  gender_t gender;        // from model
+
+  vec3_t wepRotate;   //add hypov8. rotate bone xyz to suit weapon orientation
+  vec3_t flagRotate;  //add hypov8. rotate bone xyz to suit flag orientation
 #endif
 
-  //end add hypov8
 
 
   int realWeapon;
 } playerInfo_t;
 
-void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t *pi, int time);
-//void UI_PlayerInfo_SetModel(playerInfo_t *pi, const char *model, const char *headmodel, char *teamName); //replaced hypov8
-void UI_PlayerInfo_SetModel(playerInfo_t *pi, const char *model, char *teamName, char *headimage); //add hypov8
+void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t *pi, int time, int mouseX, int mouseY);
+void UI_PlayerInfo_SetModel(playerInfo_t *pi, const char *model, const  char *headimage, char *teamName);
 void UI_PlayerInfo_SetInfo(playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles, weapon_t weaponNum, qboolean chat);
-qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelSkinName, const char *teamName, const char *headimage); //removed hypov8 in ui_players.c
+qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelSkinName, const char *headimage, const char *teamName);
 
 #if 0 // 0xA5EA
 //
@@ -642,7 +642,7 @@ typedef struct
 #define MAX_HEADS 64
 #define MAX_ALIASES 64
 #define MAX_HEADNAME 32
-#define MAX_TEAMS 64
+#define MAX_TEAMS 64 //2?
 #define MAX_GAMETYPES 16
 #define MAX_WEAPONMODES 8
 #define MAX_MAPS 128
@@ -675,10 +675,10 @@ typedef struct
 
 typedef struct
 {
-  const char *name;
+  const char *name; //skin name
   const char *imageName;
   qhandle_t headImage;
-  const char *base;
+  const char *base; //model folder path
   qboolean active;
   int reference;
 } characterInfo;
@@ -1201,8 +1201,8 @@ void UI_RankStatusMenu(void);
 
 
 #ifdef XPPM
-void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time);
-qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName, const char * teamName, const char *headModelSkinName);
+void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time, int mouseX, int mouseY);
+qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName, const char * teamName);
 #endif
 
 // new ui

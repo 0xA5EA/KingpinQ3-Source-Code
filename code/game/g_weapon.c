@@ -56,7 +56,7 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon ) //unvan 0.52
 Bullet_Fire
 ===============
 */
-void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, qboolean doBloodSFX, int *drewBlood)
+void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, int bulletCount)
 {
   trace_t tr;
   vec3_t end;
@@ -64,37 +64,43 @@ void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, q
   float u;
   gentity_t *tent;
   gentity_t *traceEnt;
-  int passent;
-
+  int passent, i;
+  int showBlood = qtrue;
+//unlagged - attack prediction #2
   // we have to use something now that the client knows in advance
-  //int			seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
-
+  int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
 //unlagged - attack prediction #2
-  // this has to match what's on the client
 
-  r = random() * M_PI * 2.0f;
-  u = sin(r) * crandom() * spread * 16;
-  r = cos(r) * crandom() * spread * 16;
-/*
-  r = Q_random(&seed) * M_PI * 2.0f;
-  u = sin(r) * Q_crandom(&seed) * spread * 16;
-  r = cos(r) * Q_crandom(&seed) * spread * 16;
-  */
-//unlagged - attack prediction #2
-  VectorMA(muzzle, 8192 * 16, forward, end);
-  VectorMA(end, r, right, end);
-  VectorMA(end, u,    up, end);
+
+//unlagged - backward reconciliation #2
+  // backward-reconcile the other clients
+  G_DoTimeShiftFor( ent );//unlagged - backward reconciliation #2
+//unlagged - backward reconciliation #2
 
   passent = ent->s.number;
-  //for (i = 0; i < 10; i++) //unused
+
+  for (i = 0; i < bulletCount; i++)
   {
-    // backward-reconcile the other clients
-    G_DoTimeShiftFor( ent );//unlagged - backward reconciliation #2
+
+#if 0 //std non predict
+    r = random() * M_PI * 2.0f;
+    u = sin(r) * crandom() * spread * 16;
+    r = cos(r) * crandom() * spread * 16;
+#else
+//unlagged - attack prediction #2
+    // this has to match what's on the client
+    r = Q_random(&seed) * M_PI * 2.0f;
+    u = sin(r) * Q_crandom(&seed) * spread * 16;
+    r = cos(r) * Q_crandom(&seed) * spread * 16;
+//unlagged - attack prediction #2
+#endif
+
+
+    VectorMA(muzzle, 8192 * 16, forward, end);
+    VectorMA(end, r, right, end);
+    VectorMA(end, u,    up, end);
 
     trap_Trace(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
-    // put them back
-    G_UndoTimeShiftFor( ent );//unlagged - backward reconciliation #2
-
 
     if (tr.surfaceFlags & SURF_NOIMPACT)
       return;
@@ -114,7 +120,7 @@ void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, q
         tent = G_TempEntity(tr.endpos, EV_NONE);
       else
       {
-        if (doBloodSFX)
+        if (showBlood)
           tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_FLESH);
         else
           tent = G_TempEntity(tr.endpos, EV_NONE);
@@ -128,7 +134,7 @@ void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, q
       if (LogAccuracyHit(traceEnt, ent))
         ent->client->accuracy_hits++;
 
-      *drewBlood = qtrue;
+      showBlood = qfalse; //only show blood once
     }
     else
     {
@@ -167,10 +173,13 @@ void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, q
         damage *= 1.5;
 
       G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, mod);
-
     }
-    //break;
   }
+
+//unlagged - backward reconciliation #2
+  // put them back
+  G_UndoTimeShiftFor( ent );//unlagged - backward reconciliation #2
+//unlagged - backward reconciliation #2
 }
 
 /*
@@ -321,6 +330,7 @@ static void Weapon_Pistol_Fire(gentity_t *ent)
   int damage = PISTOL_DAMAGE;
   int spread = PISTOL_SPREAD;
   int nulNum = qfalse;
+  int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
 
   if (g_weaponmod.integer == WM_HITMEN)
     damage = PISTOL_DAMAGE_HM;
@@ -331,7 +341,7 @@ static void Weapon_Pistol_Fire(gentity_t *ent)
     spread = PISTOL_SPREAD / 3; //add accuracy to modded pistol?
   }
 
-  Bullet_Fire(ent, spread, damage, MOD_PISTOL, qtrue, &nulNum);
+  Bullet_Fire(ent, spread, damage, MOD_PISTOL, 1);
 }
 
 
@@ -344,6 +354,7 @@ static void Weapon_Tomgun_Fire(gentity_t *ent)
 {
   int damage = MACHINEGUN_DAMAGE;
   int nulNum = qfalse;
+  int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
 
   if (g_gametype.integer == GT_TEAM)
   damage = MACHINEGUN_TEAM_DAMAGE;
@@ -351,7 +362,7 @@ static void Weapon_Tomgun_Fire(gentity_t *ent)
   if (g_weaponmod.integer & WM_REALMODE)
   damage /= 2;
 
-  Bullet_Fire(ent, MACHINEGUN_SPREAD, damage, MOD_MACHINEGUN, qtrue, &nulNum);
+  Bullet_Fire(ent, MACHINEGUN_SPREAD, damage, MOD_MACHINEGUN, 1);
 }
 
 
@@ -413,198 +424,28 @@ SHOTGUN
 // DEFAULT_SHOTGUN_SPREAD and DEFAULT_SHOTGUN_COUNT	are in bg_public.h, because
 // client predicts same spreads
 
-//#define DEFAULT_SHOTGUN_DAMAGE 16  //hypo cg and g common predicted items moved
-qboolean ShotgunPellet(vec3_t start, vec3_t end, gentity_t *ent)
+void Weapon_Shotgun_Fire(gentity_t *ent)
 {
-  trace_t tr;
-  int damage, i, passent;
-  gentity_t *traceEnt;
-  vec3_t tr_start, tr_end;
+  gentity_t		*tent;
+  int spread;
+  int damage = DEFAULT_SHOTGUN_DAMAGE;
+  
 
-  passent = ent->s.number;
-  VectorCopy(start, tr_start);
-  VectorCopy(end, tr_end);
-  for (i = 0; i < 10; i++)
-  {
-    trap_Trace(&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
-    traceEnt = &g_entities[tr.entityNum];
+  // send shotgun blast
+  tent = G_TempEntity( muzzle, EV_FIRE_SHOTGUN);
+  VectorScale( forward, 4096, tent->s.origin2 );
+  SnapVector( tent->s.origin2 );
 
-    // send bullet impact
-    if (tr.surfaceFlags & SURF_NOIMPACT)
-      return qfalse;
-
-    if (traceEnt->takedamage)
-    {
-      vec3_t tempvec;
-      int distoEnt;
-      VectorSubtract(tr.endpos, ent->client->ps.origin, tempvec);
-      distoEnt = VectorNormalize(tempvec);
-      if (distoEnt < 64)
-      {	//extra damage to close players
-        damage = DEFAULT_SHOTGUN_DAMAGE * 2;
-      }
-      else
-        damage = DEFAULT_SHOTGUN_DAMAGE;
-
-      if (g_weaponmod.integer & WM_HITMEN)
-        damage += 4;
-
-      G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_SHOTGUN);
-
-      if (LogAccuracyHit(traceEnt, ent))
-        return qtrue;
-    }
-    return qfalse;
-  }
-  return qfalse;
-}
-#if 0
-// this should match CG_ShotgunPattern
-void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t *ent)
-{
-  int i, spread;
-  float r, u;
-  vec3_t end;
-  vec3_t forward, right, up;
-  qboolean hitClient = qfalse;
-
-//unlagged - attack prediction #2
-  // use this for testing
-  //Com_Printf( "Server seed: %d\n", seed );
-//unlagged - attack prediction #2
-  // derive the right and up vectors from the forward vector, because
-  // the client won't have any other information
-  VectorNormalize2(origin2, forward);
-  PerpendicularVector(right, forward);
-  CrossProduct(forward, right, up);
-//unlagged - backward reconciliation #2
-  // backward-reconcile the other clients
-  G_DoTimeShiftFor( ent );
-//unlagged - backward reconciliation #2
+  tent->s.otherEntityNum = ent->s.number;
 
   if (g_weaponmod.integer & WM_REALMODE)
     spread = DEFAULT_SHOTGUN_SPREAD_RM;
   else
     spread = DEFAULT_SHOTGUN_SPREAD;
 
-  // generate the "random" spread pattern
-  for (i = 0; i < DEFAULT_SHOTGUN_COUNT; i++)
-  {
-    r = Q_crandom(&seed) * spread * 16;
-    u = Q_crandom(&seed) * spread * 16;
-    VectorMA(origin, 8192 * 16, forward, end);
-    VectorMA(end, r, right, end);
-    VectorMA(end, u, up, end);
-    if (ShotgunPellet(origin, end, ent) && !hitClient)
-    {
-      hitClient = qtrue;
-      ent->client->accuracy_hits++;
-    }
-  }
-//unlagged - backward reconciliation #2
-  // put them back
-  G_UndoTimeShiftFor( ent );
-//unlagged - backward reconciliation #2
-}
-#endif
-
-void Weapon_Shotgun_Fire(gentity_t *ent)
-{
-  int i;
-  int showBlood = qtrue;
-  int drewBlood = qfalse;
-  int damage = DEFAULT_SHOTGUN_DAMAGE;
-  int spread = DEFAULT_SHOTGUN_SPREAD;
-
-  if (g_weaponmod.integer & WM_REALMODE)
-    spread = DEFAULT_SHOTGUN_SPREAD_RM;
-
-  for (i = 0; i < DEFAULT_SHOTGUN_COUNT; i++)
-  {
-    if (drewBlood)
-      showBlood = qfalse;
-    Bullet_Fire(ent, spread, damage, MOD_SHOTGUN, showBlood, &drewBlood); //disables repeated impact SFX
-  }
+    Bullet_Fire(ent, spread, damage, MOD_SHOTGUN, DEFAULT_SHOTGUN_COUNT);
 }
 
-
-#if 0 //new combined shotty
-
-void weapon_supershotgun_fire(gentity_t *ent)
-{
-  gentity_t *tent;
-  int i, spread;
-  float r, u;
-
-
-
-  // send shotgun blast
-  //if (g_gametype.integer >= GT_TEAM && OnSameTeam(ent, traceEnt)) //hypov8 check for same team damage
-  tent = G_TempEntity(muzzle, EV_NONE);
-  //else
-  //	tent = G_TempEntity(muzzle, EV_SHOTGUN);
-  VectorScale(forward, 4096, tent->s.origin2);
-  SnapVector(tent->s.origin2);
-  tent->s.eventParm      = rand() & 255;       // seed for spread pattern
-  tent->s.otherEntityNum = ent->s.number;
-
-  //ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent);
-  //}
-
-  // this should match CG_ShotgunPattern
-  //void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t *ent)
-  //{
-  {
-    vec3_t end;
-    vec3_t forward, right, up;
-    qboolean hitClient = qfalse;
-
-    //hypov8 forward
-    vec3_t origin;
-    vec3_t origin2;
-    int seed;
-
-    VectorCopy(tent->s.pos.trBase, origin);
-    VectorCopy(tent->s.origin2, origin2);
-    seed = tent->s.eventParm;
-    //gentity_t *ent;
-    //hypov8 end forward
-
-
-
-    // derive the right and up vectors from the forward vector, because
-    // the client won't have any other information
-    VectorNormalize2(origin2, forward);
-    PerpendicularVector(right, forward);
-    CrossProduct(forward, right, up);
-
-    if (g_weaponmod.integer & WM_REALMODE)
-      spread = DEFAULT_SHOTGUN_SPREAD_RM;
-    else
-      spread = DEFAULT_SHOTGUN_SPREAD;
-
-    // generate the "random" spread pattern
-    for (i = 0; i < DEFAULT_SHOTGUN_COUNT; i++)
-    {
-      r = Q_crandom(&seed) * spread * 16;
-      u = Q_crandom(&seed) * spread * 16;
-      VectorMA(origin, 8192 * 16, forward, end);
-      VectorMA(end, r, right, end);
-      VectorMA(end, u, up, end);
-      if (ShotgunPellet(origin, end, ent) && !hitClient)
-      {
-        //tent->s.eType = EV_SHOTGUN;
-
-        hitClient = qtrue;
-        ent->client->accuracy_hits++;
-      }
-      else
-        tent->s.eType = EV_SHOTGUN;
-    }
-  }
-}
-
-#endif
 
 /*
 ======================================================================
@@ -817,13 +658,14 @@ void weapon_railgun_fire(gentity_t *ent)
 static void Weapon_Hmg_Fire(gentity_t *ent)
 {
   int nulNum = qfalse;
+  int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
   if ((ent->client->ps.stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_COOLING)))
     ent->client->hmgShotsWithCooling--;
 
   if (ent->client->hmgShotsWithCooling <= 0)
     ent->client->ps.stats[STAT_WEAP_MODS] &= ~(1 << PW_WPMOD_COOLING);
 
-  Bullet_Fire(ent, HMG_SPREAD, HMG_DAMAGE, MOD_HMG, qtrue, &nulNum);
+  Bullet_Fire(ent, HMG_SPREAD, HMG_DAMAGE, MOD_HMG, 1);
 }
 /*
 ======================================================================

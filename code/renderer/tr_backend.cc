@@ -5794,7 +5794,11 @@ static void RB_RenderDebugUtils()
             Tess_AddTetrahedron( tetraVerts, boneColor );
           }
 
-          MatrixTransformPoint( backEnd.orientation.transformMatrix, skel->bones[ j ].t.trans, worldOrigins[ j ] );
+          VectorScale(skel->bones[ j ].t.trans, skel->scale, tmp); //add scale
+          MatrixTransformPoint( backEnd.orientation.transformMatrix, tmp, worldOrigins[ j ] ); 
+
+          //MatrixTransformPoint( backEnd.orientation.transformMatrix, skel->bones[ j ].t.trans, worldOrigins[ j ] );
+
         }
 
         Tess_UpdateVBOs( ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR );

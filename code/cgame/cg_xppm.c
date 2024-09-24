@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //hypov8 todo: remove from project/svn
 
 //#if defined(XPPM)
-#ifdef XPPM_DISABLED //not working, copied to cg_players
+#if 0 //def XPPM_DISABLED //not working, copied to cg_players
 //#include "cg_local.h" //remove hypov8, linked from cg_players??
 
 /*
@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 CG_ParseCharacterFile
 
 Read a configuration file containing body.md5mesh custom
-models/players/visor/character.cfg, etc
+models/players/thug/character.cfg, etc
 ======================
 */
 

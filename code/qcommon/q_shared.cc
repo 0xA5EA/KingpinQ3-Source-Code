@@ -83,15 +83,12 @@ int Com_AddToGrowList(growList_t *list, void *data)
   {
     Com_Error(ERR_DROP, "Growlist alloc failed");
   }
-  else //add hypov8 'invalid paramater value'
-  {
+
   Com_Memcpy(list->elements, old, list->currentElements * sizeof(void *));
 
   Com_Dealloc(old);
 
   return Com_AddToGrowList(list, data);
-}
-  return 0; //add hypov8
 }
 
 void *Com_GrowListElement(const growList_t *list, int index)
@@ -99,7 +96,6 @@ void *Com_GrowListElement(const growList_t *list, int index)
   if (index < 0 || index >= list->currentElements)
   {
     Com_Error(ERR_DROP, "Com_GrowListElement: %i out of range of %i", index, list->currentElements);
-  return 0; //add hypov8
   }
   return list->elements[index];
 }
@@ -1132,6 +1128,8 @@ char *Com_ParseExt(char **data_p, qboolean allowLineBreaks)
 
   return com_token;
 }
+
+
 // *INDENT-ON*
 
 /*

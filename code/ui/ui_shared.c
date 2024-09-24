@@ -1145,7 +1145,7 @@ void Menus_OpenByName(const char *p)
 static void Menu_RunCloseScript(menuDef_t *menu)
 {
 
-#ifdef HYPODEBUG
+#if 0 //def HYPODEBUG
     if (menu && DC->getCVarValue("developer"))
       Com_Printf("ui Script_Close ("S_COLOR_RED"%s"S_COLOR_WHITE")\n", menu->window.name);
 #endif
@@ -2895,7 +2895,7 @@ static void Display_CloseCinematics(void)
 
 void Menus_Activate(menuDef_t *menu)
 {
-#ifdef HYPODEBUG
+#if 0 //def HYPODEBUG
   //print opened menu name
   if (DC->getCVarValue("developer"))
     Com_Printf("ui Script_Open ("S_COLOR_CYAN"%s"S_COLOR_WHITE")\n", menu->window.name);
@@ -4144,7 +4144,8 @@ void Item_Image_Paint(itemDef_t *item)
 
 void Item_ListBox_Paint(itemDef_t *item)
 {
-  float x, y, size, count, i, thumb;
+  int i;
+  float x, y, size, count, thumb;
   qhandle_t image;
   qhandle_t optionalImage;
   listBoxDef_t *listPtr = (listBoxDef_t *)item->typeData;
@@ -4188,7 +4189,7 @@ void Item_ListBox_Paint(itemDef_t *item)
       // fit = 0;
       x = item->window.rect.x + 1;
       y = item->window.rect.y + 1;
-      for (i = listPtr->startPos; i < count; i++)
+      for (i = listPtr->startPos; (float)i < count; i++)
       {
         // always draw at least one
         // which may overdraw the box if it is too small for the element
@@ -4249,7 +4250,7 @@ void Item_ListBox_Paint(itemDef_t *item)
       x = item->window.rect.x + 1;
       y = item->window.rect.y + 1;
       //Com_Printf("image: x = %d \n", x );
-      for (i = listPtr->startPos; i < count; i++)
+      for (i = listPtr->startPos; (float)i < count; i++)
       {
         // always draw at least one
         // which may overdraw the box if it is too small for the element
@@ -4277,7 +4278,7 @@ void Item_ListBox_Paint(itemDef_t *item)
       x = item->window.rect.x + 1;            // wasn das jetzt f�rn rechteck, die textbox des elements ?? oder der listbox ursprung ??
       y = item->window.rect.y + 1;
       //Com_Printf(" x = %d \n", x );		// hier iwrd nix gedruckt
-      for (i = listPtr->startPos; i < count; i++)
+      for (i = listPtr->startPos; (float)i < count; i++)
       {
         const char *text;
         // always draw at least one

@@ -4951,7 +4951,7 @@ static qboolean ParseShader( char *_text )
       SurfaceParm( "noShadows" );
       continue;
     }
-	//hypov8 spec map is pbr. RGB=Metalic, alpha=Rough)
+    //hypov8 spec map is pbr. RGB=Metalic, alpha=Rough)
     else if ( !Q_stricmp( token, "pbrspec" ) )
     {
       shader.isPBRShader = qtrue;

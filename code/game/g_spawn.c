@@ -586,7 +586,7 @@ void G_ParseField(const char *key, const char *value, gentity_t *ent)
           token = Com_Parse(&p);
           rotation[i] = atof(token);
         }
-		  MatrixToAngles(rotation, vec);
+        MatrixToAngles(rotation, vec);
 
         ((float *)(b + f->ofs))[0] = vec[0];
         ((float *)(b + f->ofs))[1] = vec[1];

@@ -854,7 +854,10 @@ static void Render_vertexLighting_DBS_entity( int stage )
 				GL_BindToTMU( 7, skyImg); 
 			}
 			else
+			{
 				cubeRez = 0.0f;
+				GL_BindToTMU( 7, skyImg);
+			}
 
 			// u_EnvironmentInterpolation
 			gl_vertexLightingShader_DBS_entity->SetUniform_EnvironmentInterpolation( cubeRez );

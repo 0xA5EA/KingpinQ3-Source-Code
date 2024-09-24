@@ -1583,15 +1583,15 @@ static qboolean q3Model     = qfalse;
 static void UI_DrawPlayerModel(rectDef_t *rect)
 {
   static playerInfo_t info;
-  char model[MAX_QPATH];
-  char team[256];
-  char head[256];
+  char model[32];
+  char team[32];
+  char head[32];
 
 
   if ((int)trap_Cvar_VariableValue("ui_Q3Model")) //DM
   {
-    qstrcpy(model, UI_Cvar_VariableString("model"));
-    qstrcpy(head, UI_Cvar_VariableString("headmodel"));
+    Q_strncpyz(model, UI_Cvar_VariableString("model"), sizeof(model));
+    Q_strncpyz(head, UI_Cvar_VariableString("headmodel"), sizeof(head)); //not used. extras?
     if (!q3Model)
     {
       q3Model     = qtrue;
@@ -1601,9 +1601,9 @@ static void UI_DrawPlayerModel(rectDef_t *rect)
   }
   else //TEAM
   {
-    qstrcpy(team, UI_Cvar_VariableString("ui_teamName"));
-    qstrcpy(model, UI_Cvar_VariableString("team_model"));
-    qstrcpy(head, UI_Cvar_VariableString("team_headmodel"));
+    Q_strncpyz(team, UI_Cvar_VariableString("ui_teamName"), sizeof(team));
+    Q_strncpyz(model, UI_Cvar_VariableString("team_model"), sizeof(model));
+    Q_strncpyz(head, UI_Cvar_VariableString("team_headmodel"), sizeof(head)); //not used. extras?
     if (q3Model)
     {
       q3Model     = qfalse;
@@ -1613,10 +1613,12 @@ static void UI_DrawPlayerModel(rectDef_t *rect)
   if (updateModel)
   {
     Com_Memset(&info, 0, sizeof(playerInfo_t));
-    UI_RegisterClientModelname( &info, model, team, head);
+    UI_PlayerInfo_SetModel( &info, model, head, team);
+    //UI_PlayerInfo_SetInfo(,);
     updateModel = qfalse;
   }
-  UI_DrawPlayer(rect->x, rect->y, rect->w, rect->h, &info, uiInfo.uiDC.realTime / 2);
+  UI_DrawPlayer(rect->x, rect->y, rect->w, rect->h, &info, uiInfo.uiDC.realTime / 2, 
+    uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory); //reactive player rotation
 }
 
 static void UI_DrawNetSource(rectDef_t *rect, float scale, vec4_t color, int textStyle)
@@ -1795,15 +1797,12 @@ static void UI_DrawOpponent(rectDef_t *rect)
     //viewangles[PITCH] = 0;
     // viewangles[ROLL]  = 0;
     VectorClear(moveangles);
-    UI_PlayerInfo_SetModel(&info2, model, team, head); //edit hypov8 was = (&info2, model, headmodel, "")
-    /**///UI_XPPM_RegisterModel(&info2, &body , &Skin);
-  //UI_PlayerInfo_SetInfo(&info2, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_MACHINEGUN, qfalse); //removed hypov8 md3
-   // UI_RegisterClientModelname(&info2, model, headmodel, team);
-    UI_RegisterClientModelname(&info2, model, team, head);
+    UI_PlayerInfo_SetModel(&info2, model, head, team);
     updateOpponentModel = qfalse;
   }
 
-  UI_DrawPlayer(rect->x, rect->y, rect->w, rect->h, &info2, uiInfo.uiDC.realTime / 2);
+  UI_DrawPlayer(rect->x, rect->y, rect->w, rect->h, &info2, uiInfo.uiDC.realTime / 2,
+    uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 }
 
 static void UI_NextOpponent(void)
@@ -2460,12 +2459,12 @@ static qboolean UI_DrawGLModes_HandleKey(int flags, float *special, int key)
     {
       aniso--;
       if (aniso < -1)
-        aniso = 18;
+        aniso = 20;
     }
     else
     {
       aniso++;
-      if (aniso > 18)
+      if (aniso > 20)
         aniso = -1;
     }
     trap_Cvar_Set("uix_r_mode", va("%d", aniso));
@@ -2997,14 +2996,41 @@ static qboolean UI_Effects_HandleKey(int flags, float *special, int key)
   return qfalse;
 }
 
+static int UI_GetSelectedHeadIndex()
+{
+  char model[MAX_QPATH];
+  //char team[MAX_QPATH];
+  //char head[MAX_QPATH];
+  int i, headIdx=0;
+
+  if ((int)trap_Cvar_VariableValue("ui_Q3Model")) //DM
+  {
+    Q_strncpyz(model, UI_Cvar_VariableString("model"), sizeof(model));
+    //Q_strncpyz(head, UI_Cvar_VariableString("headmodel"), sizeof(head));
+  }
+  else //TEAM
+  {
+    Q_strncpyz(model, UI_Cvar_VariableString("team_model"), sizeof(model));
+
+    for (i = 0; i < uiInfo.characterCount; i++)
+    {
+      if (uiInfo.characterList[i].active)
+      {
+        if (!Q_stricmp(uiInfo.characterList[i].base, model))
+        {
+          return headIdx;
+        }
+        headIdx += 1;
+      }
+    }
+  }
+
+  return 0;
+}
+
 //teamplay player selector. team toggle skin
 static qboolean UI_ClanName_HandleKey(int flags, float *special, int key)
 {
-  //hypov8 todo: needed else where?
-  if (trap_Cvar_VariableValue("ui_q3SelectedHead")) {
-    uiInfo.q3SelectedHead = (int)trap_Cvar_VariableValue("ui_q3SelectedHead");
-  }
-
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER)
   {
     int i;
@@ -3023,10 +3049,9 @@ static qboolean UI_ClanName_HandleKey(int flags, float *special, int key)
     else if (i < 0)
       i = uiInfo.teamCount - 1;
 
-    trap_Cvar_SetValue("ui_q3SelectedHead", uiInfo.q3SelectedHead);
     trap_Cvar_Set("ui_teamName", uiInfo.teamList[i].teamName);
     UI_HeadCountByTeam();
-    UI_FeederSelection(FEEDER_HEADS, uiInfo.q3SelectedHead);
+    UI_FeederSelection(FEEDER_HEADS, UI_GetSelectedHeadIndex());
     updateModel = qtrue;
     return qtrue;
   }
@@ -3727,8 +3752,9 @@ static void UI_LoadTeams(void)
   char *teamName;
   int i, count;
   size_t len;
+  char teamPath[MAX_QPATH];
 
-  count = trap_FS_GetFileList("", "team", teamList, 4096);
+  count = trap_FS_GetFileList("teams", "team", teamList, 4096);
 
   if (count)
   {
@@ -3736,7 +3762,8 @@ static void UI_LoadTeams(void)
     for (i = 0; i < count; i++)
     {
       len = qstrlen(teamName);
-      UI_ParseTeamInfo(teamName);
+      Com_sprintf(teamPath, sizeof(teamPath), "teams/%s", teamName); //hypov8 moved to teams/ folder
+      UI_ParseTeamInfo(teamPath);
       teamName += len + 1;
     }
   }
@@ -3855,41 +3882,6 @@ static void UI_Update(const char *name)
   {
     trap_Cvar_Set("ui_Name", UI_Cvar_VariableString("name")); //todo: check. dont save on esc?
   }
-  else if (Q_stricmp(name, "ui_SetTeamSkin") == 0)
-  {
-    char model[256], head[256];
-    //hypov8 feed team skin name. when player model clicked
-    qstrcpy(model, UI_Cvar_VariableString("team_model"));
-    qstrcpy(head, UI_Cvar_VariableString("team_headmodel")); //note hypov8 not changed with team_model
-    //Com_sprintf(skinTmp, sizeof(skinTmp), "%s/%s", UI_Cvar_VariableString("team_model"), UI_Cvar_VariableString("team_headmodel"));
-    trap_Cvar_Set("ui_team_headmodel", va("%s/%s", model, head));
-  }
-  else if (Q_stricmp(name, "ui_SetSelectedModels") == 0)
-  { 
-    //set heads listbox index
-    //char model[256], head[256];
-    int idxDM = (int)trap_Cvar_VariableValue("ui_selectedModelDM");
-    int idxBM = (int)trap_Cvar_VariableValue("ui_selectedModelBM");
-
-    //qstrcpy(model, UI_Cvar_VariableString("team_model"));
-    //qstrcpy(head, UI_Cvar_VariableString("team_headmodel")); //note hypov8 not changed with team_model
-    //player
-    UI_FeederCount(FEEDER_Q3HEADS);
-    UI_FeederSelection(FEEDER_Q3HEADS, idxDM);
-    UI_FeederCount(FEEDER_HEADS);
-    UI_FeederSelection(FEEDER_HEADS, idxBM);
-    if ((int)trap_Cvar_VariableValue("ui_q3model")) ///DM model
-      uiInfo.q3SelectedHead = idxDM;
-
-    //UI_HeadCountByTeam();
-    //Menu_SetFeederSelection();
-
-    //hypov8 feed team skin name. when player model clicked
-
-    //Com_sprintf(skinTmp, sizeof(skinTmp), "%s/%s", UI_Cvar_VariableString("team_model"), UI_Cvar_VariableString("team_headmodel"));
-    //trap_Cvar_Set("ui_team_headmodel", va("%s/%s", model, head));
-  }
-
   else if (Q_stricmp(name, "custGFX") == 0)
   { //show apply button when gfx changed
     trap_Cvar_SetValue("uix_videoEdited", 1);
@@ -4295,7 +4287,7 @@ static void UI_RunMenuScript(char **args)
         if (bot > 1)
         {
           if (ui_actualNetGameType.integer >= GT_TEAM)
-            Com_sprintf(buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, TEAM_NAME_NIKKIS);
+            Com_sprintf(buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, TEAM_SKIN_NIKKIS);
           else
             Com_sprintf(buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot - 2), skill);
 
@@ -4305,7 +4297,7 @@ static void UI_RunMenuScript(char **args)
         if (bot > 1)
         {
           if (ui_actualNetGameType.integer >= GT_TEAM)
-            Com_sprintf(buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, TEAM_NAME_DRAGONS);
+            Com_sprintf(buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, TEAM_SKIN_DRAGONS);
           else
             Com_sprintf(buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot - 2), skill);
 
@@ -4615,11 +4607,11 @@ static void UI_RunMenuScript(char **args)
     {
       if ((int)trap_Cvar_VariableValue("g_gametype") >= GT_TEAM)
       {
-        trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ?"": (uiInfo.redBlue == 1) ?  TEAM_NAME_DRAGONS : TEAM_NAME_NIKKIS));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ?"": (uiInfo.redBlue == 1) ?  TEAM_SKIN_DRAGONS : TEAM_SKIN_NIKKIS));
       }
       else
       {
-        trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "": (uiInfo.redBlue == 1) ? TEAM_NAME_DRAGONS : TEAM_NAME_NIKKIS));
+        trap_Cmd_ExecuteText(EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "": (uiInfo.redBlue == 1) ? TEAM_SKIN_DRAGONS : TEAM_SKIN_NIKKIS));
       }
     }
     else if (Q_stricmp(name, "addFavorite") == 0)
@@ -4947,23 +4939,20 @@ static int UI_MapCountByGameType(qboolean singlePlayer)
   return c;
 }
 
-qboolean UI_hasSkinForBase(const char *base, const char *team, const char *clanSkin)
+qboolean UI_hasSkinForBase(const char *base, const char *clan)
 {
   char test[MAX_QPATH];
-                 //models/players/clan_icon/THUG/NIKKI/body.skin
-  //Com_sprintf(test, sizeof(test), "models/players/clan_icon/%s/%s/body.skin", base, team);
-  Com_sprintf(test, sizeof(test), "models/players/%s/team_%s_%s.skin", base, clanSkin, team); //hypo new
+
+  //                               models/players/thug/clans/area/dragons.skin
+  Com_sprintf(test, sizeof(test), "models/players/%s/clans/%s/%s.skin", base, clan, TEAM_SKIN_NIKKIS);
 
   if (trap_FS_FOpenFile(test, NULL, FS_READ))
-    return qtrue;
-
-#if 0 //hypov8 disable alternitave skins, could return default?
-                 //models/players/THUG/body_NIKKI.skin
-  Com_sprintf(test, sizeof(test), "models/players/%s/body_%s.skin", base, team);
-
-  if (trap_FS_FOpenFile(test, NULL, FS_READ))
-    return qtrue;
-#endif
+  { 
+    //check for both skins
+    Com_sprintf(test, sizeof(test), "models/players/%s/clans/%s/%s.skin", base, clan, TEAM_SKIN_DRAGONS);
+    if (trap_FS_FOpenFile(test, NULL, FS_READ))
+      return qtrue;
+  }
 
   return qfalse;
 }
@@ -4986,7 +4975,7 @@ static int UI_HeadCountByTeam(void)
       uiInfo.characterList[i].reference = 0;
       for (j = 0; j < uiInfo.teamCount; j++)
       {
-      if (UI_hasSkinForBase(uiInfo.characterList[i].base, uiInfo.teamList[j].teamName, uiInfo.characterList[i].name)) //add hypov8 name
+        if (UI_hasSkinForBase(uiInfo.characterList[i].base, uiInfo.teamList[j].teamName))
         {
           uiInfo.characterList[i].reference |= (1 << j);
         }
@@ -5971,24 +5960,17 @@ static void UI_FeederSelection(float feederID, int index)
   {
     int actual;
 
-    uiInfo.q3SelectedHead = index; //add hypov8. this does not hilight selected model?
-    trap_Cvar_SetValue("ui_selectedModelBM", index);//add hypov8 //old nameui_q3SelectedHead
     UI_SelectedHead(index, &actual);
     index = actual;
     if (index >= 0 && index < uiInfo.characterCount)
     {
       trap_Cvar_Set("team_model", va("%s", uiInfo.characterList[index].base));
       trap_Cvar_Set("team_headmodel", va("%s", uiInfo.characterList[index].name)); //hypov8 was "*%s"
-      trap_Cvar_Set("ui_team_headmodel", va("%s/%s", 
-        uiInfo.characterList[index].base, uiInfo.characterList[index].name));
       updateModel = qtrue;
     }
   }
   else if (feederID == FEEDER_Q3HEADS) //DM models
   {
-    trap_Cvar_SetValue("ui_selectedModelDM", index);//add hypov8
-    uiInfo.q3SelectedHead = index; //add hypov8
-
     if (index >= 0 && index < uiInfo.q3HeadCount)
     {
       trap_Cvar_Set("model", uiInfo.q3HeadNames[index]);
@@ -6170,28 +6152,27 @@ static qboolean Character_Parse(char **p)
         return qfalse;
 
       if (tempStr && (!Q_stricmp(tempStr, "female")))
-        uiInfo.characterList[uiInfo.characterCount].base = String_Alloc(va("janet"));        // 0xA5EA FIXME:
+        uiInfo.characterList[uiInfo.characterCount].base = String_Alloc(va("shina"));        // 0xA5EA FIXME:
       else if (tempStr && (!Q_stricmp(tempStr, "male")))
         uiInfo.characterList[uiInfo.characterCount].base = String_Alloc(va("thug"));         // 0xA5EA
       else
         uiInfo.characterList[uiInfo.characterCount].base = String_Alloc(va("%s", tempStr));
 
-      uiInfo.characterList[uiInfo.characterCount].headImage = -1;
+      uiInfo.characterList[uiInfo.characterCount].headImage = -1;//
 
-    uiInfo.characterList[uiInfo.characterCount].imageName =
-      String_Alloc(va("models/players/%s/team_icon_%s.tga",
-      uiInfo.characterList[uiInfo.characterCount].base,
-      uiInfo.characterList[uiInfo.characterCount].name));
+      uiInfo.characterList[uiInfo.characterCount].imageName =
+        String_Alloc(va("models/players/%s/icon_default.tga", //"models/players/heads/%s/icon_default.tga"
+        uiInfo.characterList[uiInfo.characterCount].base));
 
       Com_Printf("Loaded %s character %s.\n",
-      uiInfo.characterList[uiInfo.characterCount].base,
-      uiInfo.characterList[uiInfo.characterCount].name);
-#if HYPODEBUG
-     Com_Printf("Loaded %s icon %s\n",
-      uiInfo.characterList[uiInfo.characterCount].base,
-      uiInfo.characterList[uiInfo.characterCount].imageName);
+        uiInfo.characterList[uiInfo.characterCount].base,
+        uiInfo.characterList[uiInfo.characterCount].name);
+#ifdef HYPODEBUG
+      Com_Printf("Loaded %s icon %s\n",
+        uiInfo.characterList[uiInfo.characterCount].base,
+        uiInfo.characterList[uiInfo.characterCount].imageName);
 #endif
-    if (uiInfo.characterCount < MAX_HEADS)
+      if (uiInfo.characterCount < MAX_HEADS)
         uiInfo.characterCount++;
       else
         Com_Printf("Too many characters, last character replaced!\n");
@@ -6610,7 +6591,7 @@ static void UI_BuildQ3Model_List(void)
   char scratch[256];
   char *dirptr;
   char *fileptr;
-  int i;
+  int i, ext;
   int j, k, dirty;
   size_t dirlen;
   size_t filelen;
@@ -6629,51 +6610,39 @@ static void UI_BuildQ3Model_List(void)
     if (!qstrcmp(dirptr, ".") || !qstrcmp(dirptr, ".."))
       continue;
 
-    // iterate all skin files in directory
-    numfiles = trap_FS_GetFileList(va("models/players/%s", dirptr), "tga", filelist, 2048);
-    fileptr  = filelist;
-    for (j = 0; j < numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS; j++, fileptr += filelen + 1)
+    //tga or png
+    for (ext = 0; ext < 2; ext++)
     {
-      filelen = qstrlen(fileptr);
-
-      COM_StripExtension(fileptr, skinname, sizeof(skinname));
-
-      // look for icon_????
-#define LOOKFORICON
-#if 1 ///def LOOKFORICON
-     // if (Q_stricmpn(skinname, "icon_", 5) == 0 && !(Q_stricmp(skinname, "icon_blue") == 0 || Q_stricmp(skinname, "icon_red") == 0))
-    if (Q_stricmpn(skinname, "icon_", 5) == 0) //hypov8 removed, display team models in dm menu
+      // iterate all skin files in directory
+      numfiles = trap_FS_GetFileList(va("models/players/%s", dirptr), (ext==0)?"tga":"png", filelist, 2048);
+      fileptr  = filelist;
+      for (j = 0; j < numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS; j++, fileptr += filelen + 1)
       {
-        if (Q_stricmp(skinname, "icon_default") == 0)
-          Com_sprintf(scratch, sizeof(scratch), "%s", dirptr);
-        else
-          Com_sprintf(scratch, sizeof(scratch), "%s/%s", dirptr, skinname + 5);
-#else
+        filelen = qstrlen(fileptr);
+        COM_StripExtension(fileptr, skinname, sizeof(skinname));
 
-      if (Q_stricmpn(skinname, "head_", 5) == 0 && !(Q_stricmp(skinname, "icon_blue") == 0 || Q_stricmp(skinname, "icon_red") == 0))
-      {
-        if (Q_stricmp(skinname, "icon_default") == 0)
+        // look for icon_*.tga
+        if (Q_stricmpn(skinname, "icon_", 5) == 0)
         {
-          Com_sprintf(scratch, sizeof(scratch), "%s", dirptr);
-        }
-        else
-        {
-          Com_sprintf(scratch, sizeof(scratch), "%s/%s", dirptr, skinname + 5);
-        }
-#endif
-        dirty = 0;
-        for (k = 0; k < uiInfo.q3HeadCount; k++)
-        {
-          if (!Q_stricmp(scratch, uiInfo.q3HeadNames[uiInfo.q3HeadCount]))
+          if (Q_stricmp(skinname, "icon_default") == 0)
+            Com_sprintf(scratch, sizeof(scratch), "%s", dirptr);
+          else
+            Com_sprintf(scratch, sizeof(scratch), "%s/%s", dirptr, skinname + 5);
+
+          dirty = 0;
+          for (k = 0; k < uiInfo.q3HeadCount; k++)
           {
-            dirty = 1;
-            break;
+            if (!Q_stricmp(scratch, uiInfo.q3HeadNames[uiInfo.q3HeadCount]))
+            {
+              dirty = 1;
+              break;
+            }
           }
-        }
-        if (!dirty)
-        {
-          Com_sprintf(uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), "%s", scratch);
-          uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = trap_R_RegisterShaderNoMip(va("models/players/%s/%s", dirptr, skinname));
+          if (!dirty) //"model" "headmodel"
+          {
+            Com_sprintf(uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), "%s", scratch);
+            uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = trap_R_RegisterShaderNoMip(va("models/players/%s/%s", dirptr, skinname));
+          }
         }
       }
     }
@@ -7446,12 +7415,6 @@ vmCvar_t ui_fontTiny;
 vmCvar_t ui_fontHuge;
 vmCvar_t ui_findPlayer;
 vmCvar_t ui_Q3Model;
-//vmCvar_t ui_bmSelectedModel; //add hypov8: model index
-vmCvar_t ui_bmSelectedHead; //add hypov8: head index
-vmCvar_t ui_Q3SelectedHead; //add hypov8
-
-vmCvar_t ui_selectedModelDM; //add hypov8
-vmCvar_t ui_selectedModelBM; //add hypov8
 
 vmCvar_t ui_hudFiles;
 vmCvar_t ui_recordSPDemo;
@@ -7524,10 +7487,10 @@ static cvarTable_t cvarTable[] = {
   {&ui_new, "ui_new", "0", CVAR_TEMP},
   {&ui_debug, "ui_debug", "0", CVAR_TEMP},
   {&ui_initialized, "ui_initialized", "0", CVAR_TEMP},
-  {&ui_teamName, "ui_teamName", TEAM_NAME_DRAGONS, CVAR_ARCHIVE},
-  {&ui_opponentName, "ui_opponentName", TEAM_NAME_NIKKIS, CVAR_ARCHIVE},
-  {&ui_dragonTeam, "ui_dragonTeam", TEAM_NAME_DRAGONS, CVAR_ARCHIVE},
-  {&ui_nikkiTeam, "ui_nikkiTeam", TEAM_NAME_NIKKIS, CVAR_ARCHIVE},
+  {&ui_teamName, "ui_teamName", DEFAULT_CLAN_DRAGONS, CVAR_ARCHIVE}, //'clan' name. default dragons
+  {&ui_opponentName, "ui_opponentName", DEFAULT_CLAN_NIKKIS, CVAR_ARCHIVE},
+  {&ui_dragonTeam, "ui_dragonTeam", DEFAULT_CLAN_DRAGONS, CVAR_ARCHIVE},
+  {&ui_nikkiTeam, "ui_nikkiTeam", DEFAULT_CLAN_NIKKIS, CVAR_ARCHIVE},
   {&ui_dedicated, "ui_dedicated", "0", CVAR_ARCHIVE},
   {&ui_gameType, "ui_gametype", "3", CVAR_ARCHIVE},
   {&ui_joinGameType, "ui_joinGametype", "0", CVAR_ARCHIVE},
@@ -7591,8 +7554,6 @@ static cvarTable_t cvarTable[] = {
 
   {&ui_findPlayer, "ui_findPlayer", "thug", CVAR_ARCHIVE},
   {&ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE}, //hypov8: toggle between team/dm models in player menu's //archive not needed?
-  {&ui_selectedModelDM, "ui_selectedModelDM", "0", CVAR_ARCHIVE}, //hypov8 used to rember selected player in menu
-  {&ui_selectedModelBM, "ui_selectedModelBM", "0", CVAR_ARCHIVE}, //hypov8 used to rember selected player in menu
   {&ui_hudFiles, "cg_hudFiles", DFLT_HUDFILE, CVAR_ARCHIVE},
   {&ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
   {&ui_KingpinQ3FirstRun, "ui_KingpinQ3FirstRun", "0", CVAR_ARCHIVE},

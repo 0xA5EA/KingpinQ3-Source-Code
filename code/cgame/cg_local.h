@@ -98,10 +98,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH 16
 
 #define DEFAULT_MODEL       "thug"
-#define DEFAULT_MODEL_HEAD  "thug"
+#define DEFAULT_MODEL_HEAD  "default"
 
 #define DEFAULT_TEAM_MODEL  "thug" //hypov8 todo: teams?
-#define DEFAULT_TEAM_HEAD   "thug" //hypov8 todo: teams? head?
+#define DEFAULT_TEAM_HEAD   "default" //hypov8 todo: teams? head?
+
+
 
 //for CG_DrawFps
 #define FPS_FRAMES 4
@@ -281,7 +283,13 @@ typedef struct
   float blendtime;
 
   int weaponNumber;
-  int				old_weaponNumber;
+  int old_weaponNumber;
+
+  //sync torso new animation with legs (run/walk)
+  qboolean mergeTorsoAnims;
+  int mergeTorsoFrame;
+  int mergeTorsoOldFrame;
+
 } lerpFrame_t;
 // debugging values:
 extern int   debug_anim_current;
@@ -289,7 +297,7 @@ extern int   debug_anim_old;
 extern float debug_anim_blend;
 typedef struct
 {
-  lerpFrame_t legs, torso, flag, weapon, nonseg; //0xA5EA: weapon added
+  lerpFrame_t legs, torso, flag, weapon/*, nonseg*/; //0xA5EA: weapon added
   int painTime;
   int painDirection; // flip from 0 to 1
   int lightningFiring;
@@ -302,6 +310,9 @@ typedef struct
   float barrelAngle;
   int barrelTime;
   qboolean barrelSpinning;
+
+  float gunGlowPercent[MAX_WEAPONS]; //weapon glow sfx
+  int isModded[MAX_WEAPONS];
 
   // death effect
   int deathTime;
@@ -521,12 +532,12 @@ typedef struct
   char nikkiTeam[MAX_TEAMNAME];
   qboolean deferred;
 
-    qboolean    iqm; // true if model is an iqm model
+  qboolean iqm;           // true if model is an iqm model
   qboolean newAnims;      // true if using the new mission pack animations
   qboolean fixedlegs;     // true if legs yaw is always the same as torso yaw
   qboolean fixedtorso;    // true if torso never changes yaw
-  qboolean    nonsegmented; // true if model is Q2 style nonsegmented
-  qboolean    md5; // true if model is in the md5 model format
+  qboolean nonsegmented;  // true if model is Q2 style nonsegmented
+  qboolean md5;           // true if model is in the md5 model format
 
   vec3_t headOffset;      // move head in icon views
   footstep_t footsteps;
@@ -543,11 +554,11 @@ typedef struct
   qhandle_t headModel;
   qhandle_t headSkin;
 
-  qhandle_t   nonSegModel; //non-segmented model system
-  qhandle_t   nonSegSkin; //non-segmented model system
+  qhandle_t nonSegModel; //non-segmented model system
+  qhandle_t nonSegSkin; //non-segmented model system
 
-  qhandle_t   bodyModel; //md5 model format
-  qhandle_t   bodySkin; //md5 model format
+  qhandle_t bodyModel; //md5 model format
+  qhandle_t bodySkin; //md5 model format
 
   qhandle_t modelIcon;
 
@@ -557,27 +568,21 @@ typedef struct
 
   vec_t       modelScale;
 
-  //char firstTorsoBoneName[MAX_QPATH];
-  //char lastTorsoBoneName[MAX_QPATH];
-
-  //char torsoControlBoneName[MAX_QPATH];
-  //char neckControlBoneName[MAX_QPATH];
-
-  int firstTorsoControlBone; //add hypov8
-  int lastTorsoControlBone; //add hypov8
-  int neckControlBone; //add hypov8
-  char neckControlBoneName[MAX_QPATH]; //add hypov8 needed for lerp sprites
-
-  int         torsoControlBone;
-  //int         leftShoulderBone;
-  //int         rightShoulderBone;
-
-  int         legBones[ MAX_BONES ];
+  int    firstTorsoControlBone;
+  int    torsoControlBone;
+  int    neckControlBone;
+  char   neckControlBoneName[MAX_QPATH]; //add hypov8 needed for lerp sprites
+#if 1 //def COMPAT_KPQ3
+  vec3_t wepRotate;   //add hypov8. rotate bone xyz to suit weapon orientation
+  vec3_t flagRotate;  //add hypov8. rotate bone xyz to suit flag orientation
+#endif
+  //int         legBones[ MAX_BONES ]; //unordered
   int         numLegBones;
+  qboolean    isLegBone[ MAX_BONES ];
 
-  int         weaponAdjusted; // bitmask of all weapons that have hand deltas
-  int         handBones[ MAX_BONES ];
-  int         numHandBones;
+  //int         weaponAdjusted; // bitmask of all weapons that have hand deltas
+  //int         handBones[ MAX_BONES ];
+  //int         numHandBones;
 
   char        voice[ 64 ];
   sfxHandle_t customFootsteps[ 4 ];
@@ -596,8 +601,8 @@ typedef struct weaponInfo_s
   qboolean         md5;
 
   qhandle_t tagModel;					// tags don't actually draw, they just position the muzzle flash/light
-                    //hypov8 note: only needed if weapon is shared 1st/3rd and needs offset
   //match bg gitem_t order
+  //todo: cleanup this (MAX_ITEM_MODELS);
   qhandle_t weaponModel;				//1st person weapon model
   qhandle_t handModel;					//1st person hand model
   qhandle_t flashModel;					//1st/3rd person flash model
@@ -642,6 +647,13 @@ typedef struct weaponInfo_s
   //qboolean loopFireSound; //unused
 
   sfxHandle_t reloadSound;
+
+#if 1 //md5 wep
+  vec3_t           rotation;
+  vec3_t           posOffs;
+  char             rotationBone[ 50 ];
+  vec_t            scale;
+#endif
 } weaponInfo_t;
 
 
@@ -1508,7 +1520,7 @@ extern vmCvar_t cg_crosshairHealth;
 extern vmCvar_t cg_drawStatus;
 extern vmCvar_t cg_draw2D;
 extern vmCvar_t cg_animSpeed;
-extern vmCvar_t cg_debugAnim;
+//extern vmCvar_t cg_debugAnim;
 extern vmCvar_t cg_debugPosition;
 extern vmCvar_t cg_debugEvents;
 extern vmCvar_t cg_railTrailTime;
@@ -1618,8 +1630,8 @@ extern	vmCvar_t		cg_plOut;
 //unlagged - client options
 
 //unlagged - cg_unlagged.c
-//void CG_PredictWeaponEffects( centity_t *cent );
-//qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max );
+void CG_PredictWeaponEffects( centity_t *cent );
+qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max );
 //unlagged - cg_unlagged.c
 //
 // cg_main.c
@@ -1780,23 +1792,16 @@ void CG_NewClientInfo(int clientNum);
 sfxHandle_t CG_CustomSound(int clientNum, const char *soundName);
 
 //FIXME: 0xA5EA, waren alle static vorher, bekam aber compilerwarning
-//qboolean CG_PlayerShadow(centity_t *cent, float *shadowPlane, unsigned int noShadowID);
-//FIXME(0xA5EA):merge
 qboolean CG_PlayerShadow(centity_t *cent, float *shadowPlane);
-       //edit hypov8 md5 model files
-//qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *base, const char *ext);
-//qboolean CG_FindClientHeadFile(char *filename, int length, clientInfo_t *ci, const char *teamName, const char *headModelName, const char *headSkinName, const char *base, const char *ext);
-//qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t * ci, const char *modelName, const char *skinName, const char *base, const char *ext); //add hypov8; duplcate without teams(test)
-qboolean        CG_FindClientModelFile(char *filename, int length, clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *headModelName, const char *base, const char *ext); //add hypov8; duplcate with teams(test)
-  //end hypov8
+qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t *ci, const char *modelName, const char *skinName, const char *headModelName, const char *teamName, const char *base, const char *ext); //add hypov8; duplcate with teams(test)
 
 void CG_SwingAngles(float destination, float swingTolerance, float clampTolerance, float speed, float *angle, qboolean *swinging);
 void CG_AddPainTwitch(centity_t *cent, vec3_t torsoAngles);
 
 void CG_PlayerSplash(centity_t *cent);
-//void CG_PlayerSprites(centity_t *cent); //hypov8 used in cg_xppm
-//remove hypov8 //void CG_PlayerPowerups(centity_t *cent, refEntity_t *torso, unsigned int noShadowID);
-// static end
+//void CG_PlayerSprites(centity_t *cent);
+//void CG_PlayerPowerups(centity_t *cent, refEntity_t *torso, unsigned int noShadowID);
+
 //
 // cg_animation.c
 //
@@ -1836,7 +1841,7 @@ void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int 
 
 void CG_PositionEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName);
 void CG_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName);
-
+void CG_PositionRotatedSelfOnTag(refEntity_t *entity, char *tagSelfName);
 void CG_TransformSkeleton(refSkeleton_t *skel, const vec_t scale);
 
 
@@ -1851,7 +1856,7 @@ void CG_InitWeapons(void); //daemon
 void CG_RegisterWeapon(int weaponNum);
 void CG_RegisterItemVisuals(int itemNum);
 
-void CG_FireWeapon(centity_t *cent, qboolean hmgBullet);
+void CG_FireWeapon(centity_t *cent, qboolean spistol);
 void CG_ReloadWeapon(centity_t *cent);
 void CG_ResetWeaponSwitch(centity_t *cent, int weapon);
 
@@ -1863,7 +1868,7 @@ void CG_Bullet(int weapon, vec3_t origin, int sourceEntityNum, vec3_t normal, in
 void CG_RailTrail(clientInfo_t *ci, vec3_t start, vec3_t end);
 void CG_GrappleTrail(centity_t *ent, const weaponInfo_t *wi);
 void CG_AddViewWeapon(playerState_t *ps);
-void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent);
+void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent, clientInfo_t *ci);
 //void CG_AddPlayerWeaponLight(playerState_t *ps, centity_t *cent, refEntity_t parent);//add hypo
 void CG_DrawWeaponSelect(void);
 void CG_DrawPickupItem(void); //hypov8

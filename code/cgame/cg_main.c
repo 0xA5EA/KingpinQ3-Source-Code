@@ -126,7 +126,7 @@ vmCvar_t cg_crosshairHealth;
 vmCvar_t cg_draw2D;
 vmCvar_t cg_drawStatus;
 vmCvar_t cg_animSpeed;
-vmCvar_t cg_debugAnim;
+//vmCvar_t cg_debugAnim;
 vmCvar_t cg_debugPosition;
 vmCvar_t cg_debugEvents;
 vmCvar_t cg_errorDecay;
@@ -283,7 +283,7 @@ static cvarTable_t cvarTable[] =
   {&cg_bobroll,               "cg_bobroll",          "0.002", CVAR_ARCHIVE},
   {&cg_swingSpeed,            "cg_swingSpeed",         "0.3", CVAR_CHEAT},
   {&cg_animSpeed,             "cg_animspeed",            "1", CVAR_CHEAT},
-  {&cg_debugAnim,             "cg_debuganim",            "0", CVAR_CHEAT},
+  //{&cg_debugAnim,             "cg_debuganim",            "0", CVAR_CHEAT},
   {&cg_debugPosition,         "cg_debugposition",        "0", CVAR_CHEAT},
   {&cg_debugEvents,           "cg_debugevents",          "0", CVAR_CHEAT},
   {&cg_errorDecay,            "cg_errordecay",         "100",   0},
@@ -318,8 +318,8 @@ static cvarTable_t cvarTable[] =
   {&cg_paused,                "cl_paused",                "0", CVAR_ROM},
   {&cg_blood,                 "com_blood",                "1", CVAR_ARCHIVE},
   {&cg_synchronousClients,    "g_synchronousClients",          "0", CVAR_SYSTEMINFO},   // communicated by systeminfo
-  {&cg_DragonTeamName,        "g_dragonTeam",         TEAM_NAME_DRAGONS, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO},
-  {&cg_NikkiTeamName,         "g_nikkiTeam",          TEAM_NAME_NIKKIS, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO},
+  {&cg_DragonTeamName,        "g_dragonTeam",         DEFAULT_CLAN_DRAGONS, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO},
+  {&cg_NikkiTeamName,         "g_nikkiTeam",          DEFAULT_CLAN_NIKKIS, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO},
   {&cg_currentSelectedPlayer, "cg_currentSelectedPlayer",          "0", CVAR_ARCHIVE},
   {&cg_currentSelectedPlayerName, "cg_currentSelectedPlayerName",          "", CVAR_ARCHIVE},
   {&cg_enableDust,            "g_enableDust",               "0", CVAR_SERVERINFO},
@@ -331,10 +331,9 @@ static cvarTable_t cvarTable[] =
   {&cg_timescaleFadeSpeed,    "cg_timescaleFadeSpeed",     "0", 0},
   {&cg_timescale,             "timescale",                 "1", 0},
   {&cg_scorePlum,             "cg_scorePlums",             "1", CVAR_USERINFO | CVAR_ARCHIVE},
-  {&cg_smoothClients,         "cg_smoothClients",          "0", CVAR_USERINFO | CVAR_ARCHIVE},
 //unlagged - smooth clients #2
 // this is done server-side now
-  {&cg_smoothClients,         "cg_smoothClients",          "0", CVAR_USERINFO | CVAR_ARCHIVE},
+  {&cg_smoothClients,         "cg_smoothClients",          "1", CVAR_USERINFO | CVAR_ARCHIVE},
 //unlagged - smooth clients #2
   {&cg_cameraMode,            "com_cameraMode",            "0", CVAR_CHEAT},
   {&pmove_fixed,              "pmove_fixed",               "0", CVAR_SYSTEMINFO},
@@ -928,9 +927,9 @@ static void CG_RegisterSounds(void)
   cgs.media.sfx_rockexp[0] = trap_S_RegisterSound("sound/world/explosion1.ogg", qfalse);
   cgs.media.sfx_rockexp[1] = trap_S_RegisterSound("sound/world/explosion2.ogg", qfalse);
 
-  cgs.media.sfx_GrenExpl[0] = trap_S_RegisterSound("sound/weapons/grenade_launcher/grExpl1.ogg", qfalse);
-  cgs.media.sfx_GrenExpl[1] = trap_S_RegisterSound("sound/weapons/grenade_launcher/grExpl2.ogg", qfalse);
-  cgs.media.sfx_GrenExpl[2] = trap_S_RegisterSound("sound/weapons/grenade_launcher/grExpl3.ogg", qfalse);
+  cgs.media.sfx_GrenExpl[0] = trap_S_RegisterSound("sound/weapons/grenadelauncher/grExpl1.ogg", qfalse);
+  cgs.media.sfx_GrenExpl[1] = trap_S_RegisterSound("sound/weapons/grenadelauncher/grExpl2.ogg", qfalse);
+  cgs.media.sfx_GrenExpl[2] = trap_S_RegisterSound("sound/weapons/grenadelauncher/grExpl3.ogg", qfalse);
   /*
  //  #ifdef MISSIONPACK
       cgs.media.sfx_proxexp = trap_S_RegisterSound( "sound/weapons/proxmine/wstbexpl.ogg" , qfalse);
@@ -965,21 +964,21 @@ static void CG_RegisterSounds(void)
   cgs.media.n_healthSound = trap_S_RegisterSound("sound/world/pickups/health.ogg", qfalse);
   // Grenadelauncer bounce sounds
   CG_LoadingString("misc sounds", qfalse);
-  cgs.media.hgrenb1aSound     = trap_S_RegisterSound("sound/weapons/grenade_launcher/grenade bounce1.ogg", qfalse);
-  cgs.media.hgrenb2aSound     = trap_S_RegisterSound("sound/weapons/grenade_launcher/grenade bounce2.ogg", qfalse);
-  cgs.media.hgrenb3aSound     = trap_S_RegisterSound("sound/weapons/grenade_launcher/grenade bounce3.ogg", qfalse);    /* 0xA5EA */
-  cgs.media.hgrenbwood1Sound  = trap_S_RegisterSound("sound/weapons/grenade_launcher/g_wood0.ogg", qfalse);            /* 0xA5EA */
-  cgs.media.hgrenbwood2Sound  = trap_S_RegisterSound("sound/weapons/grenade_launcher/g_wood1.ogg", qfalse);            /* 0xA5EA */
-  cgs.media.hgrenbmetal1Sound = trap_S_RegisterSound("sound/weapons/grenade_launcher/g_default0.ogg", qfalse);         /* 0xA5EA */
-  cgs.media.hgrenbmetal2Sound = trap_S_RegisterSound("sound/weapons/grenade_launcher/g_default1.ogg", qfalse);         /* 0xA5EA */
+  cgs.media.hgrenb1aSound     = trap_S_RegisterSound("sound/weapons/grenadelauncher/grenade bounce1.ogg", qfalse);
+  cgs.media.hgrenb2aSound     = trap_S_RegisterSound("sound/weapons/grenadelauncher/grenade bounce2.ogg", qfalse);
+  cgs.media.hgrenb3aSound     = trap_S_RegisterSound("sound/weapons/grenadelauncher/grenade bounce3.ogg", qfalse);    /* 0xA5EA */
+  cgs.media.hgrenbwood1Sound  = trap_S_RegisterSound("sound/weapons/grenadelauncher/g_wood0.ogg", qfalse);            /* 0xA5EA */
+  cgs.media.hgrenbwood2Sound  = trap_S_RegisterSound("sound/weapons/grenadelauncher/g_wood1.ogg", qfalse);            /* 0xA5EA */
+  cgs.media.hgrenbmetal1Sound = trap_S_RegisterSound("sound/weapons/grenadelauncher/g_default0.ogg", qfalse);         /* 0xA5EA */
+  cgs.media.hgrenbmetal2Sound = trap_S_RegisterSound("sound/weapons/grenadelauncher/g_default1.ogg", qfalse);         /* 0xA5EA */
 
 #ifdef USE_FLAMEGUN
-  cgs.media.flameSound = trap_S_RegisterSound( "sound/weapons/flame_thrower/flame_burn.ogg", qfalse );
-  cgs.media.flameScreenSound = trap_S_RegisterSound( "sound/weapons/flame_thrower/toasty.ogg", qfalse );
+  cgs.media.flameSound = trap_S_RegisterSound( "sound/weapons/flamegun/flame_burn.ogg", qfalse );
+  cgs.media.flameScreenSound = trap_S_RegisterSound( "sound/weapons/flamegun/toasty.ogg", qfalse );
 #if 0
-  //cgs.media.flameBlowSound = trap_S_RegisterSound( "sound/weapons/flame_thrower/flame_pilot.ogg", qfalse );
-  //cgs.media.flameStartSound = trap_S_RegisterSound( "sound/weapons/flame_thrower/flame_up.ogg", qfalse );
-  //cgs.media.flameStreamSound = trap_S_RegisterSound( "sound/weapons/flame_thrower/flame_fire.ogg", qfalse );
+  //cgs.media.flameBlowSound = trap_S_RegisterSound( "sound/weapons/flamegun/flame_pilot.ogg", qfalse );
+  //cgs.media.flameStartSound = trap_S_RegisterSound( "sound/weapons/flamegun/flame_up.ogg", qfalse );
+  //cgs.media.flameStreamSound = trap_S_RegisterSound( "sound/weapons/flamegun/flame_fire.ogg", qfalse );
 #endif 
   //FIXME (0xA5EA): sounds dont exist yet //hypov8 note: typo. but not used anyway
   cgs.media.flameCrackSound =     0; // -trap_S_RegisterSound( "sound/world/firecrack1.wav", qfalse );

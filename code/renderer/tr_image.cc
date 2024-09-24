@@ -4320,7 +4320,8 @@ void R_InitImages( void )
 	const char *pbrSpecCubeImage = "gfx/pbr/hipshot/miramar"; // for standard reflections when cube probe fails
 	//const char *pbrLutImage = "gfx/pbr/ibl_brdf_lut.png";
 	const char *pbrLutImage = "gfx/pbr/lut3.png";
-	const char *pbrEnvImage = "gfx/pbr/miramar_hdri5.png";
+	//const char *pbrEnvImage = "gfx/pbr/miramar_hdri5.png";
+	const char *pbrEnvImage = "gfx/pbr/abandoned_parking.png";
 #endif
 	ri.Printf( PRINT_DEVELOPER, "------- R_InitImages -------\n" );
 

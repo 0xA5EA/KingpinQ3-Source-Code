@@ -1062,11 +1062,11 @@ void R_AddMD5Surfaces( trRefEntity_t *ent )
 
         if ( shader == tr.defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: no shader for surface %i in skin %s\n", i, skin->name );
         }
         else if ( shader->defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
         }
       }
       else
@@ -1121,11 +1121,11 @@ void R_AddMD5Surfaces( trRefEntity_t *ent )
 
         if ( shader == tr.defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: no shader for surface %i in skin %s\n", i, skin->name );
         }
         else if ( shader->defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
         }
       }
       else
@@ -1235,11 +1235,11 @@ void R_AddIQMInteractions( trRefEntity_t *ent, trRefLight_t *light, interactionT
 
         if ( shader == tr.defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: no shader for surface %i in skin %s\n", i, skin->name );
         }
         else if ( shader->defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
         }
       }
       else
@@ -1362,11 +1362,11 @@ void R_AddMD5Interactions( trRefEntity_t *ent, trRefLight_t *light, interactionT
 
         if ( shader == tr.defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: no shader for surface %i in skin %s\n", i, skin->name );
         }
         else if ( shader->defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
         }
       }
       else
@@ -1421,11 +1421,11 @@ void R_AddMD5Interactions( trRefEntity_t *ent, trRefLight_t *light, interactionT
 
         if ( shader == tr.defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: no shader for surface %i in skin %s\n", i, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: no shader for surface %i in skin %s\n", i, skin->name );
         }
         else if ( shader->defaultShader )
         {
-          ri.Printf( PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
+          ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
         }
       }
       else

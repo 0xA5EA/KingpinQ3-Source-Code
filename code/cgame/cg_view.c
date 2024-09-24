@@ -454,7 +454,7 @@ static void CG_AddTestModel(void)
   if (cg.testModelEntity.skeleton.type == SK_RELATIVE)
   {
     // transform relative bones to absolute ones required for vertex skinning
-    CG_TransformSkeleton(&cg.testModelEntity.skeleton, 1);
+    CG_TransformSkeleton(&cg.testModelEntity.skeleton, 1.0f);
   }
 
   trap_R_AddRefEntityToScene(&cg.testModelEntity);
@@ -942,9 +942,12 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 */
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
+
+#define BASE_FOV_Y     73.739792f // atan2( 3, 4 / tan( 90 ) )
 static int CG_CalcFov(void)
 {
-  float  x;
+  float y;
+  //float  x;
   float  phase;
   float  v;
   int contents;
@@ -952,8 +955,118 @@ static int CG_CalcFov(void)
   float  zoomFov;
   float  f;
   int inwater;
+  //float aspectRatio;
 
-  if (cg.predictedPlayerState.pm_type == PM_INTERMISSION)
+#if 1 //unvan 5.2 
+  //calculate fov using a fixed Y height and adjusting X fov to suit screen width
+  //this also fixes gun pos when using widescreen.
+
+  if (cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
+    cg.predictedPlayerState.pm_type == PM_SPECTATOR)
+  {
+    fov_y = BASE_FOV_Y;
+  }
+  else
+  {
+    // user selectable
+    if (cgs.dmflags & DF_FIXED_FOV)
+    {
+      fov_y = 90;
+    }
+    else
+    {
+      fov_y = cg_fov.value;
+      if (fov_y < 10) //hypov8 was 1
+        fov_y = 10;
+      else if (fov_y > 120) //hypov8 was 160
+        fov_y = 120;
+    }
+
+    // account for zooms
+    zoomFov = cg_zoomFov.value;
+    if (zoomFov < 30) //hypov8 was 1
+      zoomFov = 30;
+    else if (zoomFov > 120) //hypov8 was 160
+      zoomFov = 120;
+
+    f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
+    if (cg.zoomed)
+    {
+      if (f > 1.0)
+        fov_y = zoomFov;
+      else
+        fov_y = fov_y + f * (zoomFov - fov_y);
+    }
+    else
+    {
+      if (f < 1.0f)
+        fov_y = zoomFov + f * (fov_y - zoomFov);
+    }
+
+    //set height ratio
+    //fov_y *= 0.75; //gun zoomed in slight bit more
+    fov_y *= (BASE_FOV_Y/90); // (4/3)
+  }
+
+  y = cg.refdef.height / tan( 0.5f * DEG2RAD( fov_y ) );
+  fov_x = atan2( cg.refdef.width, y );
+  fov_x = 2.0f * RAD2DEG( fov_x );
+
+#elif 1
+  if (cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
+    cg.predictedPlayerState.pm_type == PM_SPECTATOR)
+  {
+    fov_x = 90;
+  }
+  else
+  {
+    // user selectable
+    if (cgs.dmflags & DF_FIXED_FOV)
+    {
+      fov_x = 90;
+    }
+    else
+    {
+      fov_x = cg_fov.value; //hypov8 cap max fov. cheat? and gun looks silly
+      if (fov_x < 1.0f) //hypov8 was 1
+        fov_x = 90.0f;
+      else if (fov_x > 160.0f) //hypov8 was 160
+        fov_x = 160.0f;
+    }
+
+    // account for zooms
+    zoomFov = cg_zoomFov.value;
+    if (zoomFov < 1.0f)  //hypov8 was 1
+      zoomFov = 90.0f;
+    else if (zoomFov > 160.0f) //hypov8 was 160
+      zoomFov = 160.0f;
+
+    f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
+    if (cg.zoomed)
+    {
+      if (f > 1.0f)
+        fov_x = zoomFov;
+      else
+        fov_x = fov_x + f * (zoomFov - fov_x);
+    }
+    else
+    {
+      if (f > 1.0f)
+        fov_x = fov_x;
+      else
+        fov_x = zoomFov + f * (fov_x - zoomFov);
+    }
+  }
+  
+  aspectRatio = (float)cg.refdef.width / (float)cg.refdef.height;
+  fov_x = RAD2DEG( 2.0f * atan( (aspectRatio/ 1.3333f) * tan(DEG2RAD(fov_x) * 0.5f) ) );
+
+  x = cg.refdef.width / tan(fov_x / 360 * M_PI);
+  fov_y = atan(cg.refdef.height/x);
+  fov_y = fov_y * 360 / M_PI;
+
+#else
+    if (cg.predictedPlayerState.pm_type == PM_INTERMISSION)
     fov_x = 90;
   else if (cg.predictedPlayerState.pm_type == PM_SPECTATOR)
     fov_x = 90;
@@ -998,17 +1111,19 @@ static int CG_CalcFov(void)
         fov_x = zoomFov + f * (fov_x - zoomFov);
     }
   }
-
+  
   x = cg.refdef.width / tan(fov_x / 360 * M_PI);
   fov_y = atan2(cg.refdef.height, x);
   fov_y = fov_y * 360 / M_PI;
+#endif
+
 
   // warp if underwater
   contents = CG_PointContents(cg.refdef.vieworg, -1);
 
   if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
   {
-    phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+    phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2.0f;
     v = WAVE_AMPLITUDE * sin(phase);
     fov_x += v;
     fov_y -= v;

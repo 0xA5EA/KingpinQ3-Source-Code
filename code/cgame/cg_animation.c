@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+
 /*
 ===============
 CG_RunLerpFrame
@@ -166,7 +167,7 @@ void CG_BuildAnimSkeleton( const lerpFrame_t *lf, refSkeleton_t *newSkeleton, co
 {
 	if( !lf->animation || !lf->animation->handle )
 	{
-				// initialize skeleton if animation handle is invalid
+		// initialize skeleton if animation handle is invalid
 		int i;
 
 		newSkeleton->type = SK_ABSOLUTE;
@@ -175,7 +176,6 @@ void CG_BuildAnimSkeleton( const lerpFrame_t *lf, refSkeleton_t *newSkeleton, co
 			newSkeleton->bones[i].parentIndex = -1;
 			TransInit(&newSkeleton->bones[i].t);
 		}
-
 		return;
 	}
 

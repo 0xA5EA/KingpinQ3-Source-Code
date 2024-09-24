@@ -78,7 +78,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define FLATLINE_FOR_MASTER		"KPQ3Flatline-1"	// HEARTBEAT_FOR_MASTER
 #define FLATLINE_FOR_MASTER		HEARTBEAT_FOR_MASTER //hypo us DP name. more compatable
 
-#define HOMEPATH_NAME_WIN       PRODUCT_NAME
+//#define HOMEPATH_NAME_WIN       PRODUCT_NAME
+#define HOMEPATH_NAME_WIN       PRODUCT_NAME "\\_Beta2_0"//PATH_SEP
+  //hypov8 move to new folder. beta1 config corrupting game.
+  //todo: set config to check version number. reset if outdated.
 
 #define KPQ3_BUILD_NUM "0.9.7.4" //hypov8 was PRODUCT_VERSION, conflict other libs
 #define KPQ3_VERSION PRODUCT_NAME " " KPQ3_BUILD_NUM
@@ -820,7 +823,23 @@ void ByteToDir(int b, vec3_t dir);
   }
 #endif
 
-
+//used for unvan md5
+  STATIC_INLINE void VectorMin(const vec3_t a, const vec3_t b, vec3_t out) IFDECLARE
+#ifdef Q3_VM_INSTANTIATE
+  {
+    out[0] = a[0] < b[0] ? a[0] : b[0];
+    out[1] = a[1] < b[1] ? a[1] : b[1];
+    out[2] = a[2] < b[2] ? a[2] : b[2];
+  }
+#endif
+  STATIC_INLINE void VectorMax(const vec3_t a, const vec3_t b, vec3_t out) IFDECLARE
+#ifdef Q3_VM_INSTANTIATE
+  {
+    out[0] = a[0] > b[0] ? a[0] : b[0];
+    out[1] = a[1] > b[1] ? a[1] : b[1];
+    out[2] = a[2] > b[2] ? a[2] : b[2];
+  }
+#endif
 
 
 //int VectorCompare(const vec3_t v1, const vec3_t v2);
@@ -992,6 +1011,7 @@ vec_t PlaneNormalize( vec4_t plane );  // returns normal length
   void     MatrixTransform4( const matrix_t m, const vec4_t in, vec4_t out );
   void     MatrixTransformPlane( const matrix_t m, const vec4_t in, vec4_t out );
   void     MatrixTransformPlane2( const matrix_t m, vec4_t inout );
+  void     MatrixTransformBounds( const matrix_t m, const vec3_t mins, const vec3_t maxs, vec3_t omins, vec3_t omaxs );
   void     MatrixPerspectiveProjection( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
   void     MatrixPerspectiveProjectionLH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
   void     MatrixPerspectiveProjectionRH( matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far );
@@ -1993,10 +2013,6 @@ void MatrixCrop(matrix_t m, const vec3_t mins, const vec3_t maxs);
 
 vec_t QuatNormalize(quat_t q);
 void QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll);
-// qa = rotate by qa, then qb
-void QuatMultiply0(quat_t qa, const quat_t qb);
-// qc = rotate by qa, then qb
-void QuatMultiply1(const quat_t qa, const quat_t qb, quat_t qc);
 #ifndef Q3_VM
 /*
 extern force_inline void QuatCalcW(quat_t q)

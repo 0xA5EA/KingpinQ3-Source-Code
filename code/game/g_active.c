@@ -691,12 +691,11 @@ void ClientEvents(gentity_t *ent, int oldEventSequence)
     case EV_FIRE_WEAPON:
     case EV_FIRE_SHOTGUN: //
     case EV_FIRE_SPISTOL: //hypov8
-    //case EV_FIRE_HMG_SHOT:
       FireWeapon(ent);
       break;
-    /*case EV_FIRE_COOLDOWN:
+    case EV_MOD_COOLDOWN:
       //todo
-      break;*/
+      break;
 
     case EV_USE_ITEM1: // teleporter
       // drop flags in CTF
@@ -1760,9 +1759,7 @@ void ClientEndFrame(gentity_t *ent)
 		// yep, missed one or more, so extrapolate the player's movement
 		G_PredictPlayerMove( ent, (float)frames / sv_fps.integer );
 		// save network bandwidth
-		//SnapVector( ent->s.pos.trBase ); //unlag orig
 		SnapVector(ent->s.pos.trBase);
-
 	}
 #endif
 //unlagged - smooth clients #1

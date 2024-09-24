@@ -452,7 +452,7 @@ void CopyToBodyQue(gentity_t *ent)
     break;
   case BOTH_DEATH3:
   case BOTH_DEAD3:
-  default: //hypov8 merge: disabled in kpq3?
+  default:
     body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD3;
     break;
   }
@@ -811,13 +811,13 @@ void ClientUserinfoChanged(int clientNum)
   if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT)
   {
     s = Info_ValueForKey(userinfo, "team");
-	if (!Q_stricmp(s, TEAM_NAME_DRAGONS) 
-    || !Q_strnicmp(s , TEAM_NAME_DRAGONS, 1) /*!Q_stricmp(s, "d")*/  //hypov8: match first letter
-    || !Q_stricmp(s, "1")) //hypov8: search /team/1/
+    if (!Q_stricmp(s, TEAM_NAME_DRAGONS) 
+      || !Q_strnicmp(s , TEAM_NAME_DRAGONS, 1) /*!Q_stricmp(s, "d")*/  //hypov8: match first letter
+      || !Q_stricmp(s, "1")) //hypov8: search /team/1/
       team = TEAM_DRAGONS;
-	else if (!Q_stricmp(s, TEAM_NAME_NIKKIS) 
-    || !Q_strnicmp(s , TEAM_NAME_DRAGONS, 1) /*!Q_stricmp(s, "n")*/ //hypov8: match first letter
-    || !Q_stricmp(s, "2")) //hypov8: add /team/2/
+    else if (!Q_stricmp(s, TEAM_NAME_NIKKIS) 
+      || !Q_strnicmp(s , TEAM_NAME_NIKKIS, 1) /*!Q_stricmp(s, "n")*/ //hypov8: match first letter
+      || !Q_stricmp(s, "2")) //hypov8: add /team/2/
       team = TEAM_NIKKIS;
     else
       team = PickTeam(clientNum); // pick the team with the least number of players
@@ -847,7 +847,7 @@ void ClientUserinfoChanged(int clientNum)
   qstrcpy(c1, Info_ValueForKey(userinfo, "color1"));
   qstrcpy(c2, Info_ValueForKey(userinfo, "color2"));
 
-  qstrcpy(dragonTeam, Info_ValueForKey(userinfo, "g_dragonTeam"));
+  qstrcpy(dragonTeam, Info_ValueForKey(userinfo, "g_dragonTeam")); //clan names
   qstrcpy(nikkiTeam, Info_ValueForKey(userinfo, "g_nikkiTeam"));
 
   // send over a subset of the userinfo keys so other clients can
@@ -859,8 +859,8 @@ void ClientUserinfoChanged(int clientNum)
            client->sess.losses, Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader);
   }
   else
-  {
-    s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_dragonTeam\\%s\\g_nikkiTeam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+  {   //g_dragonTeam, g_nikkiTeam renamed to tn1, tn2
+    s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\tn1\\%s\\tn2\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
            client->pers.netname, client->sess.sessionTeam, model, headModel, dragonTeam, nikkiTeam, c1, c2,
            client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
   }
@@ -1189,36 +1189,36 @@ void ClientSpawn(gentity_t *ent)
 
   client->ps.clientNum = index;
 
-    //give crowbar
-  	client->ps.stats[STAT_WEAPONS] = (1 << WP_CROWBAR);
-	client->ps.ammo_mag[WP_CROWBAR] = INFINITE_AMMO;	//disables hud icon
-	client->ps.ammo_all[WP_CROWBAR] = INFINITE_AMMO; //disables hud icon 
-    if (g_weaponmod.integer & WM_HITMEN)
-    {
-		initial_weapon = level.hitmen.curWeapon;
-		initial_ammo   = level.hitmen.curInitialAmmo;
-		//give hook
-  		client->ps.stats[STAT_WEAPONS] = (1 << WP_GRAPPLING_HOOK);
-		client->ps.ammo_mag[WP_GRAPPLING_HOOK] = INFINITE_AMMO;
-		client->ps.ammo_all[WP_GRAPPLING_HOOK] = INFINITE_AMMO;
-    }
-    else
-    {
-		initial_weapon = WP_PISTOL;
-		initial_ammo = BG_WeaponMaxMagCount(initial_weapon);
-    }
-	//give default/current wep
-    client->ps.stats[STAT_WEAPONS] |= (1 << initial_weapon);
-	client->ps.ammo_all[BG_AmmoCombineCheck(initial_weapon)] = initial_ammo;
-	client->ps.ammo_mag[initial_weapon] = BG_WeaponMaxMagCount(initial_weapon);
+  //give crowbar
+  client->ps.stats[STAT_WEAPONS] = (1 << WP_CROWBAR);
+  client->ps.ammo_mag[WP_CROWBAR] = INFINITE_AMMO;	//disables hud icon
+  client->ps.ammo_all[WP_CROWBAR] = INFINITE_AMMO; //disables hud icon 
+  if (g_weaponmod.integer & WM_HITMEN)
+  {
+    initial_weapon = level.hitmen.curWeapon;
+    initial_ammo = level.hitmen.curInitialAmmo;
+    //give hook
+    client->ps.stats[STAT_WEAPONS] = (1 << WP_GRAPPLING_HOOK);
+    client->ps.ammo_mag[WP_GRAPPLING_HOOK] = INFINITE_AMMO;
+    client->ps.ammo_all[WP_GRAPPLING_HOOK] = INFINITE_AMMO;
+  }
+  else
+  {
+    initial_weapon = WP_PISTOL;
+    initial_ammo = BG_WeaponMaxMagCount(initial_weapon);
+  }
+  //give default/current wep
+  client->ps.stats[STAT_WEAPONS] |= (1 << initial_weapon);
+  client->ps.ammo_all[BG_AmmoCombineCheck(initial_weapon)] = initial_ammo;
+  client->ps.ammo_mag[initial_weapon] = BG_WeaponMaxMagCount(initial_weapon);
 
-	// select new weapon to raise
-	client->ps.pm_flags |= PMF_WEAPON_SWITCH; //hitmen fix
-	client->ps.persistant[ PERS_NEWWEAPON ] = initial_weapon; //unvan .52
-	client->ps.weapon = WP_NONE; //0 will force WEAPON_RAISING
-	client->ps.weaponTime = 0;
+  // select new weapon to raise
+  client->ps.pm_flags |= PMF_WEAPON_SWITCH; //hitmen fix
+  client->ps.persistant[PERS_NEWWEAPON] = initial_weapon; //unvan .52
+  client->ps.weapon = WP_NONE; //0 will force WEAPON_RAISING
+  client->ps.weaponTime = 0;
 
-	//client->ps.powerups[PW_FLASHLIGHT] = 1; // INT_MAX; //hypov8 todo: make pickup
+  //client->ps.powerups[PW_FLASHLIGHT] = 1; // INT_MAX; //hypov8 todo: make pickup
 
   // health will count down towards max_health
   ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH]; // 0xA5EA org. + 25;
@@ -1256,7 +1256,7 @@ void ClientSpawn(gentity_t *ent)
   client->latched_buttons = 0;
 
   // set default animations
-  client->ps.torsoAnim = TORSO_STAND;
+  client->ps.torsoAnim = BG_GetTorsoAttackAnimNumber(initial_weapon); // TORSO_STAND;
   client->ps.legsAnim = LEGS_IDLE;
   //client->ps.weaponAnim = WEAPON_READY;
 

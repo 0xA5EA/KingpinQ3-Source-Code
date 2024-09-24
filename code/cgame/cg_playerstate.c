@@ -201,7 +201,7 @@ void CG_ShootFeedback(int weaponUsed)
     case WP_MACHINEGUN:       timeAdd = WP_TIME_FIRE_MACHINEGUN / 2;        kick = 0.5f; break;
     case WP_GRENADE_LAUNCHER: timeAdd = WP_TIME_FIRE_GRENADE_LAUNCHER / 2;  kick = 5; break;
     case WP_ROCKET_LAUNCHER:  timeAdd = WP_TIME_FIRE_ROCKET_LAUNCHER / 2;   kick = 5; break;
-    case WP_HMG:              timeAdd = WP_TIME_FIRE_HMG_3RD / 3;           kick = 1.5; break;
+    case WP_HMG:              timeAdd = WP_TIME_FIRE_HMG_1SHOT / 2;         kick = 1.5; break;
     case WP_FLAMER:           timeAdd = WP_TIME_FIRE_FLAMEGUN / 2;          kick = 0.2f; break;
     default:                  timeAdd = 0;                                  kick = 0; break;
   }

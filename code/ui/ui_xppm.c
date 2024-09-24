@@ -38,14 +38,13 @@ static int      dp_realtime;
 UI_XPPMParseCharacterFile
 
 Read a configuration file containing body.md5mesh custom
-models/players/visor/character.cfg, etc
+models/players/thug/character.cfg, etc
 ======================
 */
-
 static qboolean UI_XPPMParseCharacterFile(const char *filename, playerInfo_t * pi)
 {
   char           *text_p, *prev;
-  size_t             len;
+  int             len;
   int             i;
   char           *token;
   char            text[20000];
@@ -73,15 +72,17 @@ static qboolean UI_XPPMParseCharacterFile(const char *filename, playerInfo_t * p
   // parse the text
   text_p = text;
 
-
   pi->gender = GENDER_MALE;
   pi->firstTorsoBoneName[0] = '\0';
   pi->lastTorsoBoneName[0] = '\0';
   pi->torsoControlBoneName[0] = '\0';
   pi->neckControlBoneName[0] = '\0';
-  pi->modelScale[0] = 1;
-  pi->modelScale[1] = 1;
-  pi->modelScale[2] = 1;
+  pi->modelScale = 1;
+
+#ifdef COMPAT_KPQ3
+  VectorSet(pi->wepRotate, 0, 0, 0);
+  VectorSet(pi->flagRotate, 0, 0, 0);
+#endif
 
   // read optional parameters
   while (1)
@@ -115,45 +116,81 @@ static qboolean UI_XPPMParseCharacterFile(const char *filename, playerInfo_t * p
       }
       continue;
     }
+    else if(!Q_stricmp(token, "footsteps"))
+    {
+      token = Com_Parse(&text_p);
+      if(!token)
+        break;
+      continue;
+    }
+    else if(!Q_stricmp(token, "headoffset"))
+    {
+      for(i = 0; i < 3; i++)
+      {
+        token = Com_Parse(&text_p);
+        if(!token)
+          break;
+      }
+      continue;
+    }
     else if (!Q_stricmp(token, "firstTorsoBoneName"))
     {
       token = Com_Parse(&text_p);
-      Q_strncpyz(pi->firstTorsoBoneName, token, sizeof(pi->firstTorsoBoneName));
-      continue;
-    }
-    else if (!Q_stricmp(token, "lastTorsoBoneName"))
-    {
-      token = Com_Parse(&text_p);
-      Q_strncpyz(pi->lastTorsoBoneName, token, sizeof(pi->lastTorsoBoneName));
+      if (!token)
+        break;
       continue;
     }
     else if (!Q_stricmp(token, "torsoControlBoneName"))
     {
       token = Com_Parse(&text_p);
-      Q_strncpyz(pi->torsoControlBoneName, token, sizeof(pi->torsoControlBoneName));
+      if (!token)
+        break;
+      //Q_strncpyz(pi->torsoControlBoneName, token, sizeof(pi->torsoControlBoneName));
       continue;
     }
     else if (!Q_stricmp(token, "neckControlBoneName"))
     {
       token = Com_Parse(&text_p);
-      Q_strncpyz(pi->neckControlBoneName, token, sizeof(pi->neckControlBoneName));
+      if (!token)
+        break;
+      //Q_strncpyz(pi->neckControlBoneName, token, sizeof(pi->neckControlBoneName));
       continue;
     }
     else if (!Q_stricmp(token, "modelScale"))
     {
-      for (i = 0; i < 3; i++)
+      token = Com_Parse(&text_p);
+      if (!token)
+        break;
+      pi->modelScale = atof(token); //todo update to vec_t
+      continue;
+    }
+#ifdef COMPAT_KPQ3
+    //copy cg_players.c CG_ParseCharacterFile
+    else if (!Q_stricmp(token, "wepRotate"))
+    {
+      for(i = 0; i < 3; i++)
       {
         token = Com_ParseExt(&text_p, qfalse);
-        if (!token)
-        {
+        if(!token)
           break;
-        }
-        pi->modelScale[i] = atof(token);
+        pi->wepRotate[i] = atof(token);
       }
       continue;
     }
+    else if (!Q_stricmp(token, "flagRotate"))
+    {
+      for(i = 0; i < 3; i++)
+      {
+        token = Com_ParseExt(&text_p, qfalse);
+        if(!token)
+          break;
+        pi->flagRotate[i] = atof(token);
+      }
+      continue;
+    }
+#endif
 
-    //Com_Printf("unknown token '%s' is %s\n", token, filename);
+    Com_Printf(S_COLOR_YELLOW"unknown token '%s' is %s\n", token, filename);
   }
 
   return qtrue;
@@ -166,7 +203,7 @@ static qboolean UI_XPPM_RegisterPlayerAnimation(playerInfo_t * pi, const char *m
   int             frameRate;
 
 
-  Com_sprintf(filename, sizeof(filename), "models/players/%s/%s.md5anim", modelName, animName);
+  Com_sprintf(filename, sizeof(filename), "models/players/%s/ani/%s.md5anim", modelName, animName);
 
   // Com_Printf("UI_XPPM: Loading animation %s\n", filename); hypov8 debug print .md5anim loaded
 
@@ -187,7 +224,7 @@ static qboolean UI_XPPM_RegisterPlayerAnimation(playerInfo_t * pi, const char *m
   {
     frameRate = 1;
   }
-  pi->animations[anim].frameLerp = 1000 / frameRate; //rename hypov8 frametime
+  pi->animations[anim].frameLerp = 1000 / frameRate;
   pi->animations[anim].initialLerp = 1000 / frameRate;
 
   if (loop)
@@ -213,9 +250,8 @@ UI_XPPM_RegisterModel
 ==========================
 */
 
-qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName, const char *teamName, const char *headModelSkinName)
+qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName, const char *clanName)
 {
-  int             i;
   char            filename[MAX_QPATH * 2];
 
   Com_sprintf(filename, sizeof(filename), "models/players/%s/body.md5mesh", modelName);
@@ -230,44 +266,42 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
     return qfalse;
   }
 
-
-  if (pi->bodyModel)
+  // load the animations
+  Com_sprintf(filename, sizeof(filename), "models/players/%s/ani/character.cfg", modelName);
+  if (!UI_XPPMParseCharacterFile(filename, pi))
   {
-    // load the animations
-    Com_sprintf(filename, sizeof(filename), "models/players/%s/ani/character.cfg", modelName);
-    if (!UI_XPPMParseCharacterFile(filename, pi))
-    {
-      Com_Printf(S_COLOR_YELLOW"Failed to load character file %s\n", filename);
-      return qfalse;
-    }
+    Com_Printf(S_COLOR_YELLOW"Failed to load character file %s\n", filename);
+    return qfalse;
+  }
 
-    if (!UI_XPPM_RegisterPlayerAnimation(pi, modelName, LEGS_IDLE, "ani/leg_idle", qtrue, qfalse, qfalse))
-    {
-      Com_Printf(S_COLOR_YELLOW"Failed to load idle animation file %s\n", filename);
-      return qfalse;
-    }
+  if (!UI_XPPM_RegisterPlayerAnimation(pi, modelName, LEGS_IDLE, "tor_idle", qtrue, qfalse, qfalse)) //tommy
+  {
+    Com_Printf(S_COLOR_YELLOW"Failed to load idle animation file %s\n", filename);
+    return qfalse;
+  }
 
-    // make LEGS_IDLE the default animation
-    for (i = 0; i < MAX_TOTALANIMATIONS; i++)
-    {
-      if (i == LEGS_IDLE)
-        continue;
+  // make LEGS_IDLE the default animation
+  /*for (i = 0; i < MAX_TOTALANIMATIONS; i++)
+  {
+    if (i == LEGS_IDLE)
+      continue;
 
-      pi->animations[i] = pi->animations[LEGS_IDLE];
-    }
+    pi->animations[i] = pi->animations[LEGS_IDLE];
+  }*/
 
-  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE,	"ani/tor_gesture",	qfalse, qfalse, qfalse);
-  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE2,	"ani/tor_gesture2",	qfalse, qfalse, qfalse);
-  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE3,	"ani/tor_gesture3",	qfalse, qfalse, qfalse);
-  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND,		"ani/tor_idle",		qtrue, qfalse, qfalse);
-  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND2,	"ani/tor_idle2",	qtrue, qfalse, qfalse); //pistol
-  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND3,	"ani/tor_idle3",	qtrue, qfalse, qfalse); //crowbar
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE,  "tor_gesture",  qfalse, qfalse, qfalse);
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE2, "tor_gesture2", qfalse, qfalse, qfalse);
+  UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_GESTURE3, "tor_gesture3", qfalse, qfalse, qfalse);
+  //UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND,    "tor_idle",     qtrue, qfalse, qfalse); //tommy
+  //UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND2,   "tor_idle2",    qtrue, qfalse, qfalse); //pistol
+  //UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND3,   "tor_idle3",    qtrue, qfalse, qfalse); //crowbar
 
+  //team skin
+  if (clanName[0] != '\0')
+    //Com_sprintf(filename, sizeof(filename), "models/players/%s/team_%s_%s.skin", modelName, skinName, teamName);
+    Com_sprintf(filename, sizeof(filename), "models/players/%s/clans/%s/%s.skin", modelName, clanName, TEAM_SKIN_DRAGONS); //default to red  in menu
+  else
     Com_sprintf(filename, sizeof(filename), "models/players/%s/body_%s.skin", modelName, skinName);
-
-  //team
-  if (teamName[0] != '\0')
-    Com_sprintf(filename, sizeof(filename), "models/players/%s/team_%s_%s.skin", modelName, headModelSkinName, teamName);
 
   Com_Printf("UI_XPPM: Loading skin %s\n", filename);
 
@@ -279,27 +313,9 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
     return qfalse;
   }
 
-
-  }
-
   return qtrue;
 }
-/* //remove hypov8
-static void UI_PlayerFloatSprite(playerInfo_t * pi, vec3_t origin, qhandle_t shader)
-{
-  refEntity_t     ent;
 
-  Com_Memset(&ent, 0, sizeof(ent));
-  VectorCopy(origin, ent.origin);
-  ent.origin[2] += 24;
-  ent.reType = RT_SPRITE;
-  ent.customShader = shader;
-  ent.radius = 10;
-  ent.renderfx = 0;
-  trap_R_AddRefEntityToScene(&ent);
-}
-*/
-//end
 #if 0
 void UI_XPPM_TransformSkeleton(refSkeleton_t * skel, const vec3_t scale)
 {
@@ -591,6 +607,45 @@ static void UI_XPPM_PositionEntityOnTag(refEntity_t *entity, const refEntity_t *
   entity->backlerp = parent->backlerp;
 }
 #endif
+
+
+/*
+======================
+UI_XPPM_PositionRotatedSelfOnTag
+
+hypov8 add: 
+offset gun using internal tag. so 1 model can be used for w_map and w_player
+======================
+*/
+void UI_XPPM_PositionRotatedSelfOnTag(refEntity_t *entity, char *tagSelfName)
+{
+  int i, tagIndex;  
+  orientation_t offsetTag;
+
+  if (tagSelfName[0] != '\0')
+  {
+    tagIndex = trap_R_LerpTag( &offsetTag, entity, tagSelfName, 0 ); //"tag_weapon"
+    if (tagIndex > -1)
+    {
+      matrix_t mat1;
+      vec3_t axisOut[3], tempAxis[3];
+
+      MatrixFromVectorsFLU(mat1, offsetTag.axis[0], offsetTag.axis[1], offsetTag.axis[2]); 
+      MatrixInverse(mat1);
+      MatrixToVectorsFLU(mat1, axisOut[0], axisOut[1], axisOut[2]);
+      AxisMultiply(axisOut, entity->axis, tempAxis);
+      AxisCopy(tempAxis, entity->axis);
+
+      //add inverted offsest.
+      for (i = 0; i < 3; i++)
+      {
+        VectorMA(entity->origin, -offsetTag.origin[i], entity->axis[i], entity->origin);
+      }
+    }
+  }
+}
+
+
 /*
 ======================
 UI_XPPM_PositionRotatedEntityOnTag
@@ -627,7 +682,7 @@ void UI_XPPM_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *
 }
 
 //add hypov8
-void UI_XPPM_AddPlayerWeapon(refEntity_t *parent)
+void UI_XPPM_AddPlayerWeapon(refEntity_t *parent, playerInfo_t * pi)
 {
   static refEntity_t gun;
   vec3_t angles;
@@ -636,31 +691,162 @@ void UI_XPPM_AddPlayerWeapon(refEntity_t *parent)
   Com_Memset(&gun, 0, sizeof(gun));
   gun.shadowPlane = parent->shadowPlane;
   gun.renderfx    = parent->renderfx;
-  gun.hModel = trap_R_RegisterModel("models/weapons/tomgun/w_player.md3"); //gitem_t bg_itemlist[] "weapon_tommygun"
+  gun.hModel = trap_R_RegisterModel("models/weapons/tomgun/w_wep.md3"); //gitem_t bg_itemlist[] "weapon_tommygun"
 
   if (!gun.hModel)
-  return;
+    return;
 
-  angles[PITCH] = 0;
-  angles[YAW] = 90; //hypov8 todo: fix thug player model tag error. remove this
-  angles[ROLL] = 90;
+  angles[PITCH] = pi->wepRotate[PITCH] ;
+  angles[YAW] = pi->wepRotate[YAW]; // 90
+  angles[ROLL] = pi->wepRotate[ROLL]; // 90
   AnglesToAxis(angles, gun.axis);
   UI_XPPM_PositionRotatedEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
-  //UI_XPPM_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
-
+  UI_XPPM_PositionRotatedSelfOnTag(&gun, "tag_weapon"); //hypov8 add
   trap_R_AddRefEntityToScene(&gun);
 }
 
+static void UI_XPPM_CalculateLerpFrame(lerpFrame_t *lf)
+{
 
-void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time)
+
+  //copy from CG_RunLerpFrame
+  //lf->animationEnded = qfalse;
+
+  if (dp_realtime > lf->frameTime)
+  {
+    if (dp_realtime < lf->animationTime)
+    {
+      // initial lerp
+      lf->frameTime = lf->oldFrameTime = lf->animationTime;
+      lf->oldFrame = lf->frame;
+    }
+    else
+    {
+      lf->oldFrame = lf->frame;
+      lf->oldFrameTime = lf->frameTime;
+
+      animation_t *anim = lf->animation;
+      int numFrames = anim->numFrames;
+      float frameLength = anim->frameLerp;
+
+      int relativeFrame = ceil((dp_realtime - lf->animationTime) / frameLength);
+      if (relativeFrame >= numFrames)
+      {
+        qboolean looping = !!anim->loopFrames;
+        if (looping)
+        {
+          assert(anim->loopFrames == numFrames);//hypov8
+          lf->animationTime += relativeFrame / numFrames * (numFrames * frameLength);
+          relativeFrame %= numFrames;
+          lf->frameTime = lf->animationTime + relativeFrame * frameLength;
+        }
+        else
+        {
+          relativeFrame = numFrames - 1;
+          // the animation is stuck at the end, so it
+          // can immediately transition to another sequence
+          lf->frameTime = dp_realtime;
+          //lf->animationEnded = qtrue;
+        }
+      }
+      else
+      {
+        lf->frameTime = lf->animationTime + relativeFrame * frameLength;
+      }
+      if (anim->reversed)
+      {
+        lf->frame = anim->firstFrame + numFrames - 1 - relativeFrame;
+      }
+      else
+      {
+        lf->frame = anim->firstFrame + relativeFrame;
+      }
+    }
+  }
+
+  if (lf->frameTime > lf->oldFrameTime)
+  {
+    lf->backlerp = 1.0 - (float)(dp_realtime - lf->oldFrameTime) / (lf->frameTime - lf->oldFrameTime);
+  }
+  else
+  {
+    lf->backlerp = 0;
+  }
+}
+
+void UI_XPPM_ResetLerpAnim(lerpFrame_t *lf)
+{
+  lf->frame = lf->oldFrame = 0;
+  lf->frameTime = lf->oldFrameTime = dp_realtime;
+}
+
+void UI_XPPM_BuildAnimSkeleton(lerpFrame_t *lf, refSkeleton_t *skel)
+{
+
+  if (!lf->animation || !lf->animation->handle)
+  {
+    // initialize skeleton if animation handle is invalid
+    int i;
+
+    skel->type = SK_ABSOLUTE;
+    skel->numBones = MAX_BONES;
+    for (i = 0; i < MAX_BONES; i++)
+    {
+      skel->bones[i].parentIndex = -1;
+      TransInit(&skel->bones[i].t);
+    }
+    return;
+  }
+
+  if (!trap_R_BuildSkeleton(skel, lf->animation->handle, lf->oldFrame, lf->frame, 1.0 - lf->backlerp, qfalse))
+  {
+    Com_Printf("Can't build animation\n");
+    return;
+  }
+}
+
+static void CG_SetLerpFrameAnimation( playerInfo_t *pi, lerpFrame_t *lf, refSkeleton_t *skel)
+{
+
+  lf->animationNumber = LEGS_IDLE;
+  lf->animation = &pi->animations[LEGS_IDLE]; 
+  lf->backlerp = 0;
+
+  if (!trap_R_BuildSkeleton(skel, lf->animation->handle, lf->oldFrame, lf->frame, lf->backlerp, qfalse))
+  {
+    Com_Printf("Can't build animation\n");
+    return;
+  }
+
+  lf->animationTime = dp_realtime + lf->animation->initialLerp;
+  lf->oldFrame = lf->frame = 0;
+  lf->oldFrameTime = lf->frameTime = 0;
+}
+
+
+void UI_XPPM_RunLerpFrame(playerInfo_t * pi, lerpFrame_t *lf, refSkeleton_t *skel)
+{
+  // see if the animation sequence is switching
+  if (!lf->animation )
+  {
+    CG_SetLerpFrameAnimation(pi, lf, skel);
+  }
+
+  UI_XPPM_CalculateLerpFrame(lf);
+  //CG_BlendLerpFrame( lf );
+  UI_XPPM_BuildAnimSkeleton( lf, skel );//oldSkeleton
+}
+
+void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int time,
+  int mouseX, int mouseY)
 {
   refEntity_t     body;
   refEntity_t     podium;
   refdef_t        refdef;
 
   vec3_t          legsAngles;
-  vec3_t          torsoAngles;
-  vec3_t          headAngles;
+  //vec3_t          torsoAngles;
+  //vec3_t          headAngles;
 
   //vec3_t          podiumAngles;
 
@@ -671,6 +857,9 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
   vec3_t          maxs = { 16, 16, 72 };
   float           len;
   float           xx;
+  int             minXY[2], maxXY[2];
+  static float    rotAngle = 160.0f;
+
 
   if (!pi->bodyModel)
     return;
@@ -679,7 +868,11 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
     return;
 
   dp_realtime = time;
-
+  
+  minXY[0] = x;
+  minXY[1] = y;
+  maxXY[0] = x+w;
+  maxXY[1] = y+h;
 
 #if  HYPODEBUG
   UI_DrawRect(x, y, w, h, colorYellow); //hypov8 enabled to test
@@ -718,9 +911,16 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
   // get the rotation information
 //#if 0 //remove hypov8
-  UI_XPPM_PlayerAngles(pi, legsAngles, torsoAngles, headAngles);
-  legsAngles[YAW] = 150;
+  //UI_XPPM_PlayerAngles(pi, legsAngles, torsoAngles, headAngles);
+
+  if (mouseX > minXY[0] && mouseX < maxXY[0] &&
+      mouseY > minXY[1] && mouseY < maxXY[1])
+  {
+    rotAngle = AngleNormalize360(160.0f + ((mouseX-320) * 0.3f));
+  }
+
   legsAngles[PITCH] = 0;
+  legsAngles[YAW] = rotAngle;
   legsAngles[ROLL] = 0;
 
 //#else //remove hypov8
@@ -734,7 +934,7 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
   AnglesToAxis(legsAngles, body.axis);
 
-  renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+  renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW |RF_MINLIGHT;
 
   // add the body
   VectorCopy(origin, body.origin);
@@ -748,78 +948,28 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
   VectorCopy(origin, body.lightingOrigin);
   body.lightingOrigin[0] -= 150;			// + = behind, - = in front
   body.lightingOrigin[1] += 150;			// + = left, - = right
-  body.lightingOrigin[2] += 3000;			// + = above, - = below
+  body.lightingOrigin[2] += 300;			// + = above, - = below
 
-  //hypov8 simple ler idle animation
-{
-  int fRate = pi->animations[TORSO_STAND].frameLerp;
-  static int lastframe = pi->animations[TORSO_STAND].firstFrame;
-  static int curFrame = lastframe;
-  static int lerpTime = dp_realtime;
-
-  int frames = pi->animations[TORSO_STAND].numFrames;
-  int frame1st = pi->animations[TORSO_STAND].firstFrame;
-
-
-  if (dp_realtime >= lerpTime)
-  {
-    body.oldframe = curFrame;
-    lastframe = curFrame;
-
-    if (curFrame == frames)
-      curFrame = frame1st;
-    else
-      curFrame++;
-
-    body.frame = curFrame;
-    body.backlerp = 1.0f;
-
-    lerpTime = dp_realtime + fRate;
-  }
-  else
-  {
-    float percent = (float)(lerpTime - dp_realtime) / (float)fRate;
-
-    body.frame = curFrame;
-    body.oldframe = lastframe;
-    body.backlerp =  percent;
-  }
-}
-
-  //body.backlerp = 1.0f;
-  //body.frame = 1;
-  //body.oldframe = 0;
-
-  // modify bones and set proper local bounds for culling
-  if (!trap_R_BuildSkeleton(&body.skeleton, pi->animations[TORSO_STAND].handle, body.oldframe, body.frame, 1.0 - body.backlerp, qfalse))
-  {
-    Com_Printf("Can't build animation\n");
-    return;
-  }
+  //hypov8 simple lerp idle animation
+  UI_XPPM_RunLerpFrame(pi, &pi->legs, &body.skeleton);
 
   if (body.skeleton.type == SK_RELATIVE)
   {
     // transform relative bones to absolute ones required for vertex skinning
-    UI_XPPM_TransformSkeleton(&body.skeleton, 1.0f);
+    UI_XPPM_TransformSkeleton(&body.skeleton, pi->modelScale);
   }
 
-  UI_XPPM_AddPlayerWeapon(&body);
+  UI_XPPM_AddPlayerWeapon(&body, pi);
   //UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
   trap_R_AddRefEntityToScene(&body);
 
-#if 1
-  origin[0] -= 150;			// + = behind, - = in front
-  origin[1] += 150;			// + = left, - = right
-  origin[2] += 150;			// + = above, - = below
-  trap_R_AddAdditiveLightToScene(origin, 300, 1.0, 1.0, 1.0);
-#endif
-
-#if 1
-  origin[0] -= 150;
-  origin[1] -= 150;
-  origin[2] -= 150;
+  //origin[0] += 150;			// + = behind, - = in front
+  //origin[1] += 150;			// + = left, - = right
+  //origin[2] += 150;			// + = above, - = below
+  VectorSet(origin, body.origin[0]-150, body.origin[1]+150, body.origin[2]+150);
+  trap_R_AddAdditiveLightToScene(origin, 800, 1.0, 1.0, 1.0);
+  VectorSet(origin, body.origin[0]-150, body.origin[1]-150, body.origin[2]-150);
   trap_R_AddAdditiveLightToScene(origin, 400, 1.0, 1.0, 1.0);
-#endif
 
   trap_R_RenderScene(&refdef);
 }

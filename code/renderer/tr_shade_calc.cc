@@ -203,8 +203,14 @@ static float GetOpValue( const expOperation_t *op )
       break;
 
     case OP_PARM9:
-    case OP_PARM10:
       value = 1.0; //default to 1
+      break;
+
+    case OP_PARM10: //cool mod glow
+      if (backEnd.currentEntity)
+        value = backEnd.currentEntity->e.coolerModTime; //default to 1
+      else
+        value = 0;
       break;
 
     case OP_PARM11:

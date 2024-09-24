@@ -71,7 +71,7 @@ extern vmCvar_t g_cursemode;  //hypov8 merge:     //FIXME(0xA5EA): implementatio
 #define CROWBAR_DAMAGE_HM 75
 
 #define DEFAULT_SHOTGUN_DAMAGE				16
-#define DEFAULT_SHOTGUN_SPREAD              700
+#define DEFAULT_SHOTGUN_SPREAD				700
 #define DEFAULT_SHOTGUN_SPREAD_RM			500 //realmode
 #define DEFAULT_SHOTGUN_COUNT				6  // was 11, 6 is kp-value
 
@@ -242,8 +242,8 @@ typedef enum
   WEAPON_DROPPING,
   WEAPON_FIRING,
   WEAPON_RELOADING,
-  WEAPON_RELOAD_MOD, //reload shotty mod.
-  //WEAPON_FIRE_MOD, //cooldown. ROF
+  WEAPON_RELOAD_MOD, //reload shotty mod. hmg cool mod(rename).
+  //WEAPON_FIRE_MOD, //cooldown. todo ROF
   //hypov8 todo: add silencer, mods etc..
   MAX_WEAPON_STATES,
   WEAPON_HM_LOCK
@@ -506,8 +506,10 @@ typedef enum
 #define WP_TIME_FIRE_MACHINEGUN         (1*100)
 #define WP_TIME_FIRE_GRENADE_LAUNCHER   ((4+8)*100) //fire + cycle mag
 #define WP_TIME_FIRE_ROCKET_LAUNCHER    (8*100)
-#define WP_TIME_FIRE_HMG_FULL           (12*100) //anim broken into 1/3 sections(3x shoot, cooldown1, cooldown2)
-#define WP_TIME_FIRE_HMG_3RD            (int)(WP_TIME_FIRE_HMG_FULL/3)
+#define WP_TIME_FIRE_HMG_1SHOT          (2*100) //3 seperate bullets
+//#define WP_TIME_FIRE_HMG                (7*100) // un-modded cooldown
+//#define WP_TIME_FIRE_HMG_FULL         (12*100) //anim broken into 1/3 sections(3x shoot, cooldown1, cooldown2) 
+//#define WP_TIME_FIRE_HMG_3RD          (int)((float)WP_TIME_FIRE_HMG_FULL/3.0f)
 #define WP_TIME_FIRE_FLAMEGUN           (1*100)
 #define WP_TIME_FIRE_GRAPPLING_HOOK     (4*100)
 
@@ -526,6 +528,8 @@ typedef enum
 
 //WEAPON_RELOAD_MOD                     //shotty needs to <startReload> <reload> <finishReload>
 #define WP_TIME_MOD_SHOTGUN             (5*100) //reload a 2nd bullet faster ( animations should be broken into 1/3 total time)
+#define WP_TIME_MOD_HMG                 (7*100) // non-modded. todo: use full length? or trunc anims to moded duration?
+#define WP_TIME_MOD_HMG_ON              (3*100) // modded note: mod animation will terminate early. make sure anims are back to idle pose at 40% of total frames 
 
 
 //WEAPON_READY
@@ -641,7 +645,8 @@ typedef enum
   EV_FIRE_SHOTGUN, // add hypov8
   EV_FIRE_SPISTOL, //add hypov8
   EV_FIRE_CROWBAR, //hypov8 add
-  //EV_FIRE_COOLDOWN, //hypov8 todo. for weps with speed mods
+
+  EV_MOD_COOLDOWN, //hypov8 todo. for weps with speed mods
 
   EV_RELOAD_WEAPON,
   EV_RELOAD_SHOTGUN, // add hypov8 shotgun reload sequence
@@ -798,11 +803,11 @@ typedef enum
   TORSO_DROP,  //lower old weapon
   TORSO_RAISE, //raise new weapon
 
-  TORSO_STAND,
+  TORSO_STAND,  //machinegun
   TORSO_STAND2, //crowbar
   TORSO_STAND3, //pistol //added hypov8
-  TORSO_RUN,   		//add hypov8
-  TORSO_WALK,  		//add hypov8
+  TORSO_RUN,    //add hypov8
+  TORSO_WALK,   //add hypov8
 
   //hypov8 todo:
   TORSO_GETFLAG,
@@ -825,6 +830,7 @@ typedef enum
   LEGS_TURN,
   LEGS_JUMP,
   LEGS_SWIM,
+  LEGS_BUNNY, //bunnyhop
 
   LEGS_CR_IDLE,
   LEGS_CR_BACK, //crouck, walk backwards
@@ -870,9 +876,19 @@ typedef enum
 
 
 #define TEAM_NAME_AUTO			"Auto"
-#define TEAM_NAME_DRAGONS       "Dragons"
-#define TEAM_NAME_NIKKIS        "Nikkis" //edit hypov8 "Nikkis_Boyz"
 
+// menu names
+#define TEAM_NAME_DRAGONS       "Dragons"
+#define TEAM_NAME_NIKKIS        "Nikkis" //"Nikkis_Boyz"
+
+// name for team skins (red.skin)
+#define TEAM_SKIN_DRAGONS       "dragon" //red 
+#define TEAM_SKIN_NIKKIS        "nikki" //blue
+
+// clan names "g_dragonTeam"
+#define DEFAULT_CLAN_DRAGONS  "Kingslayers" //match teaminfo.txt
+#define DEFAULT_CLAN_NIKKIS  "Thuggers"
+//"Gangsters", "Skullcrushers"
 
 // Time between location updates
 #define TEAM_LOCATION_UPDATE_TIME 1000
@@ -981,7 +997,7 @@ enum
   WORLD_GUNMODEL_POS = 0,       //1st person weapon model
   WORLD_HANDMODEL_POS,          //1st person hand model        //hypov8 todo: combine hand/wep models
   WORLD_FLASHMODEL_POS,         //1st/3rd person flash model
-  WORLD_CLIPMODEL_POS,          //1st person ammo clip         // ^^ md3 suports multi materal & 10k vert ^^
+  //WORLD_CLIPMODEL_POS,          //1st person ammo clip         // ^^ md3 suports multi materal & 10k vert ^^
   WORLD_PLAYERWEAPONMODEL_POS,  //3rd person player
   WORLD_WEAPONMODEL_POS,        //map weapon model
   MAX_ITEM_MODELS
@@ -1021,7 +1037,8 @@ void PM_BeginWeaponChange(int weapon); // add hypov8 weapon change link external
 ///qboolean PM_StopWeapChange(int oldweapon, int newweapon); //hypov8 add
 int BG_AmmoCombineCheck(int weapon); //swap pistal ammo for tommy
 qboolean BG_IsReloadableWeapon(int weapon);
-animNumber_t BG_AttackTorsoAnim(int weapon);
+animNumber_t BG_GetTorsoAttackAnimNumber(int weapon);
+animNumber_t BG_GetTorsoIdleAnimNumber(int weapon);
 #define ITEM_INDEX(x) ((x) - bg_itemlist)
 
 qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t *ent, const playerState_t *ps, int cashcollectmax, int cashstolenmax);

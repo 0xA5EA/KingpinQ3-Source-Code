@@ -475,6 +475,7 @@ static void IN_ActivateMouse( void )
 		SDL_ShowCursor( 1 );
 		SDL_ShowCursor( 0 );
 #endif
+    //hypov8 todo: move ingame cursor?
 		SDL_WM_GrabInput( SDL_GRAB_ON );
 
 		IN_GobbleMotionEvents( );
@@ -945,17 +946,25 @@ static void IN_ProcessEvents( void )
 
 			case SDL_VIDEORESIZE:
 			{
+				//check vid manualy resized?
 				char width[32], height[32];
-				Com_sprintf( width, sizeof(width), "%d", e.resize.w );
-				Com_sprintf( height, sizeof(height), "%d", e.resize.h );
-				ri.Cvar_Set( "r_customwidth", width );
-				ri.Cvar_Set( "r_customheight", height );
-				ri.Cvar_Set( "r_mode", "-1" ); //hypov8 todo: why is this set?? this should be setting a size at load
-				/* wait until user stops dragging for 1 second, so
-				   we aren't constantly recreating the GL context while
-				   he tries to drag...*/
-				//vidRestartTime = Sys_Milliseconds() + 2000;
+#if 1
+				cvar_t *var = ri.Cvar_Get("r_allowResize", "", 0);
+				if (var->integer != 0)
+#endif
+				{
+					Com_sprintf(width, sizeof(width), "%d", e.resize.w);
+					Com_sprintf(height, sizeof(height), "%d", e.resize.h);
+					ri.Cvar_Set("r_customwidth", width);
+					ri.Cvar_Set("r_customheight", height);
+					ri.Cvar_Set("r_mode", "-1"); //should only be forced when r_allowResize->integer == 1
+					/* wait until user stops dragging for 1 second, so
+					   we aren't constantly recreating the GL context while
+					   he tries to drag...*/
+					vidRestartTime = Sys_Milliseconds() + 2000;
+				}
 				//FIXME(0xA5EA): removed this due to unnecessary vid_restart at initial start 
+				//note: this should not be getting called, unless SDL_RESIZABLE is set
 			}
 			break;
 			case SDL_ACTIVEEVENT:
@@ -965,6 +974,8 @@ static void IN_ProcessEvents( void )
 				if (e.active.state & SDL_APPACTIVE) {
 					Cvar_SetValue( "com_minimized", !e.active.gain);
 				}
+				//set pointer position...
+				//
 				break;
 
 			default:

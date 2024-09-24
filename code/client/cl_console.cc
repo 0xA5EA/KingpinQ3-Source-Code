@@ -413,6 +413,13 @@ void CL_ConsolePrint( char *txt ) {
     skipnotify = qtrue;
     txt       += 12;
   }
+  //catch ^# console `colors
+  else if ( !Q_strncmp( txt+2, "[skipnotify]", 12 ) ) {
+    skipnotify = qtrue;
+    txt[12] = txt[0];
+    txt[13] = txt[1];
+    txt       += 12;
+  }
 
   // for some demos we don't want to ever show anything on the console
 	if ( cl_noprint && cl_noprint->integer ) {
