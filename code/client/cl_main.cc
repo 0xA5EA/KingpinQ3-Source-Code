@@ -3565,8 +3565,8 @@ void CL_Init(void)
 
   Cvar_Get("headmodel", "thug", CVAR_USERINFO | CVAR_ARCHIVE);
   Cvar_Get("team_headmodel", "thug", CVAR_USERINFO | CVAR_ARCHIVE);
-  Cvar_Get("g_dragonTeam", TEAM_NAME_DRAGONS, CVAR_SERVERINFO | CVAR_ARCHIVE);
-  Cvar_Get("g_nikkiTeam", TEAM_NAME_NIKKIS, CVAR_SERVERINFO | CVAR_ARCHIVE);
+  Cvar_Get("g_dragonTeam", DEFAULT_CLAN_DRAGONS, CVAR_SERVERINFO | CVAR_ARCHIVE);
+  Cvar_Get("g_nikkiTeam", DEFAULT_CLAN_NIKKIS, CVAR_SERVERINFO | CVAR_ARCHIVE);
   Cvar_Get("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get ("color2", "5", CVAR_USERINFO | CVAR_ARCHIVE );
   Cvar_Get("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE);

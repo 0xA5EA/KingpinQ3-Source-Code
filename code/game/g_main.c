@@ -216,9 +216,9 @@ static cvarTable_t gameCvarTable[] = {
    { &g_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SERVERINFO, 0, qfalse },
 
    { &g_cubeTimeout, "g_cubeTimeout", "30", 0, 0, qfalse },
-#endif //hypov8 dont show in browser
-  {&g_dragonTeam, "g_dragonTeam", TEAM_NAME_DRAGONS, CVAR_ARCHIVE /*| CVAR_SERVERINFO*/ | CVAR_USERINFO, 0, qtrue, qtrue},
-  {&g_nikkiTeam, "g_nikkiTeam", TEAM_NAME_NIKKIS, CVAR_ARCHIVE /*| CVAR_SERVERINFO */| CVAR_USERINFO, 0, qtrue, qtrue},
+#endif 
+  {&g_dragonTeam, "g_dragonTeam", DEFAULT_CLAN_DRAGONS, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue},
+  {&g_nikkiTeam, "g_nikkiTeam", DEFAULT_CLAN_NIKKIS, CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO, 0, qtrue, qtrue},
 #ifdef USE_GT_SINGLEPLAYER
   {&g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse},
 #endif

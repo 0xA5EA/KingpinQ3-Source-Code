@@ -312,9 +312,9 @@ void G_AddRandomBot(int team)
         skill = trap_Cvar_VariableValue("g_spSkill");
         //FIXME(0xA5EA): single player ??
         if (team == TEAM_DRAGONS)
-			teamstr = TEAM_NAME_DRAGONS;
+          teamstr = TEAM_SKIN_DRAGONS;
         else if (team == TEAM_NIKKIS)
-			teamstr = TEAM_NAME_NIKKIS;
+          teamstr = TEAM_SKIN_NIKKIS;
         else
           teamstr = "";
         strncpy(netname, value, sizeof(netname) - 1);
@@ -700,6 +700,7 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
     model = "thug/default";
   }
   Info_SetValueForKey(userinfo, key, model);
+
   key = "team_model";
   Info_SetValueForKey(userinfo, key, model);
 
@@ -710,6 +711,7 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
     headmodel = "thug";
   }
   Info_SetValueForKey(userinfo, key, headmodel);
+
   key = "team_headmodel";
   Info_SetValueForKey(userinfo, key, headmodel);
 
@@ -754,16 +756,16 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
     {
       if (PickTeam(clientNum) == TEAM_DRAGONS)
       {
-		  team = TEAM_NAME_DRAGONS;
+        team = TEAM_SKIN_DRAGONS;
       }
       else
       {
-		  team = TEAM_NAME_NIKKIS;
+        team = TEAM_SKIN_NIKKIS;
       }
     }
     else
     {
-		team = TEAM_NAME_DRAGONS;
+      team = ""; // TEAM_SKIN_DRAGONS;
     }
   }
   Info_SetValueForKey(userinfo, "team", team);
