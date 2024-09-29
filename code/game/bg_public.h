@@ -46,8 +46,6 @@ extern vmCvar_t g_cursemode;  //hypov8 merge:     //FIXME(0xA5EA): implementatio
 
 #define RANK_TIED_FLAG           0x4000
 
-#define G_SPEED_MAX 300 //hypov8 add: g_speed cvar
-
 
 //////////////////////////////////////
 //moved

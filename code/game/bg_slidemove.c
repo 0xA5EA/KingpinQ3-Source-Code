@@ -69,7 +69,7 @@ qboolean PM_SlideMove(qboolean gravity)
     {
       // slide along the ground plane
       PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal,  pm->ps->velocity, OVERCLIP);
-	}
+    }
   }
 
   time_left = pml.frametime;
@@ -377,9 +377,8 @@ qboolean PM_StepSlideMove(qboolean gravity, qboolean predictive)
 		if (DotProduct(trace.plane.normal, pm->ps->velocity) > 0.0f &&
 			(trace.fraction == 1.0f || DotProduct(trace.plane.normal, normal) < 0.7f))
 		{
-#if 0 //HYPODEBUG
-			Com_Printf("up velocity, stopping movement\n");
-#endif			
+			if (pm->debugLevel)
+				Com_Printf("up velocity, stopping movement\n");
 			return stepped;
 		}
 

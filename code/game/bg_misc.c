@@ -198,11 +198,11 @@ gitem_t bg_itemlist[] =
     "weapon_shotgun",
     "sound/misc/w_pkup.ogg",
     {
-      "models/weapons/shotgun/v_wep.md3",		// first person view wep
-      "models/weapons/shotgun/v_hand.md3",	// first person view hand
-      "models/weapons/shotgun/flash.md3",		// first person+3rd person flash model sprite
-      "models/weapons/shotgun/w_player.md3",	// world player weaponmodel
-      "models/weapons/shotgun/w_map.md3"		// world map model 
+      "models/weapons/shotgun/v_wep.md3",  // first person view wep
+      "models/weapons/shotgun/v_hand.md3", // first person view hand
+      "models/weapons/shotgun/flash.md3",  // first person+3rd person flash model sprite
+      "models/weapons/shotgun/w_wep.md3",  // world player weaponmodel
+      "models/weapons/shotgun/w_wep.md3"   // world map model 
     },
     "gfx/icons/h_shotgun",        // icon
     "Shotgun",                // pickup name
@@ -242,8 +242,8 @@ gitem_t bg_itemlist[] =
       "models/weapons/grenadelauncher/v_wep.md3",       // first person view wep
       "models/weapons/grenadelauncher/v_hand.md3",      // first person view hand
       "models/weapons/grenadelauncher/flash.md3",       // first person+3rd person flash model sprite
-      "models/weapons/grenadelauncher/w_player.md3",    // world player weaponmodel
-      "models/weapons/grenadelauncher/w_map.md3"        // world map model 
+      "models/weapons/grenadelauncher/w_wep.md3",    // world player weaponmodel
+      "models/weapons/grenadelauncher/w_wep.md3"        // world map model 
     },
     "gfx/icons/h_grenade_l",      // icon
     "Grenade Launcher",       // pickup name
@@ -282,8 +282,8 @@ gitem_t bg_itemlist[] =
       "models/weapons/hmg/v_wep.md5mesh",
       0,
       "models/weapons/hmg/flash.md3",
-      "models/weapons/hmg/w_player.md3",        // world player weaponmodel
-      "models/weapons/hmg/w_map.md3"               // world spawn weaponmodel
+      "models/weapons/hmg/w_wep.md3",        // world player weaponmodel
+      "models/weapons/hmg/w_wep.md3"               // world spawn weaponmodel
       //FIXME (0xA5EA): add model to data
     },
     "gfx/icons/iconw_hmg",       // icon

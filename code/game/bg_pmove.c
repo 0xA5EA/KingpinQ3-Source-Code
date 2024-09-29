@@ -277,7 +277,36 @@ Slide off of the impacting surface
 */
 void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
-#if 0 //ndef KINGPIN_PLAYERMOVE //hypov8 causing wird walking constraints and stoping view up/down
+#ifdef KINGPIN_PLAYERMOVE
+  // dont slow down going up ramps
+  // allow speed up going down ramps
+  vec3_t tmpOut;
+  float  xySpeedIn = sqrt(in[0] * in[0] + in[1] * in[1]), xySpeedOut;
+  float slope = DotProduct(vec3_up, normal); // 1.0 is flat ground, 0.75=45deg
+  float t = -DotProduct( in, normal );
+
+  VectorMA(in, t, normal, tmpOut);
+   xySpeedOut = sqrt(tmpOut[0] * tmpOut[0] + tmpOut[1] * tmpOut[1]);
+
+  if (xySpeedOut > xySpeedIn)
+  { 
+    // going down a ramp. speed up
+    VectorCopy(tmpOut, out);
+  }
+  else if (slope < 0.75f)
+  {
+    // reduce velocity
+    VectorCopy(tmpOut, out);
+  }
+  else
+  {
+    //keep speed
+    VectorCopy(in, out);
+  }
+
+
+
+#elif 0 //ndef KINGPIN_PLAYERMOVE //hypov8 causing wird walking constraints and stoping view up/down
   float backoff;
   float change;
   int i;
@@ -299,7 +328,6 @@ void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
       out[i] = 0;
   }
 
-  //return blocked;  //in Kingpin this return is not used, so comment it out
 #elif 0
 
   backoff = DotProduct(in, normal);
@@ -380,8 +408,10 @@ static void PM_Friction(void)
   if (pm->ps->powerups[PW_FLIGHT])
     drop += speed * pm_flightfriction * pml.frametime;
 #endif
-  if (pml.ladder)                                         // If they're on a ladder...
-    drop += speed * pm_ladderfriction * pml.frametime;  // Add ladder friction!
+
+  // Add ladder friction!
+  if (pml.ladder)
+    drop += speed * pm_ladderfriction * pml.frametime;
 
   if (pm->ps->pm_type == PM_SPECTATOR)
     drop += speed * pm_spectatorfriction * pml.frametime;
@@ -490,9 +520,17 @@ Determine the rotation of the legs reletive
 to the facing dir
 ================
 */
-static void PM_SetMovementDir(void)
+static void PM_SetMovementDir(qboolean forceStraight)
 {
-  if (pm->cmd.forwardmove || pm->cmd.rightmove)
+  if (forceStraight)
+  {
+    //used for bunnyhop. stop twist in legs
+    if (pm->cmd.forwardmove < 0)
+      pm->ps->movementDir = 4;
+    else
+      pm->ps->movementDir = 0;
+  }
+  else if (pm->cmd.forwardmove || pm->cmd.rightmove)
   {
     if (pm->cmd.rightmove == 0 && pm->cmd.forwardmove > 0)
       pm->ps->movementDir = 0;
@@ -524,6 +562,46 @@ static void PM_SetMovementDir(void)
 }
 
 /*
+================
+PM_SetJumpLegsAnim
+
+jump animations for legs
+includes going faster then normal speeds(bunny hop)
+================
+*/
+static void PM_SetJumpLegsAnim()
+{
+
+  
+  if (!pml.ladder)
+  {
+    pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
+    if (pm->cmd.forwardmove >= 0)
+    {
+      if (pm->cmd.forwardmove == 0 && pm->xyspeed > 350) //bunny hop animation
+        PM_ForceLegsAnim(LEGS_BUNNY); //static animation
+      else
+        PM_ForceLegsAnim(LEGS_JUMP);
+              
+      pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+    }
+    else //if moving backward true
+    {
+      if (pm->xyspeed > 350) //bunny hop backwards
+      {
+        PM_ForceLegsAnim(LEGS_BUNNY);
+        pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+      }
+      else
+      {
+        PM_ForceLegsAnim(LEGS_JUMPB);
+        pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
+      }
+    }
+  }
+}
+
+/*
 =============
 PM_CheckJump
 =============
@@ -544,13 +622,6 @@ static qboolean PM_CheckJump(void)
     return qfalse;
   }
 
-  if (!pml.groundPlane) //add hypov8
-  {
-    if (pm->debugLevel)
-        Com_Printf("PM_CheckJump. Allready in air \n");
-    return qfalse;
-  }
-
   pml.groundPlane = qfalse;              // jumping away
   pml.walking     = qfalse;
   //FIXME: 0xA5EA, reset pml.ladder ?
@@ -564,8 +635,9 @@ static qboolean PM_CheckJump(void)
   ////////////////////////////////////////////////////////////////////////////////////////
   // hypov8 slope jump
   if (pm->ps->velocity[2] >= 0.1f)
-  {											//hypo slow down double jump acceleration by half
-    pm->ps->velocity[2] = JUMP_VELOCITY + (pm->ps->velocity[2]*0.5f); //hypov8 add some height to ram jumps
+  {
+    //hypo slow down double jump acceleration by half
+    pm->ps->velocity[2] = JUMP_VELOCITY + (pm->ps->velocity[2]*0.5f); //hypov8 add some height to ramp jumps
     if (pm->debugLevel)
       Com_Printf("slope jump used\n");
   }
@@ -577,6 +649,8 @@ static qboolean PM_CheckJump(void)
   }
 
   PM_AddEvent(EV_JUMP);
+
+  PM_SetJumpLegsAnim(); //LEGS_JUMP
 
   return qtrue;
  }
@@ -976,10 +1050,10 @@ static void PM_AirMove(void)
   smove = pm->cmd.rightmove;          // 127 righwards, -127 leftwards  // nur wenn links oder rechts gedrückt
   // d.h. bei bh ist fmove 0 und |smove| = 128
   // woher kommt dann der vorwärdsmove
-  //fmove = pml.fordwardPush;
-  //smove = pml.sidePush;
+
   // set the movementDir so clients can rotate the legs for strafing
-  //PM_SetMovementDir(); //note hypov8
+  PM_SetMovementDir(qtrue); //note hypov8
+
 //	Com_Printf("NewAirmove: fmove %i; smove %i\n", pm->cmd.forwardmove, pm->cmd.rightmove );
   for (i = 0; i < 2; i++)
   {
@@ -1069,7 +1143,7 @@ static void PM_AirMove(void)
     else
       accel = 1;                                                                                                                      //instead of pm_airaccelerate, (correcting the forward bug);
 
-    if ((smove > 0 || smove < 0) && fmove == 0)                                                                                         //0xA5EA, bh-buttons pressed ?
+    if (smove != 0 && fmove == 0)                                                                                         //0xA5EA, bh-buttons pressed ?
     {
       if (wishspeed > pm_wishspeed)
         wishspeed = pm_wishspeed;
@@ -1077,16 +1151,14 @@ static void PM_AirMove(void)
       accel = PM_STRAFE_ACCELERATE;
     }
 
-  //add hypov8 makes player stop in mid air forwared/back, like kp1
-  if ((fmove > 0 || fmove < 0) && smove == 0)                                                                                         //0xA5EA, bh-buttons pressed ?
-  {
-    if (wishspeed > pm_wishspeed)
-      wishspeed = pm_wishspeed;
+    // makes player stop in mid air forwared/back
+    if (fmove != 0 && smove == 0)                                                                                         //0xA5EA, bh-buttons pressed ?
+    {
+      if (wishspeed > pm_wishspeed)
+        wishspeed = pm_wishspeed;
 
-    accel = PM_STRAFE_ACCELERATE;
-  }
-  //end add hypov8
-
+      accel = PM_STRAFE_ACCELERATE;
+    }
 
     // Air control
     PM_Accelerate(wishdir, wishspeed, accel);
@@ -1096,17 +1168,15 @@ static void PM_AirMove(void)
     // add gravity
     //pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
     //PM_StepSlideMove();
-  //trap_Cvar_Set(); sv_maxvelocity
-  //int checkMaxSpeed = DotProduct(pm->ps->velocity, wishdir);
+    //trap_Cvar_Set(); sv_maxvelocity
+    //int checkMaxSpeed = DotProduct(pm->ps->velocity, wishdir);
 
-//	if (checkMaxSpeed > cvar sv_maxvelocity )
+    //if (checkMaxSpeed > cvar sv_maxvelocity )
 
-  PM_StepSlideMove(qtrue, qfalse);
+    PM_StepSlideMove(qtrue, qfalse);
   }//end airmove
 
-
 }
-
 
 /*
 ===================
@@ -1133,9 +1203,6 @@ static void PM_LadderMove(void)
   if (!scale)
   {
     VectorClear(wishvel);
-    //	wishvel[0] = 0;
-    //	wishvel[1] = 0;
-    //	wishvel[2] = 0;
   }
   else
   {
@@ -1155,36 +1222,49 @@ static void PM_LadderMove(void)
 
   PM_Accelerate(wishdir, wishspeed, pm_ladderAccelerate);
 
-  // This SHOULD help us with sloped ladders, but it remains untested.
-  if (pml.groundPlane && DotProduct(pm->ps->velocity, pml.groundTrace.plane.normal) < 0)
+  if (pml.groundPlane)
   {
-    vel = VectorLength(pm->ps->velocity);
-    // slide along the ground plane [the ladder section under our feet]
-    PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal,  pm->ps->velocity, OVERCLIP);
-
-    VectorNormalize(pm->ps->velocity);
-    VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
-  }
-  PM_SlideMove(qfalse); // move without gravity
-
-if (pm->ps->velocity[2] <= -2)
-     {
-       PM_ContinueLegsAnim(BOTH_LDR_DN);
-     PM_ContinueTorsoAnim(BOTH_LDR_DN);
-      }
-      else if (pm->ps->velocity[2] >= 2)
-      {
-        PM_ContinueLegsAnim(BOTH_LDR_UP);
-    PM_ContinueTorsoAnim(BOTH_LDR_UP);
-      }
-   else
+    // This SHOULD help us with sloped ladders, but it remains untested.  
+    if (DotProduct(pm->ps->velocity, pml.groundTrace.plane.normal) < -0.5f)
     {
-    PM_ContinueLegsAnim(BOTH_LADDER); //note hypov8 can animations pause then resume..
-    PM_ContinueTorsoAnim(BOTH_LADDER);
-#ifdef HYPO_DEBUG_MOVE
-        Com_Printf("LAD both IDLE ladder\n");
-#endif
-   }
+      vel = VectorLength(pm->ps->velocity);
+      // slide along the ground plane [the ladder section under our feet]
+      PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
+
+      VectorNormalize(pm->ps->velocity);
+      VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+    }
+  }
+
+  // move without gravity
+  PM_SlideMove(qfalse);
+
+
+  if (!pml.groundPlane)
+  {
+    //disable changing view height on ladders
+    if ((pm->ps->pm_flags & PMF_DUCKED))
+    {
+      pm->maxs[2] = playerMaxs[2];
+      pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+    }
+
+    if (pm->ps->velocity[2] < -20)
+    {
+      PM_ContinueLegsAnim(BOTH_LDR_DN);
+      PM_ContinueTorsoAnim(BOTH_LDR_DN);
+    }
+    else if (pm->ps->velocity[2] > 20)
+    {
+      PM_ContinueLegsAnim(BOTH_LDR_UP);
+      PM_ContinueTorsoAnim(BOTH_LDR_UP);
+    }
+    else
+    {
+      PM_ContinueLegsAnim(BOTH_LADDER); //note hypov8 can animations pause then resume..
+      PM_ContinueTorsoAnim(BOTH_LADDER);
+    }
+  }
 }
 
 /*
@@ -1260,7 +1340,7 @@ static void PM_WalkMove(void)
   scale = PM_CmdScale(&cmd);
 
   // set the movementDir so clients can rotate the legs for strafing
-  PM_SetMovementDir();
+  PM_SetMovementDir(qfalse);
 
   // project moves down to flat plane
   pml.forward[2] = 0;
@@ -1667,9 +1747,9 @@ PM_GroundTrace
 */
 static void PM_GroundTrace(void)
 {
-  vec3_t point;
+  vec3_t  point;
   trace_t trace;
-  vec3_t          refNormal = { 0.0f, 0.0f, 1.0f }; //add xreal
+  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f }; //add xreal
 
   point[0] = pm->ps->origin[0];
   point[1] = pm->ps->origin[1];
@@ -1689,11 +1769,11 @@ static void PM_GroundTrace(void)
   /* 0xA5EA, check this */
   if (trace.fraction == 1.0)
   {
-   //hypov8 add: xreal. makes player stick to ground when going down stairs
-  qboolean        steppedDown = qfalse;
+    //hypov8 add: xreal. makes player stick to ground when going down stairs
+    qboolean steppedDown = qfalse;
 
     // try to step down
-    if (pml.groundPlane != qfalse && PM_PredictStepMove())
+    if (pml.groundPlane && !pml.ladder && PM_PredictStepMove())
     {
       // step down
       point[0] = pm->ps->origin[0];
@@ -1712,10 +1792,10 @@ static void PM_GroundTrace(void)
 
     if (!steppedDown) //end xreal stair fix
     {
-    PM_GroundTraceMissed();
-    pml.groundPlane = qfalse;
-    pml.walking     = qfalse;
-    return;
+      PM_GroundTraceMissed();
+      pml.groundPlane = qfalse;
+      pml.walking     = qfalse;
+      return;
     }
   }
 
@@ -1729,6 +1809,8 @@ static void PM_GroundTrace(void)
   {
     if (pm->debugLevel)
       Com_Printf("%i:kickoff\n", c_pmove);
+    
+    PM_SetJumpLegsAnim(); //LEGS_JUMP
 
     pm->ps->groundEntityNum = ENTITYNUM_NONE;
     pml.groundPlane         = qfalse;
@@ -1782,25 +1864,26 @@ static void PM_GroundTrace(void)
   pm->ps->groundEntityNum = trace.entityNum;
 
   // don't reset the z velocity for slopes
-//	pm->ps->velocity[2] = 0;
+  //pm->ps->velocity[2] = 0;
 
-    if (!pm->ps->bunnyHop) //hypov8 todo: fix this properly, can walk diaginal faster
-    {						//could also delay rejump
-      int maxSpeed UNUSED;
+  // disable bunnyhop (g_bunnyhop.integer). forward speed is caped by server g_speed.
+  if (!pm->ps->bunnyHop)
+  {
+    float maxSpeed, excessSpeed; 
+    vec3_t vel_flat; 
+    float speed;
 
-      maxSpeed = G_SPEED_MAX; // pm->ps->maxSpeed; //hypov8 servers cvar g_speed //might use a global macro for forwardspeed
+    VectorSet(vel_flat, pm->ps->velocity[0], pm->ps->velocity[1], 0.0f);
+    speed = VectorLength(vel_flat);
+    maxSpeed = (float)pm->ps->speed;
+    excessSpeed = (speed - maxSpeed);
 
-      if (pm->ps->velocity[0] > G_SPEED_MAX)
-        pm->ps->velocity[0] = G_SPEED_MAX;
-      if (pm->ps->velocity[0] < -G_SPEED_MAX)
-        pm->ps->velocity[0] = -G_SPEED_MAX;
-
-      if (pm->ps->velocity[1] > G_SPEED_MAX)
-        pm->ps->velocity[1] = G_SPEED_MAX;
-      if (pm->ps->velocity[1] < -G_SPEED_MAX)
-        pm->ps->velocity[1] = -G_SPEED_MAX;
-
+    if (excessSpeed > 0)
+    {
+      VectorScale(vel_flat, (maxSpeed / speed), vel_flat); //slowdown? use frametime?
+      VectorSet(pm->ps->velocity, vel_flat[0], vel_flat[1], pm->ps->velocity[2]);
     }
+  }
 
   PM_AddTouchEnt(trace.entityNum);
 }
@@ -1894,7 +1977,7 @@ static void PM_CheckDuck(void)
   }
   else
   {
-  pm->maxs[2] = playerMaxs[2];
+    pm->maxs[2] = playerMaxs[2];
     pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
   }
 }
@@ -1924,6 +2007,12 @@ static void PM_Footsteps(void)
 
     return;
   }
+
+  if (pml.ladder)
+  {
+    return;
+  }
+
     //-------------------
   // if not trying to move
   if (!pm->cmd.forwardmove && !pm->cmd.rightmove)
@@ -1988,8 +2077,8 @@ static void PM_Footsteps(void)
       bobmove = 0.3f; // walking bobs slow
       if (pm->ps->pm_flags & PMF_BACKWARDS_RUN)
       {
-      PM_ContinueLegsAnim(LEGS_WALK_BACK);
-    }
+        PM_ContinueLegsAnim(LEGS_WALK_BACK);
+      }
       else
       {
       PM_ContinueLegsAnim(LEGS_WALK);
@@ -2321,7 +2410,7 @@ static void PM_TorsoAnimation(void)
 
   if (pm->ps->weaponstate == WEAPON_READY && !pml.ladder)
   {
-    if (!pml.groundPlane) //note: hypov8 can i make it deley groundtrace. hopping along terrain
+    if (!pml.groundPlane)
     { //bunnyhop animation
       //if (pm->xyspeed >= 300)
       //  PM_StartTorsoAnim(TORSO_RUN); //note hypov8 startTorso. use first frame
@@ -2692,35 +2781,25 @@ static void PM_Animate(void)
       index.b[0] = rand() % 3;
       switch (index.b[0])
       {
-    default:
+      default:
       case 0:
-      PM_ContinueTorsoAnim(TORSO_GESTURE); //edit hypov8 load different taunts on different sounds
-      pm->ps->torsoTimer = TIMER_GESTURE;
-      index.b[1] = rand() % numCustomTaunts1;
-      //Com_Printf("TAUNT 1\n");	//note hypov8 getting multiple nags from fast frame rate
-        break;							// compared to server frame rate.
-                    //g_synchronousClients "0"
+        PM_ContinueTorsoAnim(TORSO_GESTURE); //edit hypov8 load different taunts on different sounds
+        pm->ps->torsoTimer = TIMER_GESTURE;
+        index.b[1] = rand() % numCustomTaunts1;
+        break;
       case 1:
         PM_ContinueTorsoAnim(TORSO_GESTURE2); //add hypov8 taunt2
-      pm->ps->torsoTimer = TIMER_GESTURE;
-      index.b[1] = rand() % numCustomTaunts2;
-      //Com_Printf("TAUNT 2\n");
+        pm->ps->torsoTimer = TIMER_GESTURE;
+        index.b[1] = rand() % numCustomTaunts2;
         break;
-
-  //---------adding 3rd taunt, need sounds?---------------
       case 2:
-        PM_ContinueTorsoAnim(TORSO_GESTURE3); //add hypov8 taunt3
-      pm->ps->torsoTimer = TIMER_GESTURE;
-      index.b[1] = rand() % numCustomTaunts1; //note hypov8, do we need 3rd sounds?
-      //Com_Printf("TAUNT 3\n");
+        PM_ContinueTorsoAnim(TORSO_GESTURE3);
+        pm->ps->torsoTimer = TIMER_GESTURE;
+        index.b[1] = rand() % numCustomTaunts1; //note hypov8, do we need 3rd sounds?
         break;
-
       }
-    //pm->ps->torsoTimer = TIMER_GESTURE;
+      //pm->ps->torsoTimer = TIMER_GESTURE;
       PM_AddEvent2(EV_TAUNT, index.s);
-
-     // PM_AddEvent(EV_TAUNT);
-      //BG_AddPredictableEventToPlayerstate( newEvent, 0, pm->ps );
     }
   }
   else if (pm->cmd.buttons & BUTTON_GETFLAG)
@@ -2771,43 +2850,6 @@ static void PM_Animate(void)
       pm->ps->torsoTimer = 600;   //TIMER_GESTURE;
     }
   }
-
-  //hypov8 jump animations
-  //include jumping and going faster then normal speeds(bunny hop) animations
-  if (pml.groundPlane == qfalse &&  pml.walking == qfalse &&  pm->ps->groundEntityNum == ENTITYNUM_NONE)
-  {
-      pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
-    if (pm->cmd.forwardmove >= 0)
-    {
-      if (pm->cmd.forwardmove == 0 && pm->xyspeed > 350) //bunny hop animation
-      {
-        //PM_ForceLegsAnim(LEGS_IDLE); //removed hypov8 because it allows torso YAW to work while idle
-        PM_ForceLegsAnim(LEGS_LAND);
-        pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-      }
-      else
-      {
-        PM_ForceLegsAnim(LEGS_JUMP);
-        pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-      }
-    }
-    else //if moving backward true
-    {
-      if (pm->xyspeed > 350) //bunny hop backwards
-      {
-        PM_ForceLegsAnim(LEGS_IDLE);
-        pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-      }
-      else
-      {
-        PM_ForceLegsAnim(LEGS_JUMPB);
-        pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-      }
-    }
-  }
-
-
-
 }
 
 /*
@@ -2915,7 +2957,7 @@ void PmoveSingle(pmove_t *pmove)
   pm = pmove;
 
   if (pm->ps->origin[2] < -65500) //hypov8 add: stop player falling for ever. use entities fall off map?
-    pm->ps->origin[2] = 65500;
+    pm->ps->origin[2] += 131000;
 
   // this counter lets us debug movement problems with a journal
   // by setting a conditional breakpoint fot the previous frame
@@ -2990,7 +3032,7 @@ void PmoveSingle(pmove_t *pmove)
   // save old velocity for crashlanding
   VectorCopy(pm->ps->velocity, pml.previous_velocity);
 
-  pml.frametime = pml.msec * 0.001;
+  pml.frametime = (float)pml.msec * 0.001f;
 
   // update the viewangles
   PM_UpdateViewAngles(pm->ps, &pm->cmd);

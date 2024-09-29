@@ -229,9 +229,9 @@ static void CG_DrawPlayerArmorIcon(rectDef_t *rect, qboolean draw2D, armor_t arm
 
   if (draw2D || (!cg_draw3dIcons.integer && cg_drawIcons.integer))
   {                                     // bk001206 - parentheses
-	//CG_DrawPic(rect->x, rect->y + rect->h / 2 + 1, rect->w, rect->h, cgs.media.armorIcon[modelIdx]);
-	//hypov8 add: stretch to fit
-	CG_DrawPic(rect->x, rect->y, rect->w, rect->h, cgs.media.armorIcon[modelIdx]);
+    //CG_DrawPic(rect->x, rect->y + rect->h / 2 + 1, rect->w, rect->h, cgs.media.armorIcon[modelIdx]);
+    //hypov8 add: stretch to fit
+    CG_DrawPic(rect->x, rect->y, rect->w, rect->h, cgs.media.armorIcon[modelIdx]);
   }
   else if (cg_draw3dIcons.integer)
   {

@@ -687,6 +687,10 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
   char            skinClanName[32];
   char            teamName[32];
 
+  //skip spec
+  if (ci->team == TEAM_SPECTATOR)
+    return;
+
   skinClanName[0] = 0;
   teamName[0] = 0;
 
@@ -695,10 +699,12 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
     if (ci->team == TEAM_NIKKIS)
     { //cgs.nikkiTeam
       Q_strncpyz(skinClanName, cg_NikkiTeamName.string, sizeof(skinClanName)); //use local clan names?
+      Q_strncpyz(teamName, TEAM_SKIN_NIKKIS, sizeof(teamName));
     }
     else
     { //cgs.dragonTeam
       Q_strncpyz(skinClanName, cg_DragonTeamName.string, sizeof(skinClanName)); //use local clan names?
+      Q_strncpyz(teamName, TEAM_SKIN_DRAGONS, sizeof(teamName));
     }
   }
   else // !team
@@ -727,12 +733,10 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
       if (ci->team == TEAM_NIKKIS)
       { //cgs.dragonTeam
         Q_strncpyz(skinClanName, DEFAULT_CLAN_NIKKIS, sizeof(skinClanName));
-        Q_strncpyz(teamName, TEAM_SKIN_NIKKIS, sizeof(teamName));
       }
       else
       {
         Q_strncpyz(skinClanName, DEFAULT_CLAN_DRAGONS, sizeof(skinClanName));
-        Q_strncpyz(teamName, TEAM_SKIN_DRAGONS, sizeof(teamName));
       }
 
       if (!CG_RegisterClientModel(ci, DEFAULT_TEAM_MODEL, skinClanName, DEFAULT_TEAM_HEAD, teamName))
@@ -1351,7 +1355,10 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
   
   if(cg_debugPlayerAnim.integer)
   {
-    CG_Printf("player anim: %i\n", newAnimation); //animation (name)
+    if (skel == &legsSkeleton)
+      CG_Printf("player anim: %i (Legs)\n", newAnimation); //animation (name)
+    else
+      CG_Printf("player anim: %i (Torso)\n", newAnimation); //animation (name)
   }
 
 }
@@ -1697,9 +1704,11 @@ static void CG_PlayerAngles(centity_t * cent, const vec3_t sourceAngles, vec3_t 
   //force legs to face correct way when running
   if (legsAnim == LEGS_RUN || legsAnim == LEGS_RUN_BACK ||
     legsAnim == LEGS_WALK || legsAnim == LEGS_WALK_BACK ||
-    legsAnim == LEGS_CR_WALK || legsAnim == LEGS_CR_BACK)
+    legsAnim == LEGS_CR_WALK || legsAnim == LEGS_CR_BACK ||
+    legsAnim == LEGS_BUNNY ||
+    legsAnim == BOTH_LADDER || legsAnim == BOTH_LDR_UP || legsAnim == BOTH_LDR_DN)
   {
-    cent->pe.legs.yawing = qtrue;	// always center
+    cent->pe.legs.yawing = qtrue; // always center
   }
 
   dir = cent->currentState.time2; //time2 = ps->movementDir (fw,bk,l,r)
@@ -3255,7 +3264,6 @@ void CG_TransformSkeletonWithRotations(refSkeleton_t *legSkel, refSkeleton_t *to
     else if (i == headCtrlBone)
     {
       CG_RotateBoneFromAngles_head(legBone->t.rot, headAngles[PITCH], headAngles[YAW], headAngles[ROLL], torsoAngles[PITCH]);
-      //CG_RotateBoneFromAngles(legBone->t.rot, headAngles[PITCH], headAngles[YAW], headAngles[ROLL]);
     }
   }
 

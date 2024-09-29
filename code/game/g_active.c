@@ -1489,8 +1489,6 @@ void ClientThink_real(gentity_t *ent)
 	if (g_bunnyhop.integer == 1)
 		pm.ps->bunnyHop = 1;
 
-	//pm.ps->maxSpeed = g_speed.integer; //hypov8 disabled: G_SPEED_MAX
-
   Pmove(&pm);
 
   // save results of pmove

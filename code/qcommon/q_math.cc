@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 vec3_t vec3_origin = {0, 0, 0};
+vec3_t vec3_up = {0, 0, 1};
 vec3_t   axisDefault[ 3 ] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 matrix_t matrixIdentity = {     1, 0, 0, 0,
                                 0, 1, 0, 0,

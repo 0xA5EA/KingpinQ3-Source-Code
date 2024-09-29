@@ -97,6 +97,7 @@ typedef vec_t vec4_t[4];
 #endif
 
 extern vec3_t vec3_origin;
+extern vec3_t vec3_up;
 
 #define	EQUAL_EPSILON	0.001
 
