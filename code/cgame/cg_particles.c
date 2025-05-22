@@ -117,61 +117,41 @@ CG_GrenadeParticleTrail
 hypov8 grenade spawn smoke for each particle
 ==========================
 */
-static void CG_GrenadeParticleTrail(cparticle_t *p, vec3_t origin)
+void CG_GrenadeParticleTrail(localEntity_t *le, vec3_t origin)
 {
-  //int step;
-  //vec3_t /*origin,*/ lastPos;
-  int t;
-  int contents; // startTime
-  int lastContents;
-  vec3_t up = { 0, 0, 0 };
-  localEntity_t *smoke;
-  qhandle_t smokePuffshader;
+  cparticle_t *p;
+  float life, time1, time2;
 
   if (cg_noProjectileTrail.integer)
     return;
 
-  //step = 10;
-
-  //t = step * ((cg.time + step) / step);
-  t = cg.time;
-
-  contents = CG_PointContents(origin, -1);
-  lastContents = CG_PointContents(p->org, -1);
-  if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
-  {
-    if (contents & lastContents & CONTENTS_WATER)
-      CG_BubbleTrail(p->oldOrg, origin, 8);
+  //spawn flame particle
+  p = CG_AllocParticle();
+  if (!p)
     return;
-  }
-  smokePuffshader = cgs.media.smokePuffRlShader;
-  //smokePuffshader = cgs.media.onFireShader1;
-  //smokePuffshader = cgs.media.onFireShader2;
-  //smokePuffshader = cgs.media.sparkFlareShader;
-  //smokePuffshader = cgs.media.sparkShader;
-  //smokePuffshader = cgs.media.friendShader;
-  //smokePuffshader = cgs.media.smokePuffShader;
 
-  //for (; t <= p->time; t += step)
-    if (p->smokeDelayTime < cg.time )
-  {
-    //      CG_SmokePuff(vec3_t p, vec3_t vel, float radius, r, g, b, a,	duration,	startTime, fadeInTime, leFlags, hShader)
-    smoke = CG_SmokePuff(origin,		up,				2, 1, 1, 1, 0.88f,   500,			t,		0,			0,		smokePuffshader);
-    smoke->leType = LE_SPRITE_EXPLOSION2; // LE_EXPLOSION;// LE_SCALE_FADE; //
+  time1 = cg.time - le->startTime;
+  time2 = le->endTime - le->startTime;
+  life  = 1 - (time1 / time2); //invert, larger at end
 
-    if (!p->smokeRandTime2)
-    {
-      p->smokeRandTime2 = random();// *.5 + 0.1;//0.3f;
-      if (p->smokeRandTime2 > 1.0f)
-        p->smokeRandTime2 = 1.0f;
-    }
-    smoke->smokeRandTime = p->smokeRandTime2;
-
-    p->smokeDelayTime = cg.time + 10;
-  }
+  p->color[3]    = 1.0;
+  p->colorVel[3] = -1.f;
+  p->roll        = 0;
+  p->flags       = PF_EMBER_SMOKE;
+  //p->pshader = cgs.media.smokePuffShader;
+  //p->pshader = cgs.media.smokePuffRlShader;
+  //p->pshader = cgs.media.grenadeExplosionShader; //"grenadeExplosion"
+  p->pshader = cgs.media.smokeGLShader[0];
+  p->endTime = cg.time + 500 + 1000 * life;
+  /////////////p->startfade = cg.time +250 + 500*life_dn;
+  //size
+  p->width = p->height = 2;// +10 * life_dn;
+  p->endHeight = p->endWidth = 2 + 15 * life; //less smoke at end
+  p->type = P_SMOKE;
+  p->rotate = qtrue; //scale
+  VectorCopy(origin, p->oldOrg);
+  VectorCopy(origin, p->org);
 }
-
-
 
 
 /*
@@ -182,16 +162,19 @@ CG_AddParticleToScene
 void CG_AddParticleToScene(cparticle_t *p, vec3_t org, vec4_t color)
 {
   vec3_t point;
-  polyVert_t verts[4] = { 0, 0, 0, 0 }; // add hypov8 0
+  polyVert_t verts[4];
   float width;
   float height;
   float time, time2;
   float ratio;
   float invratio;
-  polyVert_t TRIverts[3] = { 0, 0, 0 }; //hypov8 initialized
+  polyVert_t TRIverts[3];
   vec3_t rright2, rup2;
   axis_t axis;
   vec3_t oldOrigin;
+
+  Com_Memset(&verts, 0, sizeof(verts));
+  Com_Memset(&TRIverts, 0, sizeof(TRIverts));
 
   if (p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY
       || p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT)
@@ -441,6 +424,14 @@ void CG_AddParticleToScene(cparticle_t *p, vec3_t org, vec4_t color)
     time2 = p->endTime - p->time;
     ratio = time / time2;
 
+    //swap shader
+    if (p->flags & PF_EMBER_SMOKE)
+    {
+      int index = (int)floorf(ratio*6.0f);
+      index = Q_clamp(0,index,5);
+      p->pshader = cgs.media.smokeGLShader[index];
+    }
+
     if (cg.time > p->startfade)
     {
       invratio = 1 - ((cg.time - p->startfade) / (p->endTime - p->startfade));
@@ -622,15 +613,11 @@ void CG_AddParticleToScene(cparticle_t *p, vec3_t org, vec4_t color)
     verts[3].modulate[2] = 255 * color[2];
     verts[3].modulate[3] = 255;
   }
-  else if (p->type == P_SPARK || p->type == P_BLOOD
-      || p->type == P_SPARK_SMOKE) //add hypov8
+  else if (p->type == P_SPARK || p->type == P_BLOOD)
   {
     time  = cg.time - p->time;
     time2 = p->endTime - p->time;
     ratio = time / time2;
-
-    if (p->type == P_SPARK_SMOKE)
-      CG_GrenadeParticleTrail(p, org);
 
     /*
        if(cg.time > p->startfade)
@@ -867,7 +854,6 @@ void CG_AddParticles(void)
   vec3_t org;
   vec4_t color;
   cparticle_t *active, *tail;
-  int type;
   vec3_t rotate_ang;
   int contents;
 
@@ -916,7 +902,8 @@ void CG_AddParticles(void)
       continue;
     }
 
-    if (p->type == P_SMOKE || p->type == P_BLOOD || p->type == P_SMOKE_IMPACT || p->type == P_SPARK)
+    if (p->type == P_SMOKE || p->type == P_BLOOD || p->type == P_SMOKE_IMPACT || p->type == P_SPARK ||
+      p->type == P_SPRITE)
     {
       if (cg.time > p->endTime)
       {
@@ -977,7 +964,7 @@ void CG_AddParticles(void)
     {
       contents = trap_CM_PointContents(org, 0);
       // kill all particles in solid
-      if(contents & MASK_SOLID)
+      if(!p->bounceFactor && contents & MASK_SOLID)
       {
         CG_FreeParticle(p);
         continue;
@@ -999,10 +986,13 @@ void CG_AddParticles(void)
         float time;
 
         CG_Trace(&trace, p->oldOrg, NULL, NULL, org, -1, CONTENTS_SOLID);
-
         //trap_CM_BoxTrace(&trace, p->oldOrg, org, NULL, NULL, 0, CONTENTS_SOLID);
         //trace.entityNum = trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
-
+        if (trace.allsolid || trace.startsolid)
+        { 
+          CG_FreeParticle(p);
+          continue;
+        }
         if (trace.fraction > 0 && trace.fraction < 1)
         {
           // reflect the velocity on the trace plane
@@ -1015,7 +1005,7 @@ void CG_AddParticles(void)
           VectorScale(p->vel, p->bounceFactor, p->vel);
 
           // check for stop, making sure that even on low FPS systems it doesn't bobble
-          if (trace.allsolid || (trace.plane.normal[2] > 0 && (p->vel[2] < 40 || p->vel[2] < -cg.frametime * p->vel[2])))
+          if (/*trace.allsolid ||*/ (trace.plane.normal[2] > 0 && (p->vel[2] < 40 || p->vel[2] < -cg.frametime * p->vel[2])))
           {
             //if(p->vel[2] > 0.9)
             {
@@ -1056,8 +1046,6 @@ void CG_AddParticles(void)
       tail       = p;
     }
 
-    type = p->type;
-    (void)type; //shutup compiler
     CG_AddParticleToScene(p, org, color);
   }
 
@@ -1257,8 +1245,6 @@ void CG_ParticleSmoke(qhandle_t pshader, centity_t *cent)
 
   if (!p)
     return;
-
-  p->time = cg.time;
 
   p->endTime   = cg.time + cent->currentState.time;
   p->startfade = cg.time + cent->currentState.time2;
@@ -2003,64 +1989,6 @@ void CG_ParticleSparks2(vec3_t org, vec3_t dir, int count)
   }
 }
 
-//hypov8 add grenade
-void CG_ParticleGrenade(vec3_t org, vec3_t dir)
-{
-  int i, j;
-  cparticle_t *p;
-  float d;
-  int count = 40 ;//rand() & 30
-  for (i = 0; i < count; i++)
-  {
-    p = CG_AllocParticle();
-    if (!p)
-      return;
-
-    //p->flags = 1 | 2 | 3 | 4 | 5 | 6; PARTICLE_OVERBRIGHT | PARTICLE_DIRECTIONAL /* |PARTICLE_BOUNCE */;
-    //p->flags = PARTICLE_OVERBRIGHT | PARTICLE_DIRECTIONAL /* |PARTICLE_BOUNCE */ ;
-    //p->flags = PARTICLE_BOUNCE;
-    p->endTime = cg.time + 20000;
-
-    p->color[0] = 1;
-    p->color[1] = 1;
-    p->color[2] = 0.3f;
-    p->color[3] = 1.0;
-
-    p->colorVel[0] = 0;
-    p->colorVel[1] = -1;
-    p->colorVel[2] = -1.5;
-    p->colorVel[3] = -1.0 / (1.5 + random() * 1.666);
-
-    p->height = 4;	//5.4f
-    p->width = 4;	//18
-    p->endHeight = 8;	//25
-    p->endWidth = 8;	//80
-
-    p->pshader = cgs.media.sparkShader;
-
-    p->bounceFactor = 0.5f; //hypo
-
-    p->type = P_SPARK_SMOKE; //hypo
-    //p->type = P_LIGHTSPARK; // P_SMOKE_IMPACT; // P_SPRITE; // P_SMOKE;
-
-    d = rand() & 7;
-    for (j = 0; j < 3; j++)
-    {
-      p->org[j] = org[j] + ((rand() & 7) - 4) + d * dir[j];
-      p->vel[j] = crandom() * 250;
-      if (j==2)
-        p->vel[j] = rand() & 450;
-    }
-
-    p->accel[0] = p->accel[1] = 0;
-    p->accel[2] = -PARTICLE_GRAVITY * 10;
-
-    VectorCopy(p->org, p->oldOrg);
-  }
-}
-
-
-
 void CG_ParticleDust(centity_t *cent, vec3_t origin, vec3_t dir)
 {
   float length;
@@ -2148,6 +2076,49 @@ void CG_ParticleDust(centity_t *cent, vec3_t origin, vec3_t dir)
 
     p->color[3] = 0.75;
   }
+}
+
+/*
+CG_ParticleMiscScale
+P_SPRITE
+*/
+void CG_ParticleMiscScale(qhandle_t pshader, vec3_t origin, int duration,
+  int sizeStart, int sizeEnd, float startAlpha, float endAlpha)
+{
+  cparticle_t *p;
+
+  if (!pshader)
+    CG_Printf("CG_ParticleMisc pshader == ZERO!\n");
+
+  p = CG_AllocParticle();
+  if (!p)
+    return;
+  Vector4Set(p->color, startAlpha, startAlpha, startAlpha, startAlpha);
+  //p->color[3]    = startAlpha;
+  Vector4Set(p->colorVel, endAlpha, endAlpha, endAlpha, endAlpha);
+  //p->colorVel[3] = endAlpha;
+  p->roll = 0; // rand() % 179;
+
+  p->pshader = pshader;
+
+  if (duration > 0)
+    p->endTime = cg.time + duration;
+  else
+    p->endTime = duration;
+
+  p->startfade = cg.time;
+
+  p->width  = sizeStart;
+  p->height = sizeStart;
+
+  p->endHeight = sizeEnd;
+  p->endWidth  = sizeEnd;
+
+  p->type = P_SMOKE; // P_SPRITE;
+
+  VectorCopy(origin, p->org);
+
+  p->rotate = qtrue;
 }
 
 void CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha)
@@ -2642,7 +2613,6 @@ void CG_TestTeleportEffect_f(void)
  VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], start);
  CG_ParticleTeleportEffect(start);
 }
-
 
 
 /*

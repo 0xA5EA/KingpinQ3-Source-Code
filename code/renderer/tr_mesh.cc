@@ -245,11 +245,11 @@ static shader_t *GetMDVSurfaceShader( const trRefEntity_t *ent, mdvSurface_t *md
 
 		if ( shader == tr.defaultShader )
 		{
-			ri.Printf( PRINT_DEVELOPER, "WARNING: no shader for surface %s in skin %s\n", mdvSurface->name, skin->name );
+			ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: no shader for surface %s in skin %s\n", mdvSurface->name, skin->name );
 		}
 		else if ( shader->defaultShader )
 		{
-			ri.Printf( PRINT_DEVELOPER, "WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
+			ri.Printf( PRINT_DEVELOPER, "[skipnotify]WARNING: shader %s in skin %s not found\n", shader->name, skin->name );
 		}
 	}
 	else
@@ -291,7 +291,7 @@ void R_AddMDVSurfaces( trRefEntity_t *ent )
 	}
 	else
 	{
-		lod = R_ComputeLOD( ent );
+		lod = R_ComputeLOD( ent ); //hypov8 todo: does lod work?
 	}
 
 	// Validate the frames so there is no chance of a crash.

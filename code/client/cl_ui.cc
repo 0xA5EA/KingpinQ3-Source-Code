@@ -109,24 +109,24 @@ static void LAN_ResetPings(int source)
 
   switch (source)
   {
-  case AS_LOCAL:
-    servers = &cls.localServers[0];
-    count   = MAX_OTHER_SERVERS;
-    break;
-  //case AS_MPLAYER:
-  case AS_GLOBAL:
-  case AS_GLOBAL1:
-  case AS_GLOBAL2:
-  case AS_GLOBAL3:
-  case AS_GLOBAL4:
-  case AS_GLOBAL5:
-    servers = &cls.globalServers[0];
-    count   = MAX_GLOBAL_SERVERS;
-    break;
-  case AS_FAVORITES:
-    servers = &cls.favoriteServers[0];
-    count   = MAX_OTHER_SERVERS;
-    break;
+    case AS_LOCAL:
+      servers = &cls.localServers[0];
+      count = MAX_OTHER_SERVERS;
+      break;
+      //case AS_MPLAYER:
+    case AS_GLOBAL:
+    case AS_GLOBAL1:
+    case AS_GLOBAL2:
+    case AS_GLOBAL3:
+    case AS_GLOBAL4:
+    case AS_GLOBAL5:
+      servers = &cls.globalServers[0];
+      count = MAX_GLOBAL_SERVERS;
+      break;
+    case AS_FAVORITES:
+      servers = &cls.favoriteServers[0];
+      count = MAX_OTHER_SERVERS;
+      break;
   }
   if (servers)
   {
@@ -606,12 +606,12 @@ static void LAN_MarkServerVisible(int source, int n, qboolean visible)
       server = &cls.localServers[0];
       break;
     //case AS_MPLAYER:
-	case AS_GLOBAL:
-	case AS_GLOBAL1:
-	case AS_GLOBAL2:
-	case AS_GLOBAL3:
-	case AS_GLOBAL4:
-	case AS_GLOBAL5:
+    case AS_GLOBAL:
+    case AS_GLOBAL1:
+    case AS_GLOBAL2:
+    case AS_GLOBAL3:
+    case AS_GLOBAL4:
+    case AS_GLOBAL5:
       server = &cls.globalServers[0];
       count  = MAX_GLOBAL_SERVERS;
       break;
@@ -638,12 +638,12 @@ static void LAN_MarkServerVisible(int source, int n, qboolean visible)
       }
       break;
     //case AS_MPLAYER:
-	case AS_GLOBAL:
-	case AS_GLOBAL1:
-	case AS_GLOBAL2:
-	case AS_GLOBAL3:
-	case AS_GLOBAL4:
-	case AS_GLOBAL5:
+    case AS_GLOBAL:
+    case AS_GLOBAL1:
+    case AS_GLOBAL2:
+    case AS_GLOBAL3:
+    case AS_GLOBAL4:
+    case AS_GLOBAL5:
       if (n >= 0 && n < MAX_GLOBAL_SERVERS)
       {
         cls.globalServers[n].visible = visible;

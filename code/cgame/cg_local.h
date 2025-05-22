@@ -131,8 +131,9 @@ typedef struct
 // particle flags
 enum
 {
-  PF_UNDERWATER = (1 << 0),
-  PF_AIRONLY    = (1 << 1),
+  PF_UNDERWATER  = (1 << 0),
+  PF_AIRONLY     = (1 << 1),
+  PF_EMBER_SMOKE = (1 << 2),
 };
 
 typedef enum
@@ -151,7 +152,6 @@ typedef enum
   P_BUBBLE_TURBULENT,
   P_SPRITE,
   P_SPARK,
-  P_SPARK_SMOKE, //hypov8 add smoke to particles for nad
   P_LIGHTSPARK
 } particleType_t;
 
@@ -194,9 +194,6 @@ typedef struct particle_s
   int accumroll;
 
   float bounceFactor;  // 0.0 = no bounce, 1.0 = perfect
-
-  int smokeDelayTime; //add hypov8
-  float smokeRandTime2; //add hypov8
 
   struct particle_s *next;
 } cparticle_t;
@@ -384,7 +381,8 @@ typedef enum
   LE_MARK,
   LE_EXPLOSION,
   LE_SPRITE_EXPLOSION,
-  LE_SPRITE_EXPLOSION2, //add hypov8 smaller
+  LE_SPRITE_FIREBALL, //add hypov8. sizeable explosion
+  LE_SPRITE_EMBER, //add hypov8 smaller
   LE_FRAGMENT,
   LE_MOVE_SCALE_FADE,
   LE_FALL_SCALE_FADE,
@@ -405,6 +403,7 @@ typedef enum
 {
   LEF_PUFF_DONT_SCALE = 0x0001,          // do not scale size over time
   LEF_TUMBLE          = 0x0002,          // tumble over time, used for ejecting shells
+  LEF_EMBER           = 0x0004,          //reduce only z velocity on bounce
 #ifdef USE_KAMIKAZE
   LEF_SOUND1          = 0x0004,          // sound 1 for kamikaze
   LEF_SOUND2          = 0x0008           // sound 2 for kamikaze
@@ -448,8 +447,6 @@ typedef struct localEntity_s
 
   float light;
   vec3_t lightColor;
-
-  float smokeRandTime; //add hypov8
 
   leMarkType_t leMarkType;               // mark to leave on fragment impact
   leBounceSoundType_t leBounceSoundType;
@@ -626,7 +623,7 @@ typedef struct weaponInfo_s
   animation_t  animations[MAX_WEAPON_STATES];
 
   float flashDlight;
-  vec3_t flashDlightColor;
+  vec3_t flashDlightColor; //muzzleflash color
   sfxHandle_t flashSound[MAX_FLASH_SOUNDS];   // fast firing weapons randomly choose	0xA5EA, war 2
 
   qhandle_t missileModel;
@@ -1009,6 +1006,7 @@ typedef struct
   qhandle_t smoke2;
 
   qhandle_t machinegunBrassModel;
+  qhandle_t rifleBrassModel;
   qhandle_t shotgunBrassModel;
 
   qhandle_t railRingsShader;
@@ -1102,6 +1100,9 @@ typedef struct
   qhandle_t dishFlashModel;
   qhandle_t lightningExplosionModel;
 
+  //qhandle_t grenadeExplodeModel; //grenade
+
+
   // weapon effect shaders
   qhandle_t railExplosionShader;
   qhandle_t plasmaExplosionShader;
@@ -1111,7 +1112,11 @@ typedef struct
   qhandle_t bfgExplosionShader;
   qhandle_t bloodExplosionShader;
 
-  qhandle_t rocketFirePartShader;
+  //qhandle_t rocketFirePartShader;
+  qhandle_t grenadeExplodeShader1;
+  //qhandle_t grenadeExplodeShader2;
+  qhandle_t grenadeEmberShader;
+
 
   // special effects models
   qhandle_t teleportEffectModel;
@@ -1894,19 +1899,21 @@ void CG_FreeParticle(cparticle_t *p);
 void CG_AddParticles(void);
 void CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum);
 void CG_ParticleSmoke(qhandle_t pshader, centity_t *cent);
-void CG_AddParticleShrapnel(localEntity_t *le);
+//void CG_AddParticleShrapnel(localEntity_t *le);
 void CG_ParticleSnowFlurry(qhandle_t pshader, centity_t *cent);
 void CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin);
 void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration);
 void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
 void CG_ParticleDust(centity_t *cent, vec3_t origin, vec3_t dir);
 void CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
+void CG_ParticleMiscScale(qhandle_t pshader, vec3_t origin, int duration, int sizeStart, int sizeEnd, float startAlpha, float endAlpha);
 void CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
 //extern qboolean		initparticles;
 int CG_NewParticleArea(int num);
 void CG_ParticleRick(vec3_t org, vec3_t dir);
-void CG_ParticleGrenade(vec3_t org, vec3_t dir);
+//void CG_ParticleGrenade(vec3_t org, vec3_t dir);
 void CG_ParticleBlood(vec3_t org, vec3_t dir, int count);
+void CG_GrenadeParticleTrail(localEntity_t *le, vec3_t origin);
 #ifdef CGAME_TEST_PARTICLES
 void CG_TestParticles_f(void);
 void CG_TestBloodCloud_f(void);
@@ -1954,13 +1961,12 @@ void CG_InvulnerabilityJuiced(vec3_t org);
 void CG_LightningBoltBeam(vec3_t start, vec3_t end);
 #endif
 void CG_ScorePlum(int client, vec3_t org, int score);
-
 void CG_GibPlayer(vec3_t playerOrigin);
 void CG_BigExplode(vec3_t playerOrigin);
-
 void CG_Bleed(vec3_t origin, int entityNum);
-
 localEntity_t *CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, qhandle_t shader, int msec, qboolean isSprite);
+void CG_Fireball(qhandle_t pshader, vec3_t origin, int duration, int sizeStart, int sizeEnd, float startAlpha, float endAlpha);
+void CG_ExplosionSplash(vec3_t org, vec3_t surfaceDir, int count);
 
 //
 // cg_snapshot.c

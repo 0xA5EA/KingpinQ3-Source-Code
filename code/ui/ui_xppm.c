@@ -250,15 +250,14 @@ UI_XPPM_RegisterModel
 ==========================
 */
 
-qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName, const char *clanName)
+qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const char *skinName, const char *clanName, const char *teamName)
 {
-  char            filename[MAX_QPATH * 2];
+  char filename[MAX_QPATH * 2], team[32];
+
 
   Com_sprintf(filename, sizeof(filename), "models/players/%s/body.md5mesh", modelName);
-
   Com_Printf("UI_XPPM: Loading model %s\n", filename);
-
-  pi->bodyModel = trap_R_RegisterModel(filename); //remove hypov8 , qfalse);
+  pi->bodyModel = trap_R_RegisterModel(filename);
 
   if (!pi->bodyModel)
   {
@@ -297,9 +296,15 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
   //UI_XPPM_RegisterPlayerAnimation(pi, modelName, TORSO_STAND3,   "tor_idle3",    qtrue, qfalse, qfalse); //crowbar
 
   //team skin
-  if (clanName[0] != '\0')
+  if (clanName[0] || teamName[0] != '\0')
+  {
     //Com_sprintf(filename, sizeof(filename), "models/players/%s/team_%s_%s.skin", modelName, skinName, teamName);
-    Com_sprintf(filename, sizeof(filename), "models/players/%s/clans/%s/%s.skin", modelName, clanName, TEAM_SKIN_DRAGONS); //default to red  in menu
+    if (!Q_stricmp(teamName, TEAM_SKIN_NIKKIS))
+      Q_strncpyz(team, teamName, sizeof(team));
+    else
+      Q_strncpyz(team, TEAM_SKIN_DRAGONS, sizeof(team));
+    Com_sprintf(filename, sizeof(filename), "models/players/%s/clans/%s/%s.skin", modelName, clanName, team); //default to red  in menu
+  }
   else
     Com_sprintf(filename, sizeof(filename), "models/players/%s/body_%s.skin", modelName, skinName);
 
@@ -655,7 +660,7 @@ tag location
 */
 void UI_XPPM_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName)
 {
-  int i;
+  int i, tagIndex;
   orientation_t lerped;
   vec3_t tempAxis[3];
 
@@ -663,22 +668,24 @@ void UI_XPPM_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *
 //AxisClear( entity->axis );
   // lerp the tag
 #if defined(COMPAT_KPQ3) || defined(COMPAT_ET)
-  trap_R_LerpTag( &lerped, parent, tagName, 0 );
+  tagIndex = trap_R_LerpTag( &lerped, parent, tagName, 0 );
 #else
-  trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
+  tagIndex = trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
 #endif
 
-  // FIXME: allow origin offsets along tag?
   VectorCopy(parent->origin, entity->origin);
 
-  for (i = 0; i < 3; i++)
+  if (tagIndex)
   {
-    VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
-  }
+    for (i = 0; i < 3; i++)
+    {
+      VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
+    }
 
-  // had to cast away the const to avoid compiler problems...
-  AxisMultiply(entity->axis, lerped.axis, tempAxis);
-  AxisMultiply(tempAxis, ((refEntity_t *)parent)->axis, entity->axis);
+    // had to cast away the const to avoid compiler problems...
+    AxisMultiply(entity->axis, lerped.axis, tempAxis);
+    AxisMultiply(tempAxis, ((refEntity_t *)parent)->axis, entity->axis);
+  }
 }
 
 //add hypov8

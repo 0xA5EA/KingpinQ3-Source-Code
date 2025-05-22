@@ -127,7 +127,7 @@ localEntity_t *CG_SmokePuff(const vec3_t p, const vec3_t vel, float radius, floa
   re             = &le->refEntity;
   re->rotation   = Q_random(&seed) * 360;
   re->radius     = radius;
-  re->shaderTime = startTime / 1000.0f;
+  re->shaderTime = startTime / 1000.0f; //check calling value
 
   le->leType     = LE_MOVE_SCALE_FADE;
   le->startTime  = startTime;
@@ -372,7 +372,7 @@ static void CG_LaunchGib(const vec3_t origin, vec3_t velocity, qhandle_t hModel)
   AxisCopy(axisDefault, re->axis);
   re->hModel = hModel;
   re->reType     = RT_MODEL;
-  re->shaderTime = le->endTime - le->startTime;
+  re->shaderTime = le->endTime - le->startTime; //check this
 
   le->pos.trType = TR_GRAVITY;
   VectorCopy(origin, le->pos.trBase);
@@ -530,6 +530,89 @@ void CG_BigExplode(vec3_t playerOrigin)
   velocity[1] = crandom() * EXP_VELOCITY * 2.5;
   velocity[2] = EXP_JUMP + crandom() * EXP_VELOCITY;
   CG_LaunchExplode(origin, velocity, cgs.media.smoke2);
+}
+
+void CG_Fireball(qhandle_t pshader, vec3_t origin, int duration,
+  int sizeStart, int sizeEnd, float startAlpha, float endAlpha)
+{
+  localEntity_t *le;
+  refEntity_t *re;
+
+  le            = CG_AllocLocalEntity();
+  le->leFlags   = (sizeStart == sizeEnd)? LEF_PUFF_DONT_SCALE: 0;
+  le->leType    = LE_SPRITE_FIREBALL;
+  le->startTime = cg.time;
+  le->endTime   = cg.time + duration;
+  le->lifeRate  = 1.0f / (le->endTime - le->startTime);
+  le->color[0]  = le->color[1] = le->color[2] = le->color[3] = 1.0;
+  le->radius = sizeStart;
+  le->pos.trType = TR_LINEAR;
+  VectorCopy(origin, le->pos.trBase);
+  VectorSet(le->pos.trDelta, 0, 0, sizeStart);
+  le->pos.trTime = cg.time; 
+
+  re = &le->refEntity;
+  re->reType = RT_SPRITE; // RT_MODEL;
+  re->shaderTime = cg.time / 1000.0f;
+  re->customShader = pshader;
+
+  //re->hModel = cgs.media.teleportEffectModel;
+  AxisClear(re->axis);
+
+  VectorCopy(origin, re->origin);
+}
+
+
+void CG_ExplosionSplash(vec3_t org, vec3_t surfaceDir, int count)
+{
+  localEntity_t *le;
+  refEntity_t *re;
+  matrix_t mat;
+  vec3_t velocity;
+  int i;
+  float r360 = 360/count;
+  float rndFrc = r360 / 3.f;
+  float negGravity = DotProduct(vec3_up, surfaceDir);
+  negGravity = negGravity * 0.25f + 0.75f;
+
+  for (i = 0; i < count; i++)
+  {
+    le = CG_AllocLocalEntity();
+    re = &le->refEntity;
+
+    re->reType        = RT_SPRITE;
+    re->rotation      = 0;
+    re->radius        = 1;
+    re->customShader  = cgs.media.grenadeEmberShader; // cgs.media.sparkShader;
+    re->shaderRGBA[0] = 0xff;
+    re->shaderRGBA[1] = 0xff;
+    re->shaderRGBA[2] = 0xff;
+    re->shaderRGBA[3] = 0xff;
+    VectorCopy(org, re->origin);
+    AxisCopy(axisDefault, re->axis);
+    MatrixFromAngles(mat, 
+      45 + crandom() * 40,          //pitch 0=up (10-60deg)
+      i*r360 + crandom() * rndFrc,  //yaw. make sure 360deg is filled
+      0);                           //roll
+    MatrixToVectorsFRU(mat, NULL, NULL, velocity);
+    //VectorMA(velocity, 1.f, surfaceDir, velocity); //add surface dir
+    VectorNormalize(velocity);
+
+    VectorScale(velocity, 350 *negGravity  + crandom() * 100, velocity);
+    VectorCopy(velocity, le->pos.trDelta);
+    VectorCopy(org, le->pos.trBase);
+
+    le->pos.trType = TR_GRAVITY;
+    le->leFlags    = LEF_PUFF_DONT_SCALE | LEF_EMBER; 
+    le->leType     = LE_SPRITE_EMBER; //CG_GrenadeParticleTrail
+    Vector4Set(le->color, 1.0f, 1.0f, 1.0f, 1.0f);
+
+    le->pos.trTime   = cg.time;
+    le->startTime    = cg.time;
+    le->endTime      = cg.time + (abs(velocity[0])+abs(velocity[1])+abs(velocity[2]))*3;
+    le->bounceFactor = 0.4f;
+    le->lifeRate     = 1.0 / (le->endTime - le->startTime);
+  }
 }
 
 

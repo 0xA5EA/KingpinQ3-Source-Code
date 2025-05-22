@@ -200,7 +200,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	cvar_t      *r_customwidth;
 	cvar_t      *r_customheight;
 	cvar_t      *r_customaspect;
-
+#ifdef COMPAT_KPQ3
+	cvar_t      *r_vidpos_x;
+	cvar_t      *r_vidpos_y;
+#endif
 	cvar_t      *r_overBrightBits;
 	cvar_t      *r_mapOverBrightBits;
 
@@ -1407,6 +1410,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		r_customwidth = ri.Cvar_Get( "r_customwidth", "800", CVAR_ARCHIVE | CVAR_LATCH );//1600
 		r_customheight = ri.Cvar_Get( "r_customheight", "600", CVAR_ARCHIVE | CVAR_LATCH );//1024
 		r_customaspect = ri.Cvar_Get( "r_customaspect", "1", CVAR_ARCHIVE | CVAR_LATCH );
+#ifdef COMPAT_KPQ3
+		r_vidpos_x = ri.Cvar_Get( "r_vidPosX", "100", CVAR_ARCHIVE ); //todo
+		r_vidpos_y = ri.Cvar_Get( "r_vidPosY", "100", CVAR_ARCHIVE );
+#endif
 		r_simpleMipMaps = ri.Cvar_Get( "r_simpleMipMaps", "0", CVAR_ARCHIVE | CVAR_LATCH );
 		r_subdivisions = ri.Cvar_Get( "r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH );
 		r_parallaxMapping = ri.Cvar_Get( "r_parallaxMapping", "0", CVAR_ARCHIVE );

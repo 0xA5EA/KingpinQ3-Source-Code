@@ -388,8 +388,15 @@ void G_ExplodeMissile(gentity_t *ent)
 {
   vec3_t dir;
   vec3_t origin;
+  trace_t tr;
+  //int passent;
 
   BG_EvaluateTrajectory(&ent->s.pos, level.time, origin);
+
+  //fix it going through floor before exploding
+  trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, NULL, ent->clipmask);
+  VectorCopy(tr.endpos, origin);
+
   SnapVector(origin);
   G_SetOrigin(ent, origin);
 
@@ -949,12 +956,14 @@ gentity_t *fire_grenade(gentity_t *self, vec3_t start, vec3_t dir)
   bolt->r.svFlags  = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon   = WP_GRENADE_LAUNCHER;
   bolt->s.eFlags   = EF_BOUNCE_HALF;
+
   bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
   // we'll need this for nudging projectiles later
   bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
   bolt->parent     = self;
+  bolt->s.modelindex = self->client->sess.sessionTeam; //store team in model index(dynamic light color)
 
   bolt->damage              = damage;
   bolt->splashDamage        = damage;
@@ -1003,6 +1012,7 @@ gentity_t *fire_rocket(gentity_t *self, vec3_t start, vec3_t dir)
   bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
   bolt->parent     = self;
+  bolt->s.modelindex = self->client->sess.sessionTeam; //store team in model index(dynamic light color)
   bolt->damage     = 100 + (int)(random() * 20.0);            // 0xA5EA, kp-damage, orignal 100; was 110 + (int)(random() * 20.0) -KRYPTYK
 
   bolt->splashDamage = 120;                                   // 0xA5EA kp-value, orginal 100; was 80 -KRYPTYK

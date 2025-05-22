@@ -31,6 +31,7 @@ const vec3_t playerMins = { -15, -15, -24 };
 const vec3_t playerMaxs = { 15, 15, 48 };
 //FIXME(0xA5EA): added different player min max, das that fit ??
 
+#define BUNNY_MIN_SPEED (pm->ps->speed*1.2f)
 
 pmove_t *pm;
 pml_t pml;
@@ -46,7 +47,7 @@ float pm_wadeScale = 0.70f;
 float pm_airaccelerate    = 4.0f;        /* 0xA5EA */
 float pm_wateraccelerate  = 4.0f;
 float pm_flyaccelerate    = 8.0f;
-float pm_ladderAccelerate = 3000;        // The acceleration to friction ratio is 1:1
+float pm_ladderAccelerate = 10.f; // 3000;        // The acceleration to friction ratio is 1:1
 
 #if 0
 float pm_maxspeed     = 320;             /* 0xA5EA  */
@@ -277,34 +278,41 @@ Slide off of the impacting surface
 */
 void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
-#ifdef KINGPIN_PLAYERMOVE
+#if 0 //def KINGPIN_PLAYERMOVE
   // dont slow down going up ramps
   // allow speed up going down ramps
-  vec3_t tmpOut;
+  vec3_t tmpOut, newNorm;
   float  xySpeedIn = sqrt(in[0] * in[0] + in[1] * in[1]), xySpeedOut;
+  float  xySpeedIn2 = sqrt(in[0] * in[0] + in[1] * in[1] + in[2] * in[2]), xySpeedOut2;
+  float xyz = VectorLength(in), xyzOut, speedUp;
   float slope = DotProduct(vec3_up, normal); // 1.0 is flat ground, 0.75=45deg
   float t = -DotProduct( in, normal );
+  int i;
 
   VectorMA(in, t, normal, tmpOut);
-   xySpeedOut = sqrt(tmpOut[0] * tmpOut[0] + tmpOut[1] * tmpOut[1]);
+  xyzOut = VectorLength(tmpOut);
+  xySpeedOut = sqrt(tmpOut[0] * tmpOut[0] + tmpOut[1] * tmpOut[1]);
+  xySpeedOut2 = sqrt(tmpOut[0] * tmpOut[0] + tmpOut[1] * tmpOut[1] + tmpOut[2] * tmpOut[2]);
 
-  if (xySpeedOut > xySpeedIn)
-  { 
-    // going down a ramp. speed up
+  if (slope > MIN_WALK_NORMAL && xySpeedOut < xySpeedIn)
+  {
+    speedUp = xySpeedIn - xySpeedOut;
+    speedUp *= slope;
+    VectorNormalize2(tmpOut, newNorm);
+    VectorMA(tmpOut, speedUp, newNorm, tmpOut);
+  }
+  else //if (slope < 0.75f || pm->waterlevel) //MIN_WALK_NORMAL
+  {
+    // reduce velocity. follow plane dir
     VectorCopy(tmpOut, out);
   }
-  else if (slope < 0.75f)
-  {
-    // reduce velocity
-    VectorCopy(tmpOut, out);
-  }
-  else
-  {
-    //keep speed
-    VectorCopy(in, out);
-  }
 
-
+/*#define STOP_EPSILON 0.1f
+  for (i = 0; i < 3; i++)
+  {
+    if (out[i] > -STOP_EPSILON && out[i] < STOP_EPSILON)
+      out[i] = 0;
+  }*/
 
 #elif 0 //ndef KINGPIN_PLAYERMOVE //hypov8 causing wird walking constraints and stoping view up/down
   float backoff;
@@ -361,20 +369,22 @@ Handles both ground friction and water friction
 */
 static void PM_Friction(void)
 {
-  vec3_t vec;
+  //vec3_t vec;
   float *vel;
   float speed, newspeed, control;
   float drop;
 
   vel = pm->ps->velocity;
-
+#ifdef KINGPIN_PLAYERMOVE
+  speed = VectorLength(vel);
+#else
   VectorCopy(vel, vec);
   if (pml.walking)
   {
     vec[2] = 0;     // ignore slope movement // hab ich probiert, aendert nix
   }
-
   speed = VectorLength(vec);
+#endif
   if (speed < 1)
   {
     vel[0] = 0;
@@ -388,7 +398,7 @@ static void PM_Friction(void)
   // apply ground friction
   if (pm->waterlevel <= 1)
   {
-    if (pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK))
+    if ((pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK)) || pml.ladder)
     {
       // if getting knocked back, no friction
       if (!(pm->ps->pm_flags & PMF_TIME_KNOCKBACK))
@@ -400,7 +410,11 @@ static void PM_Friction(void)
   }
 
   // apply water friction even if just wading
-  if (pm->waterlevel)
+  if (pm->waterlevel
+#ifdef KINGPIN_PLAYERMOVE
+     >= 2 && !pml.ladder
+#endif
+     )
     drop += speed * pm_waterfriction * pm->waterlevel * pml.frametime;
 
 #ifdef  GT_USE_TA_TYPES
@@ -409,10 +423,11 @@ static void PM_Friction(void)
     drop += speed * pm_flightfriction * pml.frametime;
 #endif
 
+#if 0 //def KINGPIN_PLAYERMOVE
   // Add ladder friction!
   if (pml.ladder)
     drop += speed * pm_ladderfriction * pml.frametime;
-
+#endif
   if (pm->ps->pm_type == PM_SPECTATOR)
     drop += speed * pm_spectatorfriction * pml.frametime;
 
@@ -502,14 +517,11 @@ static float PM_CmdScale(usercmd_t *cmd)
     return 0;
 
   total = sqrt((float)(cmd->forwardmove * cmd->forwardmove + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove));
-  scale = (float)pm->ps->speed * max / (127.0 * total); //hypov8 todo: change to 127.9?
-  //add hypov8 speed up noclips.. taking effect once enter level?
+  scale = (float)pm->ps->speed * max / (127.0 * total);
+  //add hypov8 speed up noclips.
   if(pm->ps->pm_type == PM_NOCLIP)
     scale *= 2;
-  //else
-    //scale *= 1;
 
-//end add
   return scale;
 }
 
@@ -578,7 +590,7 @@ static void PM_SetJumpLegsAnim()
     pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
     if (pm->cmd.forwardmove >= 0)
     {
-      if (pm->cmd.forwardmove == 0 && pm->xyspeed > 350) //bunny hop animation
+      if (pm->cmd.forwardmove == 0 && pm->xyspeed > BUNNY_MIN_SPEED) //bunny hop animation
         PM_ForceLegsAnim(LEGS_BUNNY); //static animation
       else
         PM_ForceLegsAnim(LEGS_JUMP);
@@ -587,7 +599,7 @@ static void PM_SetJumpLegsAnim()
     }
     else //if moving backward true
     {
-      if (pm->xyspeed > 350) //bunny hop backwards
+      if (pm->xyspeed > BUNNY_MIN_SPEED) //bunny hop backwards
       {
         PM_ForceLegsAnim(LEGS_BUNNY);
         pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
@@ -608,7 +620,7 @@ PM_CheckJump
 */
 static qboolean PM_CheckJump(void)
 {
-
+  //PMF_TIME_LAND
   if (pm->ps->pm_flags & PMF_RESPAWNED)
     return qfalse;      // don't allow jump until all buttons are up
 
@@ -634,10 +646,10 @@ static qboolean PM_CheckJump(void)
   // hypov8 todo: add some forward velocity to?
   ////////////////////////////////////////////////////////////////////////////////////////
   // hypov8 slope jump
-  if (pm->ps->velocity[2] >= 0.1f)
+  if (pm->ps->velocity[2] > 0.0f)
   {
     //hypo slow down double jump acceleration by half
-    pm->ps->velocity[2] = JUMP_VELOCITY + (pm->ps->velocity[2]*0.5f); //hypov8 add some height to ramp jumps
+    pm->ps->velocity[2] = JUMP_VELOCITY + (pm->ps->velocity[2]/**0.5f*/); //hypov8 add some height to ramp jumps
     if (pm->debugLevel)
       Com_Printf("slope jump used\n");
   }
@@ -812,6 +824,8 @@ static void PM_WaterMove(void)
   VectorCopy(wishvel, wishdir);
   wishspeed = VectorNormalize(wishdir);
 
+  //PM_AddCurrents (wishvel); //q2 add current?
+
   if (wishspeed > pm->ps->speed * pm_swimScale)
     wishspeed = pm->ps->speed * pm_swimScale;
 
@@ -830,7 +844,7 @@ static void PM_WaterMove(void)
 
   PM_SlideMove(qfalse);
 
-  //add hypov8======
+  //add animations
    if (pm->ps->velocity[2] >= 50 || pm->xyspeed >= 50)
   {
     PM_ContinueLegsAnim(LEGS_SWIM);
@@ -958,26 +972,30 @@ static void PM_CheckSpecialMovement(void)
 //=============
 //PM_AddCurrents
 //=============
-#if 0
+#if 1
+//wishvel is key press value(127) before scale is added
+#define LADDER_MAX_SPEED_XY 7.f //(127 / 16)
+#define LADDER_MAX_SPEED_Z 85.f // (127 *0.66)
 static void PM_AddCurrents(vec3_t wishvel)
 {
+  //static const float xyMax = 127.f / 16.f;
   // account for ladders
   if (pml.ladder && fabs(pm->ps->velocity[2]) <= 200)
   {
-    if ((pm->ps->viewangles[PITCH] <= -15) && (pml.fordwardPush > 0))
-      wishvel[2] = 200;
-    else if ((pm->ps->viewangles[PITCH] >= 15) && (pml.fordwardPush > 0))
-      wishvel[2] = -200;
-    else if (pml.upPush > 0)
-      wishvel[2] = 200;
-    else if (pml.upPush < 0)
-      wishvel[2] = -200;
+    if ((pm->ps->viewangles[PITCH] <= -15) && (pm->cmd.forwardmove > 0))
+      wishvel[2] = LADDER_MAX_SPEED_Z;
+    else if ((pm->ps->viewangles[PITCH] >= 15) && (pm->cmd.forwardmove > 0))
+      wishvel[2] = -LADDER_MAX_SPEED_Z;
+    else if (pm->cmd.upmove > 0)
+      wishvel[2] = LADDER_MAX_SPEED_Z;
+    else if (pm->cmd.upmove < 0)
+      wishvel[2] = -LADDER_MAX_SPEED_Z;
     else
       wishvel[2] = 0;
 
     // limit horizontal speed when on a ladder
-    clamp(wishvel[0], -25, 25);
-    clamp(wishvel[1], -25, 25);
+    wishvel[0] = Com_Clamp(-LADDER_MAX_SPEED_XY, LADDER_MAX_SPEED_XY, wishvel[0]);
+    wishvel[1] = Com_Clamp(-LADDER_MAX_SPEED_XY, LADDER_MAX_SPEED_XY, wishvel[1]);
   }
 }
 #endif
@@ -1035,16 +1053,57 @@ PM_NewAirMove
 bunnyhop related 0xA5EA
 =================================================
 */
+static void PM_CrashLand(void);
 static void PM_AirMove(void)
 {
   int i;
-  vec3_t wishvel;
-  float fmove, smove;
-  vec3_t wishdir;
+  vec3_t wishvel, wishdir/*, end*/;
+  float fmove, smove/*, frameTime*/;
   float wishspeed;
-//	float		maxspeed;
+  //float maxspeed;
   float accel;
   float wishspeed2;
+  //trace_t trace;
+  float time_left = pml.frametime;
+
+  //PM_Friction(); //hypov8 add
+
+  //hypov8 add. stop ground clipping speed between jumps
+  //if (pm->ps->bunnyHop)
+  {
+    // calculate position we are trying to move to
+    //VectorMA(pm->ps->origin, time_left, pm->ps->velocity, end);
+    // see if we can make it there
+    //pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
+
+    //about to land. check crash?
+    //if (!trace.allsolid && trace.fraction < 1.0f)
+    {
+          // just hit the ground
+      //if (pm->debugLevel)
+      //  Com_Printf("%i:Airmove Rejump\n", c_pmove);
+
+      //PM_CrashLand();
+      if (pml.groundPlane)
+      {
+        if (PM_CheckJump())
+        {
+          // jumped away
+          if (pm->waterlevel > 1)
+          {
+            PM_WaterMove();
+            return;
+          }
+          //else
+        {
+          //PM_AirMove(); // NEW_AIRMOVE
+        }
+          //return;
+        }
+      }
+    }
+  }
+
 
   fmove = pm->cmd.forwardmove;        // 127 forward, -127 backwards    //nur walk gedrückt
   smove = pm->cmd.rightmove;          // 127 righwards, -127 leftwards  // nur wenn links oder rechts gedrückt
@@ -1172,7 +1231,9 @@ static void PM_AirMove(void)
     //int checkMaxSpeed = DotProduct(pm->ps->velocity, wishdir);
 
     //if (checkMaxSpeed > cvar sv_maxvelocity )
-
+#ifdef KINGPIN_PLAYERMOVE
+    pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+#endif
     PM_StepSlideMove(qtrue, qfalse);
   }//end airmove
 
@@ -1206,16 +1267,27 @@ static void PM_LadderMove(void)
   }
   else
   {
+#ifndef KINGPIN_PLAYERMOVE
     // if they're trying to move... lets calculate it
     for (i = 0; i < 3; i++)
     {
       wishvel[i] = scale * pml.forward[i] * pm->cmd.forwardmove + scale * pml.right[i] * pm->cmd.rightmove;
     }
     wishvel[2] += scale * pm->cmd.upmove;
+#else
+    for (i = 0; i < 2; i++)
+    {
+      wishvel[i] = pml.forward[i] * pm->cmd.forwardmove + pml.right[i] * pm->cmd.rightmove;
+    }
+    wishvel[2] = 0;
+#endif
   }
+
+  PM_AddCurrents(wishvel); //q2
 
   VectorCopy(wishvel, wishdir);
   wishspeed = VectorNormalize(wishdir);
+  wishspeed *= scale; //add
 
   if (wishspeed > pm->ps->speed * PM_LADDERSCALE)
     wishspeed = pm->ps->speed * PM_LADDERSCALE;
@@ -1235,11 +1307,36 @@ static void PM_LadderMove(void)
       VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
     }
   }
+#ifdef KINGPIN_PLAYERMOVE
+  if (!wishvel[2])
+  {
+    if (pm->ps->velocity[2] < 0)
+    {
+      int debugger = 1;
+    }
+    if (pm->ps->velocity[2] > 0)
+    {
+      pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+      if (pm->ps->velocity[2] < 0)
+        pm->ps->velocity[2] = 0;
+    }
+    else
+    {
+      pm->ps->velocity[2] += pm->ps->gravity * pml.frametime;
+      if (pm->ps->velocity[2] > 0)
+        pm->ps->velocity[2] = 0;
+    }
+  }
+#endif
 
+#ifndef KINGPIN_PLAYERMOVE
   // move without gravity
   PM_SlideMove(qfalse);
+#else
+  PM_StepSlideMove (qfalse, qfalse);
+#endif
 
-
+  // set view/animations
   if (!pml.groundPlane)
   {
     //disable changing view height on ladders
@@ -1343,6 +1440,7 @@ static void PM_WalkMove(void)
   PM_SetMovementDir(qfalse);
 
   // project moves down to flat plane
+#ifndef KINGPIN_PLAYERMOVE
   pml.forward[2] = 0;
   pml.right[2]   = 0;
 
@@ -1352,13 +1450,21 @@ static void PM_WalkMove(void)
   //
   VectorNormalize(pml.forward);
   VectorNormalize(pml.right);
+#endif
 
+#ifndef KINGPIN_PLAYERMOVE
   for (i = 0; i < 3; i++)
   {
     wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
   }
+#else
+  for (i = 0; i < 2; i++)
+  {
+    wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
+  }
   // when going up or down slopes the wish velocity should Not be zero
-//	wishvel[2] = 0;
+  wishvel[2] = 0;
+#endif
 
   VectorCopy(wishvel, wishdir);
   wishspeed  = VectorNormalize(wishdir);
@@ -1389,24 +1495,32 @@ static void PM_WalkMove(void)
   else
     accelerate = PM_ACCELERATE;
 
+#ifdef KINGPIN_PLAYERMOVE
+  pm->ps->velocity[2] = 0; //!!! this is before the accel
+#endif
   PM_Accelerate(wishdir, wishspeed, accelerate);
 
   //Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
   //Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
-
+#ifndef KINGPIN_PLAYERMOVE
   if ((pml.groundTrace.surfaceFlags & SURF_SLICK) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK)
+  {
     pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+  }
   else
   {
     // don't reset the z velocity for slopes
-//		pm->ps->velocity[2] = 0;
+    pm->ps->velocity[2] = 0;
   }
-
+#else
+  pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+#endif
   //vel = VectorLength(pm->ps->velocity);
 
   // slide along the ground plane
+#ifndef KINGPIN_PLAYERMOVE
   PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
-
+#endif
   // don't decrease velocity when going up or down a slope
   //VectorNormalize(pm->ps->velocity);
   //VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
@@ -1414,9 +1528,11 @@ static void PM_WalkMove(void)
   // don't do anything if standing still
   if (!pm->ps->velocity[0] && !pm->ps->velocity[1])
     return;
-
+#if 0 //ndef KINGPIN_PLAYERMOVE
   PM_StepSlideMove(qfalse, qfalse);
-
+#else
+  PM_StepSlideMove(qtrue, qfalse);
+#endif
   //Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
 }
 
@@ -1773,7 +1889,8 @@ static void PM_GroundTrace(void)
     qboolean steppedDown = qfalse;
 
     // try to step down
-    if (pml.groundPlane && !pml.ladder && PM_PredictStepMove())
+#if 0
+    if (pml.groundPlane && !pml.ladder && pm->waterlevel < 2 && PM_PredictStepMove())
     {
       // step down
       point[0] = pm->ps->origin[0];
@@ -1789,7 +1906,7 @@ static void PM_GroundTrace(void)
         steppedDown = qtrue;
       }
     }
-
+#endif
     if (!steppedDown) //end xreal stair fix
     {
       PM_GroundTraceMissed();
@@ -2069,7 +2186,7 @@ static void PM_Footsteps(void)
       else
       {
         PM_ContinueLegsAnim(LEGS_RUN);
-    }
+      }
       footstep = qtrue;
     }
     else
@@ -2341,6 +2458,15 @@ int PM_FindNextBestWeapon(playerState_t *ps)
   return newWep;
 }
 
+
+int PM_GetWepSwitchTimmer(playerState_t *ps)
+{
+  if (ps->weapon == WP_CROWBAR || ps->weapon == WP_GRAPPLING_HOOK)
+    return WP_TIME_CHANGE_MELEE;
+  else
+    return WP_TIME_CHANGE_GUNS; //hypov8 note: kp1 is about 400-600
+}
+
 /*
 ===============
 PM_BeginWeaponChange
@@ -2355,15 +2481,11 @@ void PM_BeginWeaponChange(int weapon)
   if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS)
     weapon = WP_CROWBAR;
 
-
-  PM_AddEvent2(EV_CHANGE_WEAPON_DROP, weapon); //update client weapon key(incase it was hitmen forced)
+  PM_AddEvent2(EV_CHANGE_WEAPON_DROP, weapon); //sound //update client weapon key(incase it was hitmen forced)
   pm->ps->weaponstate = WEAPON_DROPPING;
   pm->ps->persistant[ PERS_NEWWEAPON ] = weapon;
 
-  if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
-    pm->ps->weaponTime += WP_TIME_CHANGE_MELEE;
-  else
-    pm->ps->weaponTime += WP_TIME_CHANGE_GUNS; //hypov8 note: kp1 is about 400-600
+  pm->ps->weaponTime += PM_GetWepSwitchTimmer(pm->ps);
 
   //PM_StartTorsoAnim(TORSO_DROP); //force wep change animations
   //PM_StartWeaponAnim(WEAPON_DROPPING);
@@ -2376,8 +2498,10 @@ void PM_BeginWeaponChange(int weapon)
 PM_FinishWeaponChange
 ===============
 */
-static void PM_FinishWeaponChange(int weapon)
+static void PM_FinishWeaponChange()
 {
+  int weapon = pm->ps->persistant[PERS_NEWWEAPON];
+
   if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS) //spec = none?
     weapon = WP_CROWBAR;
 
@@ -2386,16 +2510,12 @@ static void PM_FinishWeaponChange(int weapon)
 
   pm->ps->weapon = weapon; // pm->cmd.weapon;
   pm->ps->weaponstate = WEAPON_RAISING;
-  pm->ps->persistant[PERS_NEWWEAPON] = weapon;
+  //pm->ps->persistant[PERS_NEWWEAPON] = weapon;
 
-  if (pm->ps->weapon == WP_CROWBAR || pm->ps->weapon == WP_GRAPPLING_HOOK)
-    pm->ps->weaponTime += WP_TIME_CHANGE_MELEE;
-  else
-    pm->ps->weaponTime += WP_TIME_CHANGE_GUNS;
+  pm->ps->weaponTime += PM_GetWepSwitchTimmer(pm->ps);
 
   PM_AddEvent2(EV_CHANGE_WEAPON_RAISE, weapon); //tell client wep to use/select
   PM_StartTorsoAnim(TORSO_RAISE);
-  //PM_ContinueTorsoAnim(TORSO_RAISE);
   PM_StartWeaponAnim(WEAPON_RAISING);
 }
 
@@ -2425,7 +2545,7 @@ static void PM_TorsoAnimation(void)
       {
         if (pm->cmd.buttons & BUTTON_WALKING )
           PM_ContinueTorsoAnim(TORSO_WALK);
-        else if ( pm->xyspeed < 350 ) //G_SPEED_MAX //use g_speed
+        else if ( pm->xyspeed < BUNNY_MIN_SPEED ) //G_SPEED_MAX //use g_speed
           PM_ContinueTorsoAnim(TORSO_RUN);
         else  //pushed faster by rocket, bunnyhop etc..
           //PM_ContinueTorsoAnim(TORSO_RUN);
@@ -2517,49 +2637,20 @@ static void PM_Weapon(void)
   // check for weapon change
   if ( BG_PlayerCanChangeWeapon( pm->ps ) )
   {
-#if 0 //not currently used
-    // check for item using
-    if (pm->cmd.buttons & BUTTON_USE_HOLDABLE)
-    {
-      if (!(pm->ps->pm_flags & PMF_USE_ITEM_HELD))
-      {
-        if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT && pm->ps->stats[STAT_HEALTH] >= (pm->ps->stats[STAT_MAX_HEALTH] + PLAYER_RESPAWN_HEALTH_ADD))
-        {
-          ;// don't use medkit if at max health
-        }
-        else
-        {
-          pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
-          PM_AddEvent(EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag);
-          pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
-        }
-        return;
-      }
-    }
-    else
-    {
-      pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
-    }
-#endif
     //something thinks a weapon change is necessary
-    if (  pm->ps->pm_flags & PMF_WEAPON_SWITCH
-       ||(pm->ps->weapon != pm->cmd.weapon && pm->cmd.weapon != WP_NONE )
-       ||(pm->cmd.weapon == WP_NONE && pm->ps->weapon == WP_NONE)) //only switch if no weap.
+    if (  pm->ps->pm_flags & PMF_WEAPON_SWITCH)
     {
-      int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;
-
       if ( pm->ps->weapon != WP_NONE)
       {
-        PM_BeginWeaponChange(wepNew);
+        PM_BeginWeaponChange(pm->ps->persistant[ PERS_NEWWEAPON ]);
       }
       else
-      {	// no current weapon, so just raise the new one
-        PM_FinishWeaponChange(wepNew);
+      { // no current weapon, so just raise the new one
+        PM_FinishWeaponChange();
       }
       pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
     }
   }
-
 
 
   if ( pm->ps->weaponstate == WEAPON_HM_LOCK ) //fix client sync
@@ -2614,8 +2705,8 @@ static void PM_Weapon(void)
   // change weapon if time
   if (pm->ps->weaponstate == WEAPON_DROPPING)
   {
-    int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;
-    PM_FinishWeaponChange(wepNew);
+    //int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;
+    PM_FinishWeaponChange();
     return;
   }
 
@@ -3093,6 +3184,19 @@ void PmoveSingle(pmove_t *pmove)
   PM_DropTimers();
 
   PM_CheckLadder();
+
+#ifdef KINGPIN_PLAYERMOVE
+  if (pm->waterlevel < 2)
+  {
+    vec3_t angles;
+    VectorCopy(pm->ps->viewangles, angles);
+    if (angles[PITCH] > 180)
+      angles[PITCH] = angles[PITCH] - 360;
+    angles[PITCH] /= 3; //prevents looking up/down stopping player movemnt
+    AngleVectors(angles, pml.forward, pml.right, pml.up);
+  }
+#endif
+
 #ifdef GT_USE_TA_TYPES
   if (pm->ps->powerups[PW_FLIGHT])
   {

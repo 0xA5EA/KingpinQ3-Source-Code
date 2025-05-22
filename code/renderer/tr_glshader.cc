@@ -1072,6 +1072,31 @@ bool GLCompileMacro_USE_REFLECTIVE_SPECULAR::MissesRequiredMacros( size_t permut
   return false;
 }
 
+#if defined( COMPAT_KPQ3 )
+bool GLCompileMacro_USE_PBR_SPECULAR::MissesRequiredMacros( size_t permutation, const std::vector< GLCompileMacro * > &macros ) const
+{
+  bool foundUSE_NORMAL_MAPPING = false;
+
+  for ( size_t i = 0; i < macros.size(); i++ )
+  {
+    GLCompileMacro *macro = macros[ i ];
+
+    if ( ( permutation & macro->GetBit() ) != 0 && macro->GetType() == USE_NORMAL_MAPPING )
+    {
+      foundUSE_NORMAL_MAPPING = true;
+    }
+  }
+
+  if ( !foundUSE_NORMAL_MAPPING )
+  {
+    //ri.Printf(PRINT_ALL, "missing macro! canceling '%s' <= '%s'\n", GetName(), "USE_NORMAL_MAPPING");
+    return true;
+  }
+
+  return false;
+}
+#endif 
+
 bool GLShader::GetCompileMacrosString( size_t permutation, std::string &compileMacrosOut ) const
 {
   compileMacrosOut = "";
@@ -1299,6 +1324,7 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity( GLShader
   GLCompileMacro_USE_NORMAL_MAPPING( this ),
   GLCompileMacro_USE_PARALLAX_MAPPING( this ),
   GLCompileMacro_USE_REFLECTIVE_SPECULAR( this ),
+  GLCompileMacro_USE_PBR_SPECULAR( this ),
   GLCompileMacro_USE_GLOW_MAPPING( this )//,
   //GLCompileMacro_TWOSIDED(this)
 {
@@ -1422,6 +1448,7 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ( GLShaderMana
   GLCompileMacro_USE_DEFORM_VERTEXES( this ),
   GLCompileMacro_USE_NORMAL_MAPPING( this ),
   GLCompileMacro_USE_PARALLAX_MAPPING( this ),
+  GLCompileMacro_USE_PBR_SPECULAR( this ),
   GLCompileMacro_USE_SHADOWING( this )  //,
   //GLCompileMacro_TWOSIDED(this)
 {
@@ -1490,6 +1517,7 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ( GLShaderMana
   GLCompileMacro_USE_DEFORM_VERTEXES( this ),
   GLCompileMacro_USE_NORMAL_MAPPING( this ),
   GLCompileMacro_USE_PARALLAX_MAPPING( this ),
+  GLCompileMacro_USE_PBR_SPECULAR( this ),
   GLCompileMacro_USE_SHADOWING( this )  //,
   //GLCompileMacro_TWOSIDED(this)
 {
@@ -1562,6 +1590,7 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
   GLCompileMacro_USE_DEFORM_VERTEXES( this ),
   GLCompileMacro_USE_NORMAL_MAPPING( this ),
   GLCompileMacro_USE_PARALLAX_MAPPING( this ),
+  GLCompileMacro_USE_PBR_SPECULAR( this ),
   GLCompileMacro_USE_SHADOWING( this )  //,
   //GLCompileMacro_TWOSIDED(this)
 {

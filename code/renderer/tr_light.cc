@@ -116,6 +116,27 @@ LIGHT SAMPLING
 =============================================================================
 */
 
+
+//scale low light color levels. instead of white
+void forceAmbiantLight(vec3_t light, float minLight)
+{
+	int i;
+	float len = VectorLength(light);
+
+	if (minLight > 0.0f && len < minLight)
+	{
+		for (i = 0; i < 3; i++)
+		{
+			if (light[i] < 0.01f)
+				light[i] = 0.01f;
+		}
+		if (len < 0.01f)
+			len = 0.01f;
+		len = minLight/len;
+		VectorScale(light, len, light);
+		len = VectorLength(light);
+	}
+}
 /*
 =================
 R_SetupEntityLightingGrid
@@ -222,7 +243,6 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 			ent->directedLight[ 0 ] += factor * gridPoint2->directedColor[ 0 ];
 			ent->directedLight[ 1 ] += factor * gridPoint2->directedColor[ 1 ];
 			ent->directedLight[ 2 ] += factor * gridPoint2->directedColor[ 2 ];
-			VectorMA( direction, factor, gridPoint2->direction, direction );
 		}
 	}
 
@@ -241,34 +261,11 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 	}
 #endif
 
-#if 1
-	VectorNormalize2( direction, ent->lightDir );
-#else //moved to lightgrid lump loading
-	VectorNormalize2( direction,  direction);
-	// always face down
-	direction[2] = fabsf(direction[2]);
-	// hypov8 prevent light going past 60 deg
-	VectorSet(lightOrigin, 0.0f, 0.0f, 1.0f - (0.666f * direction[2])); //
-	VectorAdd(direction, lightOrigin, direction);
-	//VectorScale(direction, 0.5f, direction);
 	VectorNormalize2( direction, ent->lightDir );
 
-#endif
-
-	if ( VectorLength( ent->ambientLight ) < r_forceAmbient->value )
-	{
-		ent->ambientLight[ 0 ] = r_forceAmbient->value;
-		ent->ambientLight[ 1 ] = r_forceAmbient->value;
-		ent->ambientLight[ 2 ] = r_forceAmbient->value;
-	}
-
-#if 1 //hypov8 check both light values
-	if ( VectorLength( ent->directedLight ) < r_forceAmbient->value )
-	{
-		ent->directedLight[ 0 ] = r_forceAmbient->value;
-		ent->directedLight[ 1 ] = r_forceAmbient->value;
-		ent->directedLight[ 2 ] = r_forceAmbient->value;
-	}
+	forceAmbiantLight(ent->ambientLight, r_forceAmbient->value);
+#if 1 //hypov8 adjust both light values?
+	forceAmbiantLight(ent->directedLight, r_forceAmbient->value);
 #endif
 
 //----(SA)  added

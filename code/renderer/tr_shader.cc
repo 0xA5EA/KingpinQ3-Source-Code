@@ -1676,7 +1676,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
     stage->bundle[0].image[0] = tr.greenImage;
     return qtrue;
   }
-  else if (!Q_stricmp(token, "_blue") || !Q_stricmp(token, "$blue")) // add hypov8. note: '_' might conflict in kmap?
+  else if (!Q_stricmp(token, "_blue") || !Q_stricmp(token, "$blue")) // add hypov8
   {
     stage->bundle[0].image[0] = tr.blueImage;
     return qtrue;
@@ -1738,7 +1738,7 @@ static qboolean LoadMap( shaderStage_t *stage, char *buffer )
   {
     imageBits |= IF_ALPHATEST;
   }
-
+  //hypov8 todo: glossmaps  if ( stage->type == ST_SPECULARMAP){ imageBits |= IF_SPECULARMAP;}
   if ( stage->overrideFilterType )
   {
     filterType = stage->filterType;
@@ -1811,7 +1811,7 @@ static qboolean LoadCubeMap( shaderStage_t *stage, char *buffer )
     imageBits |= IF_NORMALMAP;
   }
 
-  if ( stage->type == ST_NORMALMAP && shader.parallax ) //hypov8 todo: cube?
+  if ( stage->type == ST_NORMALMAP && shader.parallax )
   {
     imageBits |= IF_DISPLACEMAP;
   }
@@ -3722,7 +3722,7 @@ static void ParseSpecularMap( shaderStage_t *stage, char **text )
     stage->uncompressed = qtrue;
   }
 #ifdef HYPODEBUG //debug pbr
-  if (!Q_stricmp(shader.name, "models/weapons/hmg/v_wep2"))
+  if (!Q_stricmp(shader.name, "models/weapons/rocketlauncher/v_wep"))//"models/weapons/hmg/v_wep2"
     buffer[0] = '\0';
 #endif
   if ( ParseMap( stage, text, buffer, sizeof( buffer ) ) )
@@ -4203,7 +4203,7 @@ static qboolean ParseShader( char *_text )
     // stage definition
     else if ( token[ 0 ] == '{' )
     {
-      if ( s >= ( MAX_SHADER_STAGES - 1 ) )
+      if ( s >= MAX_SHADER_STAGES )
       {
         ri.Printf( PRINT_WARNING, "WARNING: too many stages in shader %s\n", shader.name );
         return qfalse;
@@ -4880,7 +4880,7 @@ static qboolean ParseShader( char *_text )
       s++;
       continue;
     }
-    // normalMap <image>
+    // normalMap <image> //hypov8 todo: normalHeightMap (use height/parallax)
     else if ( !Q_stricmp( token, "normalMap" ) || !Q_stricmp( token, "bumpMap" ) )
     {
       ParseNormalMap( &stages[ s ], text );

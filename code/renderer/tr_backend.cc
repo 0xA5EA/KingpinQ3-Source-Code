@@ -93,10 +93,14 @@ void BindAnimatedImage( textureBundle_t *bundle )
   index = Q_ftol( backEnd.refdef.floatTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
   index >>= FUNCTABLE_SIZE2;
 
-  if ( index < 0 )
+  if ( index < 0 ) 
   {
     index = 0; // may happen with shader time offsets
   }
+#ifdef HYPODEBUG
+  if (index >= bundle->numImages)
+    Com_DPrintf("image index: %i  ret: %i\n", index, index % bundle->numImages);
+#endif
 
   index %= bundle->numImages;
 
@@ -834,9 +838,13 @@ static void RB_RenderDrawSurfaces( bool opaque, renderDrawSurfaces_e drawSurfFil
   shader_t      *shader, *oldShader;
   int           lightmapNum, oldLightmapNum;
   int           fogNum, oldFogNum;
-  qboolean      depthRange, oldDepthRange;
+  qboolean      depthRange, oldDepthRange, isTimedShader;
   int           i;
   drawSurf_t    *drawSurf;
+  float         originalTime;
+
+  // save original time for entity shader offsets
+  originalTime = backEnd.refdef.floatTime;
 
   GLimp_LogComment( "--- RB_RenderDrawSurfaces ---\n" );
 
@@ -848,6 +856,7 @@ static void RB_RenderDrawSurfaces( bool opaque, renderDrawSurfaces_e drawSurfFil
   oldDepthRange = qfalse;
   depthRange = qfalse;
   backEnd.currentLight = NULL;
+  isTimedShader = qfalse;
 
   for ( i = 0, drawSurf = backEnd.viewParms.drawSurfs; i < backEnd.viewParms.numDrawSurfs; i++, drawSurf++ )
   {
@@ -856,6 +865,7 @@ static void RB_RenderDrawSurfaces( bool opaque, renderDrawSurfaces_e drawSurfFil
     shader = tr.sortedShaders[ drawSurf->shaderNum ];
     lightmapNum = drawSurf->lightmapNum;
     fogNum = drawSurf->fogNum;
+    isTimedShader = qfalse;
 
     if( entity == &tr.worldEntity ) {
       if( !( drawSurfFilter & DRAWSURFACES_WORLD ) )
@@ -878,7 +888,7 @@ static void RB_RenderDrawSurfaces( bool opaque, renderDrawSurfaces_e drawSurfFil
       // skip all translucent surfaces that don't matter for this pass
       if ( shader->sort > SS_OPAQUE )
       {
-        break;
+        break; //hypov8 typo? or pre-sorted?
       }
     }
     else
@@ -923,6 +933,10 @@ static void RB_RenderDrawSurfaces( bool opaque, renderDrawSurfaces_e drawSurfFil
       {
         backEnd.currentEntity = entity;
 
+#ifdef COMPAT_KPQ3
+        // used to sync "animMap"
+        backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+#endif
         // set up the transformation matrix
         R_RotateEntityForViewParms( backEnd.currentEntity, &backEnd.viewParms, &backEnd.orientation );
 
@@ -935,6 +949,9 @@ static void RB_RenderDrawSurfaces( bool opaque, renderDrawSurfaces_e drawSurfFil
       else
       {
         backEnd.currentEntity = &tr.worldEntity;
+#ifdef COMPAT_KPQ3
+        backEnd.refdef.floatTime = originalTime;
+#endif
         backEnd.orientation = backEnd.viewParms.world;
       }
 
@@ -962,11 +979,15 @@ static void RB_RenderDrawSurfaces( bool opaque, renderDrawSurfaces_e drawSurfFil
     rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
   }
 
+  //backEnd.refdef.floatTime = originalTime;
+
   // draw the contents of the last shader batch
   if ( oldShader != NULL )
   {
     Tess_End();
   }
+
+  backEnd.refdef.floatTime = originalTime;
 
   // go back to the world modelview matrix
   GL_LoadModelViewMatrix( backEnd.viewParms.world.modelViewMatrix );
@@ -6024,6 +6045,7 @@ static void RB_RenderDebugUtils()
 
     Tess_End();
 
+    if (r_showCubeProbes->integer == 1) //2 disable reg/green nearest cube
     {
       cubemapProbe_t *cubeProbeNearest;
       cubemapProbe_t *cubeProbeSecondNearest;

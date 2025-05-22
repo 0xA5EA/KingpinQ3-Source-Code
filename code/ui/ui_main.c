@@ -59,14 +59,16 @@ static const int numSkillLevels = ARRAY_LEN( skillLevels );
 
 static const char *netSources[] =
 {
+  "Favorites",
   "Local",
-  "Internet (master0)",
+  "Internet (all masters)"
+  /*"Internet (master0)",
   "Internet (master1)",
   "Internet (master2)",
   "Internet (master3)",
   "Internet (master4)",
-  "Internet (master5)",
-  "Favorites"
+  "Internet (master5)",*/
+
 };
 static const int numNetSources = ARRAY_LEN( netSources );
 /*
@@ -1585,6 +1587,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect)
   static playerInfo_t info;
   char model[32];
   char team[32];
+  char clan[32];
   char head[32];
 
 
@@ -1597,11 +1600,17 @@ static void UI_DrawPlayerModel(rectDef_t *rect)
       q3Model     = qtrue;
       updateModel = qtrue;
     }
+    clan[0] = '\0';
     team[0] = '\0';
   }
   else //TEAM
   {
-    Q_strncpyz(team, UI_Cvar_VariableString("ui_teamName"), sizeof(team));
+    Q_strncpyz(team, UI_Cvar_VariableString("ui_team"), sizeof(team));
+    if (!Q_stricmp(team, "1"))
+      Q_strncpyz(team, TEAM_SKIN_DRAGONS, sizeof(team));
+    else
+      Q_strncpyz(team, TEAM_SKIN_NIKKIS, sizeof(team));
+    Q_strncpyz(clan, UI_Cvar_VariableString("ui_teamName"), sizeof(clan));
     Q_strncpyz(model, UI_Cvar_VariableString("team_model"), sizeof(model));
     Q_strncpyz(head, UI_Cvar_VariableString("team_headmodel"), sizeof(head)); //not used. extras?
     if (q3Model)
@@ -1613,7 +1622,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect)
   if (updateModel)
   {
     Com_Memset(&info, 0, sizeof(playerInfo_t));
-    UI_PlayerInfo_SetModel( &info, model, head, team);
+    UI_PlayerInfo_SetModel( &info, model, head, clan, team);
     //UI_PlayerInfo_SetInfo(,);
     updateModel = qfalse;
   }
@@ -1773,8 +1782,9 @@ static void UI_DrawOpponent(rectDef_t *rect)
   static playerInfo_t info2;
   char model[MAX_QPATH];
   char headmodel[MAX_QPATH];
-  char team[256];
-  char head[256];
+  char team[32];
+  char head[32];
+  char clan[32];
   //vec3_t viewangles;
   vec3_t moveangles;
   //refEntity_t     body;
@@ -1785,8 +1795,8 @@ static void UI_DrawOpponent(rectDef_t *rect)
     qstrcpy(model, UI_Cvar_VariableString("ui_opponentModel"));
     qstrcpy(headmodel, UI_Cvar_VariableString("ui_opponentModel"));
     team[0] = '\0';
+    clan[0] = '\0';
     //head[0] = '\0'; //add hypov8
-
 
     //qstrcpy(team, UI_Cvar_VariableString("ui_teamName"));
     //qstrcpy(model, UI_Cvar_VariableString("team_model"));
@@ -1797,7 +1807,7 @@ static void UI_DrawOpponent(rectDef_t *rect)
     //viewangles[PITCH] = 0;
     // viewangles[ROLL]  = 0;
     VectorClear(moveangles);
-    UI_PlayerInfo_SetModel(&info2, model, head, team);
+    UI_PlayerInfo_SetModel(&info2, model, head, clan, team);
     updateOpponentModel = qfalse;
   }
 
@@ -3270,25 +3280,18 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 //int UI_TeamIndexFromName(const char *name)
 static qboolean UI_GetMaster(int net_ui)
 {
-  static char *mastserv;
+  char *mastserv = NULL;
 
   switch (net_ui)
   {
-  case 1:
-    mastserv = UI_Cvar_VariableString("sv_master0");
-    break;
-  case 2:
-    mastserv = UI_Cvar_VariableString("sv_master1");
-    break;
-  case 3:
-    mastserv = UI_Cvar_VariableString("sv_master2");
-    break;
-  case 4:
-    mastserv = UI_Cvar_VariableString("sv_master3");
-    break;
-  case 5:
-    mastserv = UI_Cvar_VariableString("sv_master4");
-    break;
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      mastserv = UI_Cvar_VariableString(va("sv_master%i", net_ui));
+      break;
   }
 
   if (mastserv && *mastserv)
@@ -3302,57 +3305,28 @@ static qboolean UI_NetSource_HandleKey(int flags, float *special, int key)
 {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER)
   {
-   int i;
-
+    //int i;
 
     if (key == K_MOUSE2)
     {
-    for (i = ui_netSource.integer - 1; i >= -1; i--)
-    {
-      if (UI_GetMaster(i))
-        {
-          ui_netSource.integer = i;
-          break;
-        }
-      else
-        if (i < 2)
-        {
-          ui_netSource.integer = i;
-          break;
-        }
-    }
+      ui_netSource.integer -= 1;
+      if (ui_netSource.integer < 0)
+        ui_netSource.integer = numNetSources - 1;
     }
     else
     {
-    for (i = ui_netSource.integer + 1; i <= numNetSources; i++)
-    {
-      if (UI_GetMaster(i))
-        {
-          ui_netSource.integer = i;
-          break;
-        }
-      else
-        if (i > 5)
-        {
-          ui_netSource.integer = i;
-          break;
-        }
-    }
+      ui_netSource.integer += 1;
+      if (ui_netSource.integer >= numNetSources)
+        ui_netSource.integer = 0;
     }
 
-    if (ui_netSource.integer >= numNetSources)
-      ui_netSource.integer = 0;
-    else if (ui_netSource.integer < 0)
-      ui_netSource.integer = numNetSources - 1;
+    //set varable now. //hypov8
+    trap_Cvar_Set("ui_netSource", va("%d", ui_netSource.integer));
+      UI_BuildServerDisplayList(qtrue);
 
-  //set varable now. //hypov8
-  trap_Cvar_Set("ui_netSource", va("%d", ui_netSource.integer));
-    UI_BuildServerDisplayList(qtrue);
-  //if (ui_netSource.integer < AS_GLOBAL || ui_netSource.integer > AS_GLOBAL4)
-  if (ui_netSource.integer != AS_FAVORITES) //hypov8 dont refresh fav
-      UI_StartServerRefresh(qtrue);
+    if (ui_netSource.integer != AS_FAVORITES) //hypov8 dont refresh fav
+        UI_StartServerRefresh(qtrue);
 
-    //trap_Cvar_Set("ui_netSource", va("%d", ui_netSource.integer));//hypo moved above?
     return qtrue;
   }
   return qfalse;
@@ -3886,6 +3860,10 @@ static void UI_Update(const char *name)
   { //show apply button when gfx changed
     trap_Cvar_SetValue("uix_videoEdited", 1);
     //trap_Cvar_SetValue("uix_r_custQuality", 0);
+  }
+  else if (Q_stricmp(name, "ui_team") == 0)
+  { 
+    UI_FeederSelection(FEEDER_HEADS, UI_GetSelectedHeadIndex());
   }
 
   //hypov8
@@ -5189,11 +5167,9 @@ static void UI_BuildServerDisplayList(qboolean force)
     ping = trap_LAN_GetServerPing(ui_netSource.integer, i);
     if (ping > 0 || ui_netSource.integer == AS_FAVORITES)
     {
-    //hypov8 note: full/empty is a master value to. i dont think this should be sent as varable. only filter localy
-    //cvards not updated externaly.
-    int ui_showEmpty = uiInfo.uiDC.getCVarValue("ui_browserShowEmpty");
-    int ui_showFull = uiInfo.uiDC.getCVarValue("ui_browserShowEmpty");
-
+      //cvar's not updated externaly.
+      int ui_showEmpty = uiInfo.uiDC.getCVarValue("ui_browserShowEmpty");
+      int ui_showFull = uiInfo.uiDC.getCVarValue("ui_browserShowEmpty");
 
       trap_LAN_GetServerInfo(ui_netSource.integer, i, info, MAX_STRING_CHARS);
 
@@ -5964,6 +5940,12 @@ static void UI_FeederSelection(float feederID, int index)
     index = actual;
     if (index >= 0 && index < uiInfo.characterCount)
     {
+      //update client info when changing cln
+      if (!Q_stricmp("1", UI_Cvar_VariableString("ui_team")))
+        trap_Cvar_Set("g_dragonTeam", va("%s", UI_Cvar_VariableString("ui_teamName")));
+      else
+        trap_Cvar_Set("g_nikkiTeam", va("%s", UI_Cvar_VariableString("ui_teamName")));
+
       trap_Cvar_Set("team_model", va("%s", uiInfo.characterList[index].base));
       trap_Cvar_Set("team_headmodel", va("%s", uiInfo.characterList[index].name)); //hypov8 was "*%s"
       updateModel = qtrue;
@@ -6697,7 +6679,7 @@ void _UI_Init(qboolean inGameLoad, int randomSeed)
   uiInfo.uiDC.textHeight           = &Text_Height;
   uiInfo.uiDC.registerModel        = &trap_R_RegisterModel;
   uiInfo.uiDC.modelBounds          = &trap_R_ModelBounds;
-   uiInfo.uiDC.lerpTag             = &trap_R_LerpTag; //add hypov8
+   uiInfo.uiDC.lerpTag             = &trap_R_LerpTag;
   uiInfo.uiDC.fillRect             = &UI_FillRect;
   uiInfo.uiDC.drawRect             = &_UI_DrawRect;
   uiInfo.uiDC.drawSides            = &_UI_DrawSides;
@@ -7367,6 +7349,7 @@ vmCvar_t ui_nikkiTeam2;
 vmCvar_t ui_nikkiTeam3;
 vmCvar_t ui_nikkiTeam4;
 vmCvar_t ui_nikkiTeam5;
+vmCvar_t ui_team;
 vmCvar_t ui_teamName;
 vmCvar_t ui_dedicated;
 vmCvar_t ui_gameType;
@@ -7487,10 +7470,14 @@ static cvarTable_t cvarTable[] = {
   {&ui_new, "ui_new", "0", CVAR_TEMP},
   {&ui_debug, "ui_debug", "0", CVAR_TEMP},
   {&ui_initialized, "ui_initialized", "0", CVAR_TEMP},
+
+  {&ui_team, "ui_team", "1", CVAR_ARCHIVE}, //ui team. for model selection
   {&ui_teamName, "ui_teamName", DEFAULT_CLAN_DRAGONS, CVAR_ARCHIVE}, //'clan' name. default dragons
   {&ui_opponentName, "ui_opponentName", DEFAULT_CLAN_NIKKIS, CVAR_ARCHIVE},
+
   {&ui_dragonTeam, "ui_dragonTeam", DEFAULT_CLAN_DRAGONS, CVAR_ARCHIVE},
   {&ui_nikkiTeam, "ui_nikkiTeam", DEFAULT_CLAN_NIKKIS, CVAR_ARCHIVE},
+
   {&ui_dedicated, "ui_dedicated", "0", CVAR_ARCHIVE},
   {&ui_gameType, "ui_gametype", "3", CVAR_ARCHIVE},
   {&ui_joinGameType, "ui_joinGametype", "0", CVAR_ARCHIVE},
@@ -7551,7 +7538,6 @@ static cvarTable_t cvarTable[] = {
   {&ui_fontSmall, "ui_fontSmall", "0.27", CVAR_ARCHIVE},
   {&ui_fontBig, "ui_fontBig", "0.38", CVAR_ARCHIVE},
   {&ui_fontHuge, "ui_fontHuge",  "0.45", CVAR_ARCHIVE},
-
   {&ui_findPlayer, "ui_findPlayer", "thug", CVAR_ARCHIVE},
   {&ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE}, //hypov8: toggle between team/dm models in player menu's //archive not needed?
   {&ui_hudFiles, "cg_hudFiles", DFLT_HUDFILE, CVAR_ARCHIVE},
@@ -7701,7 +7687,7 @@ UI_StartServerRefresh
 */
 static void UI_StartServerRefresh(qboolean full)
 {
-  char *ptr;
+  char *ptr = NULL;
 
   qtime_t q;
 
@@ -7731,18 +7717,33 @@ static void UI_StartServerRefresh(qboolean full)
     return;
   }
 
-  uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
-  if (ui_netSource.integer >= AS_GLOBAL && ui_netSource.integer != AS_FAVORITES)
+  if (ui_netSource.integer == AS_FAVORITES)
   {
-  //hypov8 added ui_netsource master 0-4
-    ptr = UI_Cvar_VariableString("debug_protocol");
-    if (qstrlen(ptr))
+    //skip
+    return;
+  }
+
+  uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
+  if (ui_netSource.integer == AS_GLOBAL)
+  {
+    int i;
+    int end = AS_GLOBAL5 -AS_GLOBAL;
+
+    //hypov8 added ui_netsource master 0-4
+    for (i = 0; i < end; i++)
     {
-    trap_Cmd_ExecuteText(EXEC_NOW, va("globalservers %i %s full empty\n", ui_netSource.integer - 1, ptr));
-    }
-    else
-    {
-    trap_Cmd_ExecuteText(EXEC_NOW, va("globalservers %i %d full empty\n", ui_netSource.integer - 1, (int)trap_Cvar_VariableValue("protocol")));
+      if (UI_GetMaster(i))
+      {
+        ptr = UI_Cvar_VariableString("debug_protocol");
+        if (qstrlen(ptr))
+        {
+          trap_Cmd_ExecuteText(EXEC_NOW, va("globalservers %i %s full empty\n", i, ptr)); //ui_netSource.integer - 1
+        }
+        else
+        {
+          trap_Cmd_ExecuteText(EXEC_NOW, va("globalservers %i %d full empty\n", i, (int)trap_Cvar_VariableValue("protocol"))); //ui_netSource.integer - 1
+        }
+      }
     }
   }
 }

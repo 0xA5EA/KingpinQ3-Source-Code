@@ -402,7 +402,10 @@ void CG_RegisterCvars(void)
   cgs.localServer = atoi(var);
 
   forceModelModificationCount = cg_forceModel.modificationCount;
-
+#if defined(COMPAT_KPQ3)
+  trap_Cvar_Register(NULL, "g_dragonTeam", DEFAULT_CLAN_DRAGONS, CVAR_USERINFO | CVAR_ARCHIVE); //now sent to server on change
+  trap_Cvar_Register(NULL, "g_nikkiTeam", DEFAULT_CLAN_NIKKIS, CVAR_USERINFO | CVAR_ARCHIVE); //now sent to server on change
+#endif
   trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
   trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
   trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
@@ -1091,6 +1094,7 @@ static void CG_RegisterGraphics(void)
   cgs.media.smokeGLShader[3] = trap_R_RegisterShader("smokeGL04");
   cgs.media.smokeGLShader[4] = trap_R_RegisterShader("smokeGL05");
   cgs.media.smokeGLShader[5] = trap_R_RegisterShader("smokeGL06");
+  //cgs.media.smokeGLShader[5] = trap_R_RegisterShader("sprites/explode1/spr");
 
   cgs.media.smokePuffShader = trap_R_RegisterShader("smokePuff");
   cgs.media.smokePuffRlShader = trap_R_RegisterShader( "smokePuffRocketlauncher" );
@@ -1265,6 +1269,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.armorIcon[6]  =  trap_R_RegisterShaderNoMip("gfx/icons/h_a_man");//hypov8 player icon
 
 	cgs.media.machinegunBrassModel = trap_R_RegisterModel("models/weapons/shells/m_shell.md3");
+	cgs.media.rifleBrassModel = trap_R_RegisterModel("models/weapons/shells/308_shell.md3");
 	cgs.media.shotgunBrassModel    = trap_R_RegisterModel("models/weapons/shells/s_shell.md3");
 	cgs.media.gibArm       = trap_R_RegisterModel("models/gibs/arm.md3");
 	cgs.media.gibChest     = trap_R_RegisterModel("models/gibs/chest.md3");
@@ -1283,6 +1288,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.bulletFlashModel = trap_R_RegisterModel("models/weaphits/fbullet.md3"); //note hypov8 remove??, old particle shader
 	//	cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3", qtrue );
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
+
+	//cgs.media.grenadeExplodeModel = trap_R_RegisterModel("models/weaphits/boom02.md3");//grenade
 
 	//	cgs.media.teleportEffectModel = trap_R_RegisterModel( "models/misc/telep.md3" );
 	//	cgs.media.teleportEffectShader = trap_R_RegisterShader( "teleportEffect" );
@@ -1363,7 +1370,13 @@ static void CG_RegisterGraphics(void)
 	cgs.media.bloodSpurtShader[1] = trap_R_RegisterShader("gfx/particles/blood_spurt2");
 	cgs.media.bloodSpurtShader[2] = trap_R_RegisterShader("gfx/particles/blood_spurt3");
 
-	cgs.media.rocketFirePartShader = trap_R_RegisterShader("gfx/particles/flare2");
+	//cgs.media.rocketFirePartShader = trap_R_RegisterShader("gfx/particles/flare2");
+
+	cgs.media.grenadeExplodeShader1 = trap_R_RegisterShader("gfx/particles/flare3");
+	//cgs.media.grenadeExplodeShader2 = trap_R_RegisterShader("gfx/particles/ember1");
+	cgs.media.grenadeEmberShader = trap_R_RegisterShader("gfx/particles/ember2");
+
+
 	//FIXME(0xA5EA):redundant
 	cgs.media.teleportFlareShader = trap_R_RegisterShader("gfx/particles/flare2");
 

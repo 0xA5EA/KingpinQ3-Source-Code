@@ -68,7 +68,7 @@ extern float pm_stopspeed;
 extern float pm_duckScale;
 extern float pm_swimScale;
 extern float pm_wadeScale;
-#define PM_LADDERSCALE 0.65f
+#define PM_LADDERSCALE 0.666f
 #define PM_ACCELERATE 10.f
 
 //float	pm_strafeaccelerate = 70;

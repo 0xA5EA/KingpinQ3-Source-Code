@@ -95,7 +95,6 @@ void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, i
 //unlagged - attack prediction #2
 #endif
 
-
     VectorMA(muzzle, 8192 * 16, forward, end);
     VectorMA(end, r, right, end);
     VectorMA(end, u,    up, end);
@@ -138,19 +137,7 @@ void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, i
     }
     else
     {
-      if (tr.surfaceFlags & SURF_METALSTEPS || tr.surfaceFlags & SURF_METALLIGHT)
-        tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_METAL);
-      else if (tr.surfaceFlags & SURF_WOOD)
-        tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WOOD);
-      else if (tr.surfaceFlags & SURF_GRAVEL || tr.surfaceFlags & SURF_GRASS)
-        tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_EARTH);
-      else if (tr.surfaceFlags & SURF_GLASS)
-        tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_GLASS);
-      else if (tr.surfaceFlags & SURF_SNOW)
-        tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_SNOW);
-      else
-        tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WALL);
-
+      tent = G_TempEntity(tr.endpos, BG_GetSufaceType(tr.surfaceFlags));
       tent->s.eventParm = DirToByte(tr.plane.normal);
 
       // we need the client number to determine whether or not to
@@ -170,7 +157,7 @@ void Bullet_Fire(gentity_t *ent, float spread, int damage, meansOfDeath_t mod, i
       if (distoEnt < 32 && mod == MOD_SHOTGUN) //hypov8 add close range to damage amount
         damage *= 2;
       else if (distoEnt < 64 && mod == MOD_SHOTGUN) //hypov8 add close range to damage amount
-        damage *= 1.5;
+        damage = (int)ceil(1.5f*damage);
 
       G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, mod);
     }
@@ -243,21 +230,8 @@ void Melee_Fire(gentity_t *ent, float attackDist, int damage, meansOfDeath_t mod
   }
   else
   {
-    if (tr.surfaceFlags & SURF_METALSTEPS || tr.surfaceFlags & SURF_METALLIGHT)
-      tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_METAL);
-    else if (tr.surfaceFlags & SURF_WOOD)
-      tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WOOD);
-    else if (tr.surfaceFlags & SURF_GRAVEL || tr.surfaceFlags & SURF_GRASS)
-      tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_EARTH);
-    else if (tr.surfaceFlags & SURF_GLASS)
-      tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_GLASS);
-    else if (tr.surfaceFlags & SURF_SNOW)
-      tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_SNOW);
-    else
-      tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WALL);
-
+    tent = G_TempEntity(tr.endpos, BG_GetSufaceType(tr.surfaceFlags));
     tent->s.eventParm = DirToByte(tr.plane.normal);
-
     // we need the client number to determine whether or not to
     // suppress this event
     tent->s.clientNum = ent->s.clientNum;//unlagged - attack prediction #2
@@ -329,8 +303,8 @@ static void Weapon_Pistol_Fire(gentity_t *ent)
 {
   int damage = PISTOL_DAMAGE;
   int spread = PISTOL_SPREAD;
-  int nulNum = qfalse;
-  int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
+  //int nulNum = qfalse;
+  //int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
 
   if (g_weaponmod.integer == WM_HITMEN)
     damage = PISTOL_DAMAGE_HM;
@@ -353,14 +327,14 @@ MACHINEGUN
 static void Weapon_Tomgun_Fire(gentity_t *ent)
 {
   int damage = MACHINEGUN_DAMAGE;
-  int nulNum = qfalse;
-  int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
+  //int nulNum = qfalse;
+  //int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
 
   if (g_gametype.integer == GT_TEAM)
-  damage = MACHINEGUN_TEAM_DAMAGE;
+    damage = MACHINEGUN_TEAM_DAMAGE;
 
   if (g_weaponmod.integer & WM_REALMODE)
-  damage /= 2;
+    damage /= 2;
 
   Bullet_Fire(ent, MACHINEGUN_SPREAD, damage, MOD_MACHINEGUN, 1);
 }
@@ -443,7 +417,7 @@ void Weapon_Shotgun_Fire(gentity_t *ent)
   else
     spread = DEFAULT_SHOTGUN_SPREAD;
 
-    Bullet_Fire(ent, spread, damage, MOD_SHOTGUN, DEFAULT_SHOTGUN_COUNT);
+  Bullet_Fire(ent, spread, damage, MOD_SHOTGUN, DEFAULT_SHOTGUN_COUNT);
 }
 
 
@@ -657,8 +631,8 @@ void weapon_railgun_fire(gentity_t *ent)
 
 static void Weapon_Hmg_Fire(gentity_t *ent)
 {
-  int nulNum = qfalse;
-  int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
+  //int nulNum = qfalse;
+  //int seed = ent->client->attackTime % 256;//unlagged - attack prediction #2
   if ((ent->client->ps.stats[STAT_WEAP_MODS] & (1 << PW_WPMOD_COOLING)))
     ent->client->hmgShotsWithCooling--;
 

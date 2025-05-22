@@ -128,28 +128,31 @@ tag location
 */
 void CG_PositionEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName)
 {
-  int i;
+  int i, tagIndex;
   orientation_t lerped;
 
   Q_UNUSED(parentModel);
 
   // lerp the tag
 #if defined(COMPAT_KPQ3) || defined(COMPAT_ET)
-  trap_R_LerpTag( &lerped, parent, tagName, 0 );
+  tagIndex = trap_R_LerpTag( &lerped, parent, tagName, 0 );
 #else
-  trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame,  1.0 - parent->backlerp, tagName);
+  tagIndex = trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame,  1.0 - parent->backlerp, tagName);
  #endif
-  // FIXME: allow origin offsets along tag?
+
   VectorCopy(parent->origin, entity->origin);
-
-  for (i = 0; i < 3; i++)
+  //found valid tag/bone.
+  if (tagIndex > -1)
   {
-    VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
-  }
+    for (i = 0; i < 3; i++)
+    {
+      VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
+    }
 
-  // had to cast away the const to avoid compiler problems...
-  AxisMultiply(lerped.axis, ((refEntity_t *)parent)->axis, entity->axis);
-  entity->backlerp = parent->backlerp;
+    // had to cast away the const to avoid compiler problems...
+    AxisMultiply(lerped.axis, ((refEntity_t *)parent)->axis, entity->axis);
+    entity->backlerp = parent->backlerp;
+  }
 }
 
 /*
@@ -197,7 +200,7 @@ tag location
 */
 void CG_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName)
 {
-  int i;
+  int i, tagIndex;
   orientation_t lerped;
   vec3_t tempAxis[3];
 
@@ -205,23 +208,26 @@ void CG_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *paren
 
   // lerp the tag
 #if defined(COMPAT_KPQ3) || defined(COMPAT_ET)
-  trap_R_LerpTag( &lerped, parent, tagName, 0 );
+  tagIndex = trap_R_LerpTag( &lerped, parent, tagName, 0 );
 #else
-  trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
+  tagIndex = trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
 #endif
   
-  // FIXME: allow origin offsets along tag?
   VectorCopy(parent->origin, entity->origin);
-
-  for (i = 0; i < 3; i++)
+  //found valid tag/bone.
+  if (tagIndex > -1)
   {
-    VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
+    for (i = 0; i < 3; i++)
+    {
+      VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
+    }
+
+    // had to cast away the const to avoid compiler problems...
+    AxisMultiply(entity->axis, lerped.axis, tempAxis);
+    AxisMultiply(tempAxis, ((refEntity_t *)parent)->axis, entity->axis);
   }
-
-  // had to cast away the const to avoid compiler problems...
-  AxisMultiply(entity->axis, lerped.axis, tempAxis);
-  AxisMultiply(tempAxis, ((refEntity_t *)parent)->axis, entity->axis);
-
+  //else
+    //failed message?
 }
 
 
@@ -472,6 +478,7 @@ static void CG_Missile(centity_t *cent)
   entityState_t *s1;
   const weaponInfo_t *weapon;
   int col = 0;
+
   s1 = &cent->currentState;
   if (s1->weapon >= WP_NUM_WEAPONS)
     s1->weapon = 0;
@@ -484,16 +491,14 @@ static void CG_Missile(centity_t *cent)
   if (weapon->missileTrailFunc)
     weapon->missileTrailFunc(cent, weapon);
 
-  if (cent->currentState.modelindex == TEAM_DRAGONS)
-    col = 1;
-  else if (cent->currentState.modelindex == TEAM_NIKKIS)
-    col = 2;
-  else
-    col = 0;
-
   // add dynamic light
   if (weapon->missileDlight)
   {
+    if (s1->modelindex == TEAM_DRAGONS)
+      col = 1;
+    else if (cent->currentState.modelindex == TEAM_NIKKIS)
+      col = 2;
+
     trap_R_AddAdditiveLightToScene(cent->lerpOrigin, weapon->missileDlight,
                            weapon->missileDlightColor[col][0],
                            weapon->missileDlightColor[col][1],
@@ -531,7 +536,7 @@ static void CG_Missile(centity_t *cent)
   {
    //  #ifdef MISSIONPACK
     if ( s1->weapon == WP_GRENADE_LAUNCHER )
-        AnglesToAxis( cent->lerpAngles, ent.axis );
+      AnglesToAxis( cent->lerpAngles, ent.axis );
     else
       RotateAroundDirection(ent.axis, s1->time);
   }
@@ -540,10 +545,12 @@ static void CG_Missile(centity_t *cent)
   trap_R_AddRefEntityToScene(&ent);
 }
 
+
+
 #ifdef HYPODEBUG
 /*
 ===============
-CG_Flamer
+CG_FlamerDebug
 ===============
 */
 static void CG_FlamerDebug(centity_t *cent)
@@ -1144,12 +1151,13 @@ static void CG_AddCEntity(centity_t *cent)
   case ET_TEAM:
     CG_TeamBase(cent);
     break;
+
+ //FIXME(0xA5EA): flame gun ET_FLAMETHROWER_CHUNK
   case ET_FLAMETHROWER_CHUNK:
 #ifdef HYPODEBUG
   CG_FlamerDebug(cent); //debug
 #endif
     break; //hypov8 note: null. client effects generated localy
-    //FIXME(0xA5EA): flame gun ET_FLAMETHROWER_CHUNK
   }
 }
 
@@ -1206,7 +1214,7 @@ void CG_AddPacketEntities(void)
   // add each entity sent over by the server
   for (num = 0; num < cg.snap->numEntities; num++)
   {
-  cent = &cg_entities[cg.snap->entities[num].number];
+    cent = &cg_entities[cg.snap->entities[num].number];
     CG_AddCEntity(cent);
   }
 

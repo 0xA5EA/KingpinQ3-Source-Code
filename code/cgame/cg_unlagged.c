@@ -22,16 +22,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-#if 1 	//hypov8 todo: cleanup. disabled predicting bullets/fx localy..
 // we'll need these prototypes
-void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum );
-//void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum ); //orig unlag
 void CG_Bullet(int weapon, vec3_t origin, int sourceEntityNum, vec3_t normal, int ImpactType, int fleshEntityNum);
-// and this as well
+int BG_GetSufaceType(int flags);
 
-//hypov8 needs to match g_xxx settings
-//moved to bg_public
-//#define MACHINEGUN_SPREAD	200
+
+int CG_GetSufaceType(int flags)
+{
+  switch (BG_GetSufaceType(flags))
+  {
+    case EV_BULLET_HIT_METAL:
+      return IMPACTSOUND_METAL;
+    case EV_BULLET_HIT_WOOD:
+      return IMPACTSOUND_WOOD;
+    case EV_BULLET_HIT_EARTH:
+      return IMPACTSOUND_EARTH;
+    case EV_BULLET_HIT_GLASS:
+      return IMPACTSOUND_GLASS;
+    case EV_BULLET_HIT_SNOW:
+      return IMPACTSOUND_SNOW;
+    default:
+    case EV_BULLET_HIT_WALL:
+      return IMPACTSOUND_DEFAULT;
+  }
+}
+
+
+
 
 /*
 =======================
@@ -43,8 +60,10 @@ of setting the right origin and angles.
 =======================
 */
 void CG_PredictWeaponEffects( centity_t *cent ) {
-	vec3_t		muzzlePoint, forward, right, up;
+	vec3_t		muzzlePoint, endPoint, forward, right, up;
 	entityState_t *ent = &cent->currentState;
+	int seed, impactType, i, fleshEntityNum, spread; //x+y spread?
+	trace_t tr;
 
 	// if the client isn't us, forget it
 	if ( cent->currentState.number != cg.predictedPlayerState.clientNum ) {
@@ -52,7 +71,7 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 	}
 
 	// if it's not switched on server-side, forget it
-	if ( !cgs.delagHitscan ) {
+	if ( !cgs.delagHitscan || !cg_delag.integer) {
 		return;
 	}
 
@@ -63,145 +82,153 @@ void CG_PredictWeaponEffects( centity_t *cent ) {
 	// get forward, right, and up
 	AngleVectors( cg.predictedPlayerState.viewangles, forward, right, up );
 	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
+	SnapVector(muzzlePoint); //hypov8 match server
 
+	// the server will use this exact time (it'll be serverTime on that end)
+	seed = cg.oldTime % 256;
 
 	// was it a shotgun attack?
 	if ( ent->weapon == WP_SHOTGUN ) 
 	{
-		// do we have it on for the shotgun?
-		if ( cg_delag.integer & 1 || cg_delag.integer & 4 ) 
+		float r, u;
+		int showBlood = qtrue;
+		int drewBlood = qfalse;
+
+		// do everything like the server does
+		SnapVector( muzzlePoint );
+		VectorScale( forward, 4096, endPoint );
+
+		SnapVector( endPoint );
+		/*VectorSubtract(endPoint, muzzlePoint, v);
+		VectorNormalize( v );
+		VectorScale( v, 32, v );
+		VectorAdd( muzzlePoint, v, v );*/
+
+		if (cgs.weaponmod & WM_REALMODE) //g_weaponmod.integer
+			spread = DEFAULT_SHOTGUN_SPREAD_RM;
+		else
+			spread = DEFAULT_SHOTGUN_SPREAD;
+
+		// generate the "random" spread pattern
+		for (i = 0; i < DEFAULT_SHOTGUN_COUNT; i++)
 		{
-			vec3_t endPoint, v;
-			int seed = cg.oldTime % 256;
-			float r, u;
-			trace_t tr;
-			int flesh;
-			int fleshEntityNum = 0;
-
-			int i, spread;
-			int showBlood = qtrue;
-			int drewBlood = qfalse;
-			int damage = DEFAULT_SHOTGUN_DAMAGE;
-
-			// do everything like the server does
-			SnapVector( muzzlePoint );
-			VectorScale( forward, 4096, endPoint );
-
-			SnapVector( endPoint );
-			VectorSubtract(endPoint, muzzlePoint, v);
-			VectorNormalize( v );
-			VectorScale( v, 32, v );
-			VectorAdd( muzzlePoint, v, v );
-
-			if (/*g_weaponmod.integer*/ cgs.weaponmod & WM_REALMODE)
-				spread = DEFAULT_SHOTGUN_SPREAD_RM;
-			else
-				spread = DEFAULT_SHOTGUN_SPREAD;
-
-			// generate the "random" spread pattern
-			for (i = 0; i < DEFAULT_SHOTGUN_COUNT; i++)
-			{
-				r = Q_random(&seed) * M_PI * 2.0f;
-				u = sin(r) * Q_crandom(&seed) * spread * 16;
-				r = cos(r) * Q_crandom(&seed) * spread * 16;
-
-				//r = Q_crandom(&seed) * spread * 16;
-				//u = Q_crandom(&seed) * spread * 16;
-				VectorMA(muzzlePoint, 8192 * 16, forward, endPoint);
-				VectorMA(endPoint, r, right, endPoint);
-				VectorMA(endPoint, u, up, endPoint);
-				CG_Trace(&tr, muzzlePoint, NULL, NULL, endPoint, cg.predictedPlayerState.clientNum, MASK_SHOT);
-
-				if (tr.surfaceFlags & SURF_NOIMPACT)
-					continue;
-
-				SnapVectorTowards(tr.endpos, muzzlePoint);
-
-				// do bullet impact
-				if (!drewBlood && tr.entityNum < MAX_CLIENTS)
-				{
-					flesh = IMPACTSOUND_FLESH;
-					fleshEntityNum = tr.entityNum;
-					drewBlood = qtrue;
-				}
-				else 
-				{
-					flesh = qfalse;
-				}
-
-				CG_Bullet(ent->weapon, tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, flesh, fleshEntityNum);
-			}
-		}
-	}
-
-#if 1 //hypo client predicted wep effects
-	else if (ent->weapon == WP_PISTOL || ent->weapon == WP_MACHINEGUN || ent->weapon == WP_HMG)
-	{
-		// do we have it on for the machinegun?
-		if (cg_delag.integer & 1 || cg_delag.integer & 2)
-		{
-			// the server will use this exact time (it'll be serverTime on that end)
-			int seed = cg.oldTime % 256;
-			float r, u;
-			trace_t tr;
-			qboolean flesh;
-			int fleshEntityNum = 0;
-			vec3_t endPoint;
-			int spread; //x+y?
-
-			switch (ent->weapon)
-			{
-				case WP_PISTOL:
-					spread = PISTOL_SPREAD;
-					break;
-				case WP_MACHINEGUN:
-					spread = MACHINEGUN_SPREAD ; // (cgs.weaponmod & WM_REALMODE)?
-					break;
-				case WP_HMG:
-					spread = HMG_SPREAD;
-					break;
-			}
-
-			fleshEntityNum = 0; //hypov8 initilized 0??
-
-			// do everything exactly like the server does
-
 			r = Q_random(&seed) * M_PI * 2.0f;
 			u = sin(r) * Q_crandom(&seed) * spread * 16;
 			r = cos(r) * Q_crandom(&seed) * spread * 16;
 
+			//r = Q_crandom(&seed) * spread * 16;
+			//u = Q_crandom(&seed) * spread * 16;
 			VectorMA(muzzlePoint, 8192 * 16, forward, endPoint);
 			VectorMA(endPoint, r, right, endPoint);
 			VectorMA(endPoint, u, up, endPoint);
-
 			CG_Trace(&tr, muzzlePoint, NULL, NULL, endPoint, cg.predictedPlayerState.clientNum, MASK_SHOT);
 
 			if (tr.surfaceFlags & SURF_NOIMPACT)
-			{
-				return;
-			}
+				continue;
 
-			// snap the endpos to integers, but nudged towards the line
-			SnapVectorTowards(tr.endpos, muzzlePoint);
+			//SnapVectorTowards(tr.endpos, muzzlePoint);
 
 			// do bullet impact
-			if (tr.entityNum < MAX_CLIENTS)
+			if (!drewBlood && tr.entityNum < MAX_CLIENTS)
 			{
-				flesh = IMPACTSOUND_FLESH;
+				impactType = IMPACTSOUND_FLESH;
 				fleshEntityNum = tr.entityNum;
+				drewBlood = qtrue;
 			}
-			else {
-				flesh = qfalse;
+			else 
+			{
+				impactType = CG_GetSufaceType(tr.surfaceFlags);
+				fleshEntityNum = 0;
 			}
 
 			// do the bullet impact
-			//CG_Bullet( tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, flesh, fleshEntityNum ); //orig unlag
-			CG_Bullet(ent->weapon, tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, flesh, fleshEntityNum);
+			CG_Bullet(ent->weapon, tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, impactType, fleshEntityNum);
 		}
 	}
-#endif
+	//hypo client predicted bullet effects
+	else if (ent->weapon == WP_PISTOL || ent->weapon == WP_MACHINEGUN || ent->weapon == WP_HMG)
+	{
+		float r, u;
 
+		switch (ent->weapon)
+		{
+			case WP_PISTOL:
+				spread = PISTOL_SPREAD;
+				break;
+			case WP_MACHINEGUN:
+				spread = MACHINEGUN_SPREAD ; // (cgs.weaponmod & WM_REALMODE)?
+				break;
+			default:
+			case WP_HMG:
+				spread = HMG_SPREAD;
+				break;
+		}
+
+		// do everything exactly like the server does
+		r = Q_random(&seed) * M_PI * 2.0f;
+		u = sin(r) * Q_crandom(&seed) * spread * 16;
+		r = cos(r) * Q_crandom(&seed) * spread * 16;
+
+		VectorMA(muzzlePoint, 8192 * 16, forward, endPoint);
+		VectorMA(endPoint, r, right, endPoint);
+		VectorMA(endPoint, u, up, endPoint);
+
+		CG_Trace(&tr, muzzlePoint, NULL, NULL, endPoint, cg.predictedPlayerState.clientNum, MASK_SHOT);
+
+		if (tr.surfaceFlags & SURF_NOIMPACT)
+		{
+			return;
+		}
+
+		// snap the endpos to integers, but nudged towards the line
+		//SnapVectorTowards(tr.endpos, muzzlePoint);
+
+		// do bullet impact
+		if (tr.entityNum < MAX_CLIENTS)
+		{
+			impactType = IMPACTSOUND_FLESH;
+			fleshEntityNum = tr.entityNum;
+		}
+		else {
+			impactType = CG_GetSufaceType(tr.surfaceFlags);
+			fleshEntityNum = 0;
+		}
+
+		// do the bullet impact
+		CG_Bullet(ent->weapon, tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, impactType, fleshEntityNum);
+	}
+	//crowbar effects prediction
+	else if (ent->weapon == WP_CROWBAR)
+	{
+		VectorMA(muzzlePoint, CROWBAR_DIST, forward, endPoint);
+		CG_Trace(&tr, muzzlePoint, NULL, NULL, endPoint, cg.predictedPlayerState.clientNum, MASK_SHOT);
+
+		if (tr.surfaceFlags & SURF_NOIMPACT)
+			return;
+
+		if (tr.entityNum == ENTITYNUM_NONE)
+			return;
+
+		// snap the endpos to integers, but nudged towards the line
+		//SnapVectorTowards(tr.endpos, muzzlePoint);
+
+		// do bullet impact
+		if (tr.entityNum < MAX_CLIENTS)
+		{
+			impactType = IMPACTSOUND_FLESH;
+			fleshEntityNum = tr.entityNum;
+		}
+		else {
+			impactType = CG_GetSufaceType(tr.surfaceFlags);
+			fleshEntityNum = 0;
+		}
+
+		// do the bullet impact
+		CG_Bullet(ent->weapon, tr.endpos, cg.predictedPlayerState.clientNum, tr.plane.normal, impactType, fleshEntityNum);
+	}
 }
+
+
 
 /*
 ================
@@ -235,4 +262,3 @@ qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max 
 
 	return qfalse;
 }
-#endif

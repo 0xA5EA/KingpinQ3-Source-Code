@@ -61,20 +61,20 @@ CG_FreeLocalEntity
 */
 void CG_FreeLocalEntity(localEntity_t *le)
 {
-  if (!le->prev)
+  if (!le || !le->prev)
   {
     CG_Error("CG_FreeLocalEntity: not active");
+    return;
   }
-  else //add hypov8 'dereferenceing null pointer'
-  {
-	  // remove from the doubly linked active list
-	  le->prev->next = le->next;
-	  le->next->prev = le->prev;
-	
-	  // the free list is only singly linked
-	  le->next             = cg_freeLocalEntities;
-	  cg_freeLocalEntities = le;
-  }
+
+  // remove from the doubly linked active list
+  le->prev->next = le->next;
+  le->next->prev = le->prev;
+
+  // the free list is only singly linked
+  le->next             = cg_freeLocalEntities;
+  cg_freeLocalEntities = le;
+
 }
 
 /*
@@ -97,23 +97,22 @@ localEntity_t *CG_AllocLocalEntity(void)
 
   if (cg_freeLocalEntities)
   {
-  le = cg_freeLocalEntities;
-  cg_freeLocalEntities = cg_freeLocalEntities->next;
+    le = cg_freeLocalEntities;
+    cg_freeLocalEntities = cg_freeLocalEntities->next;
 
-  Com_Memset(le, 0, sizeof(*le));
+    Com_Memset(le, 0, sizeof(*le));
 
-  // link into the active list
-  le->next                          = cg_activeLocalEntities.next;
-  le->prev                          = &cg_activeLocalEntities;
-  cg_activeLocalEntities.next->prev = le;
-  cg_activeLocalEntities.next       = le;
-  return le;
-}
-  else //add hypov8 'dereferenceing null pointer'
-  {
-	  CG_Error("CG_AllocLocalEntity: nothing free");
-	  return NULL;
+    // link into the active list
+    le->next                          = cg_activeLocalEntities.next;
+    le->prev                          = &cg_activeLocalEntities;
+    cg_activeLocalEntities.next->prev = le;
+    cg_activeLocalEntities.next       = le;
+    return le;
   }
+
+  //cant get free entity
+  CG_Error("CG_AllocLocalEntity: nothing free");
+  return NULL;
 }
 
 
@@ -247,11 +246,25 @@ void CG_ReflectVelocity(localEntity_t *le, trace_t *trace)
   BG_EvaluateTrajectoryDelta(&le->pos, hitTime, velocity);
   dot = DotProduct(velocity, trace->plane.normal);
   VectorMA(velocity, -2 * dot, trace->plane.normal, le->pos.trDelta);
-
   VectorScale(le->pos.trDelta, le->bounceFactor, le->pos.trDelta);
-
   VectorCopy(trace->endpos, le->pos.trBase);
   le->pos.trTime = cg.time;
+
+  if (le->leFlags & LEF_TUMBLE)
+  {
+    vec3_t angles;
+    if (le->angles.trType != TR_STATIONARY)
+    {
+      BG_EvaluateTrajectory(&le->angles, cg.time, angles);
+      le->angles.trType = TR_STATIONARY;
+      angles[0] = 0;
+      VectorCopy(angles, le->angles.trBase);
+      VectorSet(le->angles.trDelta, -angles[0], 0, 0); //reset pitch so bullet lays flat
+      AnglesToAxis(angles, le->refEntity.axis);
+    }
+    //BG_EvaluateTrajectory(&le->angles, cg.time, angles);
+    //AnglesToAxis(angles, le->refEntity.axis);
+  }
 
   // check for stop, making sure that even on low FPS systems it doesn't bobble
   if (trace->allsolid ||
@@ -556,10 +569,12 @@ static void CG_AddSpriteExplosion(localEntity_t *le)
 {
   refEntity_t re;
   float c;
+  float duration = (float)(le->endTime - le->startTime);
+  float timeLeft = (float)(le->endTime - cg.time);
 
   re = le->refEntity;
 
-  c = (le->endTime - cg.time) / (float)(le->endTime - le->startTime);
+  c = timeLeft / duration;
   if (c > 1)
   {
     c = 1.0;    // can happen during connection problems
@@ -579,63 +594,155 @@ static void CG_AddSpriteExplosion(localEntity_t *le)
   if (le->light)
   {
     float light;
+    float timeActive = (float)(cg.time - le->startTime);
 
-    light = (float)(cg.time - le->startTime) / (le->endTime - le->startTime);
-    if (light < 0.5)
+    light = timeActive / duration;
+    if (light < 0.5f)
     {
-      light = 1.0;
+      //light = 1.0;
+      light = (light * 4.f); //hypov8. smooth light, fade in
+      if (light > 1.0f)
+        light = 1.0f;
     }
     else
     {
-      light = 1.0 - (light - 0.5) * 2;
+      light = 1.0f - (light - 0.5f) * 2.f; //fade out
     }
     light = le->light * light;
     trap_R_AddAdditiveLightToScene(re.origin, light, le->lightColor[0], le->lightColor[1], le->lightColor[2]);
   }
 }
 
+#ifdef COMPAT_KPQ3
+/*
+================
+CG_AddSpriteEmber
+
+use a local entity for shrapnel, 
+ so flames can be spawned from it
+
+update ember position.
+spawn smoke from ember.
+================
+*/
+static void CG_AddSpriteEmber(localEntity_t *le)
+{
+  vec3_t oldOrigin, newOrigin, end, velocity;
+  trace_t trace;
+  float dot, delta;
+
+
+  VectorCopy(le->refEntity.origin, oldOrigin);
+  // calculate new position
+  BG_EvaluateTrajectory(&le->pos, cg.time, newOrigin);
+
+	if (newOrigin[0]== 0 || newOrigin[1] == 0)
+	{
+		int j;
+		j = 0;
+	}
+
+  // trace a line from previous position to new position
+  CG_Trace(&trace, oldOrigin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID);
+
+  if (trace.allsolid)
+  {
+    CG_FreeLocalEntity(le);
+    return;
+  }
+
+  if (trace.fraction == 1.0)
+  { 
+    float height = newOrigin[2] - le->refEntity.origin[2];
+    //prevent excess gravity
+    if (height < 0)
+    {
+      //float vLen = VectorLength();
+//todo:   
+			/////////////VectorMA(newOrigin, height ,le->refEntity.origin,  newOrigin);
+
+      //
+      //VectorCopy(trace.endpos, le->pos.trBase);
+      //le->pos.trTime = cg.time;
+      //VectorCopy(le->pos.trBase, le->refEntity.origin);
+
+    }
+
+    // still in free fall
+    VectorCopy(newOrigin, le->refEntity.origin);
+
+  }
+  else
+  {
+    // nodrop zone
+    if (trap_CM_PointContents(trace.endpos, 0) & CONTENTS_NODROP)
+    {
+      CG_FreeLocalEntity(le);
+      return;
+    }
+    
+    //set new direction velocity
+    VectorSet(velocity, le->pos.trDelta[0], le->pos.trDelta[1], 0);
+    dot = DotProduct(velocity, trace.plane.normal);
+    VectorMA(velocity, -2 * dot, trace.plane.normal, le->pos.trDelta);
+
+    //move along new plane. get new pos //trace along new direction
+    delta = cg.frametime * 0.001 *(1 - trace.fraction) * le->bounceFactor;
+    VectorMA(trace.endpos, delta, le->pos.trDelta, end);
+    CG_Trace(&trace, trace.endpos, NULL, NULL, end, -1, CONTENTS_SOLID);
+
+    VectorCopy(trace.endpos, le->pos.trBase);
+    le->pos.trTime = cg.time;
+    VectorCopy(le->pos.trBase, le->refEntity.origin);
+  }
+
+  //add smoke particle, emmited from ember
+  CG_GrenadeParticleTrail(le, le->refEntity.origin);
+
+  //add localentity ember
+  trap_R_AddRefEntityToScene(&le->refEntity);
+}
 
 /*
 ================
-CG_AddSpriteExplosion
+CG_AddSpriteFireball
+
+spawn an animated fireball
+shader needs stages using ((time + parm4)*x % x == y)
 ================
 */
-static void CG_AddSpriteExplosion2(localEntity_t *le)
+static void CG_AddSpriteFireball(localEntity_t *le)
 {
-	refEntity_t re;
-	float c;
-	byte ranTmp;
-	int timediff;
+  refEntity_t *re;
+  float c;
 
-	re = le->refEntity;
+  re = &le->refEntity;
 
-	c = (le->endTime - cg.time) / (float)(le->endTime - le->startTime);
-	if (c > 1)
-		c = 1.0;    // can happen during connection problems
+  if (le->fadeInTime > le->startTime && cg.time < le->fadeInTime)
+  {
+    // fade / grow time
+    c = 1.0 - (float)(le->fadeInTime - cg.time) / (le->fadeInTime - le->startTime);
+  }
+  else
+  {
+    // fade / grow time
+    c = (le->endTime - cg.time) * le->lifeRate;
+  }
+  re->shaderRGBA[0] = 0xff;
+  re->shaderRGBA[1] = 0xff;
+  re->shaderRGBA[2] = 0xff;
+  re->shaderRGBA[3] = 0xff * c * le->color[3];
 
-	ranTmp = (byte)(255 * c * le->smokeRandTime);
-	re.shaderRGBA[0] = 0xff;
-	re.shaderRGBA[1] = 0xff;
-	re.shaderRGBA[2] = 0xff;
-	re.shaderRGBA[3] = ranTmp; // 0xff * c * le->smokeRandTime/* * 0.33*/;
+  if (!(le->leFlags & LEF_PUFF_DONT_SCALE))
+  {
+    re->radius = (1.0 - c) * le->radius + le->radius;
+  }
 
-	re.reType = RT_SPRITE;
-	re.radius = 8 * (1.0 - c) + 6;
+  BG_EvaluateTrajectory(&le->pos, cg.time, re->origin);
 
-
-	timediff = cg.time - le->startTime;
-	re.customShader = cgs.media.smokeGLShader[0];
-	if (timediff > 360)			re.customShader = cgs.media.smokeGLShader[5];
-	else if (timediff > 290)	re.customShader = cgs.media.smokeGLShader[4];
-	else if (timediff > 220)	re.customShader = cgs.media.smokeGLShader[3];
-	else if (timediff > 160)	re.customShader = cgs.media.smokeGLShader[2];
-	else if (timediff >  30)	re.customShader = cgs.media.smokeGLShader[1];
-
-
-	trap_R_AddRefEntityToScene(&re);
-
+  trap_R_AddRefEntityToScene(re);
 }
-
+#endif
 
 #ifdef USE_KAMIKAZE
 /*
@@ -973,11 +1080,14 @@ void CG_AddLocalEntities(void)
     case LE_SPRITE_EXPLOSION:
       CG_AddSpriteExplosion(le);
       break;
-
-	case LE_SPRITE_EXPLOSION2: //add hyypov8 smaller
-		CG_AddSpriteExplosion2(le);
-		break;
-
+#ifdef COMPAT_KPQ3
+    case LE_SPRITE_EMBER: //grenade particle explosion
+      CG_AddSpriteEmber(le);
+      break;
+    case LE_SPRITE_FIREBALL: //grenade fireball
+      CG_AddSpriteFireball(le);
+      break;
+#endif
     case LE_EXPLOSION:
       CG_AddExplosion(le);
       break;

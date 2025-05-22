@@ -625,6 +625,9 @@ protected:
 	  USE_NORMAL_MAPPING,
 	  USE_PARALLAX_MAPPING,
 	  USE_REFLECTIVE_SPECULAR,
+#if defined( COMPAT_KPQ3 )
+	  USE_PBR_SPECULAR,
+#endif
 	  USE_SHADOWING,
 	  TWOSIDED,
 	  EYE_OUTSIDE,
@@ -1103,6 +1106,53 @@ public:
 		}
 	}
 };
+
+#if defined( COMPAT_KPQ3 )
+class GLCompileMacro_USE_PBR_SPECULAR :
+	GLCompileMacro
+{
+public:
+	GLCompileMacro_USE_PBR_SPECULAR( GLShader *shader ) :
+		GLCompileMacro( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "USE_PBR_SPECULAR";
+	}
+
+	EGLCompileMacro GetType() const
+	{
+		return USE_PBR_SPECULAR;
+	}
+
+	bool MissesRequiredMacros( size_t permutation, const std::vector< GLCompileMacro * > &macros ) const;
+
+	void EnablePBRSpecular()
+	{
+		EnableMacro();
+	}
+
+	void DisablePBRSpecular()
+	{
+		DisableMacro();
+	}
+
+	void SetPBRSpecular( bool enable )
+	{
+		if ( enable )
+		{
+			EnableMacro();
+		}
+		else
+		{
+			DisableMacro();
+		}
+	}
+};
+
+#endif
 
 class GLCompileMacro_TWOSIDED :
 	GLCompileMacro
@@ -2421,6 +2471,7 @@ class GLShader_vertexLighting_DBS_entity :
 	public GLCompileMacro_USE_NORMAL_MAPPING,
 	public GLCompileMacro_USE_PARALLAX_MAPPING,
 	public GLCompileMacro_USE_REFLECTIVE_SPECULAR,
+	public GLCompileMacro_USE_PBR_SPECULAR,
 	public GLCompileMacro_USE_GLOW_MAPPING
 //public GLCompileMacro_TWOSIDED
 {
@@ -2492,6 +2543,7 @@ class GLShader_forwardLighting_omniXYZ :
 	public GLCompileMacro_USE_DEFORM_VERTEXES,
 	public GLCompileMacro_USE_NORMAL_MAPPING,
 	public GLCompileMacro_USE_PARALLAX_MAPPING,
+	public GLCompileMacro_USE_PBR_SPECULAR,
 	public GLCompileMacro_USE_SHADOWING //,
 //public GLCompileMacro_TWOSIDED
 {
@@ -2534,6 +2586,7 @@ class GLShader_forwardLighting_projXYZ :
 	public GLCompileMacro_USE_DEFORM_VERTEXES,
 	public GLCompileMacro_USE_NORMAL_MAPPING,
 	public GLCompileMacro_USE_PARALLAX_MAPPING,
+	public GLCompileMacro_USE_PBR_SPECULAR,
 	public GLCompileMacro_USE_SHADOWING //,
 //public GLCompileMacro_TWOSIDED
 {
@@ -2577,6 +2630,7 @@ class GLShader_forwardLighting_directionalSun :
 	public GLCompileMacro_USE_DEFORM_VERTEXES,
 	public GLCompileMacro_USE_NORMAL_MAPPING,
 	public GLCompileMacro_USE_PARALLAX_MAPPING,
+	public GLCompileMacro_USE_PBR_SPECULAR,
 	public GLCompileMacro_USE_SHADOWING //,
 //public GLCompileMacro_TWOSIDED
 {

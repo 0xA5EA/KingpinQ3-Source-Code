@@ -576,18 +576,19 @@ void G_ParseField(const char *key, const char *value, gentity_t *ent)
         break;
       case F_ROTATIONHACK:
       {
-        matrix_t rotation;
+        axis_t axis;
         char *p, *token;
-        int i;
-        MatrixCopy(matrixIdentity, rotation);
+        int i, j;
         p = (char *)value;
-        for (i = 0; i < 9; i++)
+        for (i = 0; i < 3; i++)
         {
-          token = Com_Parse(&p);
-          rotation[i] = atof(token);
+          for (j = 0; j < 3; j++)
+          {
+            token = Com_Parse(&p);
+            axis[i][j] = atof(token);
+          }
         }
-        MatrixToAngles(rotation, vec);
-
+        AxisToAngles(axis, vec);
         ((float *)(b + f->ofs))[0] = vec[0];
         ((float *)(b + f->ofs))[1] = vec[1];
         ((float *)(b + f->ofs))[2] = vec[2];

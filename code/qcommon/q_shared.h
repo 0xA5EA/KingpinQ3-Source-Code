@@ -1687,10 +1687,10 @@ typedef struct
 //=====================================================================
 // in order from highest priority to lowest
 // if none of the catchers are active, bound key strings will be executed
-#define KEYCATCH_CONSOLE		0x0001
-#define	KEYCATCH_UI					0x0002
-#define	KEYCATCH_MESSAGE		0x0004
-#define	KEYCATCH_CGAME			0x0008
+#define KEYCATCH_CONSOLE  0x0001
+#define KEYCATCH_UI       0x0002
+#define KEYCATCH_MESSAGE  0x0004
+#define KEYCATCH_CGAME    0x0008
 
 // sound channels
 // channel 0 never willingly overrides
@@ -1756,6 +1756,14 @@ int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, struct cplane_s *p);
   ELEMENTS COMMUNICATED ACROSS THE NET
 ========================================================================
 */
+#define ANIM_BITS 10 //animation size
+
+#define STATS_GROUP_FIELD 99 // magic number in `bits` for 'int stats[16]' (but these ints must fit in a signed short)
+#define STATS_GROUP_NUM_STATS 16
+
+#define WEP_GROUP_FIELD 98 //
+#define WEP_GROUP_NUM_STATS 16 //MAX_WEAPONS (network commnicated size)
+
 #define	ANGLE2SHORT(x)	((int)((x)*65536/360) & 65535)
 #define	SHORT2ANGLE(x)	((x)*(360.0/65536))
 
@@ -1810,10 +1818,10 @@ typedef struct
 
 
 // bit field limits
-#define	MAX_STATS			    16
-#define	MAX_PERSISTANT			16
-#define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				16
+#define	MAX_STATS       STATS_GROUP_NUM_STATS //16
+#define	MAX_PERSISTANT  STATS_GROUP_NUM_STATS //16
+#define	MAX_POWERUPS    WEP_GROUP_NUM_STATS   //16
+#define	MAX_WEAPONS     WEP_GROUP_NUM_STATS   //16
 
 #define	MAX_PS_EVENTS			4 // max events per frame before we drop events //daemon .5 (was 2)
 
@@ -2092,7 +2100,7 @@ typedef struct entityState_s
 
   int weaponAnim; // mask off ANIM_TOGGLEBIT
 
-  int	chaseCamMode;			//add hypov8 ToDo:
+  int	chaseCamMode;			//add hypov8 ToDo: payerstate..
   //0xA5EA: beware, if you add new variables you have to edit
   //entityStateFields in msg.cc as well !!!
 } entityState_t;
@@ -2163,15 +2171,16 @@ typedef struct qtime_s
 
 // server browser sources
 // TTimo: AS_MPLAYER is no longer used
-#define AS_LOCAL			0
-//#define AS_MPLAYER			1
-#define AS_GLOBAL			1 //master0
-#define AS_GLOBAL1			2 //master1
-#define AS_GLOBAL2			3 //master2
-#define AS_GLOBAL3			4 //master3
-#define AS_GLOBAL4			5 //master4
-#define AS_GLOBAL5			6 //master4
-#define AS_FAVORITES		7
+#define AS_FAVORITES 0
+#define AS_LOCAL     1
+//#define AS_MPLAYER 1
+#define AS_GLOBAL    2 //master0
+#define AS_GLOBAL1   3 //master1
+#define AS_GLOBAL2   4 //master2
+#define AS_GLOBAL3   5 //master3
+#define AS_GLOBAL4   6 //master4
+#define AS_GLOBAL5   7 //master4
+
 
 // cinematic states
 typedef enum

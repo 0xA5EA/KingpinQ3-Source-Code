@@ -272,9 +272,20 @@ Decide what time to shift everyone back to, and do it
 ================
 */
 void G_DoTimeShiftFor( gentity_t *ent ) {
-#ifndef MISSIONPACK
-  //int wpflags[WP_NUM_WEAPONS] = { 0, 0, 2, 4, 0, 0, 8, 16, 0, 0, 0 }; //orig antilag
-  int wpflags[WP_NUM_WEAPONS] = { 0, 2, 4, 8, 0, 0, 16, 32, 0, 0 }; //predict flamer?
+#if defined(COMPAT_KPQ3)
+  int wpflags[WP_NUM_WEAPONS] = { 
+    0, //WP_NONE
+    0, //WP_CROWBAR
+    2, //WP_PISTOL
+    4, //WP_SHOTGUN
+    8, //WP_MACHINEGUN
+    0, //WP_GRENADE_LAUNCHER
+    16,//WP_ROCKET_LAUNCHER
+    32,//WP_HMG
+    0, //WP_FLAMER //predict flamer?
+    0 };
+#elif !defined( MISSIONPACK)
+  int wpflags[WP_NUM_WEAPONS] = { 0, 0, 2, 4, 0, 0, 8, 16, 0, 0, 0 }; //orig antilag
 #else
   int wpflags[WP_NUM_WEAPONS] = { 0, 0, 2, 4, 0, 0, 8, 16, 0, 0, 0, 32, 0, 64 };
 #endif
@@ -288,7 +299,7 @@ void G_DoTimeShiftFor( gentity_t *ent ) {
   }
 
   // if it's enabled server-side and the client wants it or wants it for this weapon
-  if ( g_delagHitscan.integer && ( ent->client->pers.delag & 1 || ent->client->pers.delag & wpflag ) )
+  if ( g_delagHitscan.integer && ent->client->pers.delag && wpflag )
   {
     // do the full lag compensation, except what the client nudges
     time = ent->client->attackTime + ent->client->pers.cmdTimeNudge;

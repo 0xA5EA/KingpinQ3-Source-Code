@@ -394,7 +394,7 @@ typedef enum
 #ifdef WITH_BAGMAN_MOD
   PERS_CASH_STOLEN,                       // 0xA5EA, bagman
   PERS_CASH_COLLECTED,                    // 0xA5EA, bagman
-  PERS_CASH_DEPOSIT						//hypov8 todo: client not using these yet?
+  PERS_CASH_DEPOSIT                       //hypov8 todo: client not using these yet?
 #endif
   ,PERS_NEWWEAPON
   //FIXME(0xA5EA): bagman need them all ?
@@ -1104,7 +1104,7 @@ void VectorToAngles(const vec3_t value1, vec3_t angles); //hypov8 merge:
 qboolean BG_PlayerCanChangeWeapon(playerState_t *ps); //unvan .52
 qboolean BG_InventoryContainsWeapon(int weapon, const int stats[ ]); //unvan .52
 qboolean BG_InventoryContainsAmmo(int weapon, playerState_t *ps); //unvan .52
-
+int BG_GetSufaceType(int flags); //hypov8 predict effects using common surfaceflags
 
 
 #define ARENAS_PER_TIER 4

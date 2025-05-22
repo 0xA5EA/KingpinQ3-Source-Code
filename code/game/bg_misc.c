@@ -180,8 +180,8 @@ gitem_t bg_itemlist[] =
       "models/weapons/colt/v_wep.md3",			// first person view wep
       "models/weapons/colt/v_hand.md3", 		// first person view hand
       "models/weapons/colt/flash.md3",			// first person+3rd person flash model sprite
-      "models/weapons/colt/w_player.md3",	// world player weapon model
-      "models/weapons/colt/w_map.md3"			// world map model
+      "models/weapons/colt/w_wep.md3",	// world player weapon model
+      "models/weapons/colt/w_wep.md3"			// world map model
       //FIXME (0xA5EA): use world pistol model
     },
     "gfx/icons/h_pistol_mag",    // icon
@@ -262,8 +262,8 @@ gitem_t bg_itemlist[] =
       "models/weapons/rocketlauncher/v_wep.md5mesh",
       0,
       "models/weapons/rocketlauncher/flash.md3",
-      "models/weapons/rocketlauncher/w_player.md3",  // world player weaponmodel
-      "models/weapons/rocketlauncher/w_map.md3"      // world spawn weaponmodel
+      "models/weapons/rocketlauncher/w_wep.md3",  // world player weaponmodel
+      "models/weapons/rocketlauncher/w_wep.md3"      // world spawn weaponmodel
     },
     "gfx/icons/h_bazooka",      // icon
     "Rocket Launcher",      // pickup name
@@ -529,9 +529,9 @@ gitem_t bg_itemlist[] =
     "item_pistol_damage_mod",
     "sound/misc/w_pkup.ogg",
     {
-        "models/pu_icon/ro_fire_mod/tris.md3",
+        "models/pu_icon/mag_mod/tris.md3",
       0, 0, 0,
-      "models/pu_icon/ro_fire_mod/tris.md3"
+      "models/pu_icon/mag_mod/tris.md3"
     },
     /* icon */ "gfx/icons/h_ecd",
     /* pickup */ "Magnum fire mod",
@@ -1015,23 +1015,39 @@ qboolean BG_PlayerTouchesItem(playerState_t *ps, entityState_t *item, int atTime
 =================
 BG_PlayerCanChangeWeapon
 
-can't change if weapon is firing and counter > 0
-can change again if lowering or raising or reloading
+can't change weapon if 
+  hitmen,
+  reloading, 
+  counter > 0,
+  
+can change weapon if 
+  lowering,
+  raising,
+  reloading shotty,
+  firing
 =================
 */
 qboolean BG_PlayerCanChangeWeapon(playerState_t *ps) //unvan .52
 {
+	//hitmen
+	if (ps->weaponstate == WEAPON_HM_LOCK)
+		return qfalse;
+
 	if (ps->weapon == WP_SHOTGUN && ps->weaponstate == WEAPON_RELOAD_MOD)
-	{
 		return qtrue;
-	}
+
+	if (ps->weaponstate == WEAPON_FIRING)
+		return qtrue;
 
 	if ( ps->weaponstate == WEAPON_RELOADING
-		|| ps->weaponstate == WEAPON_RELOAD_MOD
-		//|| ps->weaponstate == WEAPON_FIRING
-		|| ps->weaponstate == WEAPON_DROPPING 
-		|| ps->weaponstate == WEAPON_RAISING
-		|| ps->weaponTime > 0 )
+		|| ps->weaponstate == WEAPON_RELOAD_MOD)
+		return qfalse;
+
+	if (ps->weaponstate == WEAPON_DROPPING 
+		|| ps->weaponstate == WEAPON_RAISING)
+		return qtrue;
+
+	if (ps->weaponTime > 0)
 		return qfalse;
 
 	return qtrue;
@@ -1087,6 +1103,30 @@ bool BG_SetWeaponState(int weapon, playerState_t *ps)
 }
 */
 
+
+/*
+==============
+BG_GetSufaceType
+surface to event/impacts
+==============
+*/
+//#ifdef COMPAT_KPQ3
+int BG_GetSufaceType(int flags)
+{
+  if (flags & SURF_METALSTEPS || flags & SURF_METALLIGHT)
+    return  EV_BULLET_HIT_METAL;
+  else if (flags & SURF_WOOD)
+    return  EV_BULLET_HIT_WOOD;
+  else if (flags & SURF_GRAVEL || flags & SURF_GRASS)
+    return  EV_BULLET_HIT_EARTH;
+  else if (flags & SURF_GLASS)
+    return  EV_BULLET_HIT_GLASS;
+  else if (flags & SURF_SNOW)
+    return EV_BULLET_HIT_SNOW;
+  else
+    return EV_BULLET_HIT_WALL;
+}
+//#endif
 
 #ifdef WITH_BAGMAN_MOD
 /*

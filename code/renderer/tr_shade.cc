@@ -471,6 +471,11 @@ void Tess_Begin( void ( *stageIteratorFunc )( void ),
 	tess.lightmapNum = lightmapNum;
 	tess.fogNum = fogNum;
 
+#if 0 //def COMPAT_KPQ3
+  if (tess.surfaceShader && tess.surfaceShader->timeOffset)
+    tess.shaderTime = backEnd.refdef.floatTime - tess.surfaceShader->timeOffset;
+#endif
+
 	if ( r_logFile->integer )
 	{
 		// don't just call LogComment, or we will get
@@ -593,7 +598,7 @@ static void Render_generic( int stage )
 	if ( tess.surfaceShader->numDeforms )
 	{
 		gl_genericShader->SetUniform_DeformParms( tess.surfaceShader->deforms, tess.surfaceShader->numDeforms );
-		gl_genericShader->SetUniform_Time( backEnd.refdef.floatTime );
+		gl_genericShader->SetUniform_Time( backEnd.refdef.floatTime ); //todo check this for "animMap"
 	}
 
 	// bind u_ColorMap
@@ -613,7 +618,7 @@ static void Render_vertexLighting_DBS_entity( int stage )
 	vec3_t        viewOrigin;
 	vec3_t        ambientColor;
 	vec3_t        lightDir;
-	vec4_t        lightColor;
+	vec3_t        lightColor;
 	uint32_t      stateBits;
 	shaderStage_t *pStage = tess.surfaceStages[ stage ];
 
@@ -632,6 +637,7 @@ static void Render_vertexLighting_DBS_entity( int stage )
 	bool normalMapping = r_normalMapping->integer && ( pStage->bundle[ TB_NORMALMAP ].image[ 0 ] != NULL );
 	bool glowMapping = ( pStage->bundle[ TB_GLOWMAP ].image[ 0 ] != NULL );
 	bool reflectMapping = normalMapping &&( r_reflectionMapping->integer); // tr.cubeHashTable != NULL ||
+	bool pbrSpec = normalMapping &&(tess.surfaceShader->isPBRShader);
 
 	// choose right shader program ----------------------------------
 	gl_vertexLightingShader_DBS_entity->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
@@ -640,6 +646,7 @@ static void Render_vertexLighting_DBS_entity( int stage )
 	gl_vertexLightingShader_DBS_entity->SetNormalMapping( normalMapping );
 	gl_vertexLightingShader_DBS_entity->SetParallaxMapping( normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax );
 	gl_vertexLightingShader_DBS_entity->SetReflectiveSpecular( reflectMapping );
+	gl_vertexLightingShader_DBS_entity->SetPBRSpecular( pbrSpec );// USE_PBR_SPECULAR
 	gl_vertexLightingShader_DBS_entity->SetGlowMapping( glowMapping );
 	gl_vertexLightingShader_DBS_entity->BindProgram();
 	// end choose right shader program ------------------------------
@@ -654,8 +661,9 @@ static void Render_vertexLighting_DBS_entity( int stage )
 	// set uniforms
 	VectorCopy( backEnd.viewParms.orientation.origin, viewOrigin );  // in world space
 	VectorCopy( backEnd.currentEntity->ambientLight, ambientColor );
-	Vector4Copy( backEnd.currentEntity->directedLight, lightColor ); //hypov8 todo
+	VectorCopy( backEnd.currentEntity->directedLight, lightColor ); //hypov8 todo
 
+	//VectorCopy( backEnd.viewParms.orientation.axis[0], viewOrigin );  // in world space
 	// lightDir = L vector which means surface to light
 	VectorCopy( backEnd.currentEntity->lightDir, lightDir );
 
@@ -738,9 +746,10 @@ static void Render_vertexLighting_DBS_entity( int stage )
 		float maxSpec = RB_EvalExpression( &pStage->specularExponentMax, r_specularExponentMax->value );
 		gl_vertexLightingShader_DBS_entity->SetUniform_SpecularExponent( minSpec, maxSpec );
 
-		// R_BuildCubeMaps
-		if (tr.cubeHashTable != NULL) //r_reflectionMapping->integer == 2
+		// R_BuildCubeMaps. 
+		if (tr.cubeHashTable != NULL && !tess.surfaceShader->isPBRShader)
 		{
+			//r_reflectionMapping->integer == 2
 			cubemapProbe_t *cubeProbeNearest;
 			cubemapProbe_t *cubeProbeSecondNearest;
 
@@ -824,15 +833,18 @@ static void Render_vertexLighting_DBS_entity( int stage )
 				// u_EnvironmentInterpolation
 				gl_vertexLightingShader_DBS_entity->SetUniform_EnvironmentInterpolation( interpolate );
 			}
-			gl_vertexLightingShader_DBS_entity->EnableReflectiveSpecular(); // SetMacro_TWOSIDED(tess.surfaceShader->cullType);
+			//USE_REFLECTIVE_SPECULAR
+			gl_vertexLightingShader_DBS_entity->EnableReflectiveSpecular();
+			// SetMacro_TWOSIDED(tess.surfaceShader->cullType);
 		}
+
 #ifdef COMPAT_KPQ3
-		else if (r_reflectionMapping->integer)
+		if (r_reflectionMapping->integer && (tess.surfaceShader->isPBRShader || tr.cubeHashTable == NULL))
 		{
 			image_t * skyImg = tr.pbrSpecHdriImage_default;
 			float cubeRez = 1.0f;
 
-			//user sky found in shader for loded level
+			//user sky found in shader for loaded level
 			if (tr.pbrSpecHdriImage )
 			{
 				skyImg = tr.pbrSpecHdriImage;
@@ -842,29 +854,33 @@ static void Render_vertexLighting_DBS_entity( int stage )
 			if (tess.surfaceShader->isPBRShader)
 			{
 				int cubeBit = Q_min(skyImg->uploadHeight, skyImg->uploadWidth);
-				while (cubeBit > 8)
+
+				//using mipmap to blur reflections(roughness)
+				while (cubeBit > 2)
 				{
-					cubeRez += 1.0f; //mip level. min 16pix
+					cubeRez += 1.0f; //mip level. min 4pix
 					cubeBit >>= 1;
 				}
 				//u_ColorMap
 				GL_BindToTMU(6, tr.pbrLutImage); //set lut in colormap 
-
-				//u_SpecHDRI
-				GL_BindToTMU( 7, skyImg); 
 			}
-			else
+			else //r_reflectionMapping
 			{
-				cubeRez = 0.0f;
-				GL_BindToTMU( 7, skyImg);
+				cubeRez = -1.0f;
 			}
+
+			//u_SpecHDRI
+			GL_BindToTMU( 7, skyImg);
 
 			// u_EnvironmentInterpolation
 			gl_vertexLightingShader_DBS_entity->SetUniform_EnvironmentInterpolation( cubeRez );
+
+			// USE_REFLECTIVE_SPECULAR
 			gl_vertexLightingShader_DBS_entity->EnableReflectiveSpecular();
 		}
 #endif
 	}
+
 
 	if ( glowMapping )
 	{
@@ -1398,7 +1414,7 @@ static void Render_forwardLighting_DBS_omni( shaderStage_t *diffuseStage,
 {
 	vec3_t     viewOrigin;
 	vec3_t     lightOrigin;
-	vec4_t     lightColor;
+	vec3_t     lightColor;
 	float      shadowTexelSize;
 	colorGen_t colorGen;
 	alphaGen_t alphaGen;
@@ -1406,24 +1422,19 @@ static void Render_forwardLighting_DBS_omni( shaderStage_t *diffuseStage,
 	GLimp_LogComment( "--- Render_forwardLighting_DBS_omni ---\n" );
 
 	bool normalMapping = r_normalMapping->integer && ( diffuseStage->bundle[ TB_NORMALMAP ].image[ 0 ] != NULL );
-
 	bool shadowCompare = ( r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0 );
-
+	bool pbrSpec = normalMapping &&(tess.surfaceShader->isPBRShader);
 	//backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_omniXYZ->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
 	gl_forwardLightingShader_omniXYZ->SetVertexAnimation( glState.vertexAttribsInterpolation > 0 );
-
 	gl_forwardLightingShader_omniXYZ->SetDeformVertexes( tess.surfaceShader->numDeforms > 0 );
-
 	gl_forwardLightingShader_omniXYZ->SetNormalMapping( normalMapping );
 	gl_forwardLightingShader_omniXYZ->SetParallaxMapping( normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax );
-
+	gl_forwardLightingShader_omniXYZ->SetPBRSpecular(pbrSpec);// USE_PBR_SPECULAR
 //	gl_forwardLightingShader_omniXYZ->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-
 	gl_forwardLightingShader_omniXYZ->SetShadowing( shadowCompare );
-
 	gl_forwardLightingShader_omniXYZ->BindProgram();
 
 	// end choose right shader program ------------------------------
@@ -1473,7 +1484,7 @@ static void Render_forwardLighting_DBS_omni( shaderStage_t *diffuseStage,
 	// set uniforms
 	VectorCopy( backEnd.viewParms.orientation.origin, viewOrigin );
 	VectorCopy( light->origin, lightOrigin );
-	Vector4Copy( tess.svars.color, lightColor );
+	VectorCopy( tess.svars.color, lightColor );
 
 	if ( shadowCompare )
 	{
@@ -1597,7 +1608,7 @@ static void Render_forwardLighting_DBS_proj( shaderStage_t *diffuseStage,
 {
 	vec3_t     viewOrigin;
 	vec3_t     lightOrigin;
-	vec4_t     lightColor;
+	vec3_t     lightColor;
 	float      shadowTexelSize;
 	colorGen_t colorGen;
 	alphaGen_t alphaGen;
@@ -1608,23 +1619,19 @@ static void Render_forwardLighting_DBS_proj( shaderStage_t *diffuseStage,
 
 	bool shadowCompare = ( r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0 );
 	bool glowMapping = ( diffuseStage->bundle[ TB_GLOWMAP ].image[ 0 ] != NULL );
-
+	bool pbrSpec = normalMapping &&(tess.surfaceShader->isPBRShader);
 	//backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_projXYZ->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
 	gl_forwardLightingShader_projXYZ->SetVertexAnimation( glState.vertexAttribsInterpolation > 0 );
-
 	gl_forwardLightingShader_projXYZ->SetDeformVertexes( tess.surfaceShader->numDeforms > 0 );
-
 	gl_forwardLightingShader_projXYZ->SetNormalMapping( normalMapping );
 	gl_forwardLightingShader_projXYZ->SetParallaxMapping( normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax );
-	gl_vertexLightingShader_DBS_world->SetGlowMapping( glowMapping ); //hypov8 glowmap
-
+	gl_forwardLightingShader_projXYZ->SetPBRSpecular(pbrSpec);// USE_PBR_SPECULAR
+	//gl_forwardLightingShader_projXYZ->SetGlowMapping( glowMapping ); //hypov8 glowmap
 //	gl_forwardLightingShader_projXYZ->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-
 	gl_forwardLightingShader_projXYZ->SetShadowing( shadowCompare );
-
 	gl_forwardLightingShader_projXYZ->BindProgram();
 
 	// end choose right shader program ------------------------------
@@ -1674,7 +1681,7 @@ static void Render_forwardLighting_DBS_proj( shaderStage_t *diffuseStage,
 	// set uniforms
 	VectorCopy( backEnd.viewParms.orientation.origin, viewOrigin );
 	VectorCopy( light->origin, lightOrigin );
-	Vector4Copy( tess.svars.color, lightColor );
+	VectorCopy( tess.svars.color, lightColor );
 
 	if ( shadowCompare )
 	{
@@ -1806,7 +1813,7 @@ static void Render_forwardLighting_DBS_directional( shaderStage_t *diffuseStage,
 #if 1
 	vec3_t     viewOrigin;
 	vec3_t     lightDirection;
-	vec4_t     lightColor;
+	vec3_t     lightColor;
 	float      shadowTexelSize;
 	colorGen_t colorGen;
 	alphaGen_t alphaGen;
@@ -1814,26 +1821,20 @@ static void Render_forwardLighting_DBS_directional( shaderStage_t *diffuseStage,
 	GLimp_LogComment( "--- Render_forwardLighting_DBS_directional ---\n" );
 
 	bool normalMapping = r_normalMapping->integer && ( diffuseStage->bundle[ TB_NORMALMAP ].image[ 0 ] != NULL );
-
 	bool shadowCompare = ( r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0 );
-
+	bool pbrSpec = normalMapping &&(tess.surfaceShader->isPBRShader);
 	//backEnd.depthRenderImageValid = qfalse; //hypov8 merge: .4
 
 	// choose right shader program ----------------------------------
 	gl_forwardLightingShader_directionalSun->SetVertexSkinning( glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning );
 	gl_forwardLightingShader_directionalSun->SetVertexAnimation( glState.vertexAttribsInterpolation > 0 );
-
 	gl_forwardLightingShader_directionalSun->SetDeformVertexes( tess.surfaceShader->numDeforms > 0 );
-
 	gl_forwardLightingShader_directionalSun->SetNormalMapping( normalMapping );
 	gl_forwardLightingShader_directionalSun->SetParallaxMapping( normalMapping && r_parallaxMapping->integer && tess.surfaceShader->parallax );
-
+	gl_forwardLightingShader_directionalSun->SetPBRSpecular(pbrSpec);// USE_PBR_SPECULAR
 //	gl_forwardLightingShader_directionalSun->SetMacro_TWOSIDED(tess.surfaceShader->cullType);
-
 	gl_forwardLightingShader_directionalSun->SetShadowing( shadowCompare );
-
 	gl_forwardLightingShader_directionalSun->BindProgram();
-
 	// end choose right shader program ------------------------------
 
 	// now we are ready to set the shader program uniforms
@@ -1887,7 +1888,7 @@ static void Render_forwardLighting_DBS_directional( shaderStage_t *diffuseStage,
 	VectorCopy( light->direction, lightDirection );
 #endif
 
-	Vector4Copy( tess.svars.color, lightColor );
+	VectorCopy( tess.svars.color, lightColor );
 
 	if ( shadowCompare )
 	{

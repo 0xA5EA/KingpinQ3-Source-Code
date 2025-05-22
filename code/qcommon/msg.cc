@@ -932,6 +932,8 @@ void MSG_ReportChangeVectors_f(void)
 	}
 }
 
+
+
 typedef struct
 {
 	char *name;
@@ -943,11 +945,12 @@ typedef struct
 #define NETF(x) # x, (size_t)&((entityState_t *)0)->x
 
 netField_t entityStateFields[] = {
-
+  //must match entityState_s
+  //number
 	{ NETF(eType), 8 },
 	{ NETF(eFlags), 25 },
 
-	{ NETF(pos.trType), 8 },
+	{ NETF(pos.trType), 8 },  //trajectory_t
 	{ NETF(pos.trTime), 32 },
 	{ NETF(pos.trDuration), 32 },
 	{ NETF(pos.trAcceleration), 32 },
@@ -960,7 +963,7 @@ netField_t entityStateFields[] = {
 	{ NETF(pos.trDelta[2]), 0 },
 	{ NETF(pos.trDelta[3]), 0 },
 
-	{ NETF(apos.trType), 8 },
+	{ NETF(apos.trType), 8 },  //trajectory_t
 	{ NETF(apos.trTime), 32 },
 	{ NETF(apos.trDuration), 32 },
 	{ NETF(apos.trAcceleration), 32 },
@@ -1001,13 +1004,13 @@ netField_t entityStateFields[] = {
 	{ NETF(eventParm), 8 },
 	{ NETF(powerups), MAX_POWERUPS },
 	{ NETF(weapon), 8 },
-	{ NETF(legsAnim), 8 },
-	{ NETF(torsoAnim), 8 },
+	{ NETF(legsAnim), ANIM_BITS },
+	{ NETF(torsoAnim), ANIM_BITS },
 	{ NETF(generic1), 8 },
 	{ NETF(onFireStart), 32 },
 	{ NETF(onFireEnd), 32 },
-	{ NETF(weaponAnim), 32 },//daemon .50
-	{ NETF(chaseCamMode), 8 } //hypov8 ToDo: add spec camera modes. is this ok here??
+	{ NETF(weaponAnim), ANIM_BITS },
+	{ NETF(chaseCamMode), 8 } //hypov8 ToDo: add spec camera modes. move to ps
 	
 };
 
@@ -1031,13 +1034,12 @@ identical, under the assumption that the in-order delta code will catch it.
 void MSG_WriteDeltaEntity(msg_t *msg, struct entityState_s *from, struct entityState_s *to, qboolean force)
 {
 	int i, lc;
-	int numFields;
 	netField_t *field;
 	int trunc;
 	float fullFloat;
 	int *fromF, *toF;
 
-	numFields = sizeof(entityStateFields) / sizeof(entityStateFields[0]);
+	const int numFields = ARRAY_LEN(entityStateFields);
 
 	// all fields should be 32 bits to avoid any compiler packing issues
 	// the "number" field is not part of the field list
@@ -1318,7 +1320,8 @@ plyer_state_t communication
 // using the stringizing operator to save typing...
 #define PSF(x) # x, (size_t)&((playerState_t *)0)->x
 
-netField_t playerStateFields[] = { //hypov8 this needs to match playerState_s. 0=float
+netField_t playerStateFields[] = { 
+  //hypov8 this needs to match playerState_s. 0=float
 	{ PSF(commandTime), 32 },
 	{ PSF(pm_type), 8 },
 	{ PSF(bobCycle), 8 },
@@ -1338,17 +1341,17 @@ netField_t playerStateFields[] = { //hypov8 this needs to match playerState_s. 0
 	{ PSF(delta_angles[2]), 16 },
 	{ PSF(groundEntityNum), GENTITYNUM_BITS },
 	{ PSF(legsTimer), 16 },
-	{ PSF(legsAnim), 10 },
+	{ PSF(legsAnim), ANIM_BITS },
 	{ PSF(torsoTimer), 16 },
-	{ PSF(torsoAnim), 10 },
+	{ PSF(torsoAnim), ANIM_BITS },
 	{ PSF(movementDir), 4 },
 	{ PSF(eFlags), 24 }, //hypov8 was 16 //daemon .5
 	{ PSF(eventSequence), 16 },
-	{ PSF(events[0]), 8 },
+	{ PSF(events[0]), 8 }, //MAX_PS_EVENTS
 	{ PSF(events[1]), 8 },
 	{ PSF(events[2]), 8 },
 	{ PSF(events[3]), 8 },
-	{ PSF(eventParms[0]), 8 },
+	{ PSF(eventParms[0]), 8 }, //MAX_PS_EVENTS
 	{ PSF(eventParms[1]), 8 },
 	{ PSF(eventParms[2]), 8 },
 	{ PSF(eventParms[3]), 8 },
@@ -1356,7 +1359,7 @@ netField_t playerStateFields[] = { //hypov8 this needs to match playerState_s. 0
 	{ PSF(externalEventParm), 8 },
 	{ PSF(externalEventTime), 8 },	
 	{ PSF(clientNum), 8 },
-	{ PSF(weapon), 5 },
+	{ PSF(weapon), 5 },   //max 31 weps
 	{ PSF(weaponstate), 5 }, //was 4.
 	{ PSF(viewangles[0]), 0 },
 	{ PSF(viewangles[1]), 0 },
@@ -1366,25 +1369,89 @@ netField_t playerStateFields[] = { //hypov8 this needs to match playerState_s. 0
 	{ PSF(damageYaw), 8 },
 	{ PSF(damagePitch), 8 },
 	{ PSF(damageCount), 8 },
-	//status
-	//persistant
+
+	{ PSF(stats),      STATS_GROUP_FIELD}, //status
+	{ PSF(persistant), STATS_GROUP_FIELD}, //persistant
 	//ping...
 	{ PSF(generic1), 8 },
 	{ PSF(loopSound), 16 },
 	{ PSF(grapplePoint[0]), 0 },
 	{ PSF(grapplePoint[1]), 0 },
 	{ PSF(grapplePoint[2]), 0 },
-	{ PSF(weaponAnim), 10 }, 
+	{ PSF(weaponAnim), ANIM_BITS }, 
 	//{ PSF(jumppad_ent), GENTITYNUM_BITS },
+
+	{ PSF(ammo_all), WEP_GROUP_FIELD},
+	{ PSF(ammo_mag), WEP_GROUP_FIELD},
+	{ PSF(powerups), WEP_GROUP_FIELD},
+
 	{ PSF(hmgBulletNum), 4 }, //hypov8 count hmg bullets for client
 	{ PSF(viewShootBob), 8 }, //hypov8
 	{ PSF(viewBurnCount), 8 }, //hypov8
 	{ PSF(bunnyHop), 2 }  //add hypov8
-
 };
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
 // the float will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
+
+
+// unvan 5.2
+static void WriteStatsGroup(msg_t* msg, const int* from, const int* to)
+{
+	int statsbits = 0;
+	for ( int i = 0; i < STATS_GROUP_NUM_STATS; i++ )
+	{
+		if ( from[i] != to[i] )
+		{
+			statsbits |= 1 << i;
+		}
+	}
+	if (!statsbits)
+	{
+		MSG_WriteBits( msg, 0, 1 );  // no change to stats
+		return;
+	}
+
+	MSG_WriteBits( msg, 1, 1 );  // changed
+	MSG_WriteShort( msg, statsbits );
+
+	for ( int i = 0; i < MAX_STATS; i++ )
+	{
+		if ( statsbits & ( 1 << i ) )
+		{
+			MSG_WriteShort( msg, to[i] );  //----(SA)    back to short since weapon bits are handled elsewhere now
+		}
+	}
+}
+
+static void WriteWeaponGroup(msg_t* msg, const int* from, const int* to)
+{
+	int wepbits = 0;
+	for ( int i = 0; i < WEP_GROUP_NUM_STATS; i++ )
+	{
+		if ( from[i] != to[i] )
+		{
+			wepbits |= 1 << i;
+		}
+	}
+	if (!wepbits)
+	{
+		MSG_WriteBits( msg, 0, 1 );  // no change to stats
+		return;
+	}
+
+	MSG_WriteBits( msg, 1, 1 );     // changed
+	MSG_WriteShort( msg, wepbits ); // 
+
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		if ( wepbits & ( 1 << i ) )
+		{
+			MSG_WriteLong( msg, to[i] ); //hypov8 todo: this can be bit(timers not used)
+		}
+	}
+}
+
 
 
 /*
@@ -1397,11 +1464,11 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 {
 	int i;
 	playerState_t dummy;
-	int statsbits;
-	int persistantbits;
-	int ammobits;
-	int roundbits;
-	int powerupbits;
+	//int statsbits;
+	//int persistantbits;
+	//int ammobits;
+	//int roundbits;
+	//int powerupbits;
 	int numFields;
 	netField_t *field;
 	int *fromF, *toF;
@@ -1421,7 +1488,18 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 	{
 		fromF = (int *)((byte *)from + field->offset);
 		toF   = (int *)((byte *)to + field->offset);
-		if (*fromF != *toF)
+
+		if (field->bits == STATS_GROUP_FIELD)
+		{
+			memcmp(fromF, toF, sizeof(int) * STATS_GROUP_NUM_STATS);
+			lc = i + 1;
+		}
+		else if (field->bits == WEP_GROUP_FIELD)
+		{
+			memcmp(fromF, toF, sizeof(int) * WEP_GROUP_NUM_STATS);
+			lc = i + 1;
+		}
+		else if (*fromF != *toF)
 		{
 			lc = i + 1;
 		}
@@ -1435,6 +1513,17 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 	{
 		fromF = (int *)((byte *)from + field->offset);
 		toF   = (int *)((byte *)to + field->offset);
+
+		if (field->bits == STATS_GROUP_FIELD)
+		{
+			WriteStatsGroup(msg, fromF, toF);
+			continue;
+		}
+		if (field->bits == WEP_GROUP_FIELD)
+		{
+			WriteWeaponGroup(msg, fromF, toF);
+			continue;
+		}
 
 		if (*fromF == *toF)
 		{
@@ -1476,6 +1565,7 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 	//
 	// send the arrays
 	//
+#if 0
 	statsbits = 0;
 	for(i = 0; i < MAX_STATS; i++)
 	{
@@ -1579,7 +1669,7 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 			MSG_WriteBits(msg, powerupbits, MAX_POWERUPS);
 			for (i = 0; i < MAX_POWERUPS; i++)
 				if (powerupbits & (1 << i))
-					MSG_WriteLong(msg, to->powerups[i]); //hypov8 todo: this can now be short
+					MSG_WriteLong(msg, to->powerups[i]); //hypov8 todo: this can be bit(timers not used)
 		}
 		else
 		{
@@ -1591,8 +1681,35 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 		MSG_WriteBits(msg, 0, 1); // no change
 		oldsize += 5;
 	}
+#endif
 }
 
+//unvan 5.2
+static void ReadStatsGroup(msg_t* msg, int* to, const netField_t& field)
+{
+	int bits = MSG_ReadShort( msg );
+
+	for ( int i = 0; i < STATS_GROUP_NUM_STATS; i++ )
+	{
+		if ( bits & ( 1 << i ) )
+		{
+			to[i] = MSG_ReadShort( msg );  //----(SA)    back to short since weapon bits are handled elsewhere now
+		}
+	}
+}
+
+static void ReadWeaponGroup(msg_t* msg, int* to, const netField_t& field)
+{
+	int bits = MSG_ReadShort( msg );
+
+	for ( int i = 0; i < WEP_GROUP_NUM_STATS; i++ )
+	{
+		if ( bits & ( 1 << i ) )
+		{
+			to[i] = MSG_ReadLong( msg );//hypov8 todo: this can be bit(timers not used)
+		}
+	}
+}
 
 /*
 ===================
@@ -1602,7 +1719,7 @@ MSG_ReadDeltaPlayerstate
 void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to)
 {
 	int i, lc;
-	int bits;
+	//int bits;
 	netField_t *field;
 	int numFields;
 	int startBit, endBit;
@@ -1677,6 +1794,14 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 						Com_Printf("%s:%f ", field->name, *(float *)toF);
 				}
 			}
+			else if ( field->bits == STATS_GROUP_FIELD )
+			{
+				ReadStatsGroup(msg, toF, *field);
+			}
+			else if ( field->bits == WEP_GROUP_FIELD ) //ammo/powerups
+			{
+				ReadWeaponGroup(msg, toF, *field);
+			}
 			else
 			{
 				// integer
@@ -1687,78 +1812,6 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 		}
 	}
 
-	for(i = lc, field = &playerStateFields[lc]; i < numFields; i++, field++)
-	{
-		fromF = (int *)((byte *)from + field->offset);
-		toF   = (int *)((byte *)to + field->offset);
-		// no change
-		*toF = *fromF;
-	}
-
-	// read the arrays
-	if (MSG_ReadBits(msg, 1))
-	{
-		// one general bit tells if any of this infrequently changing stuff has changed
-		// parse stats
-		if (MSG_ReadBits(msg, 1))
-		{
-			LOG("PS_STATS");
-			bits = MSG_ReadBits(msg, MAX_STATS);
-			for(i = 0; i < MAX_STATS; i++)
-			{
-				if (bits & (1 << i))
-					to->stats[i] = MSG_ReadShort(msg);
-			}
-		}
-
-		// parse persistant stats
-		if (MSG_ReadBits(msg, 1))
-		{
-			LOG("PS_PERSISTANT");
-			bits = MSG_ReadBits(msg, MAX_PERSISTANT);
-			for(i = 0; i < MAX_PERSISTANT; i++)
-			{
-				if (bits & (1 << i))
-					to->persistant[i] = MSG_ReadShort(msg);
-			}
-		}
-
-		// parse ammo
-		if (MSG_ReadBits(msg, 1))
-		{
-			LOG("PS_AMMO");
-			bits = MSG_ReadBits(msg, MAX_WEAPONS);
-			for(i = 0; i < MAX_WEAPONS; i++)
-			{
-				if (bits & (1 << i))
-					to->ammo_all[i] = MSG_ReadShort(msg);
-			}
-		}
-
-		// parse rounds
-		if (MSG_ReadBits(msg, 1))
-		{
-		  LOG("PS_ROUNDS");
-		  bits = MSG_ReadBits(msg, MAX_WEAPONS);
-		  for(i = 0; i < MAX_WEAPONS; i++)
-		  {
-			if (bits & (1 << i))
-				to->ammo_mag[i] = MSG_ReadShort(msg);
-		  }
-		}
-
-		// parse powerups
-		if (MSG_ReadBits(msg, 1))
-		{
-			LOG("PS_POWERUPS");
-			bits = MSG_ReadBits(msg, MAX_POWERUPS);
-			for(i = 0; i < MAX_POWERUPS; i++)
-			{
-				if (bits & (1 << i))
-					to->powerups[i] = MSG_ReadLong(msg); //hypov8 todo: this can now be short
-			}
-		}
-	}
 
 	if (print)
 	{

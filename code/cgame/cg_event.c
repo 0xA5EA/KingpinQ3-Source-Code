@@ -331,15 +331,29 @@ static void CG_AutoSwitch(int itemNum)
   if (cg_autoswitch.integer)
   {
     int curWep = cg.predictedPlayerState.weapon;
-    //( bg_itemlist[ itemNum ].giTag == WP_PISTOL )
+    int newWep = bg_itemlist[ itemNum ].giTag;
 
-    if ( cg_autoswitch.integer == 2 )
+    //( bg_itemlist[ itemNum ].giTag == WP_PISTOL )
+    if (cg_autoswitch.integer == 1)
     {
-      if ( curWep > WP_PISTOL )
+      //always change
+      ;
+    }
+    else if ( cg_autoswitch.integer == 2 )
+    { 
+      //only change if better than pistol
+      if (curWep > WP_PISTOL)
         return;
     }
     else if ( cg_autoswitch.integer == 3 )
-    {	//check if we have major weps. if we are holding a minor wep, we must have selected it.
+    { 
+      //only change if better than current wep
+      if (curWep > newWep) //WP_PISTOL 
+        return;
+    }
+    else if ( cg_autoswitch.integer == 4 )
+    {
+      //check if we have major weps. if we are holding a minor wep, we must have selected it.
       if ( curWep <= WP_PISTOL || curWep > WP_LAST )
       {
         int i;
@@ -353,8 +367,9 @@ static void CG_AutoSwitch(int itemNum)
         return;
     }
 
+    trap_SendClientCommand(va("weapon %i\n", newWep));
     cg.weaponSelectTime = cg.time;
-    cg.weaponSelect = bg_itemlist[ itemNum ].giTag;
+    cg.weaponSelect = newWep;
   }
 }
 
@@ -469,7 +484,7 @@ void CG_OnPlayerWeaponChange()
   }
 
   cg.weaponOffsetsFilter.Reset( );*/
-  cg.weaponSelect = cg.snap->ps.weapon;
+  //cg.weaponSelect = cg.snap->ps.weapon;
 
   cg.predictedPlayerEntity.pe.weapon.animationNumber = -1; //force weapon lerpframe recalculation
 }
@@ -517,7 +532,11 @@ static int CG_FootstepForEventParm(int eventparm)
 
 //unlagged - attack prediction #2
 #define ANTILAG_PREDICTED(es) (es->otherEntityNum == cg.predictedPlayerState.clientNum && \
-              cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 4))
+              cgs.delagHitscan && (cg_delag.integer))
+#define ANTILAG_PREDICTED_CLIENT(es) \
+  (es->clientNum == cg.predictedPlayerState.clientNum && \
+  cgs.delagHitscan && (cg_delag.integer))
+
 //unlagged - attack prediction #2
 
 
@@ -748,7 +767,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
   case EV_JUMP:
     DEBUGNAME("EV_JUMP");
-  trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*jump%i.ogg", rand() % 3 + 1))); // event - EV_DEATH1 + 1
+    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*jump%i.ogg", rand() % 3 + 1))); // event - EV_DEATH1 + 1
     break;
   case EV_TAUNT:
     DEBUGNAME("EV_TAUNT");
@@ -898,12 +917,12 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
 
       // show icon and name on status bar
-    if ( es->number == cg.snap->ps.clientNum )
-    {
-      if (item->giType == IT_WEAPON)
-        CG_AutoSwitch(index);
-      CG_ItemPickup(index);
-    }
+      if ( es->number == cg.snap->ps.clientNum )
+      {
+        if (item->giType == IT_WEAPON)
+          CG_AutoSwitch(index);
+        CG_ItemPickup(index);
+      }
     }
     break;
 
@@ -925,14 +944,14 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
     CG_HMInfoMsg(cent, es->eventParm);
     break;
   case EV_CHANGE_WEAPON_DROP:
-    DEBUGNAME("EV_CHANGE_WEAPON_DROP");
+    DEBUGNAME(S_COLOR_RED "EV_CHANGE_WEAPON_DROP");
     if ( clientNum == cg.predictedPlayerState.clientNum ){ //local client only
       trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.useNothingSound); //stop old sounds
-      CG_ResetWeaponSwitch(cent, es->eventParm);
+      //CG_ResetWeaponSwitch(cent, es->eventParm);
     }
     break;
   case EV_CHANGE_WEAPON_RAISE:
-    DEBUGNAME("EV_CHANGE_WEAPON_RAISE");
+    DEBUGNAME(S_COLOR_RED "EV_CHANGE_WEAPON_RAISE");
     if (clientNum == cg.predictedPlayerState.clientNum) //local client only
       CG_ResetWeaponSwitch(cent, es->eventParm);
     break;
@@ -1152,42 +1171,56 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
   case EV_BULLET_HIT_WALL:
     DEBUGNAME("EV_BULLET_HIT_WALL");
+    if ((ANTILAG_PREDICTED_CLIENT(es)))//unlagged - attack prediction #2
+      break;
     ByteToDir(es->eventParm, dir);
-  CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD);
-  break;
+    CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_DEFAULT, ENTITYNUM_WORLD);
+    break;
 
   case EV_BULLET_HIT_METAL:
     DEBUGNAME("EV_BULLET_HIT_METAL");
+    if ((ANTILAG_PREDICTED_CLIENT(es)))//unlagged - attack prediction #2
+      break;
     ByteToDir(es->eventParm, dir);
     CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_METAL, ENTITYNUM_WORLD);
     break;
 
   case EV_BULLET_HIT_WOOD:
     DEBUGNAME("EV_BULLET_HIT_WOOD");
+    if ((ANTILAG_PREDICTED_CLIENT(es)))//unlagged - attack prediction #2
+      break;
     ByteToDir(es->eventParm, dir);
     CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_WOOD, es->eventParm);
     break;
 
   case EV_BULLET_HIT_EARTH:
     DEBUGNAME("EV_BULLET_HIT_EARTH");
+    if ((ANTILAG_PREDICTED_CLIENT(es)))//unlagged - attack prediction #2
+      break;
     ByteToDir(es->eventParm, dir);
     CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_EARTH, es->eventParm);
     break;
 
   case EV_BULLET_HIT_SNOW:
     DEBUGNAME("EV_BULLET_HIT_SNOW");
+    if ((ANTILAG_PREDICTED_CLIENT(es)))//unlagged - attack prediction #2
+      break;
     ByteToDir(es->eventParm, dir);
     CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_SNOW, es->eventParm);
     break;
 
   case EV_BULLET_HIT_FLESH:
     DEBUGNAME("EV_BULLET_HIT_FLESH");
+    if ((ANTILAG_PREDICTED_CLIENT(es)))//unlagged - attack prediction #2
+      break;
     ByteToDir(es->eventParm, dir);
-  CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_FLESH, es->eventParm);
+    CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_FLESH, es->eventParm);
     break;
 
   case EV_BULLET_HIT_GLASS:
     DEBUGNAME("EV_BULLET_HIT_GLASS");
+    if ((ANTILAG_PREDICTED_CLIENT(es)))//unlagged - attack prediction #2
+      break;
     ByteToDir(es->eventParm, dir);
     CG_Bullet(es->weapon, es->pos.trBase, es->otherEntityNum, dir, IMPACTSOUND_GLASS, es->eventParm);
     break;
@@ -1234,119 +1267,119 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
     switch (es->eventParm)
     {
     case GTS_DRAGON_CAPTURE: // CTF: Dragon team captured the Nikki flag, 1FCTF: Dragon team captured the neutral flag
-    if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
-      CG_AddBufferedSound(cgs.media.captureYourTeamSound);
-    else
-      CG_AddBufferedSound(cgs.media.captureOpponentSound);
-    break;
+      if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+        CG_AddBufferedSound(cgs.media.captureYourTeamSound);
+      else
+        CG_AddBufferedSound(cgs.media.captureOpponentSound);
+      break;
 
     case GTS_NIKKI_CAPTURE:  // CTF: Nikki team captured the Dragon flag, 1FCTF: Nikki team captured the neutral flag
-    if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-      CG_AddBufferedSound(cgs.media.captureYourTeamSound);
-    else
-      CG_AddBufferedSound(cgs.media.captureOpponentSound);
-    break;
+      if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+        CG_AddBufferedSound(cgs.media.captureYourTeamSound);
+      else
+        CG_AddBufferedSound(cgs.media.captureOpponentSound);
+      break;
 
     case GTS_DRAGON_RETURN:  // CTF: Nikki flag returned, 1FCTF: never used
-    if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
-      CG_AddBufferedSound(cgs.media.returnYourTeamSound);
-    else
-      CG_AddBufferedSound(cgs.media.returnOpponentSound);
-    //
-    CG_AddBufferedSound(cgs.media.blueFlagReturnedSound);
-    break;
+      if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+        CG_AddBufferedSound(cgs.media.returnYourTeamSound);
+      else
+        CG_AddBufferedSound(cgs.media.returnOpponentSound);
+      //
+      CG_AddBufferedSound(cgs.media.blueFlagReturnedSound);
+      break;
 
     case GTS_NIKKI_RETURN:   // CTF Dragon flag returned, 1FCTF: neutral flag returned
-    if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-      CG_AddBufferedSound(cgs.media.returnYourTeamSound);
-    else
-      CG_AddBufferedSound(cgs.media.returnOpponentSound);
-    CG_AddBufferedSound(cgs.media.redFlagReturnedSound);
-    break;
+      if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+        CG_AddBufferedSound(cgs.media.returnYourTeamSound);
+      else
+        CG_AddBufferedSound(cgs.media.returnOpponentSound);
+      CG_AddBufferedSound(cgs.media.redFlagReturnedSound);
+      break;
 
     case GTS_DRAGON_TAKEN:   // CTF: Dragon team took Nikki flag, 1FCTF: Nikki team took the neutral flag
-    // if this player picked up the flag then a sound is played in CG_CheckLocalSounds
-    if (cg.snap->ps.powerups[PW_NIKKIFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
-    {
-      ;//
-    }
-    else
-    {
-      if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+      // if this player picked up the flag then a sound is played in CG_CheckLocalSounds
+      if (cg.snap->ps.powerups[PW_NIKKIFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
       {
-        if (cgs.gametype == GT_1FCTF)
-          CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
-        else
-          CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
+        ;//
       }
-      else if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+      else
       {
+        if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+        {
+          if (cgs.gametype == GT_1FCTF)
+            CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
+          else
+            CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
+        }
+        else if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+        {
 
-        if (cgs.gametype == GT_1FCTF)
-          CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
-        //else if (cgs.gametype == GT_BAGMAN)
-        //	trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.yourTeamTookEnemyBagSound); /hypov8 todo: why was this here?
-          //CG_AddBufferedSound(cgs.media.yourTeamTookEnemyBagSound);
-        else
-        CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
+          if (cgs.gametype == GT_1FCTF)
+            CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
+          //else if (cgs.gametype == GT_BAGMAN)
+          //	trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.yourTeamTookEnemyBagSound); /hypov8 todo: why was this here?
+            //CG_AddBufferedSound(cgs.media.yourTeamTookEnemyBagSound);
+          else
+          CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
+        }
       }
-    }
-    break;
+      break;
     case GTS_NIKKI_TAKEN: // CTF: Nikki team took the Dragon flag, 1FCTF Dragon team took the neutral flag
-    // if this player picked up the flag then a sound is played in CG_CheckLocalSounds
-    if (cg.snap->ps.powerups[PW_DRAGONFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
-    {
-      ;//
-    }
-    else
-    {
+      // if this player picked up the flag then a sound is played in CG_CheckLocalSounds
+      if (cg.snap->ps.powerups[PW_DRAGONFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG])
+      {
+        ;//
+      }
+      else
+      {
+        if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
+        {
+          if (cgs.gametype == GT_1FCTF)
+            CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
+          else
+            CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
+        }
+        else if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+        {
+
+          if (cgs.gametype == GT_1FCTF)
+            CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
+          //else if (cgs.gametype == GT_BAGMAN)
+          //	trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.yourTeamTookEnemyBagSound); //hypov8 todo: why was this here??
+            //CG_AddBufferedSound(cgs.media.yourTeamTookEnemyBagSound);
+          else
+            CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
+        }
+      }
+      break;
+    case GTS_DRAGONOBELISK_ATTACKED: // Overload: Dragon obelisk is being attacked
       if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
       {
-        if (cgs.gametype == GT_1FCTF)
-          CG_AddBufferedSound(cgs.media.yourTeamTookTheFlagSound);
-        else
-          CG_AddBufferedSound(cgs.media.enemyTookYourFlagSound);
+        CG_AddBufferedSound(cgs.media.yourBaseIsUnderAttackSound);
       }
-      else if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-      {
-
-        if (cgs.gametype == GT_1FCTF)
-          CG_AddBufferedSound(cgs.media.enemyTookTheFlagSound);
-        //else if (cgs.gametype == GT_BAGMAN)
-        //	trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.yourTeamTookEnemyBagSound); //hypov8 todo: why was this here??
-          //CG_AddBufferedSound(cgs.media.yourTeamTookEnemyBagSound);
-        else
-          CG_AddBufferedSound(cgs.media.yourTeamTookEnemyFlagSound);
-      }
-    }
-    break;
-    case GTS_DRAGONOBELISK_ATTACKED: // Overload: Dragon obelisk is being attacked
-    if (cgs.clientinfo[cg.clientNum].team == TEAM_DRAGONS)
-    {
-      CG_AddBufferedSound(cgs.media.yourBaseIsUnderAttackSound);
-    }
-    break;
+      break;
     case GTS_NIKKIOBELISK_ATTACKED:  // Overload: Nikki Flag obelisk is being attacked
-    if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
-    {
-      CG_AddBufferedSound(cgs.media.yourBaseIsUnderAttackSound);
-    }
-    break;
+      if (cgs.clientinfo[cg.clientNum].team == TEAM_NIKKIS)
+      {
+        CG_AddBufferedSound(cgs.media.yourBaseIsUnderAttackSound);
+      }
+      break;
     case GTS_DRAGONTEAM_SCORED:
-    CG_AddBufferedSound(cgs.media.redScoredSound);
-    break;
+      CG_AddBufferedSound(cgs.media.redScoredSound);
+      break;
     case GTS_NIKKITEAM_SCORED:
-    CG_AddBufferedSound(cgs.media.blueScoredSound);
-    break;
+      CG_AddBufferedSound(cgs.media.blueScoredSound);
+      break;
     case GTS_DRAGONTEAM_TOOK_LEAD:
-    CG_AddBufferedSound(cgs.media.redLeadsSound);
-    break;
+      CG_AddBufferedSound(cgs.media.redLeadsSound);
+      break;
     case GTS_NIKKITEAM_TOOK_LEAD:
-    CG_AddBufferedSound(cgs.media.blueLeadsSound);
-    break;
+      CG_AddBufferedSound(cgs.media.blueLeadsSound);
+      break;
     case GTS_TEAMS_ARE_TIED:
-    CG_AddBufferedSound(cgs.media.teamsTiedSound);
-    break;
+      CG_AddBufferedSound(cgs.media.teamsTiedSound);
+      break;
 
 #ifdef WITH_BAGMAN_MOD
   case GTS_DRAGON_DEPOSIT:

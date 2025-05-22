@@ -719,8 +719,6 @@ void Cmd_Team_f(gentity_t *ent, qboolean spec)
   else
     SetTeam(ent, "spectator");
 
-
-
   ent->client->switchTeamTime = level.time + SWITCH_TEAM_TIME_LIMIT;
 }
 
@@ -1784,19 +1782,41 @@ cg.weaponSelect
 */
 void Cmd_SetTeamWithWeapon_f(gentity_t *ent)
 {
-  //int wepNum;
+  char arg1[MAX_STRING_TOKENS];
 
-  if ( g_gametype.integer >= GT_TEAM && ent->client->sess.sessionTeam == TEAM_SPECTATOR )
+  // make sure it is a valid command
+  trap_Argv(1, arg1, sizeof(arg1));
+  //wepNum = atoi(arg1);
+  //if ( wepNum == TEAM_DRAGONS || wepNum == TEAM_NIKKIS )
+  if ( arg1[0] == '1' || arg1[0] == '2')
   {
-    char arg1[MAX_STRING_TOKENS];
+    SetTeam(ent, arg1);
+  }
+}
+
+void Cmd_Weapon_f(gentity_t *ent)
+{
+  if (g_gametype.integer >= GT_TEAM && ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+  {
+    Cmd_SetTeamWithWeapon_f(ent);
+  }
+  else
+  {
+    char s[MAX_STRING_TOKENS];
+    int wep;
 
     // make sure it is a valid command
-    trap_Argv(1, arg1, sizeof(arg1));
-    //wepNum = atoi(arg1);
-    //if ( wepNum == TEAM_DRAGONS || wepNum == TEAM_NIKKIS )
-    if ( arg1[0] == '1' || arg1[0] == '2')
+    trap_Argv(1, s, sizeof(s));
+    wep = atoi(s);
+
+    //if (wep == ent->client->ps.weapon)
+    if (wep == ent->client->ps.persistant[ PERS_NEWWEAPON ])
+      return;
+
+    //if (BG_PlayerCanChangeWeapon( &ent->client->ps ))
+    if (ent->client->ps.weaponstate != WEAPON_HM_LOCK)//hitmen
     {
-      SetTeam(ent, arg1);
+      G_ForceWeaponChange( ent, (weapon_t)wep );
     }
   }
 }
@@ -1931,7 +1951,7 @@ void ClientCommand(int clientNum)
   else if (Q_stricmp(cmd, "wank") == 0)
     Cmd_Say_f(ent, SAY_ALL, qfalse);
   else if (Q_stricmp(cmd, "weapon") == 0)
-    Cmd_SetTeamWithWeapon_f(ent);
+    Cmd_Weapon_f(ent); //Cmd_SetTeamWithWeapon_f(ent);
   else
     trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

@@ -739,9 +739,15 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
         Q_strncpyz(skinClanName, DEFAULT_CLAN_DRAGONS, sizeof(skinClanName));
       }
 
-      if (!CG_RegisterClientModel(ci, DEFAULT_TEAM_MODEL, skinClanName, DEFAULT_TEAM_HEAD, teamName))
-        CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s/%s/%s) failed to register", 
+      //try model with default clan skin
+      if (!CG_RegisterClientModel(ci, ci->modelName, skinClanName, DEFAULT_TEAM_HEAD, teamName))
+      {
+
+        // last resort. default thug model
+        if (!CG_RegisterClientModel(ci, DEFAULT_TEAM_MODEL, skinClanName, DEFAULT_TEAM_HEAD, teamName))
+          CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s/%s/%s) failed to register",
           DEFAULT_TEAM_MODEL, skinClanName, DEFAULT_TEAM_HEAD, teamName); //hypov8 ci->skinName
+      }
     }
     else // !team
     {
@@ -1215,6 +1221,9 @@ void CG_NewClientInfo(int clientNum)
     }
   }
 
+  if (cg.clientNum == clientNum)
+    trap_Cvar_Set("ui_team", va("%i", newInfo.team)); //hypov8 add. update ingame player selection
+
   // replace whatever was there with the new one
   newInfo.infoValid = qtrue;
   *ci = newInfo;
@@ -1381,6 +1390,7 @@ static void CG_RunPlayerLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAni
   {
     CG_SetLerpFrameAnimation( ci, lf, newAnimation, skel, old_skel); //add
     animChanged = qtrue;
+    //CG_Printf("anim changed i=%i\n", newAnimation);
   }
 
   if ( ci->md5 )
@@ -2497,7 +2507,7 @@ static void CG_PlayerModelAddonsLights(centity_t * cent, refEntity_t * torso)
       Com_Memset(&light, 0, sizeof(refLight_t));
       light.rlType = RL_OMNI;
       VectorCopy(color, light.color);
-      VectorCopy(cent->lerpOrigin, light.origin);
+      VectorCopy(torso->origin, light.origin); //cent->lerpOrigin
       radius = 200 + (rand() & 31);
       light.radius[0] = radius;
       light.radius[1] = radius;
@@ -2513,8 +2523,9 @@ static void CG_PlayerModelAddonsLights(centity_t * cent, refEntity_t * torso)
   {
     vec3_t headAxis;
     vec_t fov_x;
-    vec3_t originMoveUp;
+    //vec3_t originMoveUp;
     vec3_t head_axis[3];
+    int anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
 
     if (!cgs.media.flashLightShader)
     {
@@ -2546,17 +2557,14 @@ static void CG_PlayerModelAddonsLights(centity_t * cent, refEntity_t * torso)
     Vec3_Add(torso->origin, originMoveUp, light.origin);
 
 #else //use calculated origin for light
-    VectorCopy(cent->lerpOrigin, originMoveUp);
+    VectorCopy(torso->lightingOrigin/* origin*/, light.origin); //cent->lerpOrigin
 
     //hypov8 move flashlight origin up to suit player head height(and when crouched)
-    if ((cent->currentState.legsAnim & ~ANIM_TOGGLEBIT) == LEGS_CR_IDLE ||
-      (cent->currentState.legsAnim & ~ANIM_TOGGLEBIT) == LEGS_CR_WALK ||
-      (cent->currentState.legsAnim & ~ANIM_TOGGLEBIT) == LEGS_CR_BACK)
-      originMoveUp[2] += 12;
+    if (anim == LEGS_CR_IDLE || anim == LEGS_CR_WALK || anim == LEGS_CR_BACK)
+      light.origin[2] += 22+ CROUCH_VIEWHEIGHT; 
     else
-      originMoveUp[2] += 36;
-
-    VectorCopy(originMoveUp, light.origin); //default body light if bone missing
+      light.origin[2] += 22+ DEFAULT_VIEWHEIGHT; 
+    //default body light if bone missing
 
 #endif
     //}
@@ -3270,7 +3278,26 @@ void CG_TransformSkeletonWithRotations(refSkeleton_t *legSkel, refSkeleton_t *to
   legSkel->type = SK_ABSOLUTE;
 }
 
+//smooth player model up stairs
+//this also helps flashlight (todo crouch smooth)
+void CG_StepOffsetPlayer(vec3_t origin)
+{
+  float steptime;
+  int timeDelta;
+  vec3_t normal;
+  //playerState_t  *ps = &cg.predictedPlayerState;
+  VectorSet(normal, 0.0f, 0.0f, 1.0f);
 
+  steptime = STEP_TIME;
+
+  // smooth out stair climbing
+  timeDelta = cg.time - cg.stepTime;
+  if (timeDelta < steptime)
+  {
+    float stepChange = cg.stepChange * (steptime - timeDelta) / steptime;
+    origin[2] -= stepChange;
+  }
+}
 
 
 #define TRACE_DEPTH    32.0f
@@ -3435,6 +3462,9 @@ void CG_Player(centity_t * cent)
       body.origin[1] -= ci->headOffset[1];
       body.origin[2] -= 22 + ci->headOffset[2]; //hypov8 todo 24 offset?
     }
+    
+    // add step offset
+    CG_StepOffsetPlayer(body.origin); //hypov8 add
 
     VectorCopy(body.origin, body.lightingOrigin);
     VectorCopy(body.origin, body.oldorigin); // don't positionally lerp at all

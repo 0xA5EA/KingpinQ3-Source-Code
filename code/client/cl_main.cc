@@ -2516,10 +2516,8 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 	int				numservers;
   byte *buffptr;
   byte *buffend;
-#ifdef	HYPODEBUG
-  byte tmp1, tmp2, tmp3, tmp4;
-#endif
-	Com_Printf("CL_ServersResponsePacket\n");
+
+  Com_Printf("CL_ServersResponsePacket\n");
 
   if (cls.numglobalservers == -1)
   {
@@ -2551,7 +2549,7 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
     {
       buffptr++;
 
-			if (buffend - buffptr < (int)(sizeof(addresses[numservers].ip) + sizeof(addresses[numservers].port) + 1))
+      if (buffend - buffptr < (int)(sizeof(addresses[numservers].ip) + sizeof(addresses[numservers].port) + 1))
         break;
 
       for (i = 0; i < (int)sizeof(addresses[numservers].ip); i++)
@@ -2564,7 +2562,7 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
     {
       buffptr++;
 
-			if (buffend - buffptr < (int)(sizeof(addresses[numservers].ip6) + sizeof(addresses[numservers].port) + 1))
+      if (buffend - buffptr < (int)(sizeof(addresses[numservers].ip6) + sizeof(addresses[numservers].port) + 1))
         break;
 
       for (i = 0; i < (int)sizeof(addresses[numservers].ip6); i++)
@@ -2578,24 +2576,8 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
       break;
 
     // parse out port
-#ifdef	HYPODEBUG
-	tmp1 = *buffptr;
-	tmp2 = *buffptr << 8;
-	Com_Printf("1= %b 2= %x )\n", tmp1, tmp2 & 0xFF);
-#endif
     addresses[numservers].port = (*buffptr++) << 8;
-#ifdef	HYPODEBUG
-	tmp3 = *buffptr;
-	tmp4 = *buffptr << 8;
-	Com_Printf("(1= %b 2= %b)\n", tmp3, tmp4);
-#endif
     addresses[numservers].port += *buffptr++;
-#ifdef	HYPODEBUG
-	tmp1 = *buffptr;
-	tmp2 = *buffptr << 8;
-	Com_Printf("(1= %u 2= %u)\n", tmp1, tmp2);
-	Com_Printf("(short= %u)\n", addresses[numservers].port);
-#endif
     addresses[numservers].port = BigShort(addresses[numservers].port);
 
     // syntax check
@@ -3561,12 +3543,14 @@ void CL_Init(void)
   Cvar_Get("name", "Kpq3-player", CVAR_USERINFO | CVAR_ARCHIVE);
   Cvar_Get("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE);            // org. 3000 0xA5EA
   Cvar_Get("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE);
-  Cvar_Get("model", "thug", CVAR_USERINFO | CVAR_ARCHIVE);
 
+  Cvar_Get("model", "thug", CVAR_USERINFO | CVAR_ARCHIVE);
   Cvar_Get("headmodel", "thug", CVAR_USERINFO | CVAR_ARCHIVE);
   Cvar_Get("team_headmodel", "thug", CVAR_USERINFO | CVAR_ARCHIVE);
-  Cvar_Get("g_dragonTeam", DEFAULT_CLAN_DRAGONS, CVAR_SERVERINFO | CVAR_ARCHIVE);
-  Cvar_Get("g_nikkiTeam", DEFAULT_CLAN_NIKKIS, CVAR_SERVERINFO | CVAR_ARCHIVE);
+
+  Cvar_Get("g_dragonTeam", DEFAULT_CLAN_DRAGONS, CVAR_SERVERINFO | CVAR_USERINFO | CVAR_ARCHIVE);
+  Cvar_Get("g_nikkiTeam", DEFAULT_CLAN_NIKKIS, CVAR_SERVERINFO | CVAR_USERINFO | CVAR_ARCHIVE);
+
   Cvar_Get("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get ("color2", "5", CVAR_USERINFO | CVAR_ARCHIVE );
   Cvar_Get("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE);
@@ -4157,69 +4141,86 @@ CL_GlobalServers_f
 void CL_GlobalServers_f(void)
 {
   netadr_t to;
-  int count, i, masterNum;
+  int count, i, masterNum, sv_idx, start, end;
   char command[1024], *masteraddress;
 
-	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS - 1)
-	{
-		Com_Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n", MAX_MASTER_SERVERS - 1);
+  if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS - 1)
+  {
+    Com_Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n", MAX_MASTER_SERVERS - 1);
     return;
   }
 
-  sprintf(command, "sv_master%d", masterNum /* + 1*/); //hypov8 remove + 1 
-  masteraddress = Cvar_VariableString(command);
-
-  if (!*masteraddress)
+  //-1 = send ping to all masters.
+  if (masterNum == -1)
   {
-    Com_Printf("CL_GlobalServers_f: Error: No master server address given.\n");
-    return;
-  }
-
-  // reset the list, waiting for response
-  // -1 is used to distinguish a "no response"
-
-  i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
-
-  if (!i)
-  {
-    Com_Printf("CL_GlobalServers_f: Error: could not resolve address of master %s\n", masteraddress);
-    return;
-  }
-  else if (i == 2)
-    to.port = BigShort(PORT_MASTER);
-
-  Com_Printf("Requesting servers from master %s...\n", masteraddress);
-
-  cls.numglobalservers = -1;
-  cls.pingUpdateSource = AS_GLOBAL;  //hypov8 todo: >global <fav?
-
-
-  // Use the extended query for IPv6 masters
-  if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
-  {
-		int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
-		if(v4enabled)
-		{
-			Com_sprintf(command, sizeof(command), "getserversExt %s %s",
-				com_gamename->string, Cmd_Argv(2));
-		}
-		else
-		{
-			Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
-				com_gamename->string, Cmd_Argv(2));
-		}
+    start = 0;
+    end = MAX_MASTER_SERVERS;
   }
   else
-		Com_sprintf(command, sizeof(command), "getservers %s %s",
-			com_gamename->string, Cmd_Argv(2)); //hypov8 NEWPROTO GAMENAME_FOR_MASTER
-
-  for (i = 3; i < count; i++)
   {
-    Q_strcat(command, sizeof(command), " ");
-    Q_strcat(command, sizeof(command), Cmd_Argv(i));
+    //single master
+    start = masterNum;
+    end = masterNum;
   }
 
-  NET_OutOfBandPrint(NS_SERVER, to, "%s", command);
+  //
+  //for (sv_idx = start; sv_idx < end; sv_idx++)
+  {
+    sprintf(command, "sv_master%d", masterNum); // masterNum /* + 1*/); //hypov8 remove + 1 
+    masteraddress = Cvar_VariableString(command);
+
+    if (masterNum!= -1 && !*masteraddress)
+    {
+      Com_Printf("CL_GlobalServers_f: Error: No master server address given.\n");
+      return;
+    }
+
+    // reset the list, waiting for response
+    // -1 is used to distinguish a "no response"
+
+    i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
+
+    if (masterNum!= -1 && !i)
+    {
+      Com_Printf("CL_GlobalServers_f: Error: could not resolve address of master %s\n", masteraddress);
+      return;
+    }
+    else if (i == 2)
+      to.port = BigShort(PORT_MASTER);
+
+    Com_Printf("Requesting servers from master %s...\n", masteraddress);
+
+    cls.numglobalservers = -1;
+    cls.pingUpdateSource = AS_GLOBAL;  //hypov8 todo: >global <fav?
+
+
+    // Use the extended query for IPv6 masters
+    if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
+    {
+      int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
+      if (v4enabled)
+      {
+        Com_sprintf(command, sizeof(command), "getserversExt %s %s",
+          com_gamename->string, Cmd_Argv(2));
+      }
+      else
+      {
+        Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
+          com_gamename->string, Cmd_Argv(2));
+      }
+    }
+    else
+      Com_sprintf(command, sizeof(command), "getservers %s %s",
+      com_gamename->string, Cmd_Argv(2)); //hypov8 NEWPROTO GAMENAME_FOR_MASTER
+
+    for (i = 3; i < count; i++)
+    {
+      Q_strcat(command, sizeof(command), " ");
+      Q_strcat(command, sizeof(command), Cmd_Argv(i));
+    }
+
+    NET_OutOfBandPrint(NS_SERVER, to, "%s", command);
+  }
 }
 
 /*
@@ -4437,7 +4438,7 @@ qboolean CL_UpdateVisiblePings_f(int source)
 
 // Com_Printf("CL_UpdateVisiblePings_f call \n" );
 
-  if (source < 0 || source > AS_FAVORITES)
+  if (source < 0 || source > AS_GLOBAL)//AS_FAVORITES
     return qfalse;
 
   cls.pingUpdateSource = source;
@@ -4447,59 +4448,70 @@ qboolean CL_UpdateVisiblePings_f(int source)
   {
     serverInfo_t *server = NULL;
 
-		switch (source) {
-    case AS_LOCAL:
-      server = &cls.localServers[0];
-      max    = cls.numlocalservers;
-      break;
-    case AS_GLOBAL:
-	case AS_GLOBAL1:
-	case AS_GLOBAL2:
-	case AS_GLOBAL3:
-	case AS_GLOBAL4:
-	case AS_GLOBAL5:
-      server = &cls.globalServers[0];
-      max    = cls.numglobalservers;
-      break;
-    case AS_FAVORITES:
-      server = &cls.favoriteServers[0];
-      max    = cls.numfavoriteservers;
-      break;
-    default:
-      return qfalse;
+    switch (source) 
+    {
+      case AS_LOCAL:
+        server = &cls.localServers[0];
+        max = cls.numlocalservers;
+        break;
+      case AS_GLOBAL:
+      case AS_GLOBAL1:
+      case AS_GLOBAL2:
+      case AS_GLOBAL3:
+      case AS_GLOBAL4:
+      case AS_GLOBAL5:
+        server = &cls.globalServers[0];
+        max = cls.numglobalservers;
+        break;
+      case AS_FAVORITES:
+        server = &cls.favoriteServers[0];
+        max = cls.numfavoriteservers;
+        break;
+      default:
+        return qfalse;
     }
-		for (i = 0; i < max; i++) {
-			if (server[i].visible) {
-				if (server[i].ping == -1) {
-					int j;
+    for (i = 0; i < max; i++)
+    {
+      if (server[i].visible) 
+      {
+        if (server[i].ping == -1)
+        {
+          int j;
 
-					if (slots >= MAX_PINGREQUESTS) {
-						break;
-					}
-					for (j = 0; j < MAX_PINGREQUESTS; j++) {
-						if (!cl_pinglist[j].adr.port) {
-							continue;
-						}
-						if (NET_CompareAdr( cl_pinglist[j].adr, server[i].adr)) {
-							// already on the list
-							break;
-						}
-					}
-					if (j >= MAX_PINGREQUESTS) {
-						status = qtrue;
-						for (j = 0; j < MAX_PINGREQUESTS; j++) {
-							if (!cl_pinglist[j].adr.port) {
-								break;
-							}
+          if (slots >= MAX_PINGREQUESTS)
+          {
+            break;
+          }
+          for (j = 0; j < MAX_PINGREQUESTS; j++)
+          {
+            if (!cl_pinglist[j].adr.port)
+            {
+              continue;
             }
-						if(j < MAX_PINGREQUESTS)
-				    {
-            Com_Memcpy(&cl_pinglist[j].adr, &server[i].adr, sizeof(netadr_t));
-            cl_pinglist[j].start = Sys_Milliseconds();
-            cl_pinglist[j].time  = 0;
-            NET_OutOfBandPrint(NS_CLIENT, cl_pinglist[j].adr, "getinfo xxx");
-            slots++;
-}
+            if (NET_CompareAdr(cl_pinglist[j].adr, server[i].adr))
+            {
+              // already on the list
+              break;
+            }
+          }
+          if (j >= MAX_PINGREQUESTS)
+          {
+            status = qtrue;
+            for (j = 0; j < MAX_PINGREQUESTS; j++)
+            {
+              if (!cl_pinglist[j].adr.port)
+              {
+                break;
+              }
+            }
+            if (j < MAX_PINGREQUESTS)
+            {
+              Com_Memcpy(&cl_pinglist[j].adr, &server[i].adr, sizeof(netadr_t));
+              cl_pinglist[j].start = Sys_Milliseconds();
+              cl_pinglist[j].time = 0;
+              NET_OutOfBandPrint(NS_CLIENT, cl_pinglist[j].adr, "getinfo xxx");
+              slots++;
+            }
           }
         }
         // if the server has a ping higher than cl_maxPing or

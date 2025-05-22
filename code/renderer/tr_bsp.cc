@@ -6157,6 +6157,7 @@ void R_LoadEntities(lump_t * l)
       else if (!Q_stricmp(keyname, "rotation") || !Q_stricmp(keyname, "light_rotation"))
       {
         matrix_t        rotation;
+        MatrixIdentity(rotation);
 
         sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
              &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
@@ -8678,6 +8679,7 @@ void R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeN
 }
 
 //hypov8 todo: daemon
+//#define CUBE_OUT_PNG
 void R_BuildCubeMaps() 
 {
 #if 1
@@ -8691,28 +8693,24 @@ void R_BuildCubeMaps()
   cubemapProbe_t *cubeProbe;
   byte            temp[REF_CUBEMAP_SIZE * REF_CUBEMAP_SIZE * 4];
   byte           *dest;
-
-  //level not loaded
-  if (tr.world == NULL)
-	  return;
-
-#if 0
+#ifdef CUBE_OUT_PNG //output cubemap to file
   byte           *fileBuf;
   char           *fileName = NULL;
   int            fileCount = 0;
   int            fileBufX = 0;
   int            fileBufY = 0;
 #endif
-
-  //
-
   //int             distance = 512;
   //qboolean        bad;
-
 //  srfSurfaceStatic_t *sv;
-  int             startTime, endTime;
-  size_t			tics = 0;
-  size_t			nextTicCount = 0;
+  int            startTime, endTime;
+  size_t         tics = 0;
+  size_t         nextTicCount = 0;
+
+  //level not loaded
+  if (tr.world == NULL)
+    return;
+
 
   startTime = ri.Milliseconds();
 
@@ -8722,9 +8720,9 @@ void R_BuildCubeMaps()
   {
     tr.cubeTemp[i] = (byte*)ri.Z_Malloc(REF_CUBEMAP_SIZE * REF_CUBEMAP_SIZE * 4);
   }
-
-//  fileBuf = ri.Z_Malloc(REF_CUBEMAP_STORE_SIZE * REF_CUBEMAP_STORE_SIZE * 4);
-
+#ifdef CUBE_OUT_PNG
+  fileBuf = (byte*)ri.Z_Malloc(REF_CUBEMAP_STORE_SIZE * REF_CUBEMAP_STORE_SIZE * 4);
+#endif
   // calculate origins for our probes
 
   Com_InitGrowList(&tr.cubeProbes, 4000);
@@ -9111,9 +9109,8 @@ void R_BuildCubeMaps()
       }
 
       // collate cubemaps into one large image and write it out
-#if 0
-
-      if ( qfalse )
+#ifdef  CUBE_OUT_PNG //hypov8
+      if ( qtrue )
       {
         // Initialize output buffer
         if ( fileBufX == 0 && fileBufY == 0 )
@@ -9150,7 +9147,6 @@ void R_BuildCubeMaps()
           fileBufY = 0;
         }
       }
-
 #endif
     }
 
@@ -9177,7 +9173,7 @@ void R_BuildCubeMaps()
 
   ri.Printf(PRINT_ALL, "\n");
 
-#if 0
+#ifdef CUBE_OUT_PNG
 
   // flush the buffer if there's any still unwritten content
   if(fileBufX != 0 || fileBufY != 0)

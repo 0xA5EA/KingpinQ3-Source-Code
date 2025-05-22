@@ -675,6 +675,7 @@ CG_OffsetThirdPersonView
 ===============
 */
 #define	FOCUS_DISTANCE	512
+static void CG_StepOffset(void);
 static void CG_OffsetThirdPersonView(void)
 {
   vec3_t forward, right, up;
@@ -733,6 +734,9 @@ static void CG_OffsetThirdPersonView(void)
   }
 
   VectorCopy(view, cg.refdef.vieworg);
+  
+  // add step offset
+  CG_StepOffset(); //hypov8 add
 
   // select pitch to look at focus point from vieword
   VectorSubtract(focusPoint, cg.refdef.vieworg, focusPoint);

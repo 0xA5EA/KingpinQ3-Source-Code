@@ -876,7 +876,7 @@ static qboolean UI_FindClientHeadFile(char *filename, int length, const char *te
 UI_RegisterClientModelname
 ==========================
 */
-qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelName, const char *skinName, const char *teamName)
+qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelName, const char *skinName, const char *clanName, const char *teamName)
 {
   char            model[MAX_QPATH];
   char            skin[MAX_QPATH];
@@ -892,7 +892,7 @@ qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelName, con
 
   Q_strncpyz(model, modelName, sizeof(model));
 
-  if (teamName[0] == '\0') //DM
+  if (clanName[0] == '\0') //DM
   {
     slash = strchr(model, '/');
     if (!slash)
@@ -913,7 +913,7 @@ qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelName, con
   }
 
 #ifdef XPPM
-  return UI_XPPM_RegisterModel(pi, model, skin, teamName);
+  return UI_XPPM_RegisterModel(pi, model, skin, clanName, teamName);
 #endif
 
 }
@@ -924,10 +924,10 @@ qboolean UI_RegisterClientModelname(playerInfo_t *pi, const char *modelName, con
 UI_PlayerInfo_SetModel
 ===============
 */
-void UI_PlayerInfo_SetModel(playerInfo_t *pi, const char *model, const  char *headName, char *teamName)
+void UI_PlayerInfo_SetModel(playerInfo_t *pi, const char *model, const char *headName, const char *clanName, const char *teamName)
 {
   Com_Memset(pi, 0, sizeof(*pi));
-  UI_RegisterClientModelname(pi, model, headName, teamName);
+  UI_RegisterClientModelname(pi, model, headName, clanName, teamName);
 //remove hypov8
 /*
   pi->weapon        = WP_MACHINEGUN;

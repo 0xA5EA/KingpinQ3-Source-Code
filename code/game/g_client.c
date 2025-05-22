@@ -861,7 +861,7 @@ void ClientUserinfoChanged(int clientNum)
   else
   {   //g_dragonTeam, g_nikkiTeam renamed to tn1, tn2
     s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\tn1\\%s\\tn2\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-           client->pers.netname, client->sess.sessionTeam, model, headModel, dragonTeam, nikkiTeam, c1, c2,
+           client->pers.netname, team, model, headModel, dragonTeam, nikkiTeam, c1, c2,
            client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
   }
 
