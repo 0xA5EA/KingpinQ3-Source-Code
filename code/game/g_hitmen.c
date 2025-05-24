@@ -185,17 +185,17 @@ static void HM_ChangeClientWeapons(void)
 
     // add new weapon and ammo
     cl->ps.stats[STAT_WEAPONS] |= (1 << next->itemptr->giTag);
-	cl->ps.ammo_all[BG_AmmoCombineCheck(next->itemptr->giTag)] = next->initialAmmo;
-	cl->ps.ammo_mag[next->itemptr->giTag] = BG_WeaponMaxMagCount(next->itemptr->giTag); //next->initialrounds;
+    cl->ps.ammo_all[BG_AmmoCombineCheck(next->itemptr->giTag)] = next->initialAmmo;
+    cl->ps.ammo_mag[next->itemptr->giTag] = BG_WeaponMaxMagCount(next->itemptr->giTag); //next->initialrounds;
 
     // remove old weapon + ammo
     cl->ps.stats[STAT_WEAPONS] &= ~(1 << cur->itemptr->giTag);
-	cl->ps.ammo_all[BG_AmmoCombineCheck(cur->itemptr->giTag)] = 0;
-	cl->ps.ammo_mag[cur->itemptr->giTag] = 0;
+    cl->ps.ammo_all[BG_AmmoCombineCheck(cur->itemptr->giTag)] = 0;
+    cl->ps.ammo_mag[cur->itemptr->giTag] = 0;
 
     // select new weapon
-	cl->ps.pm_flags |= PMF_WEAPON_SWITCH;
-	cl->ps.persistant[ PERS_NEWWEAPON ] = next->itemptr->giTag;
+    cl->ps.pm_flags |= PMF_WEAPON_SWITCH;
+    cl->ps.persistant[ PERS_NEWWEAPON ] = next->itemptr->giTag;
   }
   hmLocals.prevWeapon = hmLocals.curWeapon;
   hmLocals.curWeapon  = hmLocals.nextWeapon;

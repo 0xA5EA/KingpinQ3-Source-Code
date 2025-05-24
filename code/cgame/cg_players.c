@@ -44,7 +44,7 @@ delta_t;
 
 delta_t deltas[ WP_NUM_WEAPONS ][ MAX_BONES ];
 
-char           *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
+char *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
   "*death1.ogg",
   "*death2.ogg",
   "*death3.ogg",
@@ -60,22 +60,11 @@ char           *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
   "*drown.ogg",
   "*fall1.ogg",
   "*fall2.ogg",
+  "*fall3.ogg",
   "*taunt1.ogg",
   "*taunt2.ogg",
-  "*taunt3.ogg",
-  "*taunt4.ogg",
-  "*taunt5.ogg",
-  "*taunt6.ogg",
-  "*taunt7.ogg",
-  "*taunt8.ogg",
-  "*taunt9.ogg",
-  "*taunt10.ogg",
-  "*taunt11.ogg",
-  "*taunt12.ogg"
+  "*taunt3.ogg" //matching 3 animations
 };
-//hypov8 add 12 custom taunts. to match player 'model' sounds, thug, bitch etc
-//it removed the numCustomTaunts1 numCustomTaunts2
-//FIXME(0xA5EA): this is not correct
 
 /*
 ================
@@ -681,11 +670,12 @@ This will usually be deferred to a safe time
 static void CG_LoadClientInfo(clientInfo_t * ci)
 {
   const char     *dir, *fallback;
-  int             i, modelloaded;
+  int             i, modelloaded, idx;
   const char     *s;
   int             clientNum;
-  char            skinClanName[32];
+  char            skinClanName[32], c1[3];
   char            teamName[32];
+
 
   //skip spec
   if (ci->team == TEAM_SPECTATOR)
@@ -761,7 +751,8 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 
   // sounds
   dir = ci->modelName;
-  fallback = (cgs.gametype >= GT_TEAM) ? DEFAULT_TEAM_MODEL : DEFAULT_MODEL;
+  //fallback = (cgs.gametype >= GT_TEAM) ? DEFAULT_TEAM_MODEL : DEFAULT_MODEL;
+  fallback = (ci->gender != GENDER_FEMALE) ? DEFAULT_MODEL : DEFAULT_MODEL_FEMALE;
 
   for (i = 0; i < MAX_CUSTOM_SOUNDS; i++)
   {
@@ -774,6 +765,18 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
     // if the model didn't load use the sounds of the default model
     if (modelloaded)
       ci->sounds[i] = trap_S_RegisterSound(va("sound/player/%s/%s", dir, s + 1), qfalse);
+
+    if (!ci->sounds[i])
+    { //replace sound2/3 with (soundX -1)
+      idx = strlen(s)-5;
+      if (idx > 0)
+      {
+        c1[0] = s[idx]; 
+        c1[1] = 0;
+        if (atoi(c1) > 1) //more than #1
+          ci->sounds[i] = ci->sounds[i-1]; //prev sound
+      }
+    }
 
     if (!ci->sounds[i])
       ci->sounds[i] = trap_S_RegisterSound(va("sound/player/%s/%s", fallback, s + 1), qfalse);

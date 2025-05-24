@@ -99,7 +99,6 @@ varying vec4		var_Normal;
 //varying vec4		var_Color;
 
 
-
 /*
 ================
 MakeNormalVectors
@@ -329,7 +328,7 @@ void FetchShadowMoments(vec3 Pworld, out vec4 shadowVert,
 
 	shadowMoments = FixShadowMoments(shadowMoments);
 	shadowClipMoments = FixShadowMoments(shadowClipMoments);
-	
+
 #if defined(EVSM) && defined(r_EVSMPostProcess)
 	shadowMoments = ShadowDepthToEVSM(shadowMoments.x);
 	shadowClipMoments = ShadowDepthToEVSM(shadowClipMoments.x);
@@ -668,7 +667,7 @@ float ShadowTest( float vertexDistance, vec4 shadowMoments, vec4 shadowClipMomen
 		gl_FragColor.b = (r_DebugShadowMaps & 4) != 0 ? shadow : 0.0;
 		gl_FragColor.a = 1.0;
 	#endif
-		
+
 #elif defined( VSM )
 	#if defined(VSM_CLAMP)
 		// convert to [-1, 1] vector space
@@ -691,7 +690,7 @@ float ShadowTest( float vertexDistance, vec4 shadowMoments, vec4 shadowClipMomen
 	float negContrib = ChebyshevUpperBound(shadowMoments.zw, warpedVertexDistances.y, minVariance.y);
 
 	shadow = min(posContrib, negContrib);
-	
+
 	#if defined(r_DebugShadowMaps)
 	#extension GL_EXT_gpu_shader4 : enable
 		gl_FragColor.r = (r_DebugShadowMaps & 1) != 0 ? posContrib : 0.0;
@@ -887,7 +886,7 @@ void	main()
 
 	// compute incident ray
 	vec3 I = var_Position.xyz - u_LightOrigin;
-	
+
 	float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
 	if( vertexDistance >= 1.0f ) {
 		discard;
@@ -935,11 +934,11 @@ void	main()
 	#endif
 #endif
 	shadow = ShadowTest(vertexDistance, shadowMoments, shadowClipMoments);
-	
+
 	#if defined(r_DebugShadowMaps)
 		return;
 	#endif
-	
+
 	if(shadow <= 0.0)
 	{
 		discard;
@@ -1024,10 +1023,15 @@ void	main()
 #endif // USE_NORMAL_MAPPING
 
 	// compute the light term
-#if defined(r_WrapAroundLighting)
-	float NL = clamp(dot(N, L) + u_LightWrapAround, 0.0, 1.0) / clamp(1.0 + u_LightWrapAround, 0.0, 1.0);
+#if defined(r_HalfLambertLighting)
+	// http://developer.valvesoftware.com/wiki/Half_Lambert
+	float NdotL = dot(N, L) * 0.5 + 0.5;
+	NdotL *= NdotL;
+#elif defined(r_WrapAroundLighting)
+	//float NdotL = clamp(dot(N, L) + u_LightWrapAround, 0.0, 1.0) / clamp(1.0 + u_LightWrapAround, 0.0, 1.0);
+	float NdotL = clamp( (dot(N, L) + r_WrapAroundLighting) / (1.0 + r_WrapAroundLighting), 0.0, 1.0);
 #else
-	float NL = clamp(dot(N, L), 0.0, 1.0);
+	float NdotL = clamp(dot(N, L), 0.0, 1.0);
 #endif
 
 	// compute the diffuse term
@@ -1037,12 +1041,28 @@ void	main()
 		discard;
 		return;
 	}
-	diffuse.rgb *= u_LightColor * NL;
+	diffuse.rgb *= u_LightColor * NdotL;
+	//diffuse.rgb	= vec3(0.5, 0.5, 0.5);
+
+
 
 #if defined(USE_NORMAL_MAPPING)
 	// compute the specular term
-	vec4 spec = texture2D(u_SpecularMap, texSpecular).rgba;
-	vec3 specular = spec.rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent.x * spec.a + u_SpecularExponent.y) * r_SpecularScale;
+	vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
+
+	//try convert bpr to regular spec.
+	#if defined(USE_PBR_SPECULAR)
+		float roughTex = specBase.g; //roughness values
+		float metalTex = specBase.b; //metalic value
+		diffuse.rgb = mix(diffuse.rgb, vec3(0.0), metalTex * 0.75);
+		specBase = vec4(0.0, 0.0, 0.0, 0.0);
+	#endif
+
+	float specFactor = clamp(dot(normalize(reflect(-L, N)), V), 0.0, 1.0);
+	specFactor = pow(specFactor, u_SpecularExponent.x *specBase.a + u_SpecularExponent.y);
+	specFactor *= r_SpecularScale;
+	vec3 specular = specBase.rgb * u_LightColor * specFactor;
+
 #endif
 
 	// compute light attenuation
@@ -1053,7 +1073,6 @@ void	main()
 #elif defined(LIGHT_DIRECTIONAL)
 	vec3 attenuationXY = vec3(1.0);
 	vec3 attenuationZ  = vec3(1.0);
-
 #else
 	vec3 attenuationXY = texture2D(u_AttenuationMapXY, var_TexAttenuation.xy).rgb;
 	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAttenuation.z, 0)).rgb;

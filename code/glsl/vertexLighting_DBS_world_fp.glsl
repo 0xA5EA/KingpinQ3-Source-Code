@@ -52,8 +52,17 @@ void	main()
 {
 	vec2 texDiffuse = var_TexDiffuseGlow.st;
 	vec2 texNormal = var_TexNormalSpecular.st;
-	vec2 texSpecular = var_TexNormalSpecular.pq;	
+	vec2 texSpecular = var_TexNormalSpecular.pq;    
 	vec2 texGlow = var_TexDiffuseGlow.pq;	
+	
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
+
+	if( abs(diffuse.a + u_AlphaThreshold) <= 1.0 )
+	{
+		discard;
+		return;
+	}	
 
 #if defined(USE_NORMAL_MAPPING)
 
@@ -67,16 +76,16 @@ void	main()
 	#endif			
 			
 	// compute view direction in world space
-	vec3 I = normalize(u_ViewOrigin - var_Position); //hypov8 most of this is dupe ightMapping
+	vec3 vDir = normalize(u_ViewOrigin - var_Position); //hypov8 most of this is dupe ightMapping
 
 	#if defined(USE_PARALLAX_MAPPING)
 
 		// ray intersect in view direction
-		vec3 V = I * objectToTangentMatrix; 
-		V = normalize(V);		
+        vec3 V = vDir * objectToTangentMatrix; 
+        V = normalize(V);        
 		
 		// size and start position of search in texture space
-		vec2 S = V.xy * -u_DepthScale / V.z;
+        vec2 S = V.xy * -u_DepthScale / V.z;
 		#if 0
 			vec2 texOffset = vec2(0.0);
 			for(int i = 0; i < 4; i++) {
@@ -96,56 +105,42 @@ void	main()
 		texSpecular.st += texOffset;
 	#endif // USE_PARALLAX_MAPPING
 
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
-
-	if( abs(diffuse.a + u_AlphaThreshold) <= 1.0 )
-	{
-		discard;
-		return;
-	}
 
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5);
-	N = normalize(objectToTangentMatrix * N);
+	vec3 N = normalize(objectToTangentMatrix *(2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5)));
+
 	
 	// compute light direction in tangent space
 	vec3 L = var_LightDirection;
 	L = normalize(L);	
 	
  	// compute half angle in tangent space
-	vec3 H = normalize(L + I);
-	
+	vec3 H = normalize(L + vDir);
+    
 	// compute light color from vertex color
-	vec3 lightColor = var_LightColor.rgb;	
-	
+	vec3 lightColor = var_LightColor.rgb;    
+    
 	// compute the specular term
-	vec4 specular = texture2D(u_SpecularMap, texSpecular).rgba;
+	vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
+	
 	float NdotL = clamp(dot(N, L), 0.0, 1.0);
-	float NdotLnobump = clamp(dot(normalize(var_Normal.xyz), L), 0.004, 1.0);
-	vec3 lightColorNoNdotL = lightColor.rgb / NdotLnobump;
+		
+	float specFactor = clamp(dot(normalize(reflect(-L, N)),vDir), 0.04, 1.0);
+	specFactor = pow(specFactor, u_SpecularExponent.x * specBase.a + u_SpecularExponent.y);
+	specFactor *= r_SpecularScale;	
 
 
 	// compute final color
 	vec4 color = diffuse;
-	color.rgb *= clamp(lightColorNoNdotL.rgb * NdotL, lightColor.rgb * 0.3, lightColor.rgb);
-	color.rgb += specular.rgb * lightColorNoNdotL * pow(clamp(dot(N, H), 0.0, 1.0), u_SpecularExponent.x * specular.a + u_SpecularExponent.y) * r_SpecularScale;
-	color.a = var_LightColor.a;	// for terrain blending
+	color.rgb *= var_LightColor.rgb * NdotL;
+	color.rgb += specBase.rgb * var_LightColor.rgb * specFactor;
+	color.a *= var_LightColor.a;	// for terrain blending
 	
 	
 
 #else // !USE_NORMAL_MAPPING
 
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
-
-	if( abs(diffuse.a + u_AlphaThreshold) <= 1.0 )
-	{
-		discard;
-		return;
-	}
-
-	vec3 N = normalize(var_Normal);	
+	vec3 N = normalize(var_Normal);    
 
 	#if defined(TWOSIDED)
 		if(gl_FrontFacing)
@@ -155,19 +150,18 @@ void	main()
 	#endif
 
 	// compute light color from vertex light
-	//vec4 color = vec4(diffuse.rgb * var_LightColor.rgb, var_LightColor.a);	
-	vec3 lightColor = var_LightColor.rgb;
+	//vec4 color = vec4(diffuse.rgb * var_LightColor.rgb, var_LightColor.a);    
 	vec4 color = diffuse;
-	color.rgb *= lightColor;
-	color.a = var_LightColor.a;	// for terrain blending	
-	
-	//hypov8 debug missing bumpmaps (red)
+	color.rgb *= var_LightColor.rgb;
+	color.a = var_LightColor.a;	// for terrain blending    
+    
+    //hypov8 debug missing bumpmaps (red)
   	//color.rgb = vec3(1.0, 0.5, 0.5) * lightColor;
 
 #endif //end !USE_NORMAL_MAPPING
 
 #if defined(USE_GLOW_MAPPING)
-	color.rgb += texture2D(u_GlowMap, texGlow).rgb;
+    color.rgb += texture2D(u_GlowMap, texGlow).rgb;
 #endif
 
 
@@ -186,7 +180,7 @@ void	main()
 #if defined(r_showLightMaps)
 	gl_FragColor = vec4(var_LightColor.rgb, 1.0);
 #elif defined(r_showDeluxeMaps)
-	vec3 dirToRGB = (var_LightDirection + 1.0) / 2;
+    vec3 dirToRGB = (var_LightDirection + 1.0) / 2;
 	gl_FragColor = vec4(dirToRGB, 1.0); 
 #endif
 

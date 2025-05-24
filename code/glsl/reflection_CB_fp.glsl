@@ -38,14 +38,21 @@ void	main()
 	// compute incident ray in world space
 	vec3 I = normalize(var_Position - u_ViewOrigin);
 
+	float alpha = 1.0;
 
 #if defined(USE_NORMAL_MAPPING)
+	// get bump texture
+	vec4 bumpTex = texture2D(u_NormalMap, var_TexNormal.st).rgba;
+
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
+	vec3 N = 2.0 * (bumpTex.rgb - 0.5);
 	#if defined(r_NormalScale)
 	N.z *= r_NormalScale;
 	normalize(N);
 	#endif
+	
+	//add bumpmap alpha to blend stage
+	alpha = bumpTex.a;
 
 	// invert tangent space for twosided surfaces
 	mat3 tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
@@ -67,6 +74,6 @@ void	main()
 	// compute reflection ray
 	vec3 R = reflect(I, N);
 
-	gl_FragColor = textureCube(u_ColorMap, R).rgba;
-	// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	gl_FragColor = vec4(textureCube(u_ColorMap, R).rgb, alpha);	
+
 }

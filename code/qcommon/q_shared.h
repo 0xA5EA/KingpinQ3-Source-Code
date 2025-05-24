@@ -78,12 +78,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define FLATLINE_FOR_MASTER		"KPQ3Flatline-1"	// HEARTBEAT_FOR_MASTER
 #define FLATLINE_FOR_MASTER		HEARTBEAT_FOR_MASTER //hypo us DP name. more compatable
 
-//#define HOMEPATH_NAME_WIN       PRODUCT_NAME
-#define HOMEPATH_NAME_WIN       PRODUCT_NAME "\\_Beta2_0"//PATH_SEP
+#define HOMEPATH_NAME_WIN       PRODUCT_NAME
+//#define HOMEPATH_NAME_WIN       PRODUCT_NAME "\\_Beta2_0"//PATH_SEP
   //hypov8 move to new folder. beta1 config corrupting game.
   //todo: set config to check version number. reset if outdated.
 
-#define KPQ3_BUILD_NUM "0.9.7.4" //hypov8 was PRODUCT_VERSION, conflict other libs
+#define KPQ3_BUILD_NUM "0.9.7.5" //hypov8 was PRODUCT_VERSION, conflict other libs
 #define KPQ3_VERSION PRODUCT_NAME " " KPQ3_BUILD_NUM
 //#define KPQ3_VERSION      "Wolf 1.41b-MP"
 

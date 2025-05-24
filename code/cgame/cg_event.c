@@ -409,16 +409,8 @@ void CG_PainEvent(centity_t *cent, int health)
   // don't do more than two pain sounds a second
   if (cg.time - cent->pe.painTime < 500)
     return;
-#if 0 // hypov8 test lower health warnings sounds
-  if (health < 25)
-    snd = "*pain25_1.ogg"; // hypov8 this should be changed, so only low health makes different noise 10, 20, 30?
-  else if (health < 50)
-    snd = "*pain50_1.ogg";
-  else if (health < 75)
-    snd = "*pain75_1.ogg";
-  else
-    snd = "*pain100_1.ogg";
-#else
+
+  // low health warnings sounds
   if (health < 10)
     snd = "*pain25_1.ogg";
   else if (health < 20)
@@ -427,9 +419,9 @@ void CG_PainEvent(centity_t *cent, int health)
     snd = "*pain75_1.ogg";
   else
     snd = "*pain100_1.ogg";
-#endif
 
-  trap_S_StartSound(NULL, cent->currentState.number, CHAN_VOICE,  CG_CustomSound(cent->currentState.number, snd)); //"*pain25_1.ogg" etc...
+  trap_S_StartSound(NULL, cent->currentState.number, CHAN_VOICE,  
+    CG_CustomSound(cent->currentState.number, snd)); //"*pain25_1.ogg" etc...
 
   // save pain time for programitic twitch animation
   cent->pe.painTime = cg.time;
@@ -550,9 +542,7 @@ also called by CG_CheckPlayerstateEvents
 void CG_EntityEvent(centity_t *cent, vec3_t position)
 {
   entityState_t *es;
-  int event;
-  //int land_type = FOOTSTEP_NORMAL;         /* 0xA5EA */
-  //	int random;
+  int event, eParm;
   vec3_t dir;
   const char *s;
   int clientNum;
@@ -669,7 +659,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
   case EV_FALL_SHORT:
     DEBUGNAME("EV_FALL_SHORT");
-  trap_S_StartSound(NULL, es->number, CHAN_AUTO, CG_CustomSound(es->number, "*fall1.ogg"));/* 0xA5EA, ci->footsteps*/
+    trap_S_StartSound(NULL, es->number, CHAN_AUTO, CG_CustomSound(es->number, "*fall1.ogg"));/* 0xA5EA, ci->footsteps*/
     if (clientNum == cg.predictedPlayerState.clientNum)
     {
       // smooth landing z changes
@@ -690,9 +680,8 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
     break;
   case EV_FALL_FAR:
     DEBUGNAME("EV_FALL_FAR");
-    //FIXME(0xA5EA): pain here ?
-    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*pain100_1.ogg"));
-    cent->pe.painTime = cg.time;                                                                                                                                                                                                                                                                                // don't play a pain sound right after this
+    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*fall3.ogg"));
+    cent->pe.painTime = cg.time; // don't play a pain sound right after this
     if (clientNum == cg.predictedPlayerState.clientNum)
     {
       // smooth landing z changes
@@ -762,7 +751,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
     // boing sound at origin, jump sound on player
     trap_S_StartSound(cent->lerpOrigin, -1, CHAN_VOICE, cgs.media.jumpPadSound);
-    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*jump1.ogg"));
+    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*jump%i.ogg", rand() % 3 + 1)));
     break;
 
   case EV_JUMP:
@@ -771,34 +760,26 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
     break;
   case EV_TAUNT:
     DEBUGNAME("EV_TAUNT");
-    {
-  //hypov8 should be fixed now, per model sounds
-#if 0 //oldtaunts //note hypov8 need to match taunts to player models. girls dont fart :)
-      shortbytes_t index;
-      index.s = es->eventParm;
-      if (index.b[0] == 1)
-      {
-        if (index.b[1] > numCustomTaunts2)
-        {
-          CG_Printf("error: indexoverflow arrayidx:%i  tauntidx:%i ", index.b[0], index.b[1]);
-          break;
-        }
-        trap_S_StartSound(NULL, es->number, CHAN_VOICE, trap_S_RegisterSound(bg_customTauntNames2[index.b[1]], qfalse));
-      }
-      else
-      {
-        if (index.b[1] > numCustomTaunts1)
-        {
-          CG_Printf("error: indexoverflow arrayidx:%i  tauntidx:%i ", index.b[0], index.b[1]);
-          break;
-        }
-        trap_S_StartSound(NULL, es->number, CHAN_VOICE, trap_S_RegisterSound(bg_customTauntNames1[index.b[1]], qfalse));
-      }
-#else //hypo 12 taunts per model
-    trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, va("*taunt%i.ogg", rand() % 12 + 1)));
-#endif
-    }
+    //hypo 9 taunts per model
+    eParm = es->eventParm;
+    if (eParm < 1 || eParm > 3)
+      trap_S_StartSound(NULL, es->number, CHAN_VOICE, 
+        CG_CustomSound(es->number, va("*taunt%i.ogg", rand() % 3 + 1)));
+    else
+      trap_S_StartSound(NULL, es->number, CHAN_VOICE, 
+        CG_CustomSound(es->number, va("*taunt%i.ogg", eParm)));
     break;
+  case EV_CURSE1:
+    DEBUGNAME("EV_CURSE1");
+    trap_S_StartSound(NULL, es->number, CHAN_VOICE, 
+      trap_S_RegisterSound(bg_customTauntNames1[es->eventParm], false));
+    break;
+  case EV_CURSE2:
+    DEBUGNAME("EV_CURSE2");
+    trap_S_StartSound(NULL, es->number, CHAN_VOICE, 
+      trap_S_RegisterSound(bg_customTauntNames2[es->eventParm], false));
+    break;
+
   case EV_TAUNT_YES:
     DEBUGNAME("EV_TAUNT_YES");
     CG_VoiceChatLocal(SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_YES);
@@ -881,20 +862,20 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
         #endif
         */
       }
-    else if (item->giType == IT_WEAPON)	//hypov8 todo: differnt sound?
-    {
-      if (es->number == cg.snap->ps.clientNum)
-        CG_AutoSwitch(index);
-      trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
-    }
-    else //all other sounds
-    {
-      trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
-    }
+      else if (item->giType == IT_WEAPON)	//hypov8 todo: differnt sound?
+      {
+        if (es->number == cg.snap->ps.clientNum)
+          CG_AutoSwitch(index);
+        trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
+      }
+      else //all other sounds
+      {
+        trap_S_StartSound(NULL, es->number, CHAN_AUTO, trap_S_RegisterSound(item->pickup_sound, qfalse));
+      }
 
       // show icon and name on status bar. &cg_autoswitch
       if (es->number == cg.snap->ps.clientNum)
-      CG_ItemPickup(index);
+        CG_ItemPickup(index);
     }
     break;
 

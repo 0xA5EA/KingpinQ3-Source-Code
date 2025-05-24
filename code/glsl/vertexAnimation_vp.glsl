@@ -21,13 +21,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // vertexAnimation_vp.glsl - interpolates .md3/.mdc vertex animations
 
-void VertexAnimation_P_N(	vec3 fromPosition, vec3 toPosition,
-							vec3 fromNormal, vec3 toNormal,
+void VertexAnimation_P_N(	vec3 fromPosition, 
+							vec3 toPosition,
+							vec3 fromNormal, 
+							vec3 toNormal,
 							float frac,
-							inout vec4 position, inout vec3 normal)
+							inout vec4 position, 
+							inout vec3 normal)
 {
 	position.xyz = mix(fromPosition, toPosition, frac);
-	position.w = 1;
+	position.w = 1.0;
 	
 	normal = normalize(mix(fromNormal, toNormal, frac));
 }
@@ -40,7 +43,7 @@ void VertexAnimation_P_TBN(	vec3 fromPosition, vec3 toPosition,
 							inout vec4 position, inout vec3 tangent, inout vec3 binormal, inout vec3 normal)
 {
 	position.xyz = mix(fromPosition, toPosition, frac);
-	position.w = 1;
+	position.w = 1.0;
 	
 	tangent = normalize(mix(fromTangent, toTangent, frac));
 	binormal = normalize(mix(fromBinormal, toBinormal, frac));

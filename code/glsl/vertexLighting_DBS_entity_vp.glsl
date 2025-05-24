@@ -41,24 +41,31 @@ uniform mat4		u_SpecularTextureMatrix;
 uniform mat4		u_GlowTextureMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
+uniform mat4		u_ColorTextureMatrix; //hypov8 pbr
 
 uniform float		u_Time;
 
 varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
+varying vec2		var_TexGlow;
+
+// light/lightgrid..
+//uniform vec3		u_AmbientColor; // currently calculated in bsp. ambiant light
+uniform vec3		u_LightDir;     // pointlight dir(todo multiply by matrix)
+//uniform vec3		u_LightColor;   // lightgrid color(match lightmap)
+uniform vec3		u_ViewOrigin; //current eye position
+
 #if defined(USE_NORMAL_MAPPING)
 varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
-#endif
-#if defined(USE_GLOW_MAPPING)
-varying vec2		var_TexGlow;
+ #if defined(USE_REFLECTIVE_SPECULAR)
+  varying vec2		var_TexColor; //hypov8 pbr
+ #endif
 #endif
 
 varying vec3		var_Normal;
-
-
 
 
 void	main()
@@ -94,7 +101,7 @@ void	main()
 						position, normal);
 	#endif
 
-#else
+#else //!USE_VERTEX_SKINNING && !USE_VERTEX_ANIMATION
 	position = vec4(attr_Position, 1.0);
 
 	#if defined(USE_NORMAL_MAPPING)
@@ -103,7 +110,7 @@ void	main()
 	#endif
 
 	normal = attr_Normal;
-#endif
+#endif //end !USE_VERTEX_SKINNING && !USE_VERTEX_ANIMATION
 
 #if defined(USE_DEFORM_VERTEXES)
 	position = DeformPosition2(	position,
@@ -113,15 +120,12 @@ void	main()
 #endif
 
 	// transform vertex position into homogenous clip-space
-	gl_Position = u_ModelViewProjectionMatrix * position;
+	gl_Position = u_ModelViewProjectionMatrix * vec4(position.xyz, 1.0);
+
 
 	// transform position into world space
-	var_Position = (u_ModelMatrix * position).xyz;
+	var_Position = (u_ModelMatrix * vec4(position.xyz, 1.0)).xyz;
 
-	#if defined(USE_NORMAL_MAPPING)
-	var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
-	var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
-	#endif
 
 	var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 
@@ -134,7 +138,15 @@ void	main()
 
 	// transform specularmap texture coords
 	var_TexSpecular = (u_SpecularTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
+
+	var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
+	var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
+
+	#if defined(USE_REFLECTIVE_SPECULAR) //hypov8 pbr
+		var_TexColor = (u_ColorTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
+	#endif
 #endif
+
 #if defined(USE_GLOW_MAPPING)
 	var_TexGlow = (u_GlowTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
 #endif

@@ -67,7 +67,6 @@ varying vec4		var_Normal;
 //varying vec4		var_Color;	// Tr3B - maximum vars reached
 
 
-
 void	main()
 {
 	vec4 position;
@@ -148,12 +147,11 @@ void	main()
 
 	// assign color
 	vec4 color = attr_Color * u_ColorModulate + u_Color;
-	// color = vec4(1.0);
 
 	var_TexDiffuse.p = color.r;
 	var_TexNormal.pq = color.gb;
 
 #if defined(USE_GLOW_MAPPING)
 	var_TexGlow = ( u_GlowTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0) ).st;
-#endif	
+#endif
 }

@@ -1087,7 +1087,6 @@ voice_table_t leroy_random[] = {
   {NULL, "", "",      "actors/skidrow/leroy/stepoff.ogg",      0, {0, 0, 0, 0, 0}, 0, 0, TT_NEGATIVE},
   {NULL, "", "",      "actors/skidrow/leroy/warned.ogg",       0, {0, 0, 0, 0, 0}, 0, 0, TT_NEGATIVE},
   {NULL, "", "",      "actors/skidrow/leroy/whatsup.ogg",      0, {0, 0, 0, 0, 0}, 0, 0, TT_NEGATIVE},
-
 }; // 18-2
 #endif
 /*
@@ -1821,6 +1820,33 @@ void Cmd_Weapon_f(gentity_t *ent)
   }
 }
 
+#if defined(COMPAT_KPQ3)
+static void Cmd_Curse_f(gentity_t *ent, int index)
+{
+  if (!ent->inuse)
+    return;
+  if (!ent->client)
+    return;
+  if (ent->client->lastCurseTime > level.time)
+    return;
+
+  ent->client->lastCurseTime = level.time +5000;
+
+  
+  switch (index)
+  {
+    default:
+    case 0:
+      G_AddEvent(ent, EV_CURSE1, rand() % numCustomTaunts1); //"curse1" 
+      break;
+
+    case 1:
+      G_AddEvent(ent, EV_CURSE2, rand() % numCustomTaunts2); //"curse2"
+      break;
+  }
+}
+#endif
+
 /*
 =================
 ClientCommand
@@ -1951,7 +1977,14 @@ void ClientCommand(int clientNum)
   else if (Q_stricmp(cmd, "wank") == 0)
     Cmd_Say_f(ent, SAY_ALL, qfalse);
   else if (Q_stricmp(cmd, "weapon") == 0)
-    Cmd_Weapon_f(ent); //Cmd_SetTeamWithWeapon_f(ent);
+    Cmd_Weapon_f(ent);
+
+#if defined(COMPAT_KPQ3)
+  else if (Q_stricmp(cmd, "vcurse1") == 0) //EV_CURSE1
+    Cmd_Curse_f(ent, 0);
+  else if (Q_stricmp(cmd, "vcurse2") == 0) //EV_CURSE2
+    Cmd_Curse_f(ent, 1);
+#endif
   else
     trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

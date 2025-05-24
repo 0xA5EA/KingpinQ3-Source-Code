@@ -90,9 +90,9 @@ void	main()
 	
 	// assign color
 	#if 1 //hypov8 add. light direction seems buggy from kmap?
-		var_LightDirection = attr_Normal.xyz; //(attr_Normal.xyx + 1.0) / 2;	
-	#else
-		var_LightDirection = attr_LightDirection.rgb;
+        var_LightDirection = attr_Normal.xyz; //(attr_Normal.xyx + 1.0) / 2;    
+    #else
+        var_LightDirection = attr_LightDirection.rgb;
 	#endif
 
 	

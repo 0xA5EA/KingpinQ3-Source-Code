@@ -719,10 +719,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	  SS_BAD,
 	  SS_PORTAL, // mirrors, portals, viewscreens
 
-		SS_DEPTH, // depth pre-pass
-#if 1 //unvan 5.0
-	    SS_ENVIRONMENT_FOG, // sky
-#endif
+	  SS_DEPTH, // depth pre-pass
+	  SS_ENVIRONMENT_FOG, // sky
 	  SS_OPAQUE, // opaque
 
 	  SS_ENVIRONMENT_NOFOG, // Tr3B: moved skybox here so we can fog post process all SS_OPAQUE materials
@@ -1319,7 +1317,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 		int             currentState; // current state index for cycle purposes
 		long            expireTime; // time in milliseconds this expires
-
+#ifdef COMPAT_KPQ3
+		//used for "animMap"
+		//double clampTime;                                  // time this shader is clamped to
+		double timeOffset;                                 // current time offset for this shader
+#endif
 		struct shader_s *remappedShader; // current shader this one is remapped too
 
 		struct {

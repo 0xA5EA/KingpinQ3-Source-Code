@@ -57,60 +57,58 @@ void	main()
 {
 	vec4 position = vec4(attr_Position, 1.0);
 
-	#if defined(USE_DEFORM_VERTEXES)
+    #if defined(USE_DEFORM_VERTEXES)
 	position = DeformPosition2(	position,
 								attr_Normal,
 								attr_TexCoord0.st,
 								u_Time);
-	#endif
+    #endif
 
 	// transform vertex position into homogenous clip-space
-	#if 1
+    #if 1
 	gl_Position = u_ModelViewProjectionMatrix * position;
-	#else
+    #else
 	gl_Position.xy = vec4(attr_TexCoord1, 0.0, 1.0) * 2.0 - 1.0;
 	gl_Position.z = 0.0;
 	gl_Position.w = 1.0;
-	#endif
+    #endif
 
 
 	// transform diffusemap texcoords
 	var_TexDiffuseGlow.st = (u_DiffuseTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
 	var_TexLight = attr_TexCoord1.st;
 
-	#if defined(USE_NORMAL_MAPPING)
-		// transform normalmap texcoords
-		var_TexNormalSpecular.st = (u_NormalTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
+    #if defined(USE_NORMAL_MAPPING)
+        // transform normalmap texcoords
+        var_TexNormalSpecular.st = (u_NormalTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
 
-		// transform specularmap texcoords
-		var_TexNormalSpecular.pq = (u_SpecularTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
-	#endif
+        // transform specularmap texcoords
+        var_TexNormalSpecular.pq = (u_SpecularTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
+    #endif
 
-	#if defined(USE_GLOW_MAPPING)
-		var_TexDiffuseGlow.pq = (u_GlowTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
-	#endif
+    #if defined(USE_GLOW_MAPPING)
+        var_TexDiffuseGlow.pq = (u_GlowTextureMatrix * vec4(attr_TexCoord0, 0.0, 1.0)).st;
+    #endif
 
-	#if 0 //tangent space/worldspace normalmap
-	
-		// transform position into world space
-		var_Position = (u_ModelMatrix * position).xyz;
+    #if 0
+        // transform position into world space
+        var_Position = (u_ModelMatrix * position).xyz;
+        var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
 
-		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
+        #if defined(USE_NORMAL_MAPPING)
+            var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
+            var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+        #endif
 
-		#if defined(USE_NORMAL_MAPPING)
-			var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-			var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-		#endif
+    #else
+        var_Position = position.xyz;
+        var_Normal = attr_Normal.xyz;
 
-	#else 
-		var_Position = position.xyz;
-		var_Normal = attr_Normal.xyz;
+        #if defined(USE_NORMAL_MAPPING)
+            var_Tangent = attr_Tangent.xyz;
+            var_Binormal = attr_Binormal.xyz;
+        #endif
+    #endif
 
-		#if defined(USE_NORMAL_MAPPING)
-			var_Tangent = attr_Tangent.xyz;
-			var_Binormal = attr_Binormal.xyz;
-		#endif
-	#endif
-
-	var_LightColor = attr_Color * u_ColorModulate + u_Color;
+	var_LightColor = abs(attr_Color * u_ColorModulate + u_Color);
 }

@@ -376,6 +376,23 @@ static void CG_TauntTaunt_f(void)
   trap_SendConsoleCommand("cmd vtaunt\n");
 }
 
+static void CG_Curse1_f(void)
+{
+  static int lastCmd = 0;
+  if (lastCmd > cg.time)
+    return;
+  lastCmd = cg.time + 1500;
+  trap_SendConsoleCommand("cmd vcurse1\n");
+}
+static void CG_Curse2_f(void)
+{
+  static int lastCmd = 0;
+  if (lastCmd > cg.time)
+    return;
+  lastCmd = cg.time + 1500;
+  trap_SendConsoleCommand("cmd vcurse2\n");
+}
+
 static void CG_TauntDeathInsult_f(void)
 {
   trap_SendConsoleCommand("cmd vsay death_insult\n");
@@ -517,6 +534,10 @@ static consoleCommand_t commands[] =
   {"tauntKillInsult",  CG_TauntKillInsult_f},
   {"tauntPraise",      CG_TauntPraise_f},
   {"tauntTaunt",       CG_TauntTaunt_f},
+#if defined(COMPAT_KPQ3)
+  {"curse1",         CG_Curse1_f}, //EV_CURSE1
+  {"curse2",         CG_Curse2_f}, //EV_CURSE2
+#endif
   {"tauntDeathInsult", CG_TauntDeathInsult_f},
   {"tauntGauntlet",    CG_TauntGauntlet_f},
   {"spWin", CG_spWin_f},

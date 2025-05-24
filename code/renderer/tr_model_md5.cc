@@ -321,18 +321,25 @@ qboolean R_LoadMD5( model_t *mod, void *buffer, int bufferSize, const char *modN
     //Q_strlwr(surf->name);
     //ri.Printf(PRINT_ALL, "R_LoadMD5: '%s' has surface '%s'\n", modName, surf->name);
 
-    // register the shaders
-    sh = R_FindShader( surf->shader, SHADER_3D_DYNAMIC, RSF_DEFAULT );
-
-    if ( sh->defaultShader )
-    {
+    if (!Q_strnicmp(modName, "models/players/", 15))
+    { //skip player models
+      sh = tr.defaultShader;
       surf->shaderIndex = 0;
     }
     else
     {
-      surf->shaderIndex = sh->index;
-    }
+      // register the shaders
+      sh = R_FindShader(surf->shader, SHADER_3D_DYNAMIC, RSF_DEFAULT);
 
+      if (sh->defaultShader)
+      {
+        surf->shaderIndex = 0;
+      }
+      else
+      {
+        surf->shaderIndex = sh->index;
+      }
+    }
     // parse numVerts <number>
     token = Com_ParseExt( &buf_p, qtrue );
 

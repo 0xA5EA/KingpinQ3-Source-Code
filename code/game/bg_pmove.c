@@ -2705,7 +2705,6 @@ static void PM_Weapon(void)
   // change weapon if time
   if (pm->ps->weaponstate == WEAPON_DROPPING)
   {
-    //int wepNew = (pm->ps->pm_flags & PMF_WEAPON_SWITCH )? pm->ps->persistant[ PERS_NEWWEAPON ]: pm->cmd.weapon ;
     PM_FinishWeaponChange();
     return;
   }
@@ -2867,30 +2866,23 @@ static void PM_Animate(void)
   {
     if (pm->ps->torsoTimer == 0)
     {
-      shortbytes_t index;
-
-      index.b[0] = rand() % 3;
-      switch (index.b[0])
+      switch (rand() % 3)
       {
-      default:
-      case 0:
-        PM_ContinueTorsoAnim(TORSO_GESTURE); //edit hypov8 load different taunts on different sounds
-        pm->ps->torsoTimer = TIMER_GESTURE;
-        index.b[1] = rand() % numCustomTaunts1;
-        break;
-      case 1:
-        PM_ContinueTorsoAnim(TORSO_GESTURE2); //add hypov8 taunt2
-        pm->ps->torsoTimer = TIMER_GESTURE;
-        index.b[1] = rand() % numCustomTaunts2;
-        break;
-      case 2:
-        PM_ContinueTorsoAnim(TORSO_GESTURE3);
-        pm->ps->torsoTimer = TIMER_GESTURE;
-        index.b[1] = rand() % numCustomTaunts1; //note hypov8, do we need 3rd sounds?
-        break;
+        default:
+        case 0:
+          PM_ContinueTorsoAnim(TORSO_GESTURE);
+          PM_AddEvent2(EV_TAUNT, 1);
+          break;
+        case 1:
+          PM_ContinueTorsoAnim(TORSO_GESTURE2);
+          PM_AddEvent2(EV_TAUNT, 2);
+          break;
+        case 2:
+          PM_ContinueTorsoAnim(TORSO_GESTURE3);
+          PM_AddEvent2(EV_TAUNT, 3);
+          break;
       }
-      //pm->ps->torsoTimer = TIMER_GESTURE;
-      PM_AddEvent2(EV_TAUNT, index.s);
+      pm->ps->torsoTimer = TIMER_GESTURE;
     }
   }
   else if (pm->cmd.buttons & BUTTON_GETFLAG)

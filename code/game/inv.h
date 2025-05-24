@@ -89,7 +89,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#endif
 
-//item numbers (make sure they are in sync with bg_itemlist in bg_misc.c)
+//////////////
+//item numbers 
+// make sure they are in sync with bg_itemlist in bg_misc.c
 #define MODELINDEX_ARMOR_HBODY 1
 #define MODELINDEX_ARMORBODY 2
 #define MODELINDEX_HEALTHSMALL 3

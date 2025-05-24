@@ -967,37 +967,38 @@ void CL_InitInput(void)
   Cmd_AddCommand("-moveright", IN_MoverightUp);
   Cmd_AddCommand("+speed",     IN_SpeedDown);
   Cmd_AddCommand("-speed",     IN_SpeedUp);
-  Cmd_AddCommand("+attack",    IN_Button0Down);
+  //cmd.buttons
+  Cmd_AddCommand("+attack",    IN_Button0Down); //
   Cmd_AddCommand("-attack",    IN_Button0Up);
-  Cmd_AddCommand("+button0",   IN_Button0Down);
+  Cmd_AddCommand("+button0",   IN_Button0Down); //BUTTON_ATTACK
   Cmd_AddCommand("-button0",   IN_Button0Up);
-  Cmd_AddCommand("+button1",   IN_Button1Down);
+  Cmd_AddCommand("+button1",   IN_Button1Down); //BUTTON_TALK
   Cmd_AddCommand("-button1",   IN_Button1Up);
-  Cmd_AddCommand("+button2",   IN_Button2Down);
+  Cmd_AddCommand("+button2",   IN_Button2Down); //BUTTON_USE_HOLDABLE
   Cmd_AddCommand("-button2",   IN_Button2Up);
-  Cmd_AddCommand("+button3",   IN_Button3Down);
+  Cmd_AddCommand("+button3",   IN_Button3Down); //BUTTON_GESTURE
   Cmd_AddCommand("-button3",   IN_Button3Up);
-  Cmd_AddCommand("+button4",   IN_Button4Down);
+  Cmd_AddCommand("+button4",   IN_Button4Down); //BUTTON_WALKING
   Cmd_AddCommand("-button4",   IN_Button4Up);
-  Cmd_AddCommand("+button5",   IN_Button5Down);
+  Cmd_AddCommand("+button5",   IN_Button5Down); //BUTTON_AFFIRMATIVE
   Cmd_AddCommand("-button5",   IN_Button5Up);
-  Cmd_AddCommand("+button6",   IN_Button6Down);
+  Cmd_AddCommand("+button6",   IN_Button6Down); //BUTTON_NEGATIVE
   Cmd_AddCommand("-button6",   IN_Button6Up);
-  Cmd_AddCommand("+button7",   IN_Button7Down);
+  Cmd_AddCommand("+button7",   IN_Button7Down); //BUTTON_GETFLAG
   Cmd_AddCommand("-button7",   IN_Button7Up);
-  Cmd_AddCommand("+button8",   IN_Button8Down);
+  Cmd_AddCommand("+button8",   IN_Button8Down); //BUTTON_GUARDBASE
   Cmd_AddCommand("-button8",   IN_Button8Up);
-  Cmd_AddCommand("+button9",   IN_Button9Down);
+  Cmd_AddCommand("+button9",   IN_Button9Down); //BUTTON_PATROL
   Cmd_AddCommand("-button9",   IN_Button9Up);
-  Cmd_AddCommand("+button10",  IN_Button10Down);
+  Cmd_AddCommand("+button10",  IN_Button10Down); //BUTTON_FOLLOWME
   Cmd_AddCommand("-button10",  IN_Button10Up);
-  Cmd_AddCommand("+button11",  IN_Button11Down);
+  Cmd_AddCommand("+button11",  IN_Button11Down); //BUTTON_RELOAD
   Cmd_AddCommand("-button11",  IN_Button11Up);
-  Cmd_AddCommand("+button12",  IN_Button12Down);
+  Cmd_AddCommand("+button12",  IN_Button12Down); //BUTTON_ANY
   Cmd_AddCommand("-button12",  IN_Button12Up);
-  Cmd_AddCommand("+button13",  IN_Button13Down);
+  Cmd_AddCommand("+button13",  IN_Button13Down); //
   Cmd_AddCommand("-button13",  IN_Button13Up);
-  Cmd_AddCommand("+button14",  IN_Button14Down);
+  Cmd_AddCommand("+button14",  IN_Button14Down); //
   Cmd_AddCommand("-button14",  IN_Button14Up);
   Cmd_AddCommand("+mlook",     IN_MLookDown);
   Cmd_AddCommand("-mlook",     IN_MLookUp);

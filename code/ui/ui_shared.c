@@ -3632,6 +3632,10 @@ static bind_t g_bindings[] =
   {"tauntKillInsult",     K_F1,         -1,     -1, -1},
   {"tauntPraise",        K_F2,          -1,     -1, -1},
   {"tauntTaunt",         K_F3,          -1,     -1, -1},
+#if defined(COMPAT_KPQ3)
+  {"curse1",             -1,          -1,     -1, -1}, //EV_CURSE1
+  {"curse2",             -1,          -1,     -1, -1}, //EV_CURSE2
+#endif
   {"tauntDeathInsult",   K_F4,          -1,     -1, -1},
   {"tauntGauntlet",      K_F5,          -1,     -1, -1},
   {"scoresUp",       K_KP_PGUP,         -1,     -1, -1},
@@ -3945,19 +3949,24 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down)
   int id;
   int i;
 
-  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey)
+  if (!g_waitingForKey)
   {
-    if (down && (key == K_MOUSE1 || key == K_ENTER))
+    if (down && (
+      (key == K_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
+      || key == K_ENTER
+      || key == K_KP_ENTER))
     {
       g_waitingForKey = qtrue;
-      g_bindItem      = item;
+      g_bindItem = item;
+      return qtrue; //event handled
     }
-    return qtrue;
+
+    return qfalse; //revert to menu event
   }
   else
   {
-    if (!g_waitingForKey || g_bindItem == NULL)
-      return qtrue;
+    if (g_bindItem == NULL) //!g_waitingForKey || 
+      return qfalse; //revert to menu event
 
     if (key & K_CHAR_FLAG)
       return qtrue;

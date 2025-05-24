@@ -26,6 +26,7 @@ uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
 uniform sampler2D	u_GlowMap;
+uniform sampler2D	u_ColorMap; //pbr LUT image
 
 uniform samplerCube	u_EnvironmentMap0;
 uniform samplerCube	u_EnvironmentMap1;
@@ -33,11 +34,14 @@ uniform float		u_EnvironmentInterpolation;
 
 uniform float		u_AlphaThreshold;
 uniform vec3		u_ViewOrigin;
-uniform vec3		u_AmbientColor;
-uniform vec3		u_LightDir;
-uniform vec3		u_LightColor;
+
+// light/lightgrid..
+uniform vec3		u_AmbientColor; // currently calculated in bsp. ambiant light
+uniform vec3		u_LightDir;     // pointlight dir
+uniform vec3		u_LightColor;   // lightgrid color(match lightmap)
+
 uniform float		u_DepthScale;
-uniform vec2        u_SpecularExponent;
+uniform vec2		u_SpecularExponent;
 
 varying vec3		var_Position;
 varying vec2		var_TexDiffuse;
@@ -46,23 +50,101 @@ varying vec2		var_TexNormal;
 varying vec2		var_TexSpecular;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
+#if defined(USE_REFLECTIVE_SPECULAR)
+  uniform sampler2D u_SpecHDRI; //pbr spec reflections from 2d env image
 #endif
-#if defined(USE_GLOW_MAPPING)
+#endif
 varying vec2		var_TexGlow;
-#endif
 varying vec3		var_Normal;
 
+const float PI = 3.14159265359;
+const float TwoPI = (2.0 * PI);
+
+//////////// start pbr //////////////
+//https://github.com/Nadrin/PBR/blob/master/data/shaders/glsl/pbr_fs.glsl
+const float Epsilon = 0.00001;
+const int NumLights = 1;
+
+// Constant normal incidence Fresnel factor for all dielectrics.
+const vec3 Fdielectric = vec3(0.1); //was 0.04
+
+// GGX/Towbridge-Reitz normal distribution function.
+// Uses Disney's reparametrization of alpha = roughness^2.
+float ndfGGX(float cosLh, float roughness)
+{
+	float alpha   = roughness * roughness;
+	float alphaSq = alpha * alpha;
+	float denom = (cosLh * cosLh) * (alphaSq - 1.0) + 1.0;
+	return alphaSq / (PI * denom * denom);
+}
+
+// Single term for separable Schlick-GGX below.
+float gaSchlickG1(float cosTheta, float k)
+{
+	return cosTheta / (cosTheta * (1.0 - k) + k);
+}
+
+// Schlick-GGX approximation of geometric attenuation function using Smith's method.
+float gaSchlickGGX(float NdotL, float cosLo, float roughness)
+{
+	float r = roughness + 1.0;
+	float k = (r * r) / 8.0; // Epic suggests using this roughness remapping for analytic lights.
+	return gaSchlickG1(NdotL, k) * gaSchlickG1(cosLo, k);
+}
+
+// Shlick's approximation of the Fresnel factor.
+vec3 fresnelSchlick(vec3 F0, float cosTheta)
+{
+	return F0 + (vec3(1.0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+float blendAO(float aoTex, float metalTex, float roughTex)
+{
+	float r = (1.0 - roughTex);
+	return mix(aoTex, 1.0, metalTex * r * r);
+}
 
 
-void	main()
+//hypov8 sample 2d env
+//http://marcinignac.com/blog/pragmatic-pbr-hdr/
+vec2 pbrViewTo2d(vec3 vDir)
+{
+	float phi = acos(vDir.z);
+	float theta = atan(-1.0 * vDir.x, vDir.y) + PI;
+	return vec2(theta / TwoPI, phi / PI);
+}
+/////////// end pbr ////////////
+
+//light angle/falloff modes.
+float smooth_NdotL(float NdotL)
+{
+	// compute the light term
+	#if defined(r_HalfLambertLighting)
+		// http://developer.valvesoftware.com/wiki/Half_Lambert
+		NdotL = NdotL * 0.5 + 0.5;
+		NdotL *= NdotL;
+	#elif defined(r_WrapAroundLighting)
+		NdotL = clamp((NdotL + r_WrapAroundLighting) / (1.0 + r_WrapAroundLighting), 0.0, 1.0);
+	#else
+		NdotL = clamp(NdotL, 0.0, 1.0);
+	#endif
+
+	return NdotL;
+}
+
+
+void main()
 {
 	// compute light direction in world space
-	vec3 L = u_LightDir;
+	vec3 L = normalize(u_LightDir);
 
 	// compute view direction in world space
-	vec3 V = normalize(u_ViewOrigin - var_Position);
+	vec3 vDir = normalize(u_ViewOrigin - var_Position);
 
 	vec2 texDiffuse = var_TexDiffuse.st;
+
+	//set min light value. (RF_MINLIGHT)
+	vec3 lightComp = max(u_AmbientColor, u_LightColor);
 
 #if defined(USE_NORMAL_MAPPING)
 	// invert tangent space for two sided surfaces
@@ -77,90 +159,29 @@ void	main()
 
 	vec2 texNormal = var_TexNormal.st;
 	vec2 texSpecular = var_TexSpecular.st;
+	vec2 texGlow = var_TexGlow.st;
 
 	#if defined(USE_PARALLAX_MAPPING)
 
 		// ray intersect in view direction
 
 		// compute view direction in tangent space
-		vec3 Vts = (u_ViewOrigin - var_Position.xyz) * tangentToWorldMatrix;
+		vec3 Vts = vDir * tangentToWorldMatrix;
 		Vts = normalize(Vts);
 
 		// size and start position of search in texture space
 		vec2 S = Vts.xy * -u_DepthScale / Vts.z;
+		float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
 
-		#if 0
-			vec2 texOffset = vec2(0.0);
-			for(int i = 0; i < 4; i++) {
-				vec4 Normal = texture2D(u_NormalMap, texNormal.st + texOffset);
-				float height = Normal.a * 0.2 - 0.0125;
-				texOffset += height * Normal.z * S;
-			}
-		#else
-			float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
+		// compute texcoords offset
+		vec2 texOffset = S * depth;
 
-			// compute texcoords offset
-			vec2 texOffset = S * depth;
-		#endif
 
 		texDiffuse.st += texOffset;
 		texNormal.st += texOffset;
 		texSpecular.st += texOffset;
+		texGlow.st += texOffset;
 	#endif // USE_PARALLAX_MAPPING
-
-	// compute normal in world space from normalmap
-	vec3 N = normalize(tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5)));
-
-	// compute half angle in world space
-	vec3 H = normalize(L + V);
-
-	// compute the specular term
-	#if defined(USE_REFLECTIVE_SPECULAR)
-
-		vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
-
-		vec4 envColor0 = textureCube(u_EnvironmentMap0, reflect(-V, N)).rgba;
-		vec4 envColor1 = textureCube(u_EnvironmentMap1, reflect(-V, N)).rgba;
-
-		specBase.rgb *= mix(envColor0, envColor1, u_EnvironmentInterpolation).rgb;
-
-		// Blinn-Phong
-		float NH = clamp(dot(N, H), 0, 1);
-		vec3 specMult = u_LightColor * pow(NH, u_SpecularExponent.x * specBase.a + u_SpecularExponent.y) * r_SpecularScale;
-
-	#if 0
-		gl_FragColor = vec4(specular, 1.0);
-		// gl_FragColor = vec4(u_EnvironmentInterpolation, u_EnvironmentInterpolation, u_EnvironmentInterpolation, 1.0);
-		// gl_FragColor = envColor0;
-		return;
-	#endif
-
-	#else
-
-		// simple Blinn-Phong
-		float NH = clamp(dot(N, H), 0, 1);
-		vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
-		vec3 specMult = u_LightColor * pow(NH, u_SpecularExponent.x * specBase.a + u_SpecularExponent.y) * r_SpecularScale;
-
-	#endif // USE_REFLECTIVE_SPECULAR
-
-
-#else // !USE_NORMAL_MAPPING
-
-	vec3 N = normalize(var_Normal);
-
-	#if defined(TWOSIDED)
-		if(gl_FrontFacing)
-		{
-			N = -N;
-		}
-	#endif
-
-	vec3 specBase = vec3(0.0);
-	vec3 specMult = vec3(0.0);
-
-#endif // USE_NORMAL_MAPPING
-
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
@@ -171,73 +192,255 @@ void	main()
 		return;
 	}
 
+	vec4 specBase = texture2D(u_SpecularMap, texSpecular).rgba;
 
-// add Rim Lighting to highlight the edges
-#if defined(r_RimLighting)
-	float rim = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), r_RimExponent);
-	specBase.rgb = mix(specBase.rgb, vec3(1.0), rim);
-	vec3 emission = u_AmbientColor * rim * rim * 0.2;
+	#if defined(USE_GLOW_MAPPING)
+		vec3 glowTex = texture2D(u_GlowMap, texGlow).rgb;
+	#endif
 
-	//gl_FragColor = vec4(emission, 1.0);
-	//return;
+	// compute normal in world space from normalmap
+	vec3 N = normalize(tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5)));
 
-#endif
+	// compute half angle in world space
+	vec3 H = normalize(L + vDir);
 
 	// compute the light term
-#if defined(r_HalfLambertLighting)
-	// http://developer.valvesoftware.com/wiki/Half_Lambert
-	float NL = dot(N, L) * 0.5 + 0.5;
-	NL *= NL;
-#elif defined(r_WrapAroundLighting)
-	float NL = clamp(dot(N, L) + r_WrapAroundLighting, 0.0, 1.0) / clamp(1.0 + r_WrapAroundLighting, 0.0, 1.0);
-#else
-	float NL = clamp(dot(N, L), 0.0, 1.0);
-#endif
+	float NdotL = clamp( dot(N, L), 0.0, 1.0);
+	float NdotL_Smooth = smooth_NdotL(NdotL);
 
-	#if 0
-		vec3 light = u_AmbientColor + u_LightColor* NL;
-		light = clamp(light, 0.1, 1.0);
-	#else //hypov8 add. clamp b4 adding normal light
-		vec3 ambb = vec3(0.5, 0.5, 0.5);
-		vec3 light = (u_AmbientColor + u_LightColor); //* NL;
-		light = clamp(light, 0.1, 1.0);	
-		light *= NL;
-	#endif	
+	//hypov8 cull low angle reflection
+	float specCullBackFace = clamp(NdotL * 50, 0.0, 1.0);
+
+	// compute the specular term
+	#if defined(USE_REFLECTIVE_SPECULAR) //|| defined(USE_PBR_SPECULAR) //force pbr?
+
+		vec3 reflectDir = normalize(reflect(-vDir, N));
+
+		#if !defined(USE_PBR_SPECULAR) //use regular spec reflections
+
+			if (u_EnvironmentInterpolation < 0.0) //regular specmap. with reflections
+			{
+				vec2 vCords = pbrViewTo2d(reflectDir);
+				specBase.rgb = mix(specBase.rgb, textureLod(u_SpecHDRI, vCords, 1.0).rgb, specBase.rgb);
+			}
+			else  //(u_EnvironmentInterpolation < 1.0) //map has cubemaps. used for regular specmap, with reflections
+			{
+				vec4 envColor0 = textureCube(u_EnvironmentMap0, reflectDir).rgba;
+				vec4 envColor1 = textureCube(u_EnvironmentMap1, reflectDir).rgba;
+				specBase.rgb *= mix(envColor0, envColor1, u_EnvironmentInterpolation).rgb;
+			}
+
+		#else //pbr USE_PBR_SPECULAR
+			////////start pbr ///////////////////
+
+			//daemon 0.52 RGB=ARM (AO, Rough, Metalic)
+			vec3 diffuseTex = diffuse.rgb;
+			float aoTex    = specBase.r; //ambient occlusion
+			float roughTex = specBase.g; //roughness values
+			float metalTex = specBase.b; //metalic value
+			float mipCount = u_EnvironmentInterpolation;
+
+			// Angle between surface normal and outgoing light direction.
+			float NdotV = max(0.0, dot(N, vDir));
+
+			// Fresnel reflectance at normal incidence (for metals use albedo color).
+			vec3 F0 = mix(Fdielectric, diffuseTex, metalTex);
+
+			// Direct lighting calculation for analytical lights.
+			vec3 directLighting = vec3(0.0);
+			//for(int i=0; i<NumLights; ++i)
+			{
+				//vec3 L = L;                  // -lights[i].direction;
+				vec3 Lradiance = u_LightColor; // lights[i].radiance;
+
+				// Half-vector between LiDir and vDir.
+				vec3 Lh = normalize(L + vDir);
+
+				// Calculate angles between surface normal and various light vectors.
+				//float cosLi = max(0.0, dot(N, L));
+				float cosLh = max(0.0, dot(N, Lh));
+
+				// Calculate Fresnel term for direct lighting.
+				vec3 F  = fresnelSchlick(F0, max(0.04, dot(Lh, vDir)));
+				// Calculate normal distribution for specular BRDF.
+				float D = ndfGGX(cosLh, roughTex);
+				// Calculate geometric attenuation for specular BRDF.
+				float G = gaSchlickGGX(NdotL, NdotV, roughTex);
+
+				// Diffuse scattering happens due to light being refracted multiple times by a dielectric medium.
+				// Metals on the other hand either reflect or absorb energy, so diffuse contribution is always zero.
+				// To be energy conserving we must scale diffuse BRDF contribution based on Fresnel factor & metalness.
+				vec3 kd = mix(vec3(1.0) - F, vec3(0.0), metalTex);
+
+				// Lambert diffuse BRDF.
+				// We don't scale by 1/PI for lighting & material units to be more convenient.
+				// See: https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+				vec3 diffuseBRDF = kd * diffuseTex ;
+
+				// Cook-Torrance specular microfacet BRDF.
+				vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * NdotL * NdotV);
+
+				//hypov8 add AO
+				specularBRDF *= blendAO(aoTex, metalTex, roughTex);
+				//hypov8 cull light hitting backface.
+				specularBRDF *= specCullBackFace;
+
+				// Total contribution for this light.
+				directLighting = (diffuseBRDF + specularBRDF) * Lradiance * NdotL_Smooth; //NdotL;
+			}
+
+			// Ambient lighting (IBL).
+			vec3 ambientLighting;
+			{
+				vec2 vCords = pbrViewTo2d(reflectDir);
+				vec3 ambLightMix = mix(u_AmbientColor, u_LightColor, NdotL);
+
+				// Sample diffuse irradiance at normal direction.
+				vec3 irradiance = (textureLod(u_SpecHDRI, vCords, mipCount*0.75).rgb);
+				irradiance *= ambLightMix; //add map light
+
+				// Calculate Fresnel term for ambient lighting.
+				// Since we use pre-filtered cubemap(s) and irradiance is coming from many directions
+				// use cosLo(NdotV) instead of angle with light's half-vector (cosLh above).
+				// See: https://seblagarde.wordpress.com/2011/08/17/hello-world/
+				vec3 F = fresnelSchlick(F0, NdotV);
+
+				// Get diffuse contribution factor (as with direct lighting).
+				vec3 kd = mix(vec3(1.0) - F, vec3(0.0), metalTex);
+
+				// Irradiance map contains exitant radiance assuming Lambertian BRDF, no need to scale by 1/PI here either.
+				vec3 diffuseIBL = kd * diffuseTex * irradiance;
+
+				diffuseIBL *= aoTex; //hypov8 add AO
+
+				// Sample pre-filtered specular reflection environment at correct mipmap level.
+				vec3 specularIrradiance = textureLod(u_SpecHDRI, vCords, roughTex * mipCount).rgb;
+
+				//hypov8 add light color to cubemap/reflections
+				specularIrradiance *= (ambLightMix*vec3(0.5)) + vec3(0.5); //contribute 50%
+				specularIrradiance *= clamp(dot(N,L)+1.0, 0.0, 1.0); //add smooth shadow
+
+				// Split-sum approximation factors for Cook-Torrance specular BRDF.
+				vec2 specularBRDF = texture(u_ColorMap, vec2(NdotV, roughTex)).rg; //specularBRDF_LUT
+
+				// Total specular IBL contribution.
+				vec3 specularIBL = (F0 * vec3(specularBRDF.x) + vec3(specularBRDF.y)) * specularIrradiance;
+
+				// Total ambient lighting contribution.
+				ambientLighting = diffuseIBL + specularIBL;
+			}
+
+			// Final fragment color.
+			vec3 color2 = vec3(directLighting + ambientLighting);
+			///////// end pbr ////////
+
+			gl_FragColor = vec4(color2.rgb, 1.0);
+			return;
+			//hypov8 todo: set below
+		#endif
+
+	#else //!USE_REFLECTIVE_SPECULAR
+
+		//try convert bpr to regular spec.
+		#if defined(USE_PBR_SPECULAR)
+			float aoTex    = specBase.r; //ambient occlusion
+			float roughTex = specBase.g; //roughness values
+			float metalTex = specBase.b; //metalic value
+
+			diffuse.rgb *=  aoTex*0.5 +0.5;
+			specBase.rgb = vec3(1-roughTex); //roughess->gloss
+			specBase.a = 1 - (metalTex* 0.5);
+		#endif
+
+	#endif // END USE_REFLECTIVE_SPECULAR
+
+	float NdotH = clamp(dot(N, H), 0.0, 1.0);
+	float specularExpo =  u_SpecularExponent.x * specBase.a + u_SpecularExponent.y; //vec2(16, 0)
+	specBase.rgb = lightComp * specBase.rgb * pow(NdotH, specularExpo) * r_SpecularScale;
+
+	//////////////////////////////////////////////////////////////
+	//cull light hitting backface.
+	specBase.rgb *= specCullBackFace;
+	//////////////////////////////////////////////////////////////
+
+#else // !USE_NORMAL_MAPPING
+
+	// compute the diffuse term
+	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
+
+	#if defined(USE_GLOW_MAPPING)
+		vec3 glowTex = texture2D(u_GlowMap, var_TexGlow.st).rgb;
+	#endif
+
+	if( abs(diffuse.a + u_AlphaThreshold) <= 1.0 )
+	{
+		discard;
+		return;
+	}
+
+	// use vertex normal
+	vec3 N = normalize(var_Normal);
+
+	#if defined(TWOSIDED)
+		if(gl_FrontFacing)
+		{
+			N = -N;
+		}
+	#endif
+
+	vec4 specBase = vec4(0.0);
+
+	// compute the light term
+	float NdotL = max(0.0, dot(N, L));
+
+#endif // !USE_NORMAL_MAPPING
 
 	// compute final color
 	vec4 color = diffuse;
-	color.rgb *= light;
-	color.rgb += specBase.rgb * specMult;
-	#if defined(r_RimLighting)
-		color.rgb += 0.7 * emission;
-	#endif
-	#if defined(USE_GLOW_MAPPING)
-		color.rgb += texture2D(u_GlowMap, var_TexGlow).rgb;
-	#endif
-	// convert normal to [0,1] color space
-	N = N * 0.5 + 0.5;
+	color.rgb *= lightComp * smooth_NdotL(NdotL);
+	color.rgb += specBase.rgb;
+
+// add Rim Lighting to highlight the edges
+#if defined(r_RimLighting)
+	float rim = pow(1.0 - clamp(dot(N, vDir), 0.0, 1.0), r_RimExponent);
+	vec3 emission = u_AmbientColor * rim * rim * 0.2;
+	color.rgb += 0.7 * emission;
+#endif
+#if defined(USE_GLOW_MAPPING)
+	color.rgb += glowTex;
+#endif
 
 #if defined(r_DeferredShading)
+	// convert normal to [0,1] color space
+	N = N * 0.5 + 0.5;
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(diffuse.rgb, 0.0);
 	gl_FragData[2] = vec4(N, 0.0);
 	gl_FragData[3] = vec4(specBase.rgb, 0.0);
 #else
-	//gl_FragColor = vec4(1.0, 0.5, 1.0, 1.0);	 //hypo test white
 	gl_FragColor = color;
 #endif
 
-	// gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
+
+#if defined(r_showLightMaps)
+	vec4 slm_color = vec4(1.0); // diffuse;
+	slm_color.rgb *= lightComp * smooth_NdotL(NdotL);
+	slm_color.rgb += specBase.rgb;
+	gl_FragColor = vec4(slm_color.rgb, 1.0);
+#elif defined(r_showDeluxeMaps)
+	vec3 dirToRGB = (var_Normal + 1.0) * 0.5;
+	gl_FragColor = vec4(dirToRGB, 1.0);
+#endif
+
 
 #if 0
-#if defined(USE_PARALLAX_MAPPING)
-	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
-#elif defined(USE_NORMAL_MAPPING)
-	gl_FragColor = vec4(vec3(0.0, 0.0, 1.0), diffuse.a);
-#else
-	gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), diffuse.a);
-#endif
+	#if defined(USE_PARALLAX_MAPPING)
+		gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
+	#elif defined(USE_NORMAL_MAPPING)
+		gl_FragColor = vec4(vec3(0.0, 0.0, 1.0), diffuse.a);
+	#else
+		gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), diffuse.a);
+	#endif
 #endif
 }
-
 

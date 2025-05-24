@@ -103,6 +103,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEFAULT_TEAM_MODEL  "thug" //hypov8 todo: teams?
 #define DEFAULT_TEAM_HEAD   "default" //hypov8 todo: teams? head?
 
+#define DEFAULT_MODEL_FEMALE "shina"
 
 
 //for CG_DrawFps
@@ -484,7 +485,7 @@ typedef struct
 // client model and other color coded effects
 // this is regenerated each time a client's configstring changes,
 // usually as a result of a userinfo (name, model, etc) change
-#define MAX_CUSTOM_SOUNDS 32
+#define MAX_CUSTOM_SOUNDS 19 //32
 
 typedef struct
 {

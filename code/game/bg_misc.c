@@ -821,6 +821,7 @@ gitem_t bg_itemlist[] =
 //item numbers (make sure they are in sync with defines in inv.h)
 int bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 
+//"curse1" EV_CURSE1
 char const *bg_customTauntNames1[] = 
 {
   "sound/taunt/fart/farts.ogg",
@@ -866,6 +867,7 @@ char const *bg_customTauntNames1[] =
 };
 const int numCustomTaunts1 = sizeof(bg_customTauntNames1) / sizeof(bg_customTauntNames1[0]) - 1;
 
+//"curse2" EV_CURSE2
 char const *bg_customTauntNames2[] = {
   "sound/taunt/burp/barnybrp.ogg",
   //	"sound/taunt/burp/big_belch.ogg",		// format doesnt fit

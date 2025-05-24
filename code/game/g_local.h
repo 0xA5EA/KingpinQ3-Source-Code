@@ -462,6 +462,8 @@ struct gclient_s
 	// the last frame number we got an update from this client
 	int			lastUpdateFrame;
 //unlagged - smooth clients #1
+
+  int lastCurseTime;
 };
 
 #define SWITCH_TEAM_TIME_LIMIT 2000

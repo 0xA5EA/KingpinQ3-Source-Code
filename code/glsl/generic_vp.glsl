@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 attribute vec3 		attr_Position;
 attribute vec2 		attr_TexCoord0;
-attribute vec2 		attr_TexCoord1;
 attribute vec3		attr_Normal;
 attribute vec4		attr_Color;
 
@@ -38,8 +37,8 @@ uniform vec3		u_ViewOrigin;
 
 uniform float		u_Time;
 
-uniform vec4		u_ColorModulate;
-uniform vec4		u_Color;
+uniform vec4		u_ColorModulate; //GEN_VERTEX/GEN_ONE_MINUS_VERTEX  1.0/-1.0
+uniform vec4		u_Color;         //GEN_VERTEX/GEN_ONE_MINUS_VERTEX  0.0/1.0
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
 
@@ -94,13 +93,11 @@ void	main()
 		texCoord.q = 0;
 		texCoord.w = 1;
 	}
-#elif defined(USE_TCGEN_LIGHTMAP)
-	texCoord = vec4(attr_TexCoord1, 0.0, 1.0);
 #else
 	texCoord = vec4(attr_TexCoord0, 0.0, 1.0);
 #endif
 
 	var_Tex = (u_ColorTextureMatrix * texCoord).st;
 
-	var_Color = attr_Color * u_ColorModulate + u_Color;
+	var_Color = abs(attr_Color * u_ColorModulate + u_Color); //abs for -1 (CGEN_ONE_MINUS_VERTEX)
 }

@@ -636,12 +636,6 @@ static void CG_AddSpriteEmber(localEntity_t *le)
   // calculate new position
   BG_EvaluateTrajectory(&le->pos, cg.time, newOrigin);
 
-	if (newOrigin[0]== 0 || newOrigin[1] == 0)
-	{
-		int j;
-		j = 0;
-	}
-
   // trace a line from previous position to new position
   CG_Trace(&trace, oldOrigin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID);
 

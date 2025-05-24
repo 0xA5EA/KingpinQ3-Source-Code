@@ -29,7 +29,8 @@ varying vec2		var_Tex;
 varying vec4		var_Color;
 
 void	main()
-{
+{  
+
 	vec4 color = texture2D(u_ColorMap, var_Tex);
 
 	if( abs(color.a + u_AlphaThreshold) <= 1.0 )
@@ -39,6 +40,7 @@ void	main()
 	}
 
 	color *= var_Color;
+  
 	gl_FragColor = color;
 
 #if 0 //defined(USE_TCGEN_ENVIRONMENT)
