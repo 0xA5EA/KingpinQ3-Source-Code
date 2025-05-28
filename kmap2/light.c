@@ -1765,11 +1765,17 @@ void SetupGrid(void)
 	/* clear lightgrid */
 	for(i = 0; i < numRawGridPoints; i++)
 	{
-		VectorCopy(ambientColor, rawGridPoints[i].ambient[j]);
+		/* add ambientColor to both values (.ambient scaled 0.25 later) */
+		VectorCopy(ambientColor, rawGridPoints[i].ambient[0]);
+		VectorCopy(ambientColor, rawGridPoints[i].directed[0]);
+		//VectorCopy(ambientColor, rawGridPoints[i].ambient[j]);
+
 		rawGridPoints[i].styles[0] = LS_NORMAL;
 		bspGridPoints[i].styles[0] = LS_NORMAL;
 		for(j = 1; j < MAX_LIGHTMAPS; j++)
 		{
+			VectorCopy(ambientColor, rawGridPoints[i].ambient[j]);
+			VectorCopy(ambientColor, rawGridPoints[i].directed[j]);
 			rawGridPoints[i].styles[j] = LS_NONE;
 			bspGridPoints[i].styles[j] = LS_NONE;
 		}
@@ -1778,7 +1784,6 @@ void SetupGrid(void)
 	/* note it */
 	Sys_Printf("%9u grid points\n", numRawGridPoints);
 }
-
 
 
 /*
@@ -1803,8 +1808,8 @@ void LightWorld(void)
 	}
 
 	/* determine the number of grid points */
-	Sys_Printf("--- SetupGrid ---\n");
-	SetupGrid();
+	//Sys_Printf("--- SetupGrid ---\n");
+	//SetupGrid();
 
 	/* find the optional minimum lighting values */
 	GetVectorForKey(&entities[0], "_color", color);
@@ -1849,6 +1854,10 @@ void LightWorld(void)
 			VectorScale(color, f, minGridLight);
 	}
 
+	/* determine the number of grid points */
+	Sys_Printf("--- SetupGrid ---\n");
+	SetupGrid(); //hypov8 moved down here, to fix using an unset "_ambient" light value
+
 	/* create world lights */
 	Sys_FPrintf(SYS_VRB, "--- CreateLights ---\n");
 	CreateEntityLights();
@@ -1880,14 +1889,18 @@ void LightWorld(void)
 
 	/* map the world luxels */
 	Sys_Printf("--- MapRawLightmap ---\n"); 	//Bug #89
-	tmpThreads = numthreads; //hypov8 work around for patch not having corect uv space on multi threads
+
+	/* hypov8: UV fix start. work around for patchMesh not having correct uv space on multi threads */
+	tmpThreads = numthreads; 
 	numthreads = 1;
 
 	RunThreadsOnIndividual(numRawLightmaps, qtrue, MapRawLightmap);
 	Sys_Printf("%9d luxels\n", numLuxels);
 	Sys_Printf("%9d luxels mapped\n", numLuxelsMapped);
 	Sys_Printf("%9d luxels occluded\n", numLuxelsOccluded);
-	numthreads = tmpThreads; //hypov8 reset to multi thread setting
+
+	/* hypov8: UV fix end. restore multi thread setting */
+	numthreads = tmpThreads; 
 
 	/* dirty them up */
 	if(dirty)
