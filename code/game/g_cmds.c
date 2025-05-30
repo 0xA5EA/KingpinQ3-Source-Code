@@ -1808,8 +1808,7 @@ void Cmd_Weapon_f(gentity_t *ent)
     trap_Argv(1, s, sizeof(s));
     wep = atoi(s);
 
-    //if (wep == ent->client->ps.weapon)
-    if (wep == ent->client->ps.persistant[ PERS_NEWWEAPON ])
+    if (wep == ent->client->ps.weapon && wep == ent->client->ps.persistant[ PERS_NEWWEAPON ])
       return;
 
     //if (BG_PlayerCanChangeWeapon( &ent->client->ps ))

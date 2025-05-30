@@ -144,15 +144,15 @@ R_SetupEntityLightingGrid
 */
 static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 {
-	vec3_t         lightOrigin;
-	int            pos[ 3 ];
-	int            i, j;
+	vec3_t         lightOrigin ;
+	int            pos[3], toPos[3];
+	int            i, j, x, y, z, xyzBounds[3];
 	bspGridPoint_t *gridPoint;
-	bspGridPoint_t *gridPoint2;
+	//bspGridPoint_t *gridPoint2;
 	float          frac[ 3 ], factor;
 	int            gridStep[ 3 ];
 	vec3_t         direction;
-	float          totalFactorAmbiant, totalFactorDirected;
+	float          totalFactor;
 
 	if ( forcedOrigin )
 	{
@@ -198,75 +198,95 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, vec3_t forcedOrigin )
 	VectorClear( ent->ambientLight );
 	VectorClear( ent->directedLight );
 	VectorClear( direction );
-
+  direction[2] = -0.01f; //face down. none found
 	// trilerp the light value
 	gridStep[ 0 ] = 1; //sizeof(bspGridPoint_t);
 	gridStep[ 1 ] = tr.world->lightGridBounds[ 0 ]; // * sizeof(bspGridPoint_t);
 	gridStep[ 2 ] = tr.world->lightGridBounds[ 0 ] * tr.world->lightGridBounds[ 1 ]; // * sizeof(bspGridPoint_t);
-	gridPoint = tr.world->lightGridData + pos[ 0 ] * gridStep[ 0 ] + pos[ 1 ] * gridStep[ 1 ] + pos[ 2 ] * gridStep[ 2 ];
 
-	totalFactorAmbiant = 0;
-	totalFactorDirected = 0;
-
-	for ( i = 0; i < 8; i++ )
+	totalFactor = 0;
+	for (i = 0; i < 3; i++)
 	{
-		factor = 1.0;
+		xyzBounds[i] = tr.world->lightGridBounds[i] -1;
+		toPos[i] = pos[i]+1;
+	}
 
-		gridPoint2 = gridPoint;
+	//fix out of bounds lightgrid NAN
+	for (x = pos[0]; x <= toPos[0]; x++)
+	{
+		if (x < 0 || x > xyzBounds[0])
+			continue; //out of bounds
 
-		for ( j = 0; j < 3; j++ )
+		for (y = pos[1]; y <= toPos[1]; y++)
 		{
-			if ( i & ( 1 << j ) )
+			if (y < 0 || y > xyzBounds[1])
+				continue; //out of bounds
+
+			for (z = pos[2]; z <= toPos[2]; z++)
 			{
-				factor *= frac[ j ];
-				gridPoint2 += gridStep[ j ];
+				if (z < 0 || z > xyzBounds[2])
+					continue; //out of bounds
+
+				gridPoint = tr.world->lightGridData + x * gridStep[0] + y * gridStep[1] + z * gridStep[2];
+
+				if ( VectorCompare(gridPoint->ambientColor, vec3_origin))
+					continue; //sample in wall?
+
+				factor = 1;
+
+				if (x == toPos[0])
+					factor *= frac[0];
+				else
+					factor *= (1.0f - frac[0]);
+
+				if ( y == toPos[1])
+					factor *= frac[1];
+				else
+					factor *= (1.0f - frac[1]);
+
+				if ( z == toPos[2])
+					factor *= frac[2];
+				else
+					factor *= (1.0f - frac[2]);
+
+				totalFactor += factor;
+
+				for (i = 0; i < 3; i++)
+				{
+					ent->ambientLight[i] += factor * gridPoint->ambientColor[i];
+					ent->directedLight[i] += factor * gridPoint->directedColor[i];
+				}
+				VectorMA(direction, factor, gridPoint->direction, direction);
 			}
-			else
-			{
-				factor *= ( 1.0f - frac[ j ] );
-			}
-		}
-
-		if (VectorCompare(gridPoint2->ambientColor, vec3_origin) == 0)
-		{
-			totalFactorAmbiant += factor;
-			ent->ambientLight[ 0 ] += factor * gridPoint2->ambientColor[ 0 ];
-			ent->ambientLight[ 1 ] += factor * gridPoint2->ambientColor[ 1 ];
-			ent->ambientLight[ 2 ] += factor * gridPoint2->ambientColor[ 2 ];
-			VectorMA( direction, factor, gridPoint2->direction, direction );
-		}
-
-		//hypov8 add. seperate value. ambientColor can be black
-		if ( VectorCompare(gridPoint2->directedColor, vec3_origin) == 0 )
-		{
-			totalFactorDirected += factor;
-			ent->directedLight[ 0 ] += factor * gridPoint2->directedColor[ 0 ];
-			ent->directedLight[ 1 ] += factor * gridPoint2->directedColor[ 1 ];
-			ent->directedLight[ 2 ] += factor * gridPoint2->directedColor[ 2 ];
 		}
 	}
 
-#if 1
-	if ( totalFactorAmbiant > 0 && totalFactorAmbiant < 0.99 )
+
+	if ( totalFactor > 0 && totalFactor < 0.99 )
 	{
-		totalFactorAmbiant = 1.0f / totalFactorAmbiant;
-		VectorScale( ent->ambientLight, totalFactorAmbiant, ent->ambientLight );
+		totalFactor = 1.0f / totalFactor;
+		VectorScale( ent->ambientLight, totalFactor, ent->ambientLight );
+		VectorScale( ent->directedLight, totalFactor, ent->directedLight );
 	}
-
-	//hypov8 add: seperate value. ambientColor can be black
-	if ( totalFactorDirected > 0 && totalFactorDirected < 0.99 )
-	{
-		totalFactorDirected = 1.0f / totalFactorDirected;
-		VectorScale( ent->directedLight, totalFactorDirected, ent->directedLight );
-	}
-#endif
 
 	VectorNormalize2( direction, ent->lightDir );
-
-	forceAmbiantLight(ent->ambientLight, r_forceAmbient->value);
+	
+	if (VectorCompare(ent->ambientLight, vec3_origin))
+	{
+		R_FallbackLight(ent->ambientLight, ent->directedLight, ent->lightDir);
+	}
+	else
+	{
+		forceAmbiantLight(ent->ambientLight, r_forceAmbient->value);
 #if 1 //hypov8 adjust both light values?
-	forceAmbiantLight(ent->directedLight, r_forceAmbient->value);
+		forceAmbiantLight(ent->directedLight, r_forceAmbient->value);
 #endif
+	}
+	//fix amb/light ratios
+	{
+
+
+	}
 
 //----(SA)  added
 	// cheats?  check for single player?
@@ -326,9 +346,17 @@ static void LogLight( trRefEntity_t *ent )
 
 #endif
 
+/*
+===============
+R_FallbackLight
+
+used when missing lightgrid or black point
+also used in menu's etc..
+===============
+*/
 void R_FallbackLight(vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir)
 {
-    ambientLight[ 0 ] = tr.identityLight * ( 64.0f / 255.0f ); //player menu (missing lightgrid)
+    ambientLight[ 0 ] = tr.identityLight * ( 64.0f / 255.0f );
     ambientLight[ 1 ] = tr.identityLight * ( 64.0f / 255.0f );
     ambientLight[ 2 ] = tr.identityLight * ( 96.0f / 255.0f );
 
@@ -391,61 +419,17 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent, vec3_t
   }
   else
   {
-#if 0
-
-    if ( !( refdef->rdflags & RDF_NOWORLDMODEL ) )
-    {
-      ent->ambientLight[ 0 ] = tr.worldEntity.ambientLight[ 0 ];
-      ent->ambientLight[ 1 ] = tr.worldEntity.ambientLight[ 1 ];
-      ent->ambientLight[ 2 ] = tr.worldEntity.ambientLight[ 2 ];
-    }
-    else
-    {
-      ent->ambientLight[ 0 ] = r_forceAmbient->value;
-      ent->ambientLight[ 1 ] = r_forceAmbient->value;
-      ent->ambientLight[ 2 ] = r_forceAmbient->value;
-    }
-
-    ent->directedLight[ 0 ] = ent->directedLight[ 1 ] = ent->directedLight[ 2 ] = tr.identityLight * ( 150.0f / 255.0f );
-
-    if ( ent->e.renderfx & RF_LIGHTING_ORIGIN )
-    {
-      VectorSubtract( ent->e.lightingOrigin, ent->e.origin, ent->lightDir );
-      VectorNormalize( ent->lightDir );
-    }
-    else
-    {
-      VectorCopy( tr.sunDirection, ent->lightDir );
-    }
-
-#else
-    //% ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = tr.identityLight * 150;
-    //% ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
-    //% VectorCopy( tr.sunDirection, ent->lightDir );
-
+    //menu system, etc
     R_FallbackLight(ent->ambientLight, ent->directedLight, ent->lightDir);
-
-#endif
   }
 
-#if 1
-
-  if ( ent->e.hilightIntensity )
-  {
-    // level of intensity was set because the item was looked at
-    ent->ambientLight[ 0 ] += tr.identityLight * 0.5f * ent->e.hilightIntensity;
-    ent->ambientLight[ 1 ] += tr.identityLight * 0.5f * ent->e.hilightIntensity;
-    ent->ambientLight[ 2 ] += tr.identityLight * 0.5f * ent->e.hilightIntensity;
-  }
-  else if ( ( ent->e.renderfx & RF_MINLIGHT ) ) // && VectorLength(ent->ambientLight) <= 0)
+  if ( ( ent->e.renderfx & RF_MINLIGHT ) ) // && VectorLength(ent->ambientLight) <= 0)
   {
     // give everything a minimum light add
     ent->ambientLight[ 0 ] += tr.identityLight * 0.125f;
     ent->ambientLight[ 1 ] += tr.identityLight * 0.125f;
     ent->ambientLight[ 2 ] += tr.identityLight * 0.125f;
   }
-
-#endif
 
 #if 0
 
@@ -469,16 +453,6 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent, vec3_t
 
 #endif
 
-  // Tr3B: keep it in world space
-
-  // transform the direction to local space
-  //% d = VectorLength(ent->directedLight);
-  //% VectorScale(ent->lightDir, d, lightDir);
-  //% VectorNormalize(lightDir);
-
-  //% ent->lightDir[0] = DotProduct(lightDir, ent->e.axis[0]);
-  //% ent->lightDir[1] = DotProduct(lightDir, ent->e.axis[1]);
-  //% ent->lightDir[2] = DotProduct(lightDir, ent->e.axis[2]);
 }
 
 /*

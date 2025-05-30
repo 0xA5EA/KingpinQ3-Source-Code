@@ -3961,7 +3961,7 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down)
       return qtrue; //event handled
     }
 
-    return qfalse; //revert to menu event
+    return qfalse; //revert to menu event(esc key fix)
   }
   else
   {

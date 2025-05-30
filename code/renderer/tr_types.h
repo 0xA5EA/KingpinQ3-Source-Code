@@ -229,8 +229,6 @@ typedef struct
 	// Ridah, entity fading (gibs, debris, etc)
 	int   fadeStartTime, fadeEndTime;
 
-	float hilightIntensity; //----(SA)  added
-
 	int   reFlags;
 
 	int   entityNum; // currentState.number, so we can attach rendering effects to specific entities (Zombie)

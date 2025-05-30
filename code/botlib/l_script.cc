@@ -1121,7 +1121,7 @@ void StripDoubleQuotes(char *string)
 {
   if (*string == '\"')
   {
-    char buff [256] = { 0 };
+    char buff [MAX_TOKEN] = { 0 }; //was 256. crashing with compile string in worldspawn
     qstrcpy(buff, string);
     qstrcpy(string, buff+1);
     //FIXME(0xA5EA): optimies
@@ -1141,7 +1141,7 @@ void StripSingleQuotes(char *string)
 {
 	if (*string == '\'')
 	{
-    char buff [256] = { 0 };
+    char buff [MAX_TOKEN] = { 0 }; //was 256
     qstrcpy(buff, string);
 		qstrcpy(string, buff+1);
 	}

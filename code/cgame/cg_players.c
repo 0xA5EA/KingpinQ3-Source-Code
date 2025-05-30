@@ -1324,7 +1324,7 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
     {
       // skip initial / invalid blending
       lf->blendlerp = 0.0f;
-      CG_Printf("player anim: %i(skiped lerp)\n", newAnimation);
+      //CG_Printf("player anim: %i(skiped lerp)\n", newAnimation);
       return;
     }
 

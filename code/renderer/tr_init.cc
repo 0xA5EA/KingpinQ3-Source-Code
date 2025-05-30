@@ -1589,7 +1589,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		r_parallaxDepthScale = ri.Cvar_Get( "r_parallaxDepthScale", "0.03", CVAR_CHEAT );
 
 		r_wrapAroundLighting = ri.Cvar_Get( "r_wrapAroundLighting", "0.7", CVAR_CHEAT | CVAR_SHADER | CVAR_LATCH );
-		r_halfLambertLighting = ri.Cvar_Get( "r_halfLambertLighting", "1", /*CVAR_CHEAT |*/ CVAR_SHADER | CVAR_LATCH ); //hypov8 disable cheat. reverts back to r_wrapAroundLighting
+		r_halfLambertLighting = ri.Cvar_Get( "r_halfLambertLighting", "1", CVAR_CHEAT | CVAR_SHADER | CVAR_LATCH );
 		r_rimLighting = ri.Cvar_Get( "r_rimLighting", "0", CVAR_ARCHIVE | CVAR_SHADER | CVAR_LATCH );
 		r_rimExponent = ri.Cvar_Get( "r_rimExponent", "3", CVAR_CHEAT | CVAR_LATCH );
 		AssertCvarRange( r_rimExponent, 0.5, 8.0, qfalse );

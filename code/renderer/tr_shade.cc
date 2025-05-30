@@ -814,10 +814,7 @@ static void Render_vertexLighting_DBS_entity( int stage )
 				}
 
 				float interpolate = cubeProbeNearestDistance / ( cubeProbeNearestDistance + cubeProbeSecondNearestDistance );
-#ifdef COMPAT_KPQ3
-				if (interpolate >= 1.0f)
-					interpolate = 0.99f; //1.0 is pbr
-#endif
+
 				if ( r_logFile->integer )
 				{
 					GLimp_LogComment( va( "cubeProbeNearestDistance = %f, cubeProbeSecondNearestDistance = %f, interpolation = %f\n",
