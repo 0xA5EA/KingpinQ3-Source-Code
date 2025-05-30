@@ -4079,6 +4079,7 @@ static void UI_Update(const char *name)
     else
       trap_Cvar_SetValue("m_pitch", -0.022f);
   }
+#if 0
   else if (!Q_stricmp(name, "uix_r_normalMapping"))
   {
     int tmpn, tmpp;
@@ -4097,6 +4098,7 @@ static void UI_Update(const char *name)
     if ( tmpn == 0 && tmpp != 0)
       trap_Cvar_SetValue("uix_r_normalMapping", 1);
   }
+#endif
   else if (Q_stricmp(name, "uix_r_mode") == 0)
   {
     trap_Cvar_SetValue("uix_r_recompileShaders", 1); //add hypov8
