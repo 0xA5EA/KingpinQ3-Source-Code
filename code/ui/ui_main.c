@@ -7497,7 +7497,7 @@ static cvarTable_t cvarTable[] = {
   {&ui_nikkiTeam3, "ui_nikkiTeam3", "0", CVAR_ARCHIVE},
   {&ui_nikkiTeam4, "ui_nikkiTeam4", "0", CVAR_ARCHIVE},
   {&ui_nikkiTeam5, "ui_nikkiTeam5", "0", CVAR_ARCHIVE},
-  { &ui_netSource, "ui_netSource", "1", CVAR_ARCHIVE }, //hypov8 default: 1 = master0
+  { &ui_netSource, "ui_netSource", "2", CVAR_ARCHIVE }, //hypov8 0=fav, 1=local, 2=internet
   {&ui_menuFiles, "ui_menuFiles", "ui/menus.txt", CVAR_ARCHIVE},
   {&ui_currentTier, "ui_currentTier", "0", CVAR_ARCHIVE},
   {&ui_currentMap, "ui_currentMap", "0", CVAR_ARCHIVE},

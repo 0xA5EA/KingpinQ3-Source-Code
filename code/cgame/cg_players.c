@@ -3467,7 +3467,8 @@ void CG_Player(centity_t * cent)
     }
     
     // add step offset
-    CG_StepOffsetPlayer(body.origin); //hypov8 add
+    if (clientNum == cg.clientNum)
+      CG_StepOffsetPlayer(body.origin); //hypov8 add
 
     VectorCopy(body.origin, body.lightingOrigin);
     VectorCopy(body.origin, body.oldorigin); // don't positionally lerp at all
