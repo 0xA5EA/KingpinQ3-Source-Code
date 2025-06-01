@@ -115,14 +115,18 @@ vec2 pbrViewTo2d(vec3 vDir)
 }
 /////////// end pbr ////////////
 
+
 //light angle/falloff modes.
 float smooth_NdotL(float NdotL)
 {
 	// compute the light term
 	#if defined(r_HalfLambertLighting)
 		// http://developer.valvesoftware.com/wiki/Half_Lambert
-		NdotL = NdotL * 0.5 + 0.5;
-		NdotL *= NdotL;
+		//NdotL = NdotL * 0.5 + 0.5; //change range (-1.0 <> 1.0) to (0.0 <> 1.0)
+		//NdotL *= NdotL; //darkens values...
+
+		//above is causing player to be darker than it should be. below adds some slight negative light value
+		NdotL = ((NdotL+0.625) * 0.616); //change range (-1.0 <> 1.0) to (-0.23 <> 1.00)
 	#elif defined(r_WrapAroundLighting)
 		NdotL = clamp((NdotL + r_WrapAroundLighting) / (1.0 + r_WrapAroundLighting), 0.0, 1.0);
 	#else
@@ -130,6 +134,19 @@ float smooth_NdotL(float NdotL)
 	#endif
 
 	return NdotL;
+}
+
+vec3 colorTint(vec3 diffuse, vec3 lightIn)
+{
+	//add "color" if its not gray
+	float intensity = (diffuse.r+diffuse.g+diffuse.b) / 3;
+	vec3 lightOut = normalize(lightIn)*intensity;
+	float diff1 = (lightOut.r+lightOut.g+lightOut.b)/3;
+	float diff2 = max(lightOut.r, max(lightOut.g, lightOut.b));
+	if (diff2 > 0.0)
+		return mix(diffuse, lightOut, 1-pow(diff1/diff2, 5));
+	else
+		return diffuse; //black
 }
 
 
@@ -142,6 +159,11 @@ void main()
 	vec3 vDir = normalize(u_ViewOrigin - var_Position);
 
 	vec2 texDiffuse = var_TexDiffuse.st;
+
+	//rebuild ambient/light values (todo: move to client..)
+	float ambientScale = 2* clamp((u_AmbientColor.r + u_AmbientColor.g+ u_AmbientColor.b) / 3.0, 0.0, 0.25);
+	vec3 ambientColor = normalize(u_LightColor) * ambientScale;
+	vec3 lightColor = u_LightColor * (1.5 - ambientScale);
 
 	//set min light value. (RF_MINLIGHT)
 	vec3 lightComp = max(u_AmbientColor, u_LightColor);
@@ -181,10 +203,14 @@ void main()
 		texNormal.st += texOffset;
 		texSpecular.st += texOffset;
 		texGlow.st += texOffset;
+		//texCoords += texOffset; //todo: merge texCoords
 	#endif // USE_PARALLAX_MAPPING
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
+
+	// Apply vertex blend operation like: alphaGen vertex.
+	//diffuse *= var_Color; //todo: blend modes
 
 	if( abs(diffuse.a + u_AlphaThreshold) <= 1.0 )
 	{
@@ -205,11 +231,13 @@ void main()
 	vec3 H = normalize(L + vDir);
 
 	// compute the light term
-	float NdotL = clamp( dot(N, L), 0.0, 1.0);
+	float NdotL = dot(N, L);
+	float NdotL_90deg = clamp( NdotL, 0.0, 1.0);
 	float NdotL_Smooth = smooth_NdotL(NdotL);
 
+
 	//hypov8 cull low angle reflection
-	float specCullBackFace = clamp(NdotL * 50, 0.0, 1.0);
+	float specCullBackFace = clamp(NdotL_90deg * 50, 0.0, 1.0);
 
 	// compute the specular term
 	#if defined(USE_REFLECTIVE_SPECULAR) //|| defined(USE_PBR_SPECULAR) //force pbr?
@@ -251,7 +279,7 @@ void main()
 			//for(int i=0; i<NumLights; ++i)
 			{
 				//vec3 L = L;                  // -lights[i].direction;
-				vec3 Lradiance = u_LightColor; // lights[i].radiance;
+				vec3 Lradiance = lightColor; // lights[i].radiance;
 
 				// Half-vector between LiDir and vDir.
 				vec3 Lh = normalize(L + vDir);
@@ -265,7 +293,7 @@ void main()
 				// Calculate normal distribution for specular BRDF.
 				float D = ndfGGX(cosLh, roughTex);
 				// Calculate geometric attenuation for specular BRDF.
-				float G = gaSchlickGGX(NdotL, NdotV, roughTex);
+				float G = gaSchlickGGX(NdotL_90deg, NdotV, roughTex);
 
 				// Diffuse scattering happens due to light being refracted multiple times by a dielectric medium.
 				// Metals on the other hand either reflect or absorb energy, so diffuse contribution is always zero.
@@ -278,7 +306,7 @@ void main()
 				vec3 diffuseBRDF = kd * diffuseTex ;
 
 				// Cook-Torrance specular microfacet BRDF.
-				vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * NdotL * NdotV);
+				vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * NdotL_90deg * NdotV);
 
 				//hypov8 add AO
 				specularBRDF *= blendAO(aoTex, metalTex, roughTex);
@@ -293,7 +321,7 @@ void main()
 			vec3 ambientLighting;
 			{
 				vec2 vCords = pbrViewTo2d(reflectDir);
-				vec3 ambLightMix = mix(u_AmbientColor, u_LightColor, NdotL);
+				vec3 ambLightMix = mix(ambientColor, lightColor, NdotL_90deg);
 
 				// Sample diffuse irradiance at normal direction.
 				vec3 irradiance = (textureLod(u_SpecHDRI, vCords, mipCount*0.75).rgb);
@@ -317,8 +345,7 @@ void main()
 				vec3 specularIrradiance = textureLod(u_SpecHDRI, vCords, roughTex * mipCount).rgb;
 
 				//hypov8 add light color to cubemap/reflections
-				specularIrradiance *= (ambLightMix*vec3(0.5)) + vec3(0.5); //contribute 50%
-				specularIrradiance *= clamp(dot(N,L)+1.0, 0.0, 1.0); //add smooth shadow
+				specularIrradiance = colorTint(specularIrradiance, lightColor);
 
 				// Split-sum approximation factors for Cook-Torrance specular BRDF.
 				vec2 specularBRDF = texture(u_ColorMap, vec2(NdotV, roughTex)).rg; //specularBRDF_LUT
@@ -391,19 +418,21 @@ void main()
 	vec4 specBase = vec4(0.0);
 
 	// compute the light term
-	float NdotL = max(0.0, dot(N, L));
+	float NdotL = dot(N, L);
 
 #endif // !USE_NORMAL_MAPPING
 
+	float NdotL_smooth = smooth_NdotL(NdotL);
+
 	// compute final color
 	vec4 color = diffuse;
-	color.rgb *= lightComp * smooth_NdotL(NdotL);
+	color.rgb *= mix(ambientColor, ambientColor + lightColor, NdotL_smooth);
 	color.rgb += specBase.rgb;
 
 // add Rim Lighting to highlight the edges
 #if defined(r_RimLighting)
 	float rim = pow(1.0 - clamp(dot(N, vDir), 0.0, 1.0), r_RimExponent);
-	vec3 emission = u_AmbientColor * rim * rim * 0.2;
+	vec3 emission = ambientColor * rim * rim * 0.2;
 	color.rgb += 0.7 * emission;
 #endif
 #if defined(USE_GLOW_MAPPING)
@@ -423,9 +452,9 @@ void main()
 
 
 #if defined(r_showLightMaps)
-	vec4 slm_color = vec4(1.0); // diffuse;
-	slm_color.rgb *= lightComp * smooth_NdotL(NdotL);
-	slm_color.rgb += specBase.rgb;
+	vec4 slm_color = vec4(1.0);
+	slm_color.rgb *=  mix(ambientColor, ambientColor + lightColor, smooth_NdotL(NdotL));
+	//slm_color.rgb += specBase.rgb;
 	gl_FragColor = vec4(slm_color.rgb, 1.0);
 #elif defined(r_showDeluxeMaps)
 	vec3 dirToRGB = (var_Normal + 1.0) * 0.5;
